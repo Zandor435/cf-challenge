@@ -86,12 +86,12 @@ def team_win_prob_for_game(team, game, pregame_by_id, spread_by_id):
 
 def team_sim_inputs(team, games, pregame_by_id, spread_by_id):
     """
-    Return (locked_wins, [win_prob, ...]) for a team:
-    locked_wins from completed regular-season games, plus a win prob for each
-    remaining regular-season game.
+    Return (locked_wins, remaining) for a team:
+    locked_wins from completed regular-season games, plus a list describing each
+    remaining regular-season game: {opponent, week, home, win_prob}.
     """
     locked_wins = 0
-    remaining_wps = []
+    remaining = []
     for g in games:
         if g.get("season_type", "regular") != "regular":
             continue
@@ -100,19 +100,27 @@ def team_sim_inputs(team, games, pregame_by_id, spread_by_id):
         if team not in (home, away):
             continue
 
+        is_home = (team == home)
+        opponent = away if is_home else home
+
         if g.get("completed"):
             hp, ap = g.get("home_points"), g.get("away_points")
             if hp is None or ap is None:
                 continue
-            is_home = (team == home)
             ts = hp if is_home else ap
             os_ = ap if is_home else hp
             if ts > os_:
                 locked_wins += 1
         else:
-            remaining_wps.append(team_win_prob_for_game(team, g, pregame_by_id, spread_by_id))
+            remaining.append({
+                "opponent": opponent,
+                "week": g.get("week"),
+                "home": is_home,
+                "win_prob": round(team_win_prob_for_game(team, g, pregame_by_id, spread_by_id), 3),
+            })
 
-    return locked_wins, remaining_wps
+    remaining.sort(key=lambda r: (r["week"] is None, r["week"]))
+    return locked_wins, remaining
 
 
 def simulate_final_wins(locked_wins, remaining_wps, num_sims, rng):
@@ -153,8 +161,9 @@ def run_simulation(league_id, num_sims=NUM_SIMS, test=False, seed=None):
 
     def team_samples(team):
         if team not in team_cache:
-            locked, wps = team_sim_inputs(team, games, pregame_by_id, spread_by_id)
-            team_cache[team] = (locked, wps, simulate_final_wins(locked, wps, num_sims, rng))
+            locked, remaining = team_sim_inputs(team, games, pregame_by_id, spread_by_id)
+            wps = [r["win_prob"] for r in remaining]
+            team_cache[team] = (locked, remaining, simulate_final_wins(locked, wps, num_sims, rng))
         return team_cache[team]
 
     owner_meta = {o["id"]: o for o in owners}
@@ -169,7 +178,7 @@ def run_simulation(league_id, num_sims=NUM_SIMS, test=False, seed=None):
         score = np.zeros(num_sims)
         details = []
         for p in plist:
-            locked, wps, final_wins = team_samples(p["team"])
+            locked, remaining, final_wins = team_samples(p["team"])
             if p["side"] == "over":
                 delta = final_wins - p["line"]
             else:
@@ -181,7 +190,8 @@ def run_simulation(league_id, num_sims=NUM_SIMS, test=False, seed=None):
                 "side": p["side"],
                 "line": p["line"],
                 "current_wins": locked,
-                "games_remaining": len(wps),
+                "games_remaining": len(remaining),
+                "remaining_schedule": remaining,
                 "projected_final_wins": {
                     "p10": round(pct(final_wins, 10)),
                     "median": round(pct(final_wins, 50)),
