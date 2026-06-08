@@ -42,7 +42,8 @@ cd cfb-fantasy
 Edit each `leagues/<league>/config.json`:
 - Add owner names
 - Set league display name
-- Draft board gets filled after the draft
+- The `picks` array gets filled after the draft (4 picks per owner, each from a
+  different conference, with a side — `over`/`under` — and a win-total line)
 
 ### 3. Set GitHub Secrets
 - `CFB_API_KEY` — your CollegeFootballData.com API key (free tier)
@@ -57,12 +58,15 @@ python -m http.server 8000 --directory site
 ```
 
 ### 6. Test the pipeline
+Before the draft, run against `data/test_picks.json` with `--test`:
 ```bash
 python scripts/fetch_results.py
-python scripts/scoring.py --league league-1
-python scripts/scoring.py --league league-2
-python scripts/scoring.py --league league-3
+python scripts/scoring.py --league all --test
+python scripts/win_probability.py --league all --test
+python scripts/build_narrative_state.py --league all
 ```
+Drop `--test` once each league's `picks` array is filled in. See
+`docs/scoring-spec.md` for the full scoring/projection spec.
 
 ## TODO (Z fills these in)
 
@@ -71,7 +75,7 @@ python scripts/scoring.py --league league-3
 - [ ] Sign up at collegefootballdata.com for API key
 - [ ] OpenAI API key for commentary
 - [ ] Create GitHub repo and push this scaffold
-- [ ] Draft day: fill in draft_board in each league config
-- [ ] Team strength ratings (SP+ or FPI — pulled closer to season)
+- [ ] Draft day: fill in the `picks` array in each league config
+- [ ] Flip `SEASON` in `fetch_results.py` to 2026 once that season's data is live in CFBD
 - [ ] Owner bios / fun facts for bio pages
 - [ ] Owner portrait images (or use AI-generated)
