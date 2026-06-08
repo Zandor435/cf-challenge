@@ -2,7 +2,6 @@
   "league_id": "league-2",
   "display_name": "TODO: League Name",
   "owner_count": 5,
-  "teams_per_owner": 8,
   "season": "2026",
 
   "owners": [
@@ -13,19 +12,13 @@
     { "id": "owner-5", "name": "TODO", "short_name": "TODO", "bio_blurb": "" }
   ],
 
-  "draft_structure": {
-    "T1": { "count": 1, "label": "Blue Chip" },
-    "T2": { "count": 2, "label": "Contender" },
-    "T3": { "count": 2, "label": "Sleeper" },
-    "T4": { "count": 3, "label": "Wildcard" }
-  },
-
-  "draft_board": {
-    "_note": "Fill after draft day. Key = team name (canonical), value = { owner, tier }",
-    "example_team": { "owner": "owner-1", "tier": "T1" }
-  },
-
-  "scoring_overrides": {},
+  "picks": [
+    { "_note": "Fill after draft day. Each owner gets exactly 4 picks spanning 4 different conferences. side = 'over' | 'under'. line can be integer or half-point. If two owners pick the same team they must take opposite sides." },
+    { "owner": "owner-1", "team": "TODO Team A", "conference": "Big Ten", "side": "over",  "line": 0.0, "todo": true },
+    { "owner": "owner-1", "team": "TODO Team B", "conference": "SEC",     "side": "under", "line": 0.0, "todo": true },
+    { "owner": "owner-1", "team": "TODO Team C", "conference": "ACC",     "side": "over",  "line": 0.0, "todo": true },
+    { "owner": "owner-1", "team": "TODO Team D", "conference": "Big 12",  "side": "under", "line": 0.0, "todo": true }
+  ],
 
   "commentary": {
     "voice": "espn_parody",
