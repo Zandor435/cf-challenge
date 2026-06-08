@@ -1,0 +1,40 @@
+{
+  "league_id": "league-2",
+  "display_name": "TODO: League Name",
+  "owner_count": 5,
+  "teams_per_owner": 8,
+  "season": "2026",
+
+  "owners": [
+    { "id": "owner-1", "name": "TODO", "short_name": "TODO", "bio_blurb": "" },
+    { "id": "owner-2", "name": "TODO", "short_name": "TODO", "bio_blurb": "" },
+    { "id": "owner-3", "name": "TODO", "short_name": "TODO", "bio_blurb": "" },
+    { "id": "owner-4", "name": "TODO", "short_name": "TODO", "bio_blurb": "" },
+    { "id": "owner-5", "name": "TODO", "short_name": "TODO", "bio_blurb": "" }
+  ],
+
+  "draft_structure": {
+    "T1": { "count": 1, "label": "Blue Chip" },
+    "T2": { "count": 2, "label": "Contender" },
+    "T3": { "count": 2, "label": "Sleeper" },
+    "T4": { "count": 3, "label": "Wildcard" }
+  },
+
+  "draft_board": {
+    "_note": "Fill after draft day. Key = team name (canonical), value = { owner, tier }",
+    "example_team": { "owner": "owner-1", "tier": "T1" }
+  },
+
+  "scoring_overrides": {},
+
+  "commentary": {
+    "voice": "espn_parody",
+    "stateful_anchor": "Stephen A. Smith parody — daily hot takes, builds on previous takes",
+    "rotating_analysts": [
+      "Lee Corso parody — wild predictions, headgear picks",
+      "Kirk Herbstreit parody — measured analysis that gets heated",
+      "Pat McAfee parody — unhinged energy, punt references",
+      "College GameDay sign guy — signs only, no paragraphs"
+    ]
+  }
+}

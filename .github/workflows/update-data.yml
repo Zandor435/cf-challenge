@@ -1,0 +1,75 @@
+name: Weekly Data Update
+
+on:
+  schedule:
+    # Sunday 11 PM ET (Monday 3 AM UTC) — after Saturday games
+    - cron: "0 3 * * 1"
+  workflow_dispatch: {}  # Manual trigger for testing
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      CFB_API_KEY: ${{ secrets.CFB_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      # Season kickoff gate — set to first Saturday of season
+      # Pipeline will skip narrative/commentary generation before this date
+      KICKOFF_DATE: "2026-08-29"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install numpy
+
+      # ====== SHARED: Fetch results (runs once for all leagues) ======
+      - name: Fetch game results
+        run: python scripts/fetch_results.py --include-postseason
+
+      # ====== PER-LEAGUE: Scoring ======
+      - name: Score all leagues
+        run: python scripts/scoring.py --league all
+
+      # ====== PER-LEAGUE: Win probability ======
+      - name: Win probability (all leagues)
+        run: python scripts/win_probability.py --league all --skip-if-empty
+
+      # ====== KICKOFF GATE ======
+      - name: Check kickoff date
+        id: kickoff
+        run: |
+          if [[ "$(date +%Y-%m-%d)" < "$KICKOFF_DATE" ]]; then
+            echo "before_kickoff=true" >> $GITHUB_OUTPUT
+            echo "Season hasn't started yet — skipping narrative engine"
+          else
+            echo "before_kickoff=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ====== PER-LEAGUE: Narrative + Commentary (post-kickoff only) ======
+      - name: Build narrative state
+        if: steps.kickoff.outputs.before_kickoff == 'false'
+        run: python scripts/build_narrative_state.py --league all
+
+      - name: Generate commentary
+        if: steps.kickoff.outputs.before_kickoff == 'false'
+        run: python scripts/generate_commentary.py --league all
+        continue-on-error: true  # Don't block standings if GPT fails
+
+      # ====== DEPLOY ======
+      - name: Commit and push
+        run: |
+          git config user.name "CFB Fantasy Bot"
+          git config user.email "bot@cfb-fantasy.local"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update: $(date +%Y-%m-%d) weekly data refresh"
+            git push
+          fi

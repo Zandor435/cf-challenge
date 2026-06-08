@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams — CFB Fantasy HQ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="ticker">
+    <div class="ticker-label">🏈 CFB Fantasy</div>
+    <div class="ticker-track"><span class="ticker-item">Full Team Reference</span></div>
+</div>
+
+<nav class="nav">
+    <div class="nav-brand">CFB Fantasy <span>HQ</span></div>
+    <div class="league-switcher" id="league-switcher"></div>
+    <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="analytics.html">Analytics</a></li>
+        <li><a href="bios.html">Bios</a></li>
+        <li><a href="teams.html" class="active">Teams</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<div class="page-wrapper" style="flex-direction: column; max-width: 900px;">
+
+    <div class="section-header">All Drafted Teams</div>
+    <div id="teams-table">
+        <div class="loading"><div class="loading-spinner"></div> Loading teams...</div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-brand">CFB Fantasy HQ</div>
+        <p>Data sourced from collegefootballdata.com</p>
+    </div>
+</div>
+
+<script src="nav.js"></script>
+<script>
+async function loadTeams() {
+    const leagueId = getCurrentLeague();
+    const data = await fetchJSON(getDataPath('team_table.json'));
+    const standings = await fetchJSON(getDataPath('owner_standings.json'));
+    const container = document.getElementById('teams-table');
+    if (!container) return;
+
+    const teams = data?.teams || [];
+    const owners = standings?.owners || [];
+    const ownerNames = {};
+    owners.forEach(o => { ownerNames[o.id] = o.name || o.id; });
+
+    if (!teams.length) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <h2>🏟️ Draft Board Empty</h2>
+                <p>Teams will appear here after draft day.<br>
+                Fill in the draft_board in your league config to see them.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="card" style="overflow-x: auto; padding: 0;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--accent-red); text-align:left; background: var(--bg-elevated);">
+                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase;">#</th>
+                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase;">Team</th>
+                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase;">Tier</th>
+                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase;">Owner</th>
+                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase; text-align:right;">Pts</th>
+                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase; text-align:right;">Record</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${teams.map((t, i) => `
+                        <tr style="border-bottom: 1px solid var(--border-subtle);">
+                            <td style="padding:8px 16px; color:var(--text-muted);">${i + 1}</td>
+                            <td style="padding:8px 16px; font-weight:600;">${t.team}</td>
+                            <td style="padding:8px 16px;"><span class="tier-badge ${(t.tier || '').toLowerCase()}">${t.tier}</span></td>
+                            <td style="padding:8px 16px; color:var(--text-secondary);">${ownerNames[t.owner] || t.owner}</td>
+                            <td style="padding:8px 16px; text-align:right; font-family:var(--font-mono); font-weight:600;">${t.points || 0}</td>
+                            <td style="padding:8px 16px; text-align:right; font-family:var(--font-mono); color:var(--text-muted);">${t.record || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+document.addEventListener('DOMContentLoaded', loadTeams);
+window.addEventListener('league-changed', loadTeams);
+</script>
+</body>
+</html>

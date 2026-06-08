@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics — CFB Fantasy HQ</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+
+<div class="ticker">
+    <div class="ticker-label">🏈 CFB Fantasy</div>
+    <div class="ticker-track" id="ticker-track">
+        <span class="ticker-item">Analytics Dashboard</span>
+    </div>
+</div>
+
+<nav class="nav">
+    <div class="nav-brand">CFB Fantasy <span>HQ</span></div>
+    <div class="league-switcher" id="league-switcher"></div>
+    <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="analytics.html" class="active">Analytics</a></li>
+        <li><a href="bios.html">Bios</a></li>
+        <li><a href="teams.html">Teams</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<div class="page-wrapper" style="flex-direction: column; max-width: 960px;">
+
+    <!-- Win Probability -->
+    <div class="section-header">The Scoreboard <span class="badge">Win Prob</span></div>
+    <div class="chart-container">
+        <canvas id="win-prob-chart"></canvas>
+    </div>
+    <div id="win-prob-table"></div>
+
+    <!-- Draft Report Card -->
+    <div class="section-header" style="margin-top: 32px;">Draft Report Card</div>
+    <div id="draft-report"></div>
+
+    <!-- Dependency Index -->
+    <div class="section-header" style="margin-top: 32px;">T1 Dependency Index</div>
+    <div class="chart-container">
+        <canvas id="dependency-chart"></canvas>
+    </div>
+
+    <!-- Points by Tier -->
+    <div class="section-header" style="margin-top: 32px;">Points by Tier</div>
+    <div class="chart-container">
+        <canvas id="tier-chart"></canvas>
+    </div>
+
+    <div class="footer">
+        <div class="footer-brand">CFB Fantasy HQ — Analytics</div>
+        <p>All models are wrong. Some are useful.</p>
+    </div>
+</div>
+
+<script src="nav.js"></script>
+<script src="analytics.js"></script>
+</body>
+</html>

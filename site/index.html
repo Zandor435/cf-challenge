@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CFB Fantasy HQ</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+
+<!-- Ticker -->
+<div class="ticker">
+    <div class="ticker-label">🏈 CFB Fantasy</div>
+    <div class="ticker-track" id="ticker-track">
+        <span class="ticker-item">Loading scores...</span>
+    </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+    <div class="nav-brand">CFB Fantasy <span>HQ</span></div>
+
+    <div class="league-switcher" id="league-switcher"></div>
+
+    <ul class="nav-links" id="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="analytics.html">Analytics</a></li>
+        <li><a href="bios.html">Bios</a></li>
+        <li><a href="teams.html">Teams</a></li>
+    </ul>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<!-- Mobile leaderboard (horizontal scroll bar) -->
+<div class="mobile-leaderboard" id="mobile-leaderboard"></div>
+
+<!-- Page Layout -->
+<div class="page-wrapper">
+
+    <!-- Main Column -->
+    <div class="main-col">
+
+        <!-- Owner Portfolios -->
+        <div class="section-header">
+            My Teams <span class="badge">Live</span>
+        </div>
+        <div class="portfolio-grid" id="portfolio-grid">
+            <div class="loading"><div class="loading-spinner"></div> Loading portfolios...</div>
+        </div>
+
+        <!-- Anchor Commentary (Stephen A.) -->
+        <div class="section-header">
+            The Hot Take <span class="badge">Weekly</span>
+        </div>
+        <div id="anchor-commentary">
+            <div class="loading"><div class="loading-spinner"></div> Loading commentary...</div>
+        </div>
+
+        <!-- Rotating Analyst -->
+        <div class="section-header">
+            Analyst Desk
+        </div>
+        <div id="analyst-commentary">
+            <div class="loading"><div class="loading-spinner"></div></div>
+        </div>
+
+        <!-- Latest Results -->
+        <div class="section-header">
+            Latest Results
+        </div>
+        <div class="results-grid" id="results-grid">
+            <div class="loading"><div class="loading-spinner"></div> Loading results...</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-brand">CFB Fantasy HQ</div>
+            <p>Not affiliated with ESPN, ABC, or Disney. This is a parody for entertainment purposes only.</p>
+            <p>Powered by collegefootballdata.com · Hosted on GitHub Pages</p>
+        </div>
+
+    </div>
+
+    <!-- Sidebar (desktop) -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-card">
+            <div class="sidebar-header">Standings</div>
+            <div id="sidebar-leaderboard">
+                <div class="loading"><div class="loading-spinner"></div></div>
+            </div>
+        </div>
+    </aside>
+
+</div>
+
+<script src="nav.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
