@@ -1,19 +1,207 @@
 /**
  * app.js — Main page renderer.
- * Loads standings, portfolios, commentary, results for the active league.
+ * Two-number scoreboard (current + projected), per-pick detail with schedule
+ * lookahead, commentary, and latest results for the active league.
  */
 
-// --- Render functions ---
+// --- Helpers ---
 
-function renderLeaderboard(standings) {
-    const container = document.getElementById('sidebar-leaderboard');
-    const mobileContainer = document.getElementById('mobile-leaderboard');
-    if (!container) return;
+function fmtSigned(n) {
+    if (n === null || n === undefined) return '—';
+    const r = Math.round(n * 10) / 10;
+    return (r > 0 ? '+' : '') + r.toFixed(1);
+}
 
-    const owners = standings?.owners || [];
+function deltaClass(n) {
+    if (n === null || n === undefined) return 'neutral';
+    if (n > 0) return 'pos';
+    if (n < 0) return 'neg';
+    return 'neutral';
+}
+
+// Win-probability → color (red = tough, green = likely win).
+function probColor(p) {
+    const t = Math.max(0, Math.min(1, p));
+    const hue = Math.round(t * 120); // 0 = red, 120 = green
+    return `hsl(${hue}, 65%, 42%)`;
+}
+
+/**
+ * Merge current standings with projections into one owner list, keyed by id.
+ * Each pick combines current record (standings) + projected detail (projections).
+ */
+function mergeOwners(standings, projections) {
+    const projOwners = {};
+    (projections?.owners || []).forEach(o => { projOwners[o.id] = o; });
+    const stdOwners = {};
+    (standings?.owners || []).forEach(o => { stdOwners[o.id] = o; });
+
+    const ids = [...new Set([...Object.keys(stdOwners), ...Object.keys(projOwners)])];
+
+    const merged = ids.map(id => {
+        const s = stdOwners[id] || {};
+        const p = projOwners[id] || {};
+        const projPickByTeam = {};
+        (p.picks || []).forEach(pk => { projPickByTeam[pk.team] = pk; });
+
+        const picks = (s.picks || []).map(sp => {
+            const pp = projPickByTeam[sp.team] || {};
+            return { ...sp, ...pp };
+        });
+        // If standings has no picks but projections do, fall back to projection picks.
+        const finalPicks = picks.length ? picks : (p.picks || []);
+
+        return {
+            id,
+            name: s.name || p.name || id,
+            short_name: s.short_name || s.name || p.name || id,
+            current_score: s.current_score ?? p.current_score ?? 0,
+            win_probability: p.win_probability ?? null,
+            projected: p.projected_final_score || null,
+            picks: finalPicks,
+        };
+    });
+
+    // Sort by win probability when we have projections, else by current score.
+    const hasProj = (projections?.owners || []).length > 0;
+    merged.sort((a, b) => hasProj
+        ? (b.win_probability ?? -1) - (a.win_probability ?? -1)
+        : b.current_score - a.current_score);
+    merged.forEach((o, i) => { o.rank = i + 1; });
+    return merged;
+}
+
+// Shared p10..p90 domain for the projection range bars.
+function projectionDomain(owners) {
+    const vals = [];
+    owners.forEach(o => {
+        if (o.projected) { vals.push(o.projected.p10, o.projected.p90); }
+        vals.push(o.current_score);
+    });
+    if (!vals.length) return { min: -10, max: 10 };
+    let min = Math.min(...vals), max = Math.max(...vals);
+    if (min === max) { min -= 1; max += 1; }
+    const pad = (max - min) * 0.08;
+    return { min: min - pad, max: max + pad };
+}
+
+function rangeBar(proj, current, domain) {
+    if (!proj) return '';
+    const span = domain.max - domain.min;
+    const pos = v => `${((v - domain.min) / span) * 100}%`;
+    const left = pos(proj.p10);
+    const width = `${((proj.p90 - proj.p10) / span) * 100}%`;
+    return `
+        <div class="range-bar" title="p10 ${fmtSigned(proj.p10)} · median ${fmtSigned(proj.median)} · p90 ${fmtSigned(proj.p90)}">
+            <div class="range-fill" style="left:${left}; width:${width};"></div>
+            <div class="range-median" style="left:${pos(proj.median)};"></div>
+            <div class="range-current" style="left:${pos(current)};"></div>
+        </div>`;
+}
+
+// --- Render: Scoreboard ---
+
+function renderScoreboard(owners) {
+    const grid = document.getElementById('scoreboard-grid');
+    if (!grid) return;
 
     if (!owners.length) {
-        container.innerHTML = `
+        grid.innerHTML = `
+            <div class="empty-state">
+                <h2>🏈 Draft Day Pending</h2>
+                <p>The scoreboard appears once picks are in and the season is underway.</p>
+            </div>`;
+        return;
+    }
+
+    const domain = projectionDomain(owners);
+
+    grid.innerHTML = owners.map(o => {
+        const proj = o.projected;
+        const winPct = o.win_probability != null ? `${(o.win_probability * 100).toFixed(0)}%` : '—';
+
+        return `
+        <div class="score-card ${o.rank === 1 ? 'leader' : ''}">
+            <div class="score-head">
+                <span class="score-rank">#${o.rank}</span>
+                <span class="score-name">${o.name}</span>
+                <span class="score-winpct" title="Chance of finishing first">${winPct}</span>
+            </div>
+
+            <div class="score-numbers">
+                <div class="score-num">
+                    <div class="score-num-label">Current</div>
+                    <div class="score-num-val ${deltaClass(o.current_score)}">${fmtSigned(o.current_score)}</div>
+                </div>
+                <div class="score-num">
+                    <div class="score-num-label">Projected</div>
+                    <div class="score-num-val ${deltaClass(proj?.median)}">${proj ? fmtSigned(proj.median) : '—'}</div>
+                </div>
+            </div>
+            ${rangeBar(proj, o.current_score, domain)}
+
+            <div class="picks">
+                ${o.picks.map(renderPick).join('')}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderPick(pk) {
+    const side = (pk.side || '').toUpperCase();
+    const lineStr = Number.isInteger(pk.line) ? pk.line : pk.line;
+    const record = `${pk.current_wins ?? 0}-${pk.current_losses ?? 0}`;
+    const projWins = pk.projected_final_wins;
+    const projDelta = pk.projected_delta;
+    const sched = pk.remaining_schedule || [];
+
+    const schedHtml = sched.length ? `
+        <div class="sched-strip">
+            ${sched.map(g => `
+                <span class="sched-dot" style="background:${probColor(g.win_prob)}"
+                      title="${g.home ? 'vs' : '@'} ${g.opponent} · ${(g.win_prob * 100).toFixed(0)}% win (wk ${g.week ?? '?'})"></span>
+            `).join('')}
+        </div>` : `<div class="sched-strip none">no games left</div>`;
+
+    return `
+        <div class="pick-row">
+            <div class="pick-main">
+                <div class="pick-team">
+                    <span class="ou-badge ${pk.side}">${side} ${lineStr}</span>
+                    <span class="pick-name">${pk.team}</span>
+                    <span class="pick-conf">${pk.conference || ''}</span>
+                </div>
+                <div class="pick-meta">
+                    <span class="pick-record">${record}</span>
+                    <span class="pick-gr">${pk.games_remaining ?? 0} left</span>
+                </div>
+            </div>
+            <div class="pick-stats">
+                <div class="pick-stat">
+                    <span class="pick-stat-label">Now</span>
+                    <span class="chip ${deltaClass(pk.current_delta)}">${fmtSigned(pk.current_delta)}</span>
+                </div>
+                <div class="pick-stat">
+                    <span class="pick-stat-label">Proj wins</span>
+                    <span class="pick-stat-val">${projWins ? `${projWins.median} (${projWins.p10}–${projWins.p90})` : '—'}</span>
+                </div>
+                <div class="pick-stat">
+                    <span class="pick-stat-label">Proj Δ</span>
+                    <span class="chip ${deltaClass(projDelta?.median)}">${projDelta ? fmtSigned(projDelta.median) : '—'}</span>
+                </div>
+            </div>
+            ${schedHtml}
+        </div>`;
+}
+
+// --- Render: Sidebar leaderboard ---
+
+function renderLeaderboard(owners) {
+    const container = document.getElementById('sidebar-leaderboard');
+    const mobileContainer = document.getElementById('mobile-leaderboard');
+
+    if (!owners.length) {
+        if (container) container.innerHTML = `
             <div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
                 No standings yet.<br>Draft day is coming.
             </div>`;
@@ -21,77 +209,53 @@ function renderLeaderboard(standings) {
         return;
     }
 
-    // Desktop sidebar
-    container.innerHTML = owners.map((o, i) => `
-        <div class="lb-row ${i === 0 ? 'first-place' : ''}">
-            <div class="lb-rank">${o.rank || i + 1}</div>
-            <img class="lb-portrait" src="assets/portraits/${o.id || 'default'}.png"
-                 onerror="this.style.display='none'" alt="">
-            <div class="lb-info">
-                <div class="lb-name">${o.name || o.id}</div>
-                <div class="lb-meta">${o.teams?.length || 0} teams</div>
-            </div>
-            <div class="lb-stats">
-                <div class="lb-points">${o.total_points || 0}</div>
-                <div class="lb-winpct"></div>
-            </div>
-        </div>
-    `).join('');
+    if (container) {
+        container.innerHTML = owners.map(o => {
+            const winPct = o.win_probability != null ? `${(o.win_probability * 100).toFixed(0)}%` : '';
+            const proj = o.projected ? fmtSigned(o.projected.median) : '—';
+            return `
+            <div class="lb-row ${o.rank === 1 ? 'first-place' : ''}">
+                <div class="lb-rank">${o.rank}</div>
+                <img class="lb-portrait" src="assets/portraits/${o.id || 'default'}.png"
+                     onerror="this.style.display='none'" alt="">
+                <div class="lb-info">
+                    <div class="lb-name">${o.name}</div>
+                    <div class="lb-meta">cur ${fmtSigned(o.current_score)} · proj ${proj}</div>
+                </div>
+                <div class="lb-stats">
+                    <div class="lb-points">${winPct}</div>
+                    <div class="lb-winpct">win</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
 
-    // Mobile horizontal bar
     if (mobileContainer) {
-        mobileContainer.innerHTML = owners.map((o, i) => `
+        mobileContainer.innerHTML = owners.map(o => `
             <div class="mobile-lb-item">
-                <div class="rank">#${o.rank || i + 1}</div>
-                <div class="name">${o.short_name || o.name || o.id}</div>
-                <div class="pts">${o.total_points || 0}</div>
+                <div class="rank">#${o.rank}</div>
+                <div class="name">${o.short_name || o.name}</div>
+                <div class="pts">${o.projected ? fmtSigned(o.projected.median) : fmtSigned(o.current_score)}</div>
             </div>
         `).join('');
     }
 }
 
-
-function renderPortfolios(standings) {
-    const grid = document.getElementById('portfolio-grid');
-    if (!grid) return;
-
-    const owners = standings?.owners || [];
-
+function renderTicker(owners) {
+    const track = document.getElementById('ticker-track');
+    if (!track) return;
     if (!owners.length) {
-        grid.innerHTML = `
-            <div class="empty-state">
-                <h2>🏈 Draft Day Pending</h2>
-                <p>Portfolios will appear after the draft board is filled in.</p>
-            </div>`;
+        track.innerHTML = '<span class="ticker-item">Season preview mode — draft day coming soon</span>';
         return;
     }
-
-    grid.innerHTML = owners.map(o => {
-        const teams = (o.teams || []).sort((a, b) => {
-            const tierOrder = { T1: 0, T2: 1, T3: 2, T4: 3 };
-            return (tierOrder[a.tier] || 9) - (tierOrder[b.tier] || 9);
-        });
-
-        return `
-            <div class="portfolio-card">
-                <div class="portfolio-owner">
-                    <div class="portfolio-owner-name">${o.name || o.id}</div>
-                    <div class="portfolio-owner-rank">#${o.rank || '?'} · ${o.total_points || 0} pts</div>
-                </div>
-                ${teams.map(t => `
-                    <div class="portfolio-team">
-                        <div class="portfolio-team-name">
-                            <span class="tier-badge ${(t.tier || '').toLowerCase()}">${t.tier || '?'}</span>
-                            ${t.team}
-                        </div>
-                        <div class="portfolio-team-pts">${t.points || 0} <span style="color:var(--text-muted);font-size:0.75rem">${t.record || ''}</span></div>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }).join('');
+    const items = owners.map(o => {
+        const winPct = o.win_probability != null ? ` · ${(o.win_probability * 100).toFixed(0)}% win` : '';
+        return `<span class="ticker-item"><span class="score">#${o.rank} ${o.name}</span> — cur ${fmtSigned(o.current_score)} · proj ${o.projected ? fmtSigned(o.projected.median) : '—'}${winPct}</span>`;
+    }).join('<span class="ticker-item separator">|</span>');
+    track.innerHTML = items + items;
 }
 
+// --- Render: Commentary (unchanged structurally) ---
 
 function renderCommentary(commentary) {
     const anchorEl = document.getElementById('anchor-commentary');
@@ -107,7 +271,6 @@ function renderCommentary(commentary) {
         return;
     }
 
-    // Anchor (Stephen A.)
     const anchor = commentary.anchor || {};
     if (anchorEl) {
         anchorEl.innerHTML = `
@@ -120,11 +283,9 @@ function renderCommentary(commentary) {
                     </div>
                 </div>
                 <div class="commentary-body">${anchor.content || 'No take available.'}</div>
-            </div>
-        `;
+            </div>`;
     }
 
-    // Rotating analyst
     const analyst = commentary.analyst || {};
     if (analystEl) {
         const initials = (analyst.voice || 'AN').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -138,18 +299,18 @@ function renderCommentary(commentary) {
                     </div>
                 </div>
                 <div class="commentary-body">${analyst.content || 'No analysis available.'}</div>
-            </div>
-        `;
+            </div>`;
     }
 }
 
+// --- Render: Latest results (unchanged) ---
 
 function renderResults(results) {
     const grid = document.getElementById('results-grid');
     if (!grid) return;
 
-    const games = results?.games || [];
-    const completed = games.filter(g => g.completed).slice(-12); // Last 12
+    const games = (results?.games || []).filter(g => g.completed);
+    const completed = games.slice(-12);
 
     if (!completed.length) {
         grid.innerHTML = `
@@ -170,51 +331,28 @@ function renderResults(results) {
                     <span class="${homeWon ? 'match-winner' : ''}">${g.home_team || '?'}</span>
                 </div>
                 <div class="match-meta">Week ${g.week || '?'}${g.conference_game ? ' · Conference' : ''}</div>
-            </div>
-        `;
+            </div>`;
     }).join('');
 }
-
-
-function renderTicker(standings) {
-    const track = document.getElementById('ticker-track');
-    if (!track) return;
-
-    const owners = standings?.owners || [];
-    if (!owners.length) {
-        track.innerHTML = '<span class="ticker-item">Season preview mode — draft day coming soon</span>';
-        return;
-    }
-
-    // Build ticker items (repeat for seamless scroll)
-    const items = owners.map(o =>
-        `<span class="ticker-item"><span class="score">#${o.rank} ${o.name || o.id}</span> — ${o.total_points || 0} pts</span>`
-    ).join('<span class="ticker-item separator">|</span>');
-
-    track.innerHTML = items + items; // Duplicate for seamless loop
-}
-
 
 // --- Load everything ---
 
 async function loadPage() {
-    const leagueId = getCurrentLeague();
-
-    // Load all data in parallel
-    const [standings, commentary, results] = await Promise.all([
+    const [standings, projections, commentary, results] = await Promise.all([
         fetchJSON(getDataPath('owner_standings.json')),
+        fetchJSON(getDataPath('projections.json')),
         fetchJSON(getDataPath('commentary.json')),
         fetchJSON(`../data/live_results.json`),
     ]);
 
-    renderTicker(standings);
-    renderLeaderboard(standings);
-    renderPortfolios(standings);
+    const owners = mergeOwners(standings, projections);
+
+    renderTicker(owners);
+    renderLeaderboard(owners);
+    renderScoreboard(owners);
     renderCommentary(commentary);
     renderResults(results);
 }
 
-
-// --- Init ---
 document.addEventListener('DOMContentLoaded', loadPage);
 window.addEventListener('league-changed', loadPage);

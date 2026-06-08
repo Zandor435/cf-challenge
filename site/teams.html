@@ -42,24 +42,46 @@
 
 <script src="nav.js"></script>
 <script>
+function fmtSigned(n) {
+    if (n === null || n === undefined) return '—';
+    const r = Math.round(n * 10) / 10;
+    return (r > 0 ? '+' : '') + r.toFixed(1);
+}
+function deltaColor(n) {
+    if (n > 0) return 'var(--accent-green)';
+    if (n < 0) return 'var(--accent-red-hover)';
+    return 'var(--text-secondary)';
+}
+
 async function loadTeams() {
-    const leagueId = getCurrentLeague();
-    const data = await fetchJSON(getDataPath('team_table.json'));
     const standings = await fetchJSON(getDataPath('owner_standings.json'));
     const container = document.getElementById('teams-table');
     if (!container) return;
 
-    const teams = data?.teams || [];
     const owners = standings?.owners || [];
-    const ownerNames = {};
-    owners.forEach(o => { ownerNames[o.id] = o.name || o.id; });
+    // Flatten every pick into a row (team taken by N owners → N rows).
+    const rows = [];
+    owners.forEach(o => {
+        (o.picks || []).forEach(p => {
+            rows.push({
+                team: p.team,
+                conference: p.conference || '',
+                side: p.side,
+                line: p.line,
+                owner: o.name || o.id,
+                record: `${p.current_wins ?? 0}-${p.current_losses ?? 0}`,
+                delta: p.current_delta,
+            });
+        });
+    });
+    rows.sort((a, b) => a.team.localeCompare(b.team) || a.owner.localeCompare(b.owner));
 
-    if (!teams.length) {
+    if (!rows.length) {
         container.innerHTML = `
             <div class="empty-state">
                 <h2>🏟️ Draft Board Empty</h2>
-                <p>Teams will appear here after draft day.<br>
-                Fill in the draft_board in your league config to see them.</p>
+                <p>Picks will appear here after draft day.<br>
+                Fill in the <code>picks</code> array in your league config to see them.</p>
             </div>`;
         return;
     }
@@ -69,23 +91,23 @@ async function loadTeams() {
             <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
                 <thead>
                     <tr style="border-bottom: 2px solid var(--accent-red); text-align:left; background: var(--bg-elevated);">
-                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase;">#</th>
                         <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase;">Team</th>
-                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase;">Tier</th>
+                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase;">Conf</th>
+                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase;">Pick</th>
                         <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase;">Owner</th>
-                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase; text-align:right;">Pts</th>
                         <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase; text-align:right;">Record</th>
+                        <th style="padding:10px 16px; font-family:var(--font-display); text-transform:uppercase; text-align:right;">Current Δ</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${teams.map((t, i) => `
+                    ${rows.map(r => `
                         <tr style="border-bottom: 1px solid var(--border-subtle);">
-                            <td style="padding:8px 16px; color:var(--text-muted);">${i + 1}</td>
-                            <td style="padding:8px 16px; font-weight:600;">${t.team}</td>
-                            <td style="padding:8px 16px;"><span class="tier-badge ${(t.tier || '').toLowerCase()}">${t.tier}</span></td>
-                            <td style="padding:8px 16px; color:var(--text-secondary);">${ownerNames[t.owner] || t.owner}</td>
-                            <td style="padding:8px 16px; text-align:right; font-family:var(--font-mono); font-weight:600;">${t.points || 0}</td>
-                            <td style="padding:8px 16px; text-align:right; font-family:var(--font-mono); color:var(--text-muted);">${t.record || '-'}</td>
+                            <td style="padding:8px 16px; font-weight:600;">${r.team}</td>
+                            <td style="padding:8px 16px; color:var(--text-muted);">${r.conference}</td>
+                            <td style="padding:8px 16px;"><span class="ou-badge ${r.side}">${(r.side || '').toUpperCase()} ${r.line}</span></td>
+                            <td style="padding:8px 16px; color:var(--text-secondary);">${r.owner}</td>
+                            <td style="padding:8px 16px; text-align:right; font-family:var(--font-mono); color:var(--text-muted);">${r.record}</td>
+                            <td style="padding:8px 16px; text-align:right; font-family:var(--font-mono); font-weight:600; color:${deltaColor(r.delta)};">${fmtSigned(r.delta)}</td>
                         </tr>
                     `).join('')}
                 </tbody>

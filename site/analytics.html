@@ -32,27 +32,23 @@
 
 <div class="page-wrapper" style="flex-direction: column; max-width: 960px;">
 
-    <!-- Win Probability -->
-    <div class="section-header">The Scoreboard <span class="badge">Win Prob</span></div>
+    <!-- Win Probability over time -->
+    <div class="section-header">Win Probability <span class="badge">Over Time</span></div>
     <div class="chart-container">
         <canvas id="win-prob-chart"></canvas>
     </div>
     <div id="win-prob-table"></div>
 
-    <!-- Draft Report Card -->
-    <div class="section-header" style="margin-top: 32px;">Draft Report Card</div>
-    <div id="draft-report"></div>
-
-    <!-- Dependency Index -->
-    <div class="section-header" style="margin-top: 32px;">T1 Dependency Index</div>
+    <!-- Projected vs Current -->
+    <div class="section-header" style="margin-top: 32px;">Projected vs Current Score</div>
     <div class="chart-container">
-        <canvas id="dependency-chart"></canvas>
+        <canvas id="proj-vs-current-chart"></canvas>
     </div>
 
-    <!-- Points by Tier -->
-    <div class="section-header" style="margin-top: 32px;">Points by Tier</div>
+    <!-- Which pick is carrying you -->
+    <div class="section-header" style="margin-top: 32px;">Pick Δ Contribution <span class="badge">Who's Carrying</span></div>
     <div class="chart-container">
-        <canvas id="tier-chart"></canvas>
+        <canvas id="delta-chart"></canvas>
     </div>
 
     <div class="footer">

@@ -42,6 +42,12 @@
 
 <script src="nav.js"></script>
 <script>
+function fmtSigned(n) {
+    if (n === null || n === undefined) return '—';
+    const r = Math.round(n * 10) / 10;
+    return (r > 0 ? '+' : '') + r.toFixed(1);
+}
+
 async function loadBios() {
     const leagueId = getCurrentLeague();
     const standings = await fetchJSON(getDataPath('owner_standings.json'));
@@ -72,15 +78,15 @@ async function loadBios() {
                         ${o.name || o.id}
                     </div>
                     <div style="font-size: 0.8rem; color: var(--accent-gold); font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;">
-                        #${o.rank || '?'} · ${o.total_points || 0} points · ${o.teams?.length || 0} teams
+                        #${o.rank || '?'} · current ${fmtSigned(o.current_score)} · ${o.picks?.length || 0} picks
                     </div>
                     <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7;">
                         ${o.bio_blurb || '<em style="color: var(--text-muted);">Bio coming soon — fill in bio_blurb in league config or generate via GPT.</em>'}
                     </div>
                     <div style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
-                        ${(o.teams || []).map(t => `
-                            <span class="tier-badge ${(t.tier || '').toLowerCase()}" style="font-size: 0.7rem;">
-                                ${t.team}
+                        ${(o.picks || []).map(p => `
+                            <span class="ou-badge ${p.side}" style="font-size: 0.7rem;">
+                                ${(p.side || '').toUpperCase()} ${p.line} ${p.team}
                             </span>
                         `).join('')}
                     </div>

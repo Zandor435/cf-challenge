@@ -1,5 +1,5 @@
 /**
- * analytics.js — Analytics page charts and tables.
+ * analytics.js — Analytics page charts and tables (delta model).
  */
 
 const OWNER_COLORS = [
@@ -8,35 +8,35 @@ const OWNER_COLORS = [
 ];
 
 let winProbChart = null;
-let depChart = null;
-let tierChart = null;
+let projChart = null;
+let deltaChart = null;
+
+function fmtSigned(n) {
+    if (n === null || n === undefined) return '—';
+    const r = Math.round(n * 10) / 10;
+    return (r > 0 ? '+' : '') + r.toFixed(1);
+}
 
 async function loadAnalytics() {
-    const leagueId = getCurrentLeague();
-
-    const [timeline, standings, projections, narrative] = await Promise.all([
+    const [timeline, standings, projections] = await Promise.all([
         fetchJSON(getDataPath('timeline.json')),
         fetchJSON(getDataPath('owner_standings.json')),
         fetchJSON(getDataPath('projections.json')),
-        fetchJSON(getDataPath('narrative_state.json')),
     ]);
 
-    renderWinProbChart(timeline, standings);
+    renderWinProbChart(timeline);
     renderWinProbTable(projections);
-    renderDraftReport(standings);
-    renderDependencyChart(narrative);
-    renderTierChart(standings);
+    renderProjVsCurrent(projections, standings);
+    renderDeltaContribution(standings);
 }
 
 
-function renderWinProbChart(timeline, standings) {
+function renderWinProbChart(timeline) {
     const canvas = document.getElementById('win-prob-chart');
     if (!canvas) return;
 
     const entries = timeline?.entries || [];
-    const owners = standings?.owners || [];
-
-    if (!entries.length || !owners.length) {
+    if (!entries.length) {
         canvas.parentElement.innerHTML = `
             <div class="empty-state">
                 <h2>📈 Win Probability Timeline</h2>
@@ -45,23 +45,24 @@ function renderWinProbChart(timeline, standings) {
         return;
     }
 
-    // Build datasets
-    const labels = entries.map((_, i) => `Week ${i + 1}`);
-    const datasets = owners.map((o, i) => {
-        const data = entries.map(entry => {
-            const proj = (entry.projections || []).find(p => p.owner_id === o.id);
-            return proj ? Math.round(proj.win_probability * 100) : null;
-        });
+    // Owner ids appearing anywhere in the timeline.
+    const ownerMap = {};
+    entries.forEach(e => (e.owners || []).forEach(o => { ownerMap[o.id] = o.name || o.id; }));
+    const ownerIds = Object.keys(ownerMap);
 
-        return {
-            label: o.name || o.id,
-            data,
-            borderColor: OWNER_COLORS[i % OWNER_COLORS.length],
-            backgroundColor: 'transparent',
-            tension: 0.3,
-            pointRadius: 3,
-        };
-    });
+    const labels = entries.map(e => `Wk ${e.week ?? '?'}`);
+    const datasets = ownerIds.map((id, i) => ({
+        label: ownerMap[id],
+        data: entries.map(e => {
+            const o = (e.owners || []).find(x => x.id === id);
+            return o ? Math.round(o.win_probability * 100) : null;
+        }),
+        borderColor: OWNER_COLORS[i % OWNER_COLORS.length],
+        backgroundColor: 'transparent',
+        tension: 0.3,
+        pointRadius: 3,
+        spanGaps: true,
+    }));
 
     if (winProbChart) winProbChart.destroy();
     winProbChart = new Chart(canvas, {
@@ -69,9 +70,7 @@ function renderWinProbChart(timeline, standings) {
         data: { labels, datasets },
         options: {
             responsive: true,
-            plugins: {
-                legend: { labels: { color: '#f0f0f0', font: { family: 'Oswald' } } },
-            },
+            plugins: { legend: { labels: { color: '#f0f0f0', font: { family: 'Oswald' } } } },
             scales: {
                 x: { ticks: { color: '#a0a0a0' }, grid: { color: '#2a2a2a' } },
                 y: {
@@ -89,8 +88,8 @@ function renderWinProbTable(projections) {
     const container = document.getElementById('win-prob-table');
     if (!container) return;
 
-    const projs = projections?.projections || [];
-    if (!projs.length) return;
+    const owners = projections?.owners || [];
+    if (!owners.length) { container.innerHTML = ''; return; }
 
     container.innerHTML = `
         <div class="card" style="overflow-x: auto;">
@@ -106,141 +105,116 @@ function renderWinProbTable(projections) {
                     </tr>
                 </thead>
                 <tbody>
-                    ${projs.map(p => `
+                    ${owners.map(p => {
+                        const s = p.projected_final_score || {};
+                        return `
                         <tr style="border-bottom: 1px solid var(--border-subtle);">
-                            <td style="padding:8px; font-weight:600;">${p.owner_name || p.owner_id}</td>
+                            <td style="padding:8px; font-weight:600;">${p.name || p.id}</td>
                             <td style="padding:8px; text-align:right; font-family:var(--font-mono); color:var(--accent-gold);">${(p.win_probability * 100).toFixed(1)}%</td>
-                            <td style="padding:8px; text-align:right; font-family:var(--font-mono);">${p.current_points}</td>
-                            <td style="padding:8px; text-align:right; font-family:var(--font-mono); color:var(--text-muted);">${p.projected_p10}</td>
-                            <td style="padding:8px; text-align:right; font-family:var(--font-mono);">${p.projected_median}</td>
-                            <td style="padding:8px; text-align:right; font-family:var(--font-mono); color:var(--text-muted);">${p.projected_p90}</td>
-                        </tr>
-                    `).join('')}
+                            <td style="padding:8px; text-align:right; font-family:var(--font-mono);">${fmtSigned(p.current_score)}</td>
+                            <td style="padding:8px; text-align:right; font-family:var(--font-mono); color:var(--text-muted);">${fmtSigned(s.p10)}</td>
+                            <td style="padding:8px; text-align:right; font-family:var(--font-mono);">${fmtSigned(s.median)}</td>
+                            <td style="padding:8px; text-align:right; font-family:var(--font-mono); color:var(--text-muted);">${fmtSigned(s.p90)}</td>
+                        </tr>`;
+                    }).join('')}
                 </tbody>
             </table>
-        </div>
-    `;
+        </div>`;
 }
 
 
-function renderDraftReport(standings) {
-    const container = document.getElementById('draft-report');
-    if (!container) return;
-
-    const owners = standings?.owners || [];
-    if (!owners.length) {
-        container.innerHTML = `<div class="card" style="text-align:center; color:var(--text-muted); padding:30px;">Draft report card available after draft day.</div>`;
-        return;
-    }
-
-    container.innerHTML = owners.map(o => {
-        const teams = o.teams || [];
-        const tiers = {};
-        teams.forEach(t => {
-            tiers[t.tier] = (tiers[t.tier] || 0) + t.points;
-        });
-
-        return `
-            <div class="card" style="margin-bottom:12px;">
-                <div style="font-family:var(--font-display); font-weight:600; margin-bottom:8px;">
-                    #${o.rank} ${o.name || o.id} — ${o.total_points} pts
-                </div>
-                <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    ${Object.entries(tiers).map(([tier, pts]) => `
-                        <span class="tier-badge ${tier.toLowerCase()}" style="padding:4px 10px; font-size:0.8rem;">
-                            ${tier}: ${pts} pts
-                        </span>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-
-function renderDependencyChart(narrative) {
-    const canvas = document.getElementById('dependency-chart');
+function renderProjVsCurrent(projections, standings) {
+    const canvas = document.getElementById('proj-vs-current-chart');
     if (!canvas) return;
 
-    const snapshots = narrative?.owner_snapshots || [];
-    if (!snapshots.length) {
-        canvas.parentElement.innerHTML = `<div class="empty-state"><p>Dependency data available after games are scored.</p></div>`;
+    const owners = projections?.owners || [];
+    if (!owners.length) {
+        canvas.parentElement.innerHTML = `<div class="empty-state"><p>Projection comparison appears once simulations run.</p></div>`;
         return;
     }
 
-    const labels = snapshots.map(s => s.owner_name || s.owner_id);
-    const data = snapshots.map(s => Math.round((s.dependency_index || 0) * 100));
+    const labels = owners.map(o => o.name || o.id);
+    const current = owners.map(o => o.current_score ?? 0);
+    const projected = owners.map(o => (o.projected_final_score || {}).median ?? 0);
 
-    if (depChart) depChart.destroy();
-    depChart = new Chart(canvas, {
+    if (projChart) projChart.destroy();
+    projChart = new Chart(canvas, {
         type: 'bar',
         data: {
             labels,
-            datasets: [{
-                label: 'T1 Dependency %',
-                data,
-                backgroundColor: data.map(d => d >= 50 ? '#e74c3c' : d >= 30 ? '#f39c12' : '#2ecc71'),
-                borderRadius: 4,
-            }],
+            datasets: [
+                { label: 'Current', data: current, backgroundColor: '#7f8c8d', borderRadius: 3 },
+                { label: 'Projected (median)', data: projected, backgroundColor: '#d4a843', borderRadius: 3 },
+            ],
         },
         options: {
             responsive: true,
-            indexAxis: 'y',
-            plugins: { legend: { display: false } },
+            plugins: { legend: { labels: { color: '#f0f0f0', font: { family: 'Oswald' } } } },
             scales: {
-                x: {
-                    ticks: { color: '#a0a0a0', callback: v => v + '%' },
-                    grid: { color: '#2a2a2a' },
-                    max: 100,
-                },
-                y: { ticks: { color: '#f0f0f0', font: { family: 'Oswald' } }, grid: { display: false } },
+                x: { ticks: { color: '#f0f0f0', font: { family: 'Oswald' } }, grid: { display: false } },
+                y: { ticks: { color: '#a0a0a0' }, grid: { color: '#2a2a2a' } },
             },
         },
     });
 }
 
 
-function renderTierChart(standings) {
-    const canvas = document.getElementById('tier-chart');
+function renderDeltaContribution(standings) {
+    const canvas = document.getElementById('delta-chart');
     if (!canvas) return;
 
     const owners = standings?.owners || [];
     if (!owners.length) {
-        canvas.parentElement.innerHTML = `<div class="empty-state"><p>Tier breakdown available after scoring begins.</p></div>`;
+        canvas.parentElement.innerHTML = `<div class="empty-state"><p>Pick contribution appears after scoring begins.</p></div>`;
         return;
     }
 
-    const tierColors = { T1: '#d4a843', T2: '#3498db', T3: '#7f8c8d', T4: '#555555' };
-    const allTiers = [...new Set(owners.flatMap(o => (o.teams || []).map(t => t.tier)))].sort();
-
-    const datasets = allTiers.map(tier => ({
-        label: tier,
-        data: owners.map(o => (o.teams || []).filter(t => t.tier === tier).reduce((sum, t) => sum + (t.points || 0), 0)),
-        backgroundColor: tierColors[tier] || '#888',
-        borderRadius: 2,
+    // Each owner's picks sorted by delta (biggest carrier first). Grouped bars,
+    // one dataset per pick slot; team names surfaced in tooltips.
+    const sorted = owners.map(o => ({
+        name: o.name || o.id,
+        picks: [...(o.picks || [])].sort((a, b) => (b.current_delta ?? 0) - (a.current_delta ?? 0)),
     }));
+    const maxPicks = Math.max(1, ...sorted.map(o => o.picks.length));
 
-    if (tierChart) tierChart.destroy();
-    tierChart = new Chart(canvas, {
+    const datasets = [];
+    for (let slot = 0; slot < maxPicks; slot++) {
+        const data = sorted.map(o => o.picks[slot]?.current_delta ?? 0);
+        const teams = sorted.map(o => o.picks[slot]?.team ?? '');
+        datasets.push({
+            label: `Pick ${slot + 1}`,
+            data,
+            teams,
+            backgroundColor: data.map(d => d >= 0 ? '#2ecc71' : '#e74c3c'),
+            borderRadius: 3,
+        });
+    }
+
+    if (deltaChart) deltaChart.destroy();
+    deltaChart = new Chart(canvas, {
         type: 'bar',
-        data: {
-            labels: owners.map(o => o.name || o.id),
-            datasets,
-        },
+        data: { labels: sorted.map(o => o.name), datasets },
         options: {
             responsive: true,
             plugins: {
-                legend: { labels: { color: '#f0f0f0', font: { family: 'Oswald' } } },
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const team = ctx.dataset.teams[ctx.dataIndex] || 'Pick';
+                            return `${team}: ${fmtSigned(ctx.raw)}`;
+                        },
+                    },
+                },
             },
             scales: {
-                x: { ticks: { color: '#f0f0f0', font: { family: 'Oswald' } }, grid: { display: false }, stacked: true },
-                y: { ticks: { color: '#a0a0a0' }, grid: { color: '#2a2a2a' }, stacked: true },
+                x: { ticks: { color: '#f0f0f0', font: { family: 'Oswald' } }, grid: { display: false } },
+                y: { ticks: { color: '#a0a0a0' }, grid: { color: '#2a2a2a' }, title: { display: true, text: 'Current Δ', color: '#a0a0a0' } },
             },
         },
     });
 }
 
 
-// --- Init ---
 document.addEventListener('DOMContentLoaded', loadAnalytics);
 window.addEventListener('league-changed', loadAnalytics);
