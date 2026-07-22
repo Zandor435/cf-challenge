@@ -11,5 +11,18 @@ auto-reseeding surface: it moves only because SP+ refreshes weekly (§6).
 
 Replaces WC's dropped sim/ + win_probability.py bracket Monte Carlo (§8 DROP).
 
+CACHE SEASON GUARD (§4, REQUIRED): load the cache ONLY via
+utils.load_cache(season) — it raises SeasonMismatchError if the cache is tagged
+for a different season than the one being projected. Never read cfbd_cache.json
+directly; a stale-season cache would project a clean but entirely wrong board.
+Resolve team names off the cache with utils.resolve_canonical() (exact, no
+ambiguity guard) — NOT resolve_team(), which is for human-entered picks.
+
+CONFERENCE-CHAMPIONSHIP RULE (§1, per group): the set of remaining games depends
+on whether conf-title games count for this league. Read the group's flag with
+utils.counts_conference_championship(config) and build the remaining-game slate
+off utils.count_scheduled_games(cache["games"], flag) — same shared cache, same
+per-game conference_championship tag scoring.py uses. Default False (§1).
+
 Status: STUB — no logic yet.
 """

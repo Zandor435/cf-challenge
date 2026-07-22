@@ -17,9 +17,12 @@
 - **Owner's total = sum of their picks' deltas.** Highest aggregate wins.
 - **Multiple groups:** 3–4 independent friend groups, each its own set of owners/picks. **One codebase serves all** (see §5).
 
-### Scoring boundary (LOCKED)
-- **Regular season only.** 12 games for almost everyone; a couple of teams get a 13th (conference title game). **We live with the 13th** — the Vegas line already prices it in, same as the sportsbooks. No conference-championship, bowl, or playoff wins count.
-- **Edge case for the engine:** read `games_remaining` off each team's *actual scheduled regular-season game count* (12 or 13), not a hardcoded 12.
+### Scoring boundary (LOCKED — corrected 2026-07 against real 2025 CFBD data)
+- **Regular season only.** Bowls and the playoff are excluded — none of those wins count toward the line.
+- **The 13th game is the conference-championship game, and CFBD tags it `seasonType=regular` — not postseason.** Verified against the full 2025 slate: the only FBS teams sitting at 13 scheduled games are the **18 conference-title-game participants** (9 conferences × 2). CFBD returns those title games *inside* the `seasonType=regular` feed, so a `seasonType` filter alone does **not** exclude them. They are identified by CFBD's free-text **`notes` field** (`"<Conference> Championship"`) **combined with both teams being FBS** (`homeClassification`/`awayClassification == "fbs"`) — the FBS check is load-bearing, because FCS/D-II/D-III playoff brackets and SWAC/SIAC titles share the `notes` wording but always involve a non-FBS team. **Do not** identify them by `neutral_site` (4 of 9 are on-campus) or a week-number cap (the week shifts year to year).
+- **The Hawaii exemption did not apply in 2025.** Prior drafts framed the 13th game as the Hawaii exemption (a team traveling to Hawai'i earning an extra regular-season game). The data refutes it: **Hawai'i played 12**, and all **7 teams that played at Hawai'i sat at 12** — zero teams banked a 13th game that way. If it ever recurs it's just another regular-season game the line already prices in; it is *not* the source of the 13th games we see.
+- **Whether conference-championship wins count is per-group config, not a code constant.** Books differ on whether title games settle into season win totals, and Zach plays in multiple leagues against different books. The fetch layer stays **neutral** — the shared cache tags every game (`conference_championship`) and excludes nothing. Each `groups/*/config.json` carries **`count_conference_championship`** (default **false** = title games excluded). `scoring.py` and `projector.py` read it per group off the one shared cache (see §5).
+- **Edge case for the engine:** read `games_remaining` off each team's *actual scheduled regular-season game count* (12 or 13, after applying the per-group flag), **never a hardcoded 12**. With the flag off every FBS team is at 12; with it on the 18 title-game participants are at 13.
 
 ### The line never moves (LOCKED)
 The win-total **line is frozen at draft** — it's the bet, the fixed yardstick. It is static config, entered once, never updated. Nothing in the live pipeline scrapes or refreshes lines. This is what makes the fetch layer robust: the pipeline only ever needs to **tally wins per team**, the single most reliable datum any CFB API returns.
@@ -88,7 +91,8 @@ Four forks = every bug fixed four times. Zach already felt shipping-discipline p
 ```
 groups/
   group_a/
-    config.json     # group name, managers, email recipient list, email_enabled flag
+    config.json     # group name, managers, email recipient list, email_enabled flag,
+                    #   count_conference_championship flag (see below)
     picks.json      # each manager's 3–4 picks: {team, line, direction (O/U), conference}
     output/         # this group's standings + projection JSON (engine writes here)
   group_b/  ...
@@ -98,6 +102,7 @@ data/
 ```
 
 - Pipeline **loops over groups**; scoring runs N times over the one shared cache.
+- **`count_conference_championship` (per-group league rule, default `false`).** Do conference-championship wins settle into a team's season win total? Sportsbooks differ, and Zach's groups may bet against different books, so this is **league config, not a code constant**. The shared cache is neutral — it tags conf-title games (`conference_championship`) but excludes nothing (§1); this flag is where each group decides. `scoring.py`/`projector.py` read it via `utils.counts_conference_championship(config)` and derive schedules with `utils.count_scheduled_games(cache["games"], flag)`. Four groups can hold four different answers over the same one cache — the payoff of shared-cache multi-tenancy.
 - Frontend = **one site**: a landing page fanning out to per-group pages. Everything keyed by `group_id`.
 - Flat JSON per group holds fine at this volume (4 groups × ~4 managers × 3–4 picks). **Defer the database** — the lean-architecture call stands.
 - **Email:** keep Resend, one email/week, domain `mustardboy.xyz`. Per-group `email_enabled` flag + recipient list in each `config.json`. At least one group gets email; maybe all.
@@ -182,7 +187,7 @@ Doing step 3 *before* CC pulls SP+ means guessing from a model's memory (which g
 2. **Win-totals config + scoring math** (banked deltas + envelope). Board 1.
 3. **Poisson-binomial projector** (Board 2) + the one-time SP+-anchored preseason baseline pass (§7).
 4. **Multi-tenant `groups/` loop.**
-5. **Frontend** — two boards, tiled grid.
+5. **Frontend** — two boards, tiled grid. **Freshness stamp (LOCKED):** every board renders "data as of `<fetched_at>`, week N" from the cache, so a stale board is self-evidently stale to the owners reading it — not just to CI. Cache staleness is caught three ways: the fetch age-ceiling (fail loud > 10 days, §4), the season guard (fail loud on mismatch, §4), and this visible stamp.
 6. **Weekly cron workflow** (fresh; twice-weekly — Sat-night heavy pass + one midweek).
 7. **Email** — one/week, per-group.
 8. **One pundit** — garnish.
@@ -206,5 +211,5 @@ WC ended up **Netlify-primary** (`netlify.toml`) with GitHub Pages as stopgap. F
 - **Pundit persona** — Zach researching (Rome / Herbstreit / Berman / SVP).
 - **SP+ vs FPI** for projection reactivity — expose both, A/B once real games are in.
 - **Deploy target** — Netlify vs Pages, decide at frontend stage.
-- **CFBD native win-probability endpoint** — CC to test off-the-shelf usability vs. computing from SP+.
+- **CFBD native win-probability endpoint — DECIDED (2026-07, during §10.1 research). Board 2 computes per-game win probability from the SP+ rating differential + home field; the native endpoint is rejected. Do NOT reopen in §10.3.** Reasoning: `/metrics/wp/pregame` is **spread-gated** — it returns a probability only for games with a *posted betting line*, so it cannot price games weeks out, and Board 2 needs *every remaining game from Week 1*. `/metrics/wp` is **in-game play-by-play only** (games already started). Neither yields a forward, full-season projection of unplayed games. The SP+-differential path is deterministic and defined for every scheduled game, which is what the Poisson-binomial projector requires.
 - **Cross-machine ding** — set a CC `Stop` hook in user-level settings on each Windows PC for an audible/toast alert on completion (VS-Code-extension audio can be flaky; use SAPI speak or a toast, and test it fires).

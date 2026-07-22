@@ -4,6 +4,9 @@
   "group_name": "TODO: Group Name",
   "season": "2026",
 
+  "_count_conference_championship_note": "League rule (ARCHITECTURE §1/§5): do conference-championship wins settle into a team's season win total? Sportsbooks differ, so it is per-group config, not a code constant. CFBD returns conf-title games as seasonType=regular; the shared cache tags them but excludes nothing — this flag decides. Default false.",
+  "count_conference_championship": false,
+
   "managers": [
     { "id": "manager-1", "name": "TODO" }
   ],

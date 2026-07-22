@@ -293,6 +293,35 @@ def resolve_canonical(name):
     raise UnknownTeamError(name, key)
 
 
+# --- Schedule counts off the neutral cache (§1 conf-championship rule) -------
+
+def counts_conference_championship(group_config):
+    """Per-group rule (§1/§5): do conference-championship wins settle into the
+    season win total? Sportsbooks differ, so it's league config, not a code
+    constant. Default False (ARCHITECTURE §1) when the key is absent."""
+    return bool((group_config or {}).get("count_conference_championship", False))
+
+
+def count_scheduled_games(games, count_conference_championship=False):
+    """Per-team scheduled regular-season game count off the shared (neutral)
+    cache. The cache tags conference-championship games (per-game
+    `conference_championship`) but excludes nothing — filtering is THIS
+    scoring-layer decision, gated per group by count_conference_championship
+    (§1/§5, default False). With the flag off, every FBS team lands at 12; with
+    it on, the 18 title-game participants land at 13.
+
+    games_remaining is always derived from this real slate (12 or 13), never a
+    hardcoded constant (§1). scoring.py / projector.py call this per group."""
+    counts = {}
+    for g in games:
+        if not count_conference_championship and g.get("conference_championship"):
+            continue
+        for side in (g.get("home_team"), g.get("away_team")):
+            if side:
+                counts[side] = counts.get(side, 0) + 1
+    return counts
+
+
 # --- Groups (multi-tenant, §5) ---------------------------------------------
 
 def get_all_group_ids():
