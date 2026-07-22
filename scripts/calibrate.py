@@ -28,8 +28,16 @@ prints from a final-SP+ cache are therefore biased and MUST NOT be applied to
 the live projector. The inherited constant is safer than a leaky fit.
 Vintage-correct in-season ratings are available ONLY via Elo
 (/ratings/elo?year=&week=&seasonType=, verified to change week-by-week); SP+
-and FPI have no historical weekly vintage in CFBD. A non-leaky SP+ calibration
-is not possible with CFBD data — see the STEP 1 report / ARCHITECTURE §4.
+and FPI have no historical weekly vintage in CFBD.
+
+A non-leaky calibration is NOT impossible in general — it is impossible only
+*with in-season SP+*. Two leak-free designs sidestep SP+'s vintage problem and
+are implemented in calibrate_spread.py (report: docs/calibration-report.md):
+  (A) fit the projector's logistic to CLOSING SPREADS (set pre-kickoff -> cannot
+      encode the result -> leak-free by construction; no SP+ at all), and
+  (B) predict season Y from FINAL season Y-1 SP+ (leak-free but stale -> flat).
+Prefer calibrate_spread.py for the ACTUAL scale recommendation; THIS tool's
+final-SP+ fit remains a leaky diagnostic only.
 
 Caveat (ARCHITECTURE §4): SP+ is also partly preseason-weighted through ~Sept,
 so even the (leaky) early-season split lags. Report is split weeks 1-5 vs 6+.
@@ -185,7 +193,8 @@ def main():
     print("! `week` param is ignored). This cache holds SEASON-FINAL ratings, so the")
     print("! fitted values below are leakage-biased (too-steep scale) and MUST NOT be")
     print("! applied to the live projector. Vintage-correct in-season ratings exist")
-    print("! only via Elo (/ratings/elo?year=&week=). See the STEP 1 report.")
+    print("! only via Elo (/ratings/elo?year=&week=). For the REAL leak-free scale")
+    print("! recommendation, run calibrate_spread.py (spreads + prior-season SP+).")
     print("!" * 72)
     print("#" * 72)
     print(f"# CALIBRATION BACKTEST — season {season}  (final-SP+ / LEAKY — diagnostic only)")
@@ -205,8 +214,9 @@ def main():
     print("\n  These fitted scales are biased TOO STEEP by hindsight leakage and are")
     print("  NOT a recommendation. No constant changed — projector.py holds "
           f"scale={WIN_PROB_POINTS_SCALE}, hfa={HOME_FIELD_ADVANTAGE_PTS}.")
-    print("  A non-leaky SP+ fit is impossible with CFBD (no vintage SP+); the only")
-    print("  vintage-correct path is Elo. Decision pending (see STEP 1 report).")
+    print("  A non-leaky fit IS possible — just not with in-season SP+. Run")
+    print("  calibrate_spread.py (closing spreads + prior-season SP+) for the leak-")
+    print("  free scale bracket + recommendation; see docs/calibration-report.md.")
 
 
 if __name__ == "__main__":

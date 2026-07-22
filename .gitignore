@@ -20,3 +20,8 @@ site/data/*/projection.json
 site/data/*/timeline.json
 # Test fixture output — a synthetic group, never a real one.
 site/data/test/
+
+# Multi-year backtest cache for calibrate_spread.py. Fetched from CFBD on demand
+# (data/backtest_cache/{lines,sp,games}.json), regenerable with --refresh. Kept
+# OUT of the repo and OUT of the season-guarded production cache (data/cfbd_cache.json).
+data/backtest_cache/
