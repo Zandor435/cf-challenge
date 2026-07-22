@@ -12,13 +12,24 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Engine outputs (docs/output-contract.md). Regenerated each run off the shared
-# cache; the frontend/deploy task decides how these get committed + served. The
-# keystone commit ships the engine, not a replay snapshot.
+# Engine outputs (docs/output-contract.md). Ignored by DEFAULT (regenerated each
+# run off the shared cache) EXCEPT the three real groups below — GitHub Pages
+# serves straight from the repo, so their standings/projection/timeline JSON MUST
+# be committed or the live site is empty. Any other/experimental group's output
+# stays ignored until it is explicitly un-ignored here.
 site/data/*/standings.json
 site/data/*/projection.json
 site/data/*/timeline.json
-# Test fixture output — a synthetic group, never a real one.
+!site/data/panel/standings.json
+!site/data/panel/projection.json
+!site/data/panel/timeline.json
+!site/data/family/standings.json
+!site/data/family/projection.json
+!site/data/family/timeline.json
+!site/data/church/standings.json
+!site/data/church/projection.json
+!site/data/church/timeline.json
+# Test fixture output — a synthetic replay group, never committed to history.
 site/data/test/
 
 # Multi-year backtest cache for calibrate_spread.py. Fetched from CFBD on demand

@@ -138,6 +138,21 @@ CI. HFA 4.0 ≈ ~2.4 true home-field + ~1.6 a nominal-home offset (a small resid
 edge to the designated home team even at neutral sites) that the intercept-free
 form folds into the home term; genuinely neutral games get HFA=0.
 
+> **Known limitation — neutral-site games are mildly biased.** The projector's form
+> `σ((SP+diff + HFA·home)/scale)` has no intercept (a neutral game between SP+-equal
+> teams must be 50/50). The joint fit therefore had to absorb the ~1.6-point
+> nominal-home offset **into HFA**, making HFA = 4.0 rather than the ~2.4 of true
+> home-field. On a home game that is correct — the projector wants the full ~4-point
+> home-side adjustment. But on a **neutral-site** game `home = 0`, so that ~1.6-point
+> correction is dropped and the projector slightly under-favors the nominal-home
+> (higher-seed/designated) team. **Impact is low:** neutral games are ~3% of the
+> slate, and the biggest neutral bucket — conference-championship games — is
+> **out of scoring by default** (ARCHITECTURE §1, `count_conference_championship`
+> off), so most never reach a board. **For the 2027 refit:** once `calibrate.py
+> --archive` has real vintage weeks, fit and **report the neutral case explicitly**
+> (e.g. add a neutral-site indicator or a small intercept term) instead of folding
+> it into HFA, and check whether the neutral bias is worth correcting.
+
 **It is a lower bound on flatness.** The bridge uses *final* SP+ (leak-sharp);
 live in-season SP+ is noisier, so its attenuation is worse and the true live scale
 is **above** 13.5. Holding a value *below* the fitted CI (as 11.0 was) runs the

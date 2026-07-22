@@ -14,6 +14,14 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    # Least-privilege deploy-from-inside (playbook rule 9): the job commits the
+    # regenerated site/data back to the branch Pages serves, so it needs write to
+    # repo contents — and ONLY that. The default GITHUB_TOKEN is read-only, which
+    # silently blocked the commit/push step. A bot push with GITHUB_TOKEN does NOT
+    # trigger other workflows, and this pipeline has no `on: push` trigger, so
+    # granting write here cannot create a deploy->pipeline recursion.
+    permissions:
+      contents: write
     env:
       CFB_API_KEY: ${{ secrets.CFB_API_KEY }}
 

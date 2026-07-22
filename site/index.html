@@ -1,103 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CFB Fantasy HQ</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFB Pick'Em — Standings</title>
+<meta name="description" content="Season-long college football pick'em: exact standings + a weekly SP+ projection.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Ticker -->
-<div class="ticker">
-    <div class="ticker-label">🏈 CFB Fantasy</div>
-    <div class="ticker-track" id="ticker-track">
-        <span class="ticker-item">Loading scores...</span>
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="wordmark">
+      <span class="wordmark-mark">CFB</span> <span class="wordmark-rest">Pick&rsquo;Em</span>
+      <span class="wordmark-season" id="wordmark-season"></span>
     </div>
-</div>
+    <nav class="group-switch" id="group-switch" aria-label="Choose a league"></nav>
+  </div>
+  <!-- Provenance strip (STEP 5): as_of_week · generated_at · cache_fetched_at -->
+  <div class="provenance" id="provenance" hidden></div>
+  <div class="stale-banner" id="stale-banner" role="alert" hidden></div>
+</header>
 
-<!-- Nav -->
-<nav class="nav">
-    <div class="nav-brand">CFB Fantasy <span>HQ</span></div>
+<main class="page" id="page">
+  <div class="loading" id="loading">Loading&hellip;</div>
 
-    <div class="league-switcher" id="league-switcher"></div>
+  <!-- Pre-draft state (STEP 3) -->
+  <section class="predraft" id="predraft" hidden></section>
 
-    <ul class="nav-links" id="nav-links">
-        <li><a href="index.html" class="active">Home</a></li>
-        <li><a href="analytics.html">Analytics</a></li>
-        <li><a href="bios.html">Bios</a></li>
-        <li><a href="teams.html">Teams</a></li>
-    </ul>
+  <!-- Fatal load error -->
+  <section class="load-error" id="load-error" hidden></section>
 
-    <button class="hamburger" id="hamburger" aria-label="Menu">
-        <span></span><span></span><span></span>
-    </button>
-</nav>
-
-<!-- Mobile leaderboard (horizontal scroll bar) -->
-<div class="mobile-leaderboard" id="mobile-leaderboard"></div>
-
-<!-- Page Layout -->
-<div class="page-wrapper">
-
-    <!-- Main Column -->
-    <div class="main-col">
-
-        <!-- Scoreboard -->
-        <div class="section-header">
-            The Scoreboard <span class="badge">Current + Projected</span>
-        </div>
-        <div class="scoreboard-grid" id="scoreboard-grid">
-            <div class="loading"><div class="loading-spinner"></div> Loading scoreboard...</div>
-        </div>
-
-        <!-- Anchor Commentary (Stephen A.) -->
-        <div class="section-header">
-            The Hot Take <span class="badge">Weekly</span>
-        </div>
-        <div id="anchor-commentary">
-            <div class="loading"><div class="loading-spinner"></div> Loading commentary...</div>
-        </div>
-
-        <!-- Rotating Analyst -->
-        <div class="section-header">
-            Analyst Desk
-        </div>
-        <div id="analyst-commentary">
-            <div class="loading"><div class="loading-spinner"></div></div>
-        </div>
-
-        <!-- Latest Results -->
-        <div class="section-header">
-            Latest Results
-        </div>
-        <div class="results-grid" id="results-grid">
-            <div class="loading"><div class="loading-spinner"></div> Loading results...</div>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <div class="footer-brand">CFB Fantasy HQ</div>
-            <p>Not affiliated with ESPN, ABC, or Disney. This is a parody for entertainment purposes only.</p>
-            <p>Powered by collegefootballdata.com · Hosted on GitHub Pages</p>
-        </div>
-
+  <!-- Board 1 — Standings (exact) -->
+  <section class="board board1" id="board1" hidden>
+    <div class="board-head">
+      <h2 class="board-title">Standings <span class="tag tag-exact">Exact</span></h2>
+      <p class="board-sub">Banked results only — pure arithmetic, reproducible by hand. No estimates.</p>
     </div>
+    <div class="standings" id="standings"></div>
+  </section>
 
-    <!-- Sidebar (desktop) -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-card">
-            <div class="sidebar-header">Standings</div>
-            <div id="sidebar-leaderboard">
-                <div class="loading"><div class="loading-spinner"></div></div>
-            </div>
-        </div>
-    </aside>
+  <!-- Board 2 — Projected Finish (subordinate, labeled projection) -->
+  <section class="board board2" id="board2" hidden>
+    <div class="board-head">
+      <h2 class="board-title">Projected Finish <span class="tag tag-proj">Projection</span></h2>
+      <p class="board-sub proj-disclaimer" id="proj-disclaimer"></p>
+    </div>
+    <div class="projection" id="projection"></div>
+  </section>
+</main>
 
-</div>
+<footer class="site-foot">
+  <p>Standings are exact arithmetic off committed game results. The projection is a
+     model estimate from SP+ ratings and updates weekly. Data via collegefootballdata.com.</p>
+</footer>
 
-<script src="nav.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
