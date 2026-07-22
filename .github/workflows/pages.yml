@@ -4,13 +4,18 @@ name: Deploy Pages
 on:
   push:
     branches: [main]
-    # Deploy ONLY when the actual site changes. The data commits the pipeline
-    # pushes touch docs/data/** (boards) and data/** (cache/archive) — both
-    # EXCLUDED here, so a weekly data refresh never triggers a Pages rebuild.
-    # (The pipeline also tags those commits [skip ci] — belt and suspenders.)
+    # Deploy whenever anything UNDER docs/ changes — the shell (index.html/app.js/
+    # style.css) AND the boards (docs/data/**). The boards MUST redeploy: with the
+    # Actions-Pages model the live site serves the last uploaded artifact, so if a
+    # data refresh did not redeploy, managers would see FROZEN numbers (verified:
+    # excluding docs/data left the live site ~9 min stale behind the repo). That is
+    # the "stale numbers" failure we must never ship, so docs/data/** is NOT
+    # excluded. The cache/archive (data/**, ARCHITECTURE outside docs/) is not
+    # served and never matches docs/**, so it already can't trigger a deploy.
+    # This deploy cannot recurse into the pipeline: it has contents:read only,
+    # commits nothing, and update-data.yml triggers solely on workflow_dispatch.
     paths:
       - 'docs/**'
-      - '!docs/data/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch: {}
 

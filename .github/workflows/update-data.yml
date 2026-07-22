@@ -84,10 +84,14 @@ jobs:
         run: python scripts/run_groups.py --group all
 
       # ====== DEPLOY (commit-from-inside) ======
-      # [skip ci] on the commit message so this data push triggers NO workflow —
-      # not this pipeline (it has no `on: push` anyway) and not the Pages deploy
-      # (which is also path-filtered to ignore docs/data/**). Two independent
-      # guards against a deploy->pipeline loop; the cron stays commented out.
+      # The commit changes docs/data/** (boards), which SHOULD trigger the Pages
+      # deploy so the live site serves fresh numbers — so NO [skip ci] here (it
+      # would freeze the live data, the "stale numbers" failure). This cannot
+      # create a deploy->pipeline loop: the Pages deploy has contents:read only
+      # and commits nothing, and THIS pipeline triggers solely on workflow_dispatch
+      # (no `on: push`), so nothing it or the deploy does can re-trigger it. The
+      # cron stays commented out. (A successful fetch also updates the cache +
+      # ratings archive under data/, OUTSIDE docs/, so those never trigger Pages.)
       - name: Commit and push
         run: |
           git config user.name "CFB Fantasy Bot"
@@ -96,6 +100,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update: $(date +%Y-%m-%d) weekly data refresh [skip ci]"
+            git commit -m "Update: $(date +%Y-%m-%d) weekly data refresh"
             git push
           fi
