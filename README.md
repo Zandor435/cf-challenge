@@ -43,7 +43,7 @@ Edit each `leagues/<league>/config.json`:
 - Add owner names
 - Set league display name
 - The `picks` array gets filled after the draft (4 picks per owner, each from a
-  different conference, with a side — `over`/`under` — and a win-total line)
+  different conference, with a direction — `O` (over) / `U` (under) — and a win-total line)
 
 ### 3. Set GitHub Secrets
 - `CFB_API_KEY` — your CollegeFootballData.com API key (free tier)

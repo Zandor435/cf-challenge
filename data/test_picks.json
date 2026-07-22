@@ -1,20 +1,20 @@
 {
-  "_note": "Realistic 2025 picks for end-to-end testing (scoring.py --test / win_probability.py --test). Team names are CFBD-canonical. Lines are plausible 2025 preseason win totals.",
+  "_note": "Realistic 2025 picks for end-to-end testing (scoring.py --test / projector.py --test). Team names are CFBD-canonical. Lines are plausible 2025 preseason win totals. Schema is canonical: direction = \"O\" (over) | \"U\" (under).",
   "season": 2025,
   "picks": [
-    { "owner": "owner-1", "team": "Ohio State",     "conference": "Big Ten", "side": "over",  "line": 10.5 },
-    { "owner": "owner-1", "team": "Alabama",         "conference": "SEC",     "side": "under", "line": 9.5 },
-    { "owner": "owner-1", "team": "Clemson",         "conference": "ACC",     "side": "over",  "line": 8.5 },
-    { "owner": "owner-1", "team": "Utah",            "conference": "Big 12",  "side": "under", "line": 7.5 },
+    { "owner": "owner-1", "team": "Ohio State",     "conference": "Big Ten", "direction": "O", "line": 10.5 },
+    { "owner": "owner-1", "team": "Alabama",         "conference": "SEC",     "direction": "U", "line": 9.5 },
+    { "owner": "owner-1", "team": "Clemson",         "conference": "ACC",     "direction": "O", "line": 8.5 },
+    { "owner": "owner-1", "team": "Utah",            "conference": "Big 12",  "direction": "U", "line": 7.5 },
 
-    { "owner": "owner-2", "team": "Penn State",      "conference": "Big Ten", "side": "under", "line": 9.5 },
-    { "owner": "owner-2", "team": "Georgia",         "conference": "SEC",     "side": "over",  "line": 11.5 },
-    { "owner": "owner-2", "team": "Florida State",   "conference": "ACC",     "side": "over",  "line": 7.5 },
-    { "owner": "owner-2", "team": "Kansas State",    "conference": "Big 12",  "side": "under", "line": 8.5 },
+    { "owner": "owner-2", "team": "Penn State",      "conference": "Big Ten", "direction": "U", "line": 9.5 },
+    { "owner": "owner-2", "team": "Georgia",         "conference": "SEC",     "direction": "O", "line": 11.5 },
+    { "owner": "owner-2", "team": "Florida State",   "conference": "ACC",     "direction": "O", "line": 7.5 },
+    { "owner": "owner-2", "team": "Kansas State",    "conference": "Big 12",  "direction": "U", "line": 8.5 },
 
-    { "owner": "owner-3", "team": "Michigan",        "conference": "Big Ten", "side": "under", "line": 8.5 },
-    { "owner": "owner-3", "team": "Texas",           "conference": "SEC",     "side": "over",  "line": 10.5 },
-    { "owner": "owner-3", "team": "Miami",           "conference": "ACC",     "side": "over",  "line": 9.5 },
-    { "owner": "owner-3", "team": "Oklahoma State",  "conference": "Big 12",  "side": "under", "line": 6.5 }
+    { "owner": "owner-3", "team": "Michigan",        "conference": "Big Ten", "direction": "U", "line": 8.5 },
+    { "owner": "owner-3", "team": "Texas",           "conference": "SEC",     "direction": "O", "line": 10.5 },
+    { "owner": "owner-3", "team": "Miami",           "conference": "ACC",     "direction": "O", "line": 9.5 },
+    { "owner": "owner-3", "team": "Oklahoma State",  "conference": "Big 12",  "direction": "U", "line": 6.5 }
   ]
 }

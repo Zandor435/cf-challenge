@@ -1,0 +1,6 @@
+# CF Challenge — Python dependencies (ARCHITECTURE §8 New Builds)
+requests          # CFBD REST client (or swap for the official `cfbd` client)
+numpy             # Poisson-binomial projector math (Board 2, §3)
+resend            # weekly per-group email, domain mustardboy.xyz (§5)
+python-dotenv     # load CFB_API_KEY / OPENAI_API_KEY from .env
+# Commentary calls OpenAI via raw urllib (Python stdlib) — no SDK dependency (§8).
