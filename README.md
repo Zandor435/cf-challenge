@@ -71,7 +71,8 @@ python scripts/run_groups.py --group all --fetch
 ```bash
 python scripts/test_resolver.py               # name resolver + ambiguity guard (§9)
 python scripts/test_cache_access.py           # AST guards: cache I/O + raw banked-index ownership
-python scripts/validate_team_names.py         # fetch->score name + conference gate
+python scripts/validate_team_names.py         # fetch->score name + conference + draft-rule gate
+python scripts/test_pick_rules.py             # draft rules: exactly 4 picks / 4 distinct conferences
 python scripts/test_output_shape.py           # every emitted file vs docs/output-contract.md
 python scripts/test_projector_correlation.py  # shared-draw pool odds (anti-correlation)
 python scripts/selftest_10_1.py               # fetch/cache/season-guard deliverables

@@ -9,7 +9,7 @@
 ## 1. The League Model
 
 - **Format:** season-long win-totals pool. NOT a bracket, NOT a tournament. Runs the full ~16–17 week CFB regular season.
-- **Each owner drafts 3–4 college football teams**, from **at least 3 different conferences** (the only draft rule; draft help is out of scope — Zach supplies the draft).
+- **Each manager drafts EXACTLY 4 college football teams, from 4 distinct conferences** (settled format, LOCKED — the only draft rule; draft help is out of scope, Zach supplies the draft). Enforced per group by `validate_team_names.py` via `picks_per_manager: 4` / `min_distinct_conferences: 4` — always on, no unenforced path.
 - **Each pick is an over/under bet against that team's preseason Vegas win total.** Example: Penn State over 10.5 → they must win 11+ to be positive. Win 11 → +0.5. Win 3 → the under would have been +7.5.
 - **Score per pick = signed delta in the owner's chosen direction:**
   - Over: `actual_wins − line`
@@ -93,7 +93,7 @@ groups/
   panel/                # slug is load-bearing: it is the output path + URL
     config.json         # group_id (slug), display_name, managers
                         #   [{manager_id, display_name, email}], count_conference_championship,
-                        #   picks_per_manager / min_distinct_conferences (null = unenforced)
+                        #   picks_per_manager: 4 / min_distinct_conferences: 4 (LOCKED, always enforced)
                         #   NOTE: no `season` here — season is single-source in /season.json
     picks.json          # each manager's 3–4 canonical picks: {manager, team, line, direction (O/U), conference}
   family/  ...
