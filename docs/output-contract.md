@@ -183,9 +183,17 @@ negative correlation.
 }
 ```
 
-- One snapshot per scored week. `as_of_week` here is the **effective** scored
-  week — the `--as-of-week N` value, or the cache's real current week on a live
-  run (always concrete, never null — it is the idempotency key).
-- **Append-only / idempotent:** re-running the same effective week *replaces*
-  that week's snapshot in place (never duplicates it, never rewrites earlier
-  weeks). `snapshots` stays sorted ascending by `as_of_week`.
+- One snapshot **per scored week — latest run wins — NOT one per pipeline run.**
+  `as_of_week` here is the **effective** scored week: the `--as-of-week N` value,
+  or the cache's real current week on a live run (always concrete, never null —
+  it is the idempotency key).
+- **Append-only / idempotent, keyed by week:** re-running the same effective week
+  *replaces* that week's snapshot in place (never duplicates it, never rewrites
+  earlier weeks). `snapshots` stays sorted ascending by `as_of_week`.
+- **Why latest-run-wins (intended behavior):** the cadence is twice-weekly (a
+  Saturday-night heavy pass + one midweek pass, ARCHITECTURE §10.6). Both pulls
+  land in the **same** CFB week, so the midweek run **overwrites that week's
+  Saturday entry** — the timeline holds the most recent read of each week, not a
+  row per pull. A pick's line never moves (§1), and banked results only ever
+  firm up within a week, so the latest snapshot is always the most correct one.
+  Consumers that want intra-week deltas should diff across weeks, not runs.

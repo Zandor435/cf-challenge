@@ -98,11 +98,12 @@ def build_standings(config, picks, as_of_week=None):
                  "ceiling": m["ceiling"], "rank": m["rank"], "picks": m["picks"]}
                 for m in managers]
 
-    cm = utils.cache_meta(config["season"])
+    season = utils.get_season()
+    cm = utils.cache_meta(season)
     return {
         "meta": {
             "group_id": config["group_id"],
-            "season": config["season"],
+            "season": season,
             "as_of_week": as_of_week,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "cache_fetched_at": cm["fetched_at"],
@@ -129,8 +130,7 @@ def main():
     slugs = [utils.TEST_GROUP_ID] if args.test else (
         utils.get_all_group_ids() if args.group == "all" else [args.group])
 
-    configs = [utils.load_group(s)[0] for s in slugs]
-    utils.assert_single_source_season(configs)   # §6 season single-source guard
+    utils.assert_season_matches_cache()          # §6 season single-source guard
 
     for slug in slugs:
         config, picks = utils.load_group(slug)

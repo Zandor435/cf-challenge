@@ -44,10 +44,10 @@ SCRIPTS = Path(__file__).resolve().parent
 
 # --- Timeline (append-only, idempotent on the effective week) ----------------
 
-def effective_week(as_of_week, season):
+def effective_week(as_of_week):
     """The concrete scored week: the --as-of-week value, or the cache's real
     current week on a live run. Never null — it is the timeline idempotency key."""
-    return as_of_week if as_of_week is not None else utils.cache_meta(season)["week"]
+    return as_of_week if as_of_week is not None else utils.cache_meta(utils.get_season())["week"]
 
 
 def build_snapshot(standings, projection, eff_week):
@@ -93,7 +93,7 @@ def append_timeline(config, snapshot):
     if path.exists():
         tl = utils.load_json(path)
     else:
-        tl = {"group_id": config["group_id"], "season": config["season"], "snapshots": []}
+        tl = {"group_id": config["group_id"], "season": utils.get_season(), "snapshots": []}
     snaps = [s for s in tl.get("snapshots", []) if s.get("as_of_week") != snapshot["as_of_week"]]
     snaps.append(snapshot)
     snaps.sort(key=lambda s: (s["as_of_week"] is None, s["as_of_week"]))
@@ -104,7 +104,8 @@ def append_timeline(config, snapshot):
 
 # --- Pipeline ----------------------------------------------------------------
 
-def run_fetch(season):
+def run_fetch():
+    season = utils.get_season()
     print("\n[fetch] fetch_results.py")
     proc = subprocess.run([sys.executable, str(SCRIPTS / "fetch_results.py"),
                            "--season", str(season)])
@@ -139,7 +140,7 @@ def run_group(slug, as_of_week):
         print(f"::warning:: [{slug}] projector FAILED ({type(e).__name__}: {e}); "
               f"standings.json still written, running degraded (§4).")
 
-    eff = effective_week(as_of_week, config["season"])
+    eff = effective_week(as_of_week)
     append_timeline(config, build_snapshot(standings, projection, eff))
     print(f"  [{slug}] timeline.json (week {eff})")
     return standings, projection
@@ -151,23 +152,22 @@ def main():
     ap.add_argument("--test", action="store_true", help="run the data/test_picks.json fixture")
     ap.add_argument("--as-of-week", type=int, default=None,
                     help="replay: treat games after week N as unplayed (§7)")
-    ap.add_argument("--season", type=int, default=2025, help="season to score (must match cache)")
     ap.add_argument("--fetch", action="store_true", help="run fetch_results.py first (default: off)")
     args = ap.parse_args()
 
+    season = utils.get_season()                    # single source (season.json)
     print("=" * 60)
-    print(f"RUN GROUPS — season {args.season}"
+    print(f"RUN GROUPS — season {season}"
           + (f", as-of week {args.as_of_week}" if args.as_of_week is not None else " (live week)"))
     print("=" * 60)
 
     if args.fetch:
-        run_fetch(args.season)
+        run_fetch()
 
     slugs = [utils.TEST_GROUP_ID] if args.test else (
         utils.get_all_group_ids() if args.group == "all" else [args.group])
 
-    configs = [utils.load_group(s)[0] for s in slugs]
-    season = utils.assert_single_source_season(configs)   # §6 season single-source guard
+    utils.assert_season_matches_cache()            # §6 season single-source guard
 
     for slug in slugs:
         print(f"\n[{slug}]")

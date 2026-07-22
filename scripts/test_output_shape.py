@@ -12,7 +12,7 @@ timeline for the test fixture (mid-season week 6 and final week 14) and asserts:
   - timeline is append-only + idempotent on the effective week.
 
 No cache writes for the boards (pure builders); timeline idempotency uses a temp
-file. Needs the 2025 cache present.
+file. Needs the cached completed season present.
 
 Usage:
     python scripts/test_output_shape.py

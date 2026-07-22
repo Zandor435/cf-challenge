@@ -1,0 +1,5 @@
+{
+  "_note": "Single source of truth for the season (ARCHITECTURE §4/§6). Every group scores `season`; fetch/build scripts default to `cfbd_default_season`. Both are ints — no season literal lives in any group config or script. Flip both when the live season starts; the §6 guard asserts `season` matches the cache's season tag.",
+  "season": 2025,
+  "cfbd_default_season": 2025
+}

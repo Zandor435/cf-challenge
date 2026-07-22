@@ -119,7 +119,7 @@ def simulate_totals(config, picks, as_of_week=None, team_cache=None):
     anti-correlated — the property test_projector_correlation.py asserts."""
     if team_cache is None:
         team_cache = _team_cache(config, picks, as_of_week,
-                                 utils.season_sp_ratings(config["season"]))
+                                 utils.season_sp_ratings(utils.get_season()))
     order, by_mgr = _group_by_manager(config, picks)
 
     seed = (POOL_SIM_SEED_BASE + zlib.crc32(str(config["group_id"]).encode())
@@ -155,7 +155,7 @@ def simulate_totals(config, picks, as_of_week=None, team_cache=None):
 
 def build_projection(config, picks, as_of_week=None):
     """Full projection.json object for a group (no I/O)."""
-    season = config["season"]
+    season = utils.get_season()
     sp_ratings = utils.season_sp_ratings(season)
     display = utils.manager_display_map(config)
     team_cache = _team_cache(config, picks, as_of_week, sp_ratings)
@@ -235,8 +235,7 @@ def main():
     slugs = [utils.TEST_GROUP_ID] if args.test else (
         utils.get_all_group_ids() if args.group == "all" else [args.group])
 
-    configs = [utils.load_group(s)[0] for s in slugs]
-    utils.assert_single_source_season(configs)   # §6 season single-source guard
+    utils.assert_season_matches_cache()          # §6 season single-source guard
 
     for slug in slugs:
         config, picks = utils.load_group(slug)

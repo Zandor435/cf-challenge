@@ -35,6 +35,32 @@ CANONICAL_PATH = DATA_DIR / "teams_canonical.json"
 ALIASES_PATH = DATA_DIR / "team_aliases.json"
 AMBIGUOUS_PATH = DATA_DIR / "ambiguous.json"
 CACHE_PATH = DATA_DIR / "cfbd_cache.json"
+SEASON_PATH = ROOT / "season.json"
+
+
+# --- Season: single source of truth (ARCHITECTURE §4/§6) --------------------
+# season lives ONLY in season.json — never in a group config or a script
+# literal. `season` is what every group scores; `cfbd_default_season` is the
+# fetch/build default. Both ints. The §6 guard asserts season == cache season.
+
+_SEASON_CONF = None
+
+
+def load_season_config():
+    global _SEASON_CONF
+    if _SEASON_CONF is None:
+        _SEASON_CONF = load_json(SEASON_PATH)
+    return _SEASON_CONF
+
+
+def get_season():
+    """The season every group scores (int). Single source: season.json."""
+    return int(load_season_config()["season"])
+
+
+def get_cfbd_default_season():
+    """Default season for fetch/build scripts (int). Single source: season.json."""
+    return int(load_season_config()["cfbd_default_season"])
 
 # Curated human-disambiguation cases. Keyed by normalized form (§9). Values are
 # the strings that ACTUALLY resolve via resolve_team() — never the ambiguous
@@ -371,10 +397,23 @@ def _season_games(season):
     return _season_cache(season)["games"]
 
 
+def season_games(season):
+    """Season-guarded games list (public accessor for analysis tools like
+    calibrate.py). Reads through utils so the cache guard stays satisfied."""
+    return _season_games(season)
+
+
 def season_sp_ratings(season):
     """SP+ ratings map {team: {rating, ranking, offense, defense}} for the
     season-guarded cache. The sanctioned way for projector.py to read SP+."""
     return _season_cache(season)["sp_ratings"]
+
+
+def season_fpi_ratings(season):
+    """FPI ratings map {team: {fpi, ...}} for the season-guarded cache (may be
+    empty if a fetch predates the FPI column). Secondary rating for calibration
+    comparison — the live projection spine is SP+ (ARCHITECTURE §4)."""
+    return _season_cache(season).get("fpi_ratings", {})
 
 
 def cache_meta(season):
@@ -413,7 +452,7 @@ def team_state(team, group_config, as_of_week=None):
     games_played + games_remaining == games_scheduled always — Board 1 and
     Board 2 can never disagree on what is still to play."""
     flag = counts_conference_championship(group_config)
-    season = group_config.get("season")
+    season = get_season()                  # single source (season.json), not the config
     key = resolve_canonical(team)          # picks store canonical names (§9)
 
     banked_wins = banked_losses = games_played = 0
@@ -456,25 +495,19 @@ def team_state(team, group_config, as_of_week=None):
 
 # --- Season single-source guard (ARCHITECTURE §4/§6) ------------------------
 
-def assert_single_source_season(group_configs):
-    """§6 guard: every group config must carry the SAME season AND it must match
-    the cache's season tag. A straggler config or a stale cache would otherwise
-    score a clean-but-wrong-season board. Fails with a non-zero exit that names
-    both values. Returns the agreed season on success."""
-    by_group = {(c.get("group_id") or "?"): c.get("season") for c in group_configs}
-    seasons = set(by_group.values())
-    if len(seasons) != 1:
-        print("::error:: season mismatch ACROSS group configs — every group must "
-              f"score the same season. Got: {by_group}")
-        sys.exit(2)
-    config_season = seasons.pop()
+def assert_season_matches_cache():
+    """§6 guard, single-source edition: season.json's `season` must match the
+    cache's season tag — ONE comparison, not one per group. A stale cache or a
+    forgotten season.json flip would otherwise score a clean-but-wrong-season
+    board. Non-zero exit naming both values; returns the season on success."""
+    season = get_season()
     cache_season = peek_cache().get("season")
-    if config_season != cache_season:
-        print(f"::error:: season mismatch — group configs say season "
-              f"{config_season!r} but the cache is tagged season {cache_season!r}. "
-              f"Refusing to score a wrong-season board (ARCHITECTURE §4/§6).")
+    if season != cache_season:
+        print(f"::error:: season mismatch — season.json says season {season!r} but "
+              f"the cache is tagged season {cache_season!r}. Refusing to score a "
+              f"wrong-season board (ARCHITECTURE §4/§6).")
         sys.exit(2)
-    return config_season
+    return season
 
 
 # --- Groups (multi-tenant, §5) ---------------------------------------------
@@ -515,7 +548,6 @@ def load_test_group():
     config = {
         "group_id": TEST_GROUP_ID,
         "display_name": "Test Fixture",
-        "season": raw.get("season"),
         "count_conference_championship": False,
         "picks_per_manager": None,
         "min_distinct_conferences": None,

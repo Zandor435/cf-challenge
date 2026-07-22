@@ -11,7 +11,7 @@ Bare "USC"/"Miami" are intentionally NOT in the alias map — utils.resolve_team
 raises an explicit ambiguity error for them (§9). Run seasonally / one-time.
 
 Usage:
-    python scripts/build_canonical.py --season 2025
+    python scripts/build_canonical.py                  # season from season.json
 """
 
 import argparse
@@ -161,16 +161,18 @@ def make_acronyms(school):
 
 def main():
     ap = argparse.ArgumentParser(description="Build canonical team spine + rebuild aliases")
-    ap.add_argument("--season", type=int, default=2025,
-                    help="Season year for /teams/fbs (default 2025 test fixture)")
+    # No season literal: default is the single source (season.json).
+    ap.add_argument("--season", type=int, default=None,
+                    help="Season year for /teams/fbs (default: season.json cfbd_default_season)")
     args = ap.parse_args()
+    season = args.season if args.season is not None else utils.get_cfbd_default_season()
 
     print("=" * 60)
-    print(f"BUILD CANONICAL SPINE — season {args.season}")
+    print(f"BUILD CANONICAL SPINE — season {season}")
     print("=" * 60)
 
     client = CFBDClient(utils.get_api_key())
-    teams = fetch_fbs_teams(client, args.season)
+    teams = fetch_fbs_teams(client, season)
     canonical_exact = {t["school"] for t in teams}
     canonical_by_key = {normalize_team_name(t["school"]): t["school"] for t in teams}
 
@@ -188,7 +190,7 @@ def main():
         sys.exit(2)
 
     save_json_atomic(CANONICAL_PATH, {
-        "season": args.season,
+        "season": season,
         "source": "CFBD /teams/fbs",
         "count": len(teams),
         "teams": teams,
@@ -233,7 +235,7 @@ def main():
         print(f"SEED VALIDATION FAILED — {len(seed_orphans)} ALIAS_SEED target(s) "
               f"not in teams_canonical.json:")
         for variant, intended in seed_orphans:
-            print(f"  '{variant}' -> '{intended}'  (no such FBS team for season {args.season})")
+            print(f"  '{variant}' -> '{intended}'  (no such FBS team for season {season})")
         print("Refusing to write a silently-shrunken alias map. Fix ALIAS_SEED and re-run.")
         print("!" * 60)
         sys.exit(2)

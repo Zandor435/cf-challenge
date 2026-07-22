@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-selftest_10_1.py — Verifies the §10.1 fetch+cache deliverables against 2025.
+selftest_10_1.py — Verifies the §10.1 fetch+cache deliverables against the cache.
 
 Assumes build_canonical.py and a real fetch_results.py pass have already run
 (teams_canonical.json + cfbd_cache.json exist). Checks:
@@ -13,7 +13,7 @@ Assumes build_canonical.py and a real fetch_results.py pass have already run
      rather than scoring a clean-but-wrong board.
 
 Usage:
-    python scripts/selftest_10_1.py --season 2025
+    python scripts/selftest_10_1.py                    # season from season.json
 """
 
 import argparse
@@ -141,8 +141,10 @@ def test_season_guard(season):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--season", type=int, default=2025)
+    # No season literal: default is the single source (season.json).
+    ap.add_argument("--season", type=int, default=None)
     args = ap.parse_args()
+    args.season = args.season if args.season is not None else utils.get_season()
 
     print("=" * 60)
     print(f"SELFTEST §10.1 — season {args.season}")

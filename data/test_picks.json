@@ -1,6 +1,5 @@
 {
-  "_note": "Realistic 2025 picks for end-to-end testing (scoring.py --test / projector.py --test). Team names are CFBD-canonical. Lines are plausible 2025 preseason win totals. Schema is canonical: direction = \"O\" (over) | \"U\" (under).",
-  "season": 2025,
+  "_note": "Realistic picks for end-to-end testing (scoring.py --test / projector.py --test). Team names are CFBD-canonical; lines are plausible preseason win totals. Season is single-source (season.json), NOT carried here. Schema is canonical: direction = \"O\" (over) | \"U\" (under).",
   "picks": [
     { "manager": "owner-1", "team": "Ohio State",     "conference": "Big Ten", "direction": "O", "line": 10.5 },
     { "manager": "owner-1", "team": "Alabama",         "conference": "SEC",     "direction": "U", "line": 9.5 },

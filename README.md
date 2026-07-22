@@ -38,10 +38,12 @@ sizes vary per group and are set at the draft.
 | Family League | `family` | `groups/family/config.json` |
 | Church League | `church` | `groups/church/config.json` |
 
-Each `config.json` carries `season`, `count_conference_championship`, the
-`managers` roster (`{manager_id, display_name, email}` — `manager_id` is the
-stable, never-displayed join key), and the draft rules `picks_per_manager` /
-`min_distinct_conferences` (`null` = unenforced).
+Each `config.json` carries `count_conference_championship`, the `managers`
+roster (`{manager_id, display_name, email}` — `manager_id` is the stable,
+never-displayed join key), and the draft rules `picks_per_manager` /
+`min_distinct_conferences` (`null` = unenforced). **Season is not here** — it
+lives once in top-level `season.json` (`{season, cfbd_default_season}`, both
+ints), read by every script; the §6 guard asserts it matches the cache.
 
 ## Running the engine
 
@@ -72,15 +74,16 @@ python scripts/test_cache_access.py           # AST guards: cache I/O + raw bank
 python scripts/validate_team_names.py         # fetch->score name + conference gate
 python scripts/test_output_shape.py           # every emitted file vs docs/output-contract.md
 python scripts/test_projector_correlation.py  # shared-draw pool odds (anti-correlation)
-python scripts/selftest_10_1.py --season 2025 # fetch/cache/season-guard deliverables
+python scripts/selftest_10_1.py               # fetch/cache/season-guard deliverables
+python scripts/calibrate.py                   # offseason: backtest SP+/FPI win-prob scaling
 ```
 
 ## Setup
 
 1. **CFBD key:** free key from collegefootballdata.com → `.env` as `CFB_API_KEY`
    (or the `CFB_API_KEY` GitHub secret).
-2. **Fetch the cache:** `python scripts/fetch_results.py --season 2025`
-   (flip to 2026, and the group configs' `season`, once that season is live).
+2. **Set the season:** edit top-level `season.json` (`{season, cfbd_default_season}`).
+   **Fetch the cache:** `python scripts/fetch_results.py` (defaults to it).
 3. **Draft:** fill each group's `picks.json` with canonical team names
    (`{manager, team, line, direction, conference}`); set `picks_per_manager` /
    `min_distinct_conferences` per group.

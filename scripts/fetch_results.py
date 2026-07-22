@@ -22,8 +22,8 @@ BUILD 3: prints exact API calls per pass and the projected monthly total at
 twice-weekly cadence against the 1,000/month ceiling.
 
 Usage:
-    python scripts/fetch_results.py --season 2025
-    python scripts/fetch_results.py --season 2025 --simulate-failure   # test bypass
+    python scripts/fetch_results.py                    # season from season.json
+    python scripts/fetch_results.py --simulate-failure # test the commentary-bypass
 """
 
 import argparse
@@ -35,7 +35,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
 from cfbd_client import CFBDClient, CFBDError
 
-DEFAULT_SEASON = 2025  # dev fixture; flip to 2026 once that season is live in CFBD
 PASSES_PER_MONTH = 2 * 52 / 12  # twice-weekly cadence ≈ 8.67 passes/month
 MONTHLY_CEILING = 1000
 STALE_DAYS = 10  # fallback cache older than this = pipeline broken for cycles, not a blip
@@ -120,6 +119,21 @@ def fetch_sp(client, season):
             "defense": _num(deff.get("rating")),
         }
     print(f"  -> {len(ratings)} teams with SP+ ratings")
+    return ratings
+
+
+def fetch_fpi(client, season):
+    """Current FPI ratings, keyed by team. Secondary to SP+ (the projection
+    spine, §4); carried so calibrate.py can A/B SP+ vs FPI. One extra call."""
+    print(f"  fetching /ratings/fpi?year={season}")
+    raw = client.get("/ratings/fpi", {"year": season})
+    ratings = {}
+    for r in raw:
+        team = r.get("team")
+        if not team:
+            continue
+        ratings[team] = {"fpi": _num(r.get("fpi"))}
+    print(f"  -> {len(ratings)} teams with FPI ratings")
     return ratings
 
 
@@ -245,13 +259,16 @@ def degraded_exit(reason, requested_season):
 
 def main():
     ap = argparse.ArgumentParser(description="CFBD weekly fetch -> shared cache")
-    ap.add_argument("--season", type=int, default=DEFAULT_SEASON)
+    # No season literal here: default is the single source (season.json).
+    ap.add_argument("--season", type=int, default=None,
+                    help="season year (default: season.json cfbd_default_season)")
     ap.add_argument("--simulate-failure", action="store_true",
                     help="Force a fetch error to exercise the commentary-bypass path")
     args = ap.parse_args()
+    season = args.season if args.season is not None else utils.get_cfbd_default_season()
 
     print("=" * 60)
-    print(f"FETCH RESULTS — season {args.season}")
+    print(f"FETCH RESULTS — season {season}")
     print("=" * 60)
 
     client = CFBDClient(utils.get_api_key())
@@ -260,11 +277,12 @@ def main():
             client.call_count += 1  # a real attempt would have cost a call
             raise CFBDError("simulated fetch failure (--simulate-failure)")
 
-        games = fetch_games(client, args.season)
-        sp_ratings = fetch_sp(client, args.season)
+        games = fetch_games(client, season)
+        sp_ratings = fetch_sp(client, season)
         assert_sp_refreshed(games, sp_ratings)          # §6 explicit guard
+        fpi_ratings = fetch_fpi(client, season)         # secondary (calibration A/B)
     except CFBDError as e:
-        degraded_exit(str(e), args.season)               # §4 season-guarded fallback
+        degraded_exit(str(e), season)                    # §4 season-guarded fallback
         return
 
     teams = build_team_index(games)
@@ -284,7 +302,7 @@ def main():
 
     cache = {
         "fetched_at": datetime.now(timezone.utc).isoformat(),
-        "season": args.season,
+        "season": season,
         "season_type": "regular",
         "week": current_week(games),
         "source": "CFBD",
@@ -293,18 +311,20 @@ def main():
             "completed": completed,
             "teams": len(teams),
             "sp_ratings": len(sp_ratings),
+            "fpi_ratings": len(fpi_ratings),
             "conference_championship_games": n_champ,
             "conference_championship_participants": len(champ_participants),
         },
         "games": games,
         "teams": teams,
         "sp_ratings": sp_ratings,
+        "fpi_ratings": fpi_ratings,
     }
     utils.save_cache(cache)
 
-    print(f"\n  season {args.season}: {len(games)} games "
+    print(f"\n  season {season}: {len(games)} games "
           f"({completed} completed), {len(teams)} teams, "
-          f"{len(sp_ratings)} SP+ ratings, week={cache['week']}")
+          f"{len(sp_ratings)} SP+ / {len(fpi_ratings)} FPI ratings, week={cache['week']}")
     print(f"  conference-championship games tagged (seasonType=regular, "
           f"identified by CFBD `notes` + both-FBS): {n_champ}")
     if champ_participants:

@@ -91,12 +91,14 @@ Four forks = every bug fixed four times. Zach already felt shipping-discipline p
 ```
 groups/
   panel/                # slug is load-bearing: it is the output path + URL
-    config.json         # group_id (slug), display_name, season, managers
+    config.json         # group_id (slug), display_name, managers
                         #   [{manager_id, display_name, email}], count_conference_championship,
                         #   picks_per_manager / min_distinct_conferences (null = unenforced)
+                        #   NOTE: no `season` here — season is single-source in /season.json
     picks.json          # each manager's 3–4 canonical picks: {manager, team, line, direction (O/U), conference}
   family/  ...
   church/  ...
+season.json             # SINGLE SOURCE: {season, cfbd_default_season} (ints). §6 guard = one comparison vs cache.
 data/
   cfbd_cache.json       # SHARED — one weekly pull, every group reads it
 site/
