@@ -1,37 +1,43 @@
 /**
  * nav.js — Shared navigation for all pages.
- * Handles: hamburger menu, league switcher, sidebar toggle, active page.
+ * Handles: hamburger menu, group switcher, sidebar toggle, active page.
  */
 
-// --- League configuration ---
-const LEAGUES = [
-    { id: 'league-1', label: 'L1', owners: 3 },
-    { id: 'league-2', label: 'L2', owners: 5 },
-    { id: 'league-3', label: 'L3', owners: 6 },
+// --- Group configuration ---
+const GROUPS = [
+    { id: 'group_a', label: 'A', managers: 3 },
+    { id: 'group_b', label: 'B', managers: 5 },
+    { id: 'group_c', label: 'C', managers: 6 },
 ];
 
 // --- State ---
-let currentLeague = localStorage.getItem('cfb_league') || LEAGUES[0].id;
+let currentGroup = localStorage.getItem('cfb_group') || GROUPS[0].id;
 
-function setLeague(leagueId) {
-    currentLeague = leagueId;
-    localStorage.setItem('cfb_league', leagueId);
+function setGroup(groupId) {
+    currentGroup = groupId;
+    localStorage.setItem('cfb_group', groupId);
 
     // Update switcher buttons
+    // NOTE: '.league-switcher' is the DOM/CSS contract shared with the (frozen)
+    // page HTML + style.css; kept until the later site rebuild unifies it.
     document.querySelectorAll('.league-switcher button').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.league === leagueId);
+        btn.classList.toggle('active', btn.dataset.group === groupId);
     });
 
-    // Dispatch event for page scripts to listen to
-    window.dispatchEvent(new CustomEvent('league-changed', { detail: { leagueId } }));
+    // Dispatch event for page scripts to listen to.
+    // NOTE: 'league-changed' is the event-name contract shared with the (frozen)
+    // page scripts (app.js, teams/bios/analytics); kept until the site rebuild.
+    window.dispatchEvent(new CustomEvent('league-changed', { detail: { groupId } }));
 }
 
+// NOTE: public API named getCurrentLeague() is called by frozen bios.html;
+// kept (returns the current group) until the later site rebuild renames callers.
 function getCurrentLeague() {
-    return currentLeague;
+    return currentGroup;
 }
 
 function getDataPath(filename) {
-    return `data/${currentLeague}/${filename}`;
+    return `data/${currentGroup}/${filename}`;
 }
 
 // --- Fetch helper ---
@@ -46,19 +52,19 @@ async function fetchJSON(path) {
     }
 }
 
-// --- Build league switcher ---
-function buildLeagueSwitcher() {
+// --- Build group switcher ---
+function buildGroupSwitcher() {
     const container = document.getElementById('league-switcher');
     if (!container) return;
 
     container.innerHTML = '';
-    LEAGUES.forEach(league => {
+    GROUPS.forEach(group => {
         const btn = document.createElement('button');
-        btn.textContent = league.label;
-        btn.dataset.league = league.id;
-        btn.title = `${league.id} (${league.owners} owners)`;
-        if (league.id === currentLeague) btn.classList.add('active');
-        btn.addEventListener('click', () => setLeague(league.id));
+        btn.textContent = group.label;
+        btn.dataset.group = group.id;
+        btn.title = `${group.id} (${group.managers} managers)`;
+        if (group.id === currentGroup) btn.classList.add('active');
+        btn.addEventListener('click', () => setGroup(group.id));
         container.appendChild(btn);
     });
 }
@@ -96,7 +102,7 @@ function highlightActivePage() {
 
 // --- Init ---
 document.addEventListener('DOMContentLoaded', () => {
-    buildLeagueSwitcher();
+    buildGroupSwitcher();
     initHamburger();
     highlightActivePage();
 });

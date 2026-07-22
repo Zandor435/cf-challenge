@@ -1,7 +1,7 @@
 /**
  * app.js — Main page renderer.
  * Two-number scoreboard (current + projected), per-pick detail with schedule
- * lookahead, commentary, and latest results for the active league.
+ * lookahead, commentary, and latest results for the active group.
  */
 
 // --- Helpers ---
@@ -355,4 +355,6 @@ async function loadPage() {
 }
 
 document.addEventListener('DOMContentLoaded', loadPage);
+// 'league-changed' is the cross-page event contract emitted by nav.js; the name
+// is kept (frozen page scripts also listen on it) until the later site rebuild.
 window.addEventListener('league-changed', loadPage);

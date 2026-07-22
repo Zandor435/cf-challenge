@@ -1,9 +1,13 @@
 name: Weekly Data Update
 
 on:
-  schedule:
-    # Sunday 11 PM ET (Monday 3 AM UTC) — after Saturday games
-    - cron: "0 3 * * 1"
+  # DISARMED 2026-07-22 — re-arm only after run_groups.py runs green
+  # end-to-end via workflow_dispatch. Blockers: missing scripts
+  # win_probability.py + build_narrative_state.py; invalid flags
+  # --include-postseason, --group.
+  # schedule:
+  #   # Sunday 11 PM ET (Monday 3 AM UTC) — after Saturday games
+  #   - cron: "0 3 * * 1"
   workflow_dispatch: {}  # Manual trigger for testing
 
 jobs:
@@ -28,17 +32,17 @@ jobs:
       - name: Install dependencies
         run: pip install numpy
 
-      # ====== SHARED: Fetch results (runs once for all leagues) ======
+      # ====== SHARED: Fetch results (runs once for all groups) ======
       - name: Fetch game results
         run: python scripts/fetch_results.py --include-postseason
 
-      # ====== PER-LEAGUE: Scoring ======
-      - name: Score all leagues
-        run: python scripts/scoring.py --league all
+      # ====== PER-GROUP: Scoring ======
+      - name: Score all groups
+        run: python scripts/scoring.py --group all
 
-      # ====== PER-LEAGUE: Win probability ======
-      - name: Win probability (all leagues)
-        run: python scripts/win_probability.py --league all --skip-if-empty
+      # ====== PER-GROUP: Win probability ======
+      - name: Win probability (all groups)
+        run: python scripts/win_probability.py --group all --skip-if-empty
 
       # ====== KICKOFF GATE ======
       - name: Check kickoff date
@@ -51,14 +55,14 @@ jobs:
             echo "before_kickoff=false" >> $GITHUB_OUTPUT
           fi
 
-      # ====== PER-LEAGUE: Narrative + Commentary (post-kickoff only) ======
+      # ====== PER-GROUP: Narrative + Commentary (post-kickoff only) ======
       - name: Build narrative state
         if: steps.kickoff.outputs.before_kickoff == 'false'
-        run: python scripts/build_narrative_state.py --league all
+        run: python scripts/build_narrative_state.py --group all
 
       - name: Generate commentary
         if: steps.kickoff.outputs.before_kickoff == 'false'
-        run: python scripts/generate_commentary.py --league all
+        run: python scripts/generate_commentary.py --group all
         continue-on-error: true  # Don't block standings if GPT fails
 
       # ====== DEPLOY ======
