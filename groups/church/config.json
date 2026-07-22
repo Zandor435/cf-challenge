@@ -1,0 +1,22 @@
+{
+  "_note": "One config per group (ARCHITECTURE §5). Slug `group_id` is load-bearing — it is the output path site/data/<group_id>/ and the URL. `display_name` is cosmetic.",
+  "group_id": "church",
+  "display_name": "Church League",
+  "season": 2025,
+
+  "_count_conference_championship_note": "Per-group rule (ARCHITECTURE §1/§5): do conference-championship wins settle into a team's season win total? Sportsbooks differ, so it is per-group config, not a code constant. CFBD returns conf-title games as seasonType=regular; the shared cache tags them but excludes nothing — this flag decides. Default false.",
+  "count_conference_championship": false,
+
+  "_pick_rules_note": "Draft rules, enforced by validate_team_names.py. null = unenforced (Zach sets the real numbers per group; the engine skips the check when null — never assume a value).",
+  "picks_per_manager": null,
+  "min_distinct_conferences": null,
+
+  "_managers_note": "Locked real identities; remaining managers added at draft. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. Church has two Johns disambiguated by manager_id: john_wells vs john_tamu.",
+  "managers": [
+    { "manager_id": "zach", "display_name": "Zach", "email": "TODO" },
+    { "manager_id": "john_wells", "display_name": "John Wells", "email": "TODO" },
+    { "manager_id": "john_tamu", "display_name": "Texas A&M John", "email": "TODO" }
+  ],
+
+  "email_enabled": false
+}

@@ -1,10 +1,11 @@
 name: Weekly Data Update
 
 on:
-  # DISARMED 2026-07-22 — re-arm only after run_groups.py runs green
-  # end-to-end via workflow_dispatch. Blockers: missing scripts
-  # win_probability.py + build_narrative_state.py; invalid flags
-  # --include-postseason, --group.
+  # DISARMED 2026-07-22 — cron stays OFF; Zach re-arms it, not the build.
+  # The keystone commit cleared the prior blockers: fetch + run_groups
+  # (validate -> score -> project -> timeline) now run green end-to-end via
+  # workflow_dispatch off the shared cache. Re-arm only after a manual
+  # workflow_dispatch run is confirmed green against the live season.
   # schedule:
   #   # Sunday 11 PM ET (Monday 3 AM UTC) — after Saturday games
   #   - cron: "0 3 * * 1"
@@ -15,10 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CFB_API_KEY: ${{ secrets.CFB_API_KEY }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      # Season kickoff gate — set to first Saturday of season
-      # Pipeline will skip narrative/commentary generation before this date
-      KICKOFF_DATE: "2026-08-29"
 
     steps:
       - name: Checkout
@@ -32,38 +29,20 @@ jobs:
       - name: Install dependencies
         run: pip install numpy
 
-      # ====== SHARED: Fetch results (runs once for all groups) ======
-      - name: Fetch game results
-        run: python scripts/fetch_results.py --include-postseason
+      # ====== SHARED: fetch results + SP+ into the one cache (needs-new-data) ======
+      # continue-on-error (playbook rule 3): a fetch outage must not take the
+      # pipeline dark. fetch_results.py keeps the last good (correct-season)
+      # cache and exits non-fatally; the reshape step below runs off it.
+      - name: Fetch game results + SP+
+        run: python scripts/fetch_results.py --season 2025
+        continue-on-error: true
 
-      # ====== PER-GROUP: Scoring ======
-      - name: Score all groups
-        run: python scripts/scoring.py --group all
-
-      # ====== PER-GROUP: Win probability ======
-      - name: Win probability (all groups)
-        run: python scripts/win_probability.py --group all --skip-if-empty
-
-      # ====== KICKOFF GATE ======
-      - name: Check kickoff date
-        id: kickoff
-        run: |
-          if [[ "$(date +%Y-%m-%d)" < "$KICKOFF_DATE" ]]; then
-            echo "before_kickoff=true" >> $GITHUB_OUTPUT
-            echo "Season hasn't started yet — skipping narrative engine"
-          else
-            echo "before_kickoff=false" >> $GITHUB_OUTPUT
-          fi
-
-      # ====== PER-GROUP: Narrative + Commentary (post-kickoff only) ======
-      - name: Build narrative state
-        if: steps.kickoff.outputs.before_kickoff == 'false'
-        run: python scripts/build_narrative_state.py --group all
-
-      - name: Generate commentary
-        if: steps.kickoff.outputs.before_kickoff == 'false'
-        run: python scripts/generate_commentary.py --group all
-        continue-on-error: true  # Don't block standings if GPT fails
+      # ====== RESHAPE: validate -> score -> project -> timeline, all groups ======
+      # Reshapes-existing-data: runs regardless of the fetch outcome, off the
+      # shared cache (degrades gracefully rather than freezing). Board 1 is
+      # fatal; the projector degrades. Writes site/data/<group_id>/.
+      - name: Score + project all groups
+        run: python scripts/run_groups.py --group all
 
       # ====== DEPLOY ======
       - name: Commit and push

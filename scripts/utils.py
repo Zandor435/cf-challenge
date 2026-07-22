@@ -322,6 +322,161 @@ def count_scheduled_games(games, count_conference_championship=False):
     return counts
 
 
+# --- Team state: the flag-aware single source (ARCHITECTURE §1/§5, §7) -------
+# team_state() is the ONLY sanctioned way for a scorer to read a team's banked
+# W/L and remaining schedule. It honors count_conference_championship AND the
+# --as-of-week replay, computing the banked side and the schedule side off the
+# SAME slate so the two boards can never disagree on what is still to play.
+#
+# The raw per-team index fetch_results.build_team_index writes into the cache
+# (cache["teams"][t] = {"wins","losses","games_played",...}) is FLAG-BLIND and
+# as-of-blind: it counts every game (conf-title games included) as of the fetch.
+# Reading it in a scorer would silently mis-count. test_cache_access.py enforces
+# that nothing outside utils.py reads those raw banked fields (same AST pattern
+# as the cache guard).
+
+_SEASON_CACHE = {}      # season -> parsed, season-guarded cache
+_CANONICAL_FULL = None  # normalized key -> full canonical team dict
+
+
+def load_canonical_full():
+    """{normalized -> full canonical team dict} from teams_canonical.json."""
+    global _CANONICAL_FULL
+    if _CANONICAL_FULL is None:
+        raw = load_json(CANONICAL_PATH)
+        teams = raw["teams"] if isinstance(raw, dict) else raw
+        _CANONICAL_FULL = {normalize_team_name(t["school"]): t for t in teams}
+    return _CANONICAL_FULL
+
+
+def canonical_conference(team):
+    """Conference of a canonical team per teams_canonical.json. Resolves `team`
+    to its canonical school first (exact, no ambiguity guard). Raises
+    UnknownTeamError if `team` is not an FBS canonical team."""
+    school = resolve_canonical(team)
+    return load_canonical_full()[normalize_team_name(school)].get("conference")
+
+
+def _season_cache(season):
+    """Memoized, season-guarded full cache for `season`. Loads via load_cache(),
+    so a cache tagged for a different season raises SeasonMismatchError (§4)
+    rather than silently returning the wrong season's data. Centralizing cache
+    reads here keeps the scorers off the raw cache (test_cache_access.py guard)."""
+    if season not in _SEASON_CACHE:
+        _SEASON_CACHE[season] = load_cache(season)
+    return _SEASON_CACHE[season]
+
+
+def _season_games(season):
+    return _season_cache(season)["games"]
+
+
+def season_sp_ratings(season):
+    """SP+ ratings map {team: {rating, ranking, offense, defense}} for the
+    season-guarded cache. The sanctioned way for projector.py to read SP+."""
+    return _season_cache(season)["sp_ratings"]
+
+
+def cache_meta(season):
+    """Freshness/identity block off the season-guarded cache (fetched_at, week,
+    season) — for the output `meta` blocks. No raw banked-index fields."""
+    c = _season_cache(season)
+    return {"fetched_at": c.get("fetched_at"), "week": c.get("week"),
+            "season": c.get("season")}
+
+
+def _game_played(g, as_of_week):
+    """A slate game counts as PLAYED iff it is completed AND (no as-of-week
+    replay, or its week is within the replay horizon). --as-of-week N treats
+    games after week N as not-yet-played (§7)."""
+    if not g.get("completed"):
+        return False
+    if as_of_week is None:
+        return True
+    wk = g.get("week")
+    return wk is not None and wk <= as_of_week
+
+
+def team_state(team, group_config, as_of_week=None):
+    """THE flag-aware single source for a team's banked side + schedule side
+    (ARCHITECTURE §1/§5, §7). Honors count_conference_championship (conf-title
+    games leave the slate entirely when the flag is off) and the --as-of-week
+    replay (games after week N are treated as unplayed).
+
+    Returns a dict:
+      team, conference,
+      banked_wins, banked_losses,
+      games_scheduled, games_played, games_remaining,
+      remaining_games: [{opponent, home_away, week}, ...]  (ascending by week)
+
+    Banked totals and remaining_games come off the SAME slate, so
+    games_played + games_remaining == games_scheduled always — Board 1 and
+    Board 2 can never disagree on what is still to play."""
+    flag = counts_conference_championship(group_config)
+    season = group_config.get("season")
+    key = resolve_canonical(team)          # picks store canonical names (§9)
+
+    banked_wins = banked_losses = games_played = 0
+    remaining = []
+    for g in _season_games(season):
+        home, away = g.get("home_team"), g.get("away_team")
+        if key != home and key != away:
+            continue
+        if g.get("conference_championship") and not flag:
+            continue                        # off the slate when flag off (§1)
+        is_home = key == home
+        rem = {"opponent": away if is_home else home,
+               "home_away": "home" if is_home else "away",
+               "week": g.get("week"),
+               "neutral": bool(g.get("neutral_site"))}
+        hp, ap = g.get("home_points"), g.get("away_points")
+        if _game_played(g, as_of_week) and hp is not None and ap is not None:
+            games_played += 1
+            mine, theirs = (hp, ap) if is_home else (ap, hp)
+            if mine > theirs:
+                banked_wins += 1
+            elif theirs > mine:
+                banked_losses += 1
+            # exact tie (no OT in CFB): played, but neither a win nor a loss
+        else:
+            remaining.append(rem)
+
+    remaining.sort(key=lambda r: (r["week"] is None, r["week"]))
+    return {
+        "team": key,
+        "conference": canonical_conference(key),
+        "banked_wins": banked_wins,
+        "banked_losses": banked_losses,
+        "games_scheduled": games_played + len(remaining),
+        "games_played": games_played,
+        "games_remaining": len(remaining),
+        "remaining_games": remaining,
+    }
+
+
+# --- Season single-source guard (ARCHITECTURE §4/§6) ------------------------
+
+def assert_single_source_season(group_configs):
+    """§6 guard: every group config must carry the SAME season AND it must match
+    the cache's season tag. A straggler config or a stale cache would otherwise
+    score a clean-but-wrong-season board. Fails with a non-zero exit that names
+    both values. Returns the agreed season on success."""
+    by_group = {(c.get("group_id") or "?"): c.get("season") for c in group_configs}
+    seasons = set(by_group.values())
+    if len(seasons) != 1:
+        print("::error:: season mismatch ACROSS group configs — every group must "
+              f"score the same season. Got: {by_group}")
+        sys.exit(2)
+    config_season = seasons.pop()
+    cache_season = peek_cache().get("season")
+    if config_season != cache_season:
+        print(f"::error:: season mismatch — group configs say season "
+              f"{config_season!r} but the cache is tagged season {cache_season!r}. "
+              f"Refusing to score a wrong-season board (ARCHITECTURE §4/§6).")
+        sys.exit(2)
+    return config_season
+
+
 # --- Groups (multi-tenant, §5) ---------------------------------------------
 
 def get_all_group_ids():
@@ -339,3 +494,59 @@ def load_group_config(group_id):
 
 def load_group_picks(group_id):
     return load_json(GROUPS_DIR / group_id / "picks.json")
+
+
+TEST_PICKS_PATH = DATA_DIR / "test_picks.json"
+TEST_GROUP_ID = "test"
+
+
+def load_test_group():
+    """Synthesize a group from data/test_picks.json for `--test` (ARCHITECTURE
+    §10.2). Managers are derived from the picks' manager ids (display_name = id);
+    rules are unenforced; conf-title games excluded (flag off). Lets the engine
+    produce a real mid-season board before any group's roster is drafted."""
+    raw = load_json(TEST_PICKS_PATH)
+    picks = raw.get("picks", [])
+    mgr_ids = []
+    for p in picks:
+        m = p.get("manager")
+        if m and m not in mgr_ids:
+            mgr_ids.append(m)
+    config = {
+        "group_id": TEST_GROUP_ID,
+        "display_name": "Test Fixture",
+        "season": raw.get("season"),
+        "count_conference_championship": False,
+        "picks_per_manager": None,
+        "min_distinct_conferences": None,
+        "managers": [{"manager_id": m, "display_name": m, "email": "TODO"}
+                     for m in mgr_ids],
+        "email_enabled": False,
+    }
+    return config, picks
+
+
+def load_group(slug):
+    """Resolve a group slug to (config, picks_list). `test` loads the synthetic
+    fixture; anything else loads groups/<slug>/."""
+    if slug == TEST_GROUP_ID:
+        return load_test_group()
+    return load_group_config(slug), load_group_picks(slug).get("picks", [])
+
+
+def manager_display_map(config):
+    """{manager_id -> display_name} from a group config's managers list."""
+    return {m["manager_id"]: m.get("display_name", m["manager_id"])
+            for m in config.get("managers", [])}
+
+
+def real_picks(picks):
+    """Picks that are neither the _note row nor TODO placeholders (§9)."""
+    out = []
+    for p in picks:
+        if isinstance(p, dict) and p.get("_note"):
+            continue
+        if p.get("todo") is True or str(p.get("team", "")).strip().upper() == "TODO":
+            continue
+        out.append(p)
+    return out

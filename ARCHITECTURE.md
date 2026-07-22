@@ -50,8 +50,8 @@ The projection problem splits into two layers. Only one is fuzzy, and even that 
 ### Board 2 — Projected Finish (labeled projection, ratings-driven)
 - Each remaining game gets a **win probability from a power-rating differential + home field** (see §4 for source).
 - Sum per-game win probabilities → **expected remaining wins** → projected final total → projected delta.
-- Because each remaining game is an independent trial with its own probability, the number of additional wins follows a **Poisson-binomial distribution** → exact P(every possible final win count) → exact **P(this pick beats its line)**.
-- **Convolve** a manager's picks' distributions → their projected-total distribution → **P(win the pool)**.
+- Because each remaining game is an independent trial with its own probability, the number of additional wins follows a **Poisson-binomial distribution** → exact P(every possible final win count) → exact **P(this pick beats its line)**. Computed analytically by convolving `[1-p_i, p_i]` over a team's remaining games (`np.convolve`, n ≤ 13) — no Monte Carlo needed for a single pick or a single manager's own total (their picks are on distinct teams, so independent).
+- **P(win the pool) MUST use shared per-team draws (LOCKED).** Pool odds are a *joint* question across managers, and managers hold **opposite sides of the same team** — so their totals are **anti-correlated**, not independent. Each Monte-Carlo trial therefore draws every team's remaining season **once** and scores *every* manager off that same draw. Convolving managers' totals as if independent (or drawing each manager's teams separately) mis-states P(win pool) by **5–7 points**. `projector.py`'s `simulate_totals()` implements the shared draw; `test_projector_correlation.py` asserts two managers on opposite sides of one team come out negatively correlated. The exposed tuning knobs (home-field points, SP+→prob scale) are named module constants, not inline magic numbers.
 - This is the "who's trending / who's better than we thought" read. It updates automatically each week as ratings refresh — that IS the auto-reseeding (see §6). Clearly label it a projection.
 
 ### Why two boards protect the launch
@@ -90,16 +90,24 @@ Four forks = every bug fixed four times. Zach already felt shipping-discipline p
 
 ```
 groups/
-  group_a/
-    config.json     # group name, managers, email recipient list, email_enabled flag,
-                    #   count_conference_championship flag (see below)
-    picks.json      # each manager's 3–4 picks: {team, line, direction (O/U), conference}
-    output/         # this group's standings + projection JSON (engine writes here)
-  group_b/  ...
-  group_c/  ...
+  panel/                # slug is load-bearing: it is the output path + URL
+    config.json         # group_id (slug), display_name, season, managers
+                        #   [{manager_id, display_name, email}], count_conference_championship,
+                        #   picks_per_manager / min_distinct_conferences (null = unenforced)
+    picks.json          # each manager's 3–4 canonical picks: {manager, team, line, direction (O/U), conference}
+  family/  ...
+  church/  ...
 data/
-  cfbd_cache.json   # SHARED — one weekly pull, every group reads it
+  cfbd_cache.json       # SHARED — one weekly pull, every group reads it
+site/
+  data/<group_id>/      # THE ONLY engine write target: standings.json, projection.json, timeline.json
 ```
+
+**Output write target (LOCKED):** the engine writes the three contract files
+(`standings.json`, `projection.json`, `timeline.json`) **only** to
+`site/data/<group_id>/`. The old `groups/*/output/` directory is removed — there
+is one write surface, defined by `docs/output-contract.md`. `manager_id` is a
+stable slug, never displayed, and is the join key across every output file.
 
 - Pipeline **loops over groups**; scoring runs N times over the one shared cache.
 - **`count_conference_championship` (per-group league rule, default `false`).** Do conference-championship wins settle into a team's season win total? Sportsbooks differ, and Zach's groups may bet against different books, so this is **league config, not a code constant**. The shared cache is neutral — it tags conf-title games (`conference_championship`) but excludes nothing (§1); this flag is where each group decides. `scoring.py`/`projector.py` read it via `utils.counts_conference_championship(config)` and derive schedules with `utils.count_scheduled_games(cache["games"], flag)`. Four groups can hold four different answers over the same one cache — the payoff of shared-cache multi-tenancy.

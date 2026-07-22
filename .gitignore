@@ -1,0 +1,22 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Engine outputs (docs/output-contract.md). Regenerated each run off the shared
+# cache; the frontend/deploy task decides how these get committed + served. The
+# keystone commit ships the engine, not a replay snapshot.
+site/data/*/standings.json
+site/data/*/projection.json
+site/data/*/timeline.json
+# Test fixture output — a synthetic group, never a real one.
+site/data/test/
