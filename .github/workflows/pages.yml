@@ -1,19 +1,21 @@
 name: Deploy Pages
 
-# Serves the static site from docs/ on main (GitHub Pages, source = Actions).
+# Publishes the static site from docs/ (GitHub Pages, source = Actions).
+#
+# ROLE: HUMAN pushes only. This fires when a developer pushes a docs/ change
+# (shell edit, a data hand-fix, etc.). It CANNOT catch the pipeline's bot data
+# commits — a commit pushed with GITHUB_TOKEN never triggers `on: push` (playbook
+# rule 9) — so update-data.yml deploys its own fresh boards FROM INSIDE that job.
+# Together the two cover every path to a docs/ change, and both share the `pages`
+# concurrency group so they never race the one github-pages environment.
+#
+# Cannot recurse into the pipeline: contents:read only, commits nothing, and
+# update-data.yml triggers solely on workflow_dispatch.
 on:
   push:
     branches: [main]
-    # Deploy whenever anything UNDER docs/ changes — the shell (index.html/app.js/
-    # style.css) AND the boards (docs/data/**). The boards MUST redeploy: with the
-    # Actions-Pages model the live site serves the last uploaded artifact, so if a
-    # data refresh did not redeploy, managers would see FROZEN numbers (verified:
-    # excluding docs/data left the live site ~9 min stale behind the repo). That is
-    # the "stale numbers" failure we must never ship, so docs/data/** is NOT
-    # excluded. The cache/archive (data/**, ARCHITECTURE outside docs/) is not
-    # served and never matches docs/**, so it already can't trigger a deploy.
-    # This deploy cannot recurse into the pipeline: it has contents:read only,
-    # commits nothing, and update-data.yml triggers solely on workflow_dispatch.
+    # Any docs/ change (shell OR boards). The cache/archive under data/ is outside
+    # docs/, so it never matches here — it is not served and must not redeploy.
     paths:
       - 'docs/**'
       - '.github/workflows/pages.yml'

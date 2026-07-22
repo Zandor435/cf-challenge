@@ -17,14 +17,26 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
-    # Least-privilege deploy-from-inside (playbook rule 9): the job commits the
-    # regenerated docs/data back to the branch Pages serves, so it needs write to
-    # repo contents — and ONLY that. The default GITHUB_TOKEN is read-only, which
-    # silently blocked the commit/push step. A bot push with GITHUB_TOKEN does NOT
-    # trigger other workflows, and this pipeline has no `on: push` trigger, so
-    # granting write here cannot create a deploy->pipeline recursion.
+    # DEPLOY-FROM-INSIDE (playbook rule 9). A commit pushed with GITHUB_TOKEN does
+    # NOT trigger `on: push` workflows — so a separate push-triggered Pages deploy
+    # never fires on the bot's data commit and the live site drifts stale (we
+    # verified this: the site froze ~16 min behind the repo). The fix rule 9
+    # mandates is to deploy Pages FROM THIS job, right after it commits the fresh
+    # boards. So this job needs: contents:write (commit the data), and pages:write
+    # + id-token:write (publish it). No `on: push` on this pipeline, and the deploy
+    # runs inline (not a separately-triggered run), so nothing here can recurse.
     permissions:
       contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # Share the single Pages concurrency group with pages.yml so an inline deploy
+    # and a human-push deploy can never race the one github-pages environment.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     env:
       # The scripts read the env var CFB_API_KEY. Source it from a repo secret of
       # EITHER name so a secret saved as CFBD_API_KEY also works (|| = first non-empty).
@@ -83,15 +95,9 @@ jobs:
       - name: Score + project all groups
         run: python scripts/run_groups.py --group all
 
-      # ====== DEPLOY (commit-from-inside) ======
-      # The commit changes docs/data/** (boards), which SHOULD trigger the Pages
-      # deploy so the live site serves fresh numbers — so NO [skip ci] here (it
-      # would freeze the live data, the "stale numbers" failure). This cannot
-      # create a deploy->pipeline loop: the Pages deploy has contents:read only
-      # and commits nothing, and THIS pipeline triggers solely on workflow_dispatch
-      # (no `on: push`), so nothing it or the deploy does can re-trigger it. The
-      # cron stays commented out. (A successful fetch also updates the cache +
-      # ratings archive under data/, OUTSIDE docs/, so those never trigger Pages.)
+      # ====== COMMIT the fresh boards to the repo (history + raw files) ======
+      # No [skip ci]: a commit pushed with GITHUB_TOKEN can't trigger a workflow
+      # anyway (rule 9), so [skip ci] would buy nothing and only obscure intent.
       - name: Commit and push
         run: |
           git config user.name "CFB Fantasy Bot"
@@ -103,3 +109,20 @@ jobs:
             git commit -m "Update: $(date +%Y-%m-%d) weekly data refresh"
             git push
           fi
+
+      # ====== DEPLOY Pages FROM INSIDE this job (rule 9) ======
+      # Publish the docs/ we just regenerated so the live site serves FRESH
+      # numbers. This runs inline within the pipeline run — it is NOT a separately
+      # push-triggered workflow, so it cannot re-trigger the pipeline (which has no
+      # `on: push`). Gated on scoring having succeeded (that step is fatal, so
+      # reaching here means Board 1 wrote). Shares the `pages` concurrency group
+      # with pages.yml (which handles human docs/ pushes) so the two never race.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload docs/ artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
