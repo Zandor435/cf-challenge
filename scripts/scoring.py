@@ -64,8 +64,10 @@ def pick_standing(pick, config, as_of_week):
     }
 
 
-def build_standings(config, picks, as_of_week=None):
-    """Full standings.json object for a group (no I/O). Pure arithmetic."""
+def build_standings(config, picks, as_of_week=None, draft_status=None):
+    """Full standings.json object for a group (no I/O). Pure arithmetic.
+    `draft_status` (from picks.json) is surfaced into meta so the site can flag
+    engineered sample data ("dummy") vs a real draft ("final") — STEP 4."""
     display = utils.manager_display_map(config)
     # manager order: config roster first, then any pick-only managers (defensive)
     order = list(display.keys())
@@ -105,6 +107,7 @@ def build_standings(config, picks, as_of_week=None):
             "group_id": config["group_id"],
             "season": season,
             "as_of_week": as_of_week,
+            "draft_status": draft_status,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "cache_fetched_at": cm["fetched_at"],
         },
@@ -112,8 +115,8 @@ def build_standings(config, picks, as_of_week=None):
     }
 
 
-def write_standings(config, picks, as_of_week=None):
-    out = build_standings(config, picks, as_of_week)
+def write_standings(config, picks, as_of_week=None, draft_status=None):
+    out = build_standings(config, picks, as_of_week, draft_status)
     path = utils.WEB_DATA_DIR / config["group_id"] / "standings.json"
     utils.save_json_atomic(path, out)
     return out
@@ -134,7 +137,7 @@ def main():
 
     for slug in slugs:
         config, picks = utils.load_group(slug)
-        out = write_standings(config, picks, args.as_of_week)
+        out = write_standings(config, picks, args.as_of_week, utils.group_draft_status(slug))
         top = out["managers"][0] if out["managers"] else None
         lead = f"{top['display_name']} {top['banked_total']:+g}" if top else "(no managers)"
         print(f"  [{slug}] standings.json — {len(out['managers'])} managers, "

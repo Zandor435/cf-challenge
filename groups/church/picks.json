@@ -1,14 +1,31 @@
 {
-  "_note": "ROSTER STUB — picks are TODO until draft (ARCHITECTURE §5). Each manager drafts EXACTLY 4 picks from 4 distinct conferences (settled format, enforced by validate_team_names.py). Each pick is an over/under bet vs a preseason Vegas win total; 'line' is frozen at draft, never updated (§1). direction = \"O\" (over) | \"U\" (under). `manager` is the manager_id join key from config.json. Store canonical team names only (§9).",
+  "_note": "DUMMY SAMPLE DATA — this is NOT a real draft. `draft_status` is \"dummy\" so the site shows the amber sample-data banner. Plausible, varied rosters over the completed 2025 fixture so the board renders and commentary has something to narrate. Replace WHOLESALE at the real draft: overwrite `picks` and set `draft_status` to \"final\" (see README 'Replacing the dummy data'). Each manager holds EXACTLY 4 picks across 4 distinct conferences; `line` is the frozen preseason win total; direction = \"O\" (over) | \"U\" (under); store canonical team names only (§9). The two Johns are distinct manager_ids: john_wells vs john_tamu.",
   "group_id": "church",
+  "draft_status": "dummy",
   "picks": [
-    {
-      "manager": "zach",
-      "team": "TODO",
-      "line": 0.0,
-      "direction": "O",
-      "conference": "TODO",
-      "todo": true
-    }
+    { "manager": "zach", "team": "Ohio State", "conference": "Big Ten", "direction": "O", "line": 10.5 },
+    { "manager": "zach", "team": "Texas A&M",  "conference": "SEC",     "direction": "O", "line": 9.5 },
+    { "manager": "zach", "team": "Virginia",   "conference": "ACC",     "direction": "O", "line": 8.5 },
+    { "manager": "zach", "team": "Texas Tech", "conference": "Big 12",  "direction": "O", "line": 10.5 },
+
+    { "manager": "brian", "team": "Michigan",       "conference": "Big Ten", "direction": "O", "line": 8.5 },
+    { "manager": "brian", "team": "LSU",            "conference": "SEC",     "direction": "U", "line": 9.5 },
+    { "manager": "brian", "team": "Florida State",  "conference": "ACC",     "direction": "U", "line": 6.5 },
+    { "manager": "brian", "team": "BYU",            "conference": "Big 12",  "direction": "O", "line": 9.5 },
+
+    { "manager": "david", "team": "Nebraska",   "conference": "Big Ten", "direction": "U", "line": 7.5 },
+    { "manager": "david", "team": "Auburn",     "conference": "SEC",     "direction": "U", "line": 6.5 },
+    { "manager": "david", "team": "Clemson",    "conference": "ACC",     "direction": "O", "line": 9.5 },
+    { "manager": "david", "team": "Iowa State", "conference": "Big 12",  "direction": "O", "line": 8.5 },
+
+    { "manager": "john_wells", "team": "Washington", "conference": "Big Ten", "direction": "O", "line": 7.5 },
+    { "manager": "john_wells", "team": "Missouri",   "conference": "SEC",     "direction": "O", "line": 7.5 },
+    { "manager": "john_wells", "team": "Pittsburgh", "conference": "ACC",     "direction": "O", "line": 6.5 },
+    { "manager": "john_wells", "team": "Cincinnati", "conference": "Big 12",  "direction": "O", "line": 7.5 },
+
+    { "manager": "john_tamu", "team": "Penn State", "conference": "Big Ten", "direction": "U", "line": 8.5 },
+    { "manager": "john_tamu", "team": "Texas",      "conference": "SEC",     "direction": "U", "line": 9.5 },
+    { "manager": "john_tamu", "team": "Duke",       "conference": "ACC",     "direction": "O", "line": 6.5 },
+    { "manager": "john_tamu", "team": "Kansas",     "conference": "Big 12",  "direction": "O", "line": 6.5 }
   ]
 }

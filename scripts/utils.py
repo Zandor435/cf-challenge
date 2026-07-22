@@ -579,6 +579,17 @@ def load_group(slug):
     return load_group_config(slug), load_group_picks(slug).get("picks", [])
 
 
+def group_draft_status(slug):
+    """The draft state of a group's picks.json top-level `draft_status` (STEP 4):
+    "dummy" for engineered sample data (the site shows the amber sample-data
+    banner), "final" once the real draft is entered. Returns None for the test
+    fixture (it has its own demo labeling) and when the key is absent — only the
+    literal "dummy" ever triggers the banner, so a real board can't be mislabeled."""
+    if slug == TEST_GROUP_ID:
+        return None
+    return load_group_picks(slug).get("draft_status")
+
+
 def manager_display_map(config):
     """{manager_id -> display_name} from a group config's managers list."""
     return {m["manager_id"]: m.get("display_name", m["manager_id"])

@@ -12,7 +12,10 @@
 
   "_managers_note": "Locked real identities; remaining managers added at draft. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. `email` per manager (recipient list derives from these when email_enabled).",
   "managers": [
-    { "manager_id": "zach", "display_name": "Zach", "email": "TODO" }
+    { "manager_id": "blaine",   "display_name": "Blaine",   "email": "TODO" },
+    { "manager_id": "chris",    "display_name": "Chris",    "email": "TODO" },
+    { "manager_id": "jonathan", "display_name": "Jonathan", "email": "TODO" },
+    { "manager_id": "zach",     "display_name": "Zach",     "email": "TODO" }
   ],
 
   "email_enabled": false

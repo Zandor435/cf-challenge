@@ -3,41 +3,366 @@
     "group_id": "church",
     "season": 2025,
     "as_of_week": null,
-    "generated_at": "2026-07-22T19:37:43.253049+00:00",
+    "generated_at": "2026-07-22T20:08:13.166310+00:00",
     "cache_fetched_at": "2026-07-22T16:00:49.785463+00:00",
     "ratings_source": "SP+",
     "ratings_asof": "2026-07-22T16:00:49.785463+00:00"
   },
   "managers": [
     {
-      "manager_id": "john_tamu",
-      "display_name": "Texas A&M John",
-      "expected_total": 0,
-      "p05": 0.0,
-      "p50": 0.0,
-      "p95": 0.0,
-      "p_win_pool": 0.333333,
-      "picks": []
-    },
-    {
-      "manager_id": "john_wells",
-      "display_name": "John Wells",
-      "expected_total": 0,
-      "p05": 0.0,
-      "p50": 0.0,
-      "p95": 0.0,
-      "p_win_pool": 0.333333,
-      "picks": []
+      "manager_id": "brian",
+      "display_name": "Brian",
+      "expected_total": 6.0,
+      "p05": 6.0,
+      "p50": 6.0,
+      "p95": 6.0,
+      "p_win_pool": 1.0,
+      "picks": [
+        {
+          "team": "Michigan",
+          "conference": "Big Ten",
+          "line": 8.5,
+          "direction": "O",
+          "p_beat_line": 1.0,
+          "expected_delta": 0.5,
+          "expected_final_wins": 9.0,
+          "win_distribution": [
+            {
+              "wins": 9,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "LSU",
+          "conference": "SEC",
+          "line": 9.5,
+          "direction": "U",
+          "p_beat_line": 1.0,
+          "expected_delta": 2.5,
+          "expected_final_wins": 7.0,
+          "win_distribution": [
+            {
+              "wins": 7,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Florida State",
+          "conference": "ACC",
+          "line": 6.5,
+          "direction": "U",
+          "p_beat_line": 1.0,
+          "expected_delta": 1.5,
+          "expected_final_wins": 5.0,
+          "win_distribution": [
+            {
+              "wins": 5,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "BYU",
+          "conference": "Big 12",
+          "line": 9.5,
+          "direction": "O",
+          "p_beat_line": 1.0,
+          "expected_delta": 1.5,
+          "expected_final_wins": 11.0,
+          "win_distribution": [
+            {
+              "wins": 11,
+              "prob": 1.0
+            }
+          ]
+        }
+      ]
     },
     {
       "manager_id": "zach",
       "display_name": "Zach",
-      "expected_total": 0,
-      "p05": 0.0,
-      "p50": 0.0,
-      "p95": 0.0,
-      "p_win_pool": 0.333333,
-      "picks": []
+      "expected_total": 5.0,
+      "p05": 5.0,
+      "p50": 5.0,
+      "p95": 5.0,
+      "p_win_pool": 0.0,
+      "picks": [
+        {
+          "team": "Ohio State",
+          "conference": "Big Ten",
+          "line": 10.5,
+          "direction": "O",
+          "p_beat_line": 1.0,
+          "expected_delta": 1.5,
+          "expected_final_wins": 12.0,
+          "win_distribution": [
+            {
+              "wins": 12,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Texas A&M",
+          "conference": "SEC",
+          "line": 9.5,
+          "direction": "O",
+          "p_beat_line": 1.0,
+          "expected_delta": 1.5,
+          "expected_final_wins": 11.0,
+          "win_distribution": [
+            {
+              "wins": 11,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Virginia",
+          "conference": "ACC",
+          "line": 8.5,
+          "direction": "O",
+          "p_beat_line": 1.0,
+          "expected_delta": 1.5,
+          "expected_final_wins": 10.0,
+          "win_distribution": [
+            {
+              "wins": 10,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Texas Tech",
+          "conference": "Big 12",
+          "line": 10.5,
+          "direction": "O",
+          "p_beat_line": 1.0,
+          "expected_delta": 0.5,
+          "expected_final_wins": 11.0,
+          "win_distribution": [
+            {
+              "wins": 11,
+              "prob": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manager_id": "john_tamu",
+      "display_name": "Texas A&M John",
+      "expected_total": 2.0,
+      "p05": 2.0,
+      "p50": 2.0,
+      "p95": 2.0,
+      "p_win_pool": 0.0,
+      "picks": [
+        {
+          "team": "Penn State",
+          "conference": "Big Ten",
+          "line": 8.5,
+          "direction": "U",
+          "p_beat_line": 1.0,
+          "expected_delta": 2.5,
+          "expected_final_wins": 6.0,
+          "win_distribution": [
+            {
+              "wins": 6,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Texas",
+          "conference": "SEC",
+          "line": 9.5,
+          "direction": "U",
+          "p_beat_line": 1.0,
+          "expected_delta": 0.5,
+          "expected_final_wins": 9.0,
+          "win_distribution": [
+            {
+              "wins": 9,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Duke",
+          "conference": "ACC",
+          "line": 6.5,
+          "direction": "O",
+          "p_beat_line": 1.0,
+          "expected_delta": 0.5,
+          "expected_final_wins": 7.0,
+          "win_distribution": [
+            {
+              "wins": 7,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Kansas",
+          "conference": "Big 12",
+          "line": 6.5,
+          "direction": "O",
+          "p_beat_line": 0.0,
+          "expected_delta": -1.5,
+          "expected_final_wins": 5.0,
+          "win_distribution": [
+            {
+              "wins": 5,
+              "prob": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manager_id": "john_wells",
+      "display_name": "John Wells",
+      "expected_total": 2.0,
+      "p05": 2.0,
+      "p50": 2.0,
+      "p95": 2.0,
+      "p_win_pool": 0.0,
+      "picks": [
+        {
+          "team": "Washington",
+          "conference": "Big Ten",
+          "line": 7.5,
+          "direction": "O",
+          "p_beat_line": 1.0,
+          "expected_delta": 0.5,
+          "expected_final_wins": 8.0,
+          "win_distribution": [
+            {
+              "wins": 8,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Missouri",
+          "conference": "SEC",
+          "line": 7.5,
+          "direction": "O",
+          "p_beat_line": 1.0,
+          "expected_delta": 0.5,
+          "expected_final_wins": 8.0,
+          "win_distribution": [
+            {
+              "wins": 8,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Pittsburgh",
+          "conference": "ACC",
+          "line": 6.5,
+          "direction": "O",
+          "p_beat_line": 1.0,
+          "expected_delta": 1.5,
+          "expected_final_wins": 8.0,
+          "win_distribution": [
+            {
+              "wins": 8,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Cincinnati",
+          "conference": "Big 12",
+          "line": 7.5,
+          "direction": "O",
+          "p_beat_line": 0.0,
+          "expected_delta": -0.5,
+          "expected_final_wins": 7.0,
+          "win_distribution": [
+            {
+              "wins": 7,
+              "prob": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manager_id": "david",
+      "display_name": "David",
+      "expected_total": -1.0,
+      "p05": -1.0,
+      "p50": -1.0,
+      "p95": -1.0,
+      "p_win_pool": 0.0,
+      "picks": [
+        {
+          "team": "Nebraska",
+          "conference": "Big Ten",
+          "line": 7.5,
+          "direction": "U",
+          "p_beat_line": 1.0,
+          "expected_delta": 0.5,
+          "expected_final_wins": 7.0,
+          "win_distribution": [
+            {
+              "wins": 7,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Auburn",
+          "conference": "SEC",
+          "line": 6.5,
+          "direction": "U",
+          "p_beat_line": 1.0,
+          "expected_delta": 1.5,
+          "expected_final_wins": 5.0,
+          "win_distribution": [
+            {
+              "wins": 5,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Clemson",
+          "conference": "ACC",
+          "line": 9.5,
+          "direction": "O",
+          "p_beat_line": 0.0,
+          "expected_delta": -2.5,
+          "expected_final_wins": 7.0,
+          "win_distribution": [
+            {
+              "wins": 7,
+              "prob": 1.0
+            }
+          ]
+        },
+        {
+          "team": "Iowa State",
+          "conference": "Big 12",
+          "line": 8.5,
+          "direction": "O",
+          "p_beat_line": 0.0,
+          "expected_delta": -0.5,
+          "expected_final_wins": 8.0,
+          "win_distribution": [
+            {
+              "wins": 8,
+              "prob": 1.0
+            }
+          ]
+        }
+      ]
     }
   ]
 }

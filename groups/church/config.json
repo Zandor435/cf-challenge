@@ -12,9 +12,11 @@
 
   "_managers_note": "Locked real identities; remaining managers added at draft. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. Church has two Johns disambiguated by manager_id: john_wells vs john_tamu.",
   "managers": [
-    { "manager_id": "zach", "display_name": "Zach", "email": "TODO" },
-    { "manager_id": "john_wells", "display_name": "John Wells", "email": "TODO" },
-    { "manager_id": "john_tamu", "display_name": "Texas A&M John", "email": "TODO" }
+    { "manager_id": "zach",       "display_name": "Zach",           "email": "TODO" },
+    { "manager_id": "brian",      "display_name": "Brian",          "email": "TODO" },
+    { "manager_id": "david",      "display_name": "David",          "email": "TODO" },
+    { "manager_id": "john_wells", "display_name": "John Wells",     "email": "TODO" },
+    { "manager_id": "john_tamu",  "display_name": "Texas A&M John", "email": "TODO" }
   ],
 
   "email_enabled": false

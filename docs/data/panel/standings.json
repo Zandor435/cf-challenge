@@ -3,18 +3,258 @@
     "group_id": "panel",
     "season": 2025,
     "as_of_week": null,
-    "generated_at": "2026-07-22T19:37:43.256019+00:00",
+    "draft_status": "dummy",
+    "generated_at": "2026-07-22T20:08:13.207818+00:00",
     "cache_fetched_at": "2026-07-22T16:00:49.785463+00:00"
   },
   "managers": [
     {
+      "manager_id": "blaine",
+      "display_name": "Blaine",
+      "banked_total": 5.0,
+      "floor": 5.0,
+      "ceiling": 5.0,
+      "rank": 1,
+      "picks": [
+        {
+          "team": "Ohio State",
+          "conference": "Big Ten",
+          "line": 10.5,
+          "direction": "O",
+          "banked_wins": 12,
+          "banked_losses": 0,
+          "games_remaining": 0,
+          "banked_delta": 1.5,
+          "floor": 1.5,
+          "ceiling": 1.5,
+          "status": "CLINCHED"
+        },
+        {
+          "team": "Texas A&M",
+          "conference": "SEC",
+          "line": 9.5,
+          "direction": "O",
+          "banked_wins": 11,
+          "banked_losses": 1,
+          "games_remaining": 0,
+          "banked_delta": 1.5,
+          "floor": 1.5,
+          "ceiling": 1.5,
+          "status": "CLINCHED"
+        },
+        {
+          "team": "Virginia",
+          "conference": "ACC",
+          "line": 8.5,
+          "direction": "O",
+          "banked_wins": 10,
+          "banked_losses": 2,
+          "games_remaining": 0,
+          "banked_delta": 1.5,
+          "floor": 1.5,
+          "ceiling": 1.5,
+          "status": "CLINCHED"
+        },
+        {
+          "team": "Utah",
+          "conference": "Big 12",
+          "line": 9.5,
+          "direction": "O",
+          "banked_wins": 10,
+          "banked_losses": 2,
+          "games_remaining": 0,
+          "banked_delta": 0.5,
+          "floor": 0.5,
+          "ceiling": 0.5,
+          "status": "CLINCHED"
+        }
+      ]
+    },
+    {
+      "manager_id": "jonathan",
+      "display_name": "Jonathan",
+      "banked_total": -1.0,
+      "floor": -1.0,
+      "ceiling": -1.0,
+      "rank": 2,
+      "picks": [
+        {
+          "team": "Memphis",
+          "conference": "American Athletic",
+          "line": 5.5,
+          "direction": "O",
+          "banked_wins": 8,
+          "banked_losses": 4,
+          "games_remaining": 0,
+          "banked_delta": 2.5,
+          "floor": 2.5,
+          "ceiling": 2.5,
+          "status": "CLINCHED"
+        },
+        {
+          "team": "Oklahoma State",
+          "conference": "Big 12",
+          "line": 8.5,
+          "direction": "O",
+          "banked_wins": 1,
+          "banked_losses": 11,
+          "games_remaining": 0,
+          "banked_delta": -7.5,
+          "floor": -7.5,
+          "ceiling": -7.5,
+          "status": "DEAD"
+        },
+        {
+          "team": "Alabama",
+          "conference": "SEC",
+          "line": 8.5,
+          "direction": "O",
+          "banked_wins": 10,
+          "banked_losses": 2,
+          "games_remaining": 0,
+          "banked_delta": 1.5,
+          "floor": 1.5,
+          "ceiling": 1.5,
+          "status": "CLINCHED"
+        },
+        {
+          "team": "James Madison",
+          "conference": "Sun Belt",
+          "line": 8.5,
+          "direction": "O",
+          "banked_wins": 11,
+          "banked_losses": 1,
+          "games_remaining": 0,
+          "banked_delta": 2.5,
+          "floor": 2.5,
+          "ceiling": 2.5,
+          "status": "CLINCHED"
+        }
+      ]
+    },
+    {
+      "manager_id": "chris",
+      "display_name": "Chris",
+      "banked_total": -4.0,
+      "floor": -4.0,
+      "ceiling": -4.0,
+      "rank": 3,
+      "picks": [
+        {
+          "team": "Indiana",
+          "conference": "Big Ten",
+          "line": 9.5,
+          "direction": "U",
+          "banked_wins": 12,
+          "banked_losses": 0,
+          "games_remaining": 0,
+          "banked_delta": -2.5,
+          "floor": -2.5,
+          "ceiling": -2.5,
+          "status": "DEAD"
+        },
+        {
+          "team": "Ole Miss",
+          "conference": "SEC",
+          "line": 9.5,
+          "direction": "U",
+          "banked_wins": 11,
+          "banked_losses": 1,
+          "games_remaining": 0,
+          "banked_delta": -1.5,
+          "floor": -1.5,
+          "ceiling": -1.5,
+          "status": "DEAD"
+        },
+        {
+          "team": "Georgia Tech",
+          "conference": "ACC",
+          "line": 9.5,
+          "direction": "U",
+          "banked_wins": 9,
+          "banked_losses": 3,
+          "games_remaining": 0,
+          "banked_delta": 0.5,
+          "floor": 0.5,
+          "ceiling": 0.5,
+          "status": "CLINCHED"
+        },
+        {
+          "team": "Texas Tech",
+          "conference": "Big 12",
+          "line": 10.5,
+          "direction": "U",
+          "banked_wins": 11,
+          "banked_losses": 1,
+          "games_remaining": 0,
+          "banked_delta": -0.5,
+          "floor": -0.5,
+          "ceiling": -0.5,
+          "status": "DEAD"
+        }
+      ]
+    },
+    {
       "manager_id": "zach",
       "display_name": "Zach",
-      "banked_total": 0,
-      "floor": 0,
-      "ceiling": 0,
-      "rank": 1,
-      "picks": []
+      "banked_total": -6.5,
+      "floor": -6.5,
+      "ceiling": -6.5,
+      "rank": 4,
+      "picks": [
+        {
+          "team": "Ohio State",
+          "conference": "Big Ten",
+          "line": 9.0,
+          "direction": "U",
+          "banked_wins": 12,
+          "banked_losses": 0,
+          "games_remaining": 0,
+          "banked_delta": -3.0,
+          "floor": -3.0,
+          "ceiling": -3.0,
+          "status": "DEAD"
+        },
+        {
+          "team": "Georgia",
+          "conference": "SEC",
+          "line": 9.5,
+          "direction": "U",
+          "banked_wins": 11,
+          "banked_losses": 1,
+          "games_remaining": 0,
+          "banked_delta": -1.5,
+          "floor": -1.5,
+          "ceiling": -1.5,
+          "status": "DEAD"
+        },
+        {
+          "team": "Miami",
+          "conference": "ACC",
+          "line": 9.5,
+          "direction": "U",
+          "banked_wins": 10,
+          "banked_losses": 2,
+          "games_remaining": 0,
+          "banked_delta": -0.5,
+          "floor": -0.5,
+          "ceiling": -0.5,
+          "status": "DEAD"
+        },
+        {
+          "team": "BYU",
+          "conference": "Big 12",
+          "line": 9.5,
+          "direction": "U",
+          "banked_wins": 11,
+          "banked_losses": 1,
+          "games_remaining": 0,
+          "banked_delta": -1.5,
+          "floor": -1.5,
+          "ceiling": -1.5,
+          "status": "DEAD"
+        }
+      ]
     }
   ]
 }

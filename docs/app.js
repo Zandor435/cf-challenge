@@ -42,6 +42,17 @@ function daysSince(iso) {
   return (Date.now() - d.getTime()) / 86400000;
 }
 
+// The real-world CFB season for a given date. A season is labeled by the calendar
+// year it kicks off (late Aug) and runs through the following January's bowls, so
+// Jan–Jul belongs to the PRIOR year's season and Aug onward to the new one. Used
+// ONLY as a presentation cue — to detect that we're replaying a season the real
+// world has moved past. The engine never reads the clock; this mirrors the
+// existing clock-based staleness check.
+const SEASON_ROLLOVER_MONTH = 7; // 0-indexed: August
+function realWorldSeason(d = new Date()) {
+  return d.getMonth() >= SEASON_ROLLOVER_MONTH ? d.getFullYear() : d.getFullYear() - 1;
+}
+
 async function fetchJSON(path) {
   const res = await fetch(path, { cache: 'no-store' });
   if (!res.ok) throw new Error(`${res.status} ${path}`);
@@ -83,21 +94,58 @@ function renderProvenance(meta) {
   const strip = $('provenance');
   const wk = (meta.as_of_week === null || meta.as_of_week === undefined)
     ? 'Live (current week)' : `Week ${meta.as_of_week}`;
+  const dataSeason = Number(meta.season);
+  const seasonLabel = Number.isFinite(dataSeason) ? String(dataSeason) : '—';
   strip.innerHTML =
+    `<span class="prov-item prov-season"><b>Season</b> ` +
+      `<span class="prov-season-val">${esc(seasonLabel)}</span></span>` +
     `<span class="prov-item"><b>Scored:</b> ${esc(wk)}</span>` +
     `<span class="prov-item"><b>Generated:</b> ${esc(fmtStamp(meta.generated_at))}</span>` +
     `<span class="prov-item"><b>Data pulled:</b> ${esc(fmtStamp(meta.cache_fetched_at))}</span>`;
   show(strip);
 
+  // ---- Banner hierarchy (STEP 4) -----------------------------------------
+  // Three possible banners, most to least urgent:
+  //   stale (red)  >  sample (amber)  >  replay (gold)
+  // At most TWO show at once; if all three apply, the two most urgent win.
+  //
+  //  - stale:  cache older than STALE_DAYS — the numbers may be wrong. Loudest.
+  //  - sample: draft_status === 'dummy' — the picks are placeholders, not a real
+  //    draft. Clears the instant a group's picks.json flips to "final".
+  //  - replay: the data's season predates the real-world season (a newer season
+  //    kicked off but season.json isn't flipped). This is the guard staleness
+  //    CANNOT be: cache_fetched_at refreshes on every replay run, so age-based
+  //    staleness never trips while replaying a finished season. Clears on flip.
+  const rw = realWorldSeason();
   const age = daysSince(meta.cache_fetched_at);
-  const banner = $('stale-banner');
-  if (age !== null && age > STALE_DAYS) {
-    banner.textContent =
+
+  const stale = $('stale-banner');
+  const sample = $('sample-banner');
+  const replay = $('replay-banner');
+
+  const wantStale = age !== null && age > STALE_DAYS;
+  if (wantStale) {
+    stale.textContent =
       `These numbers are ${Math.floor(age)} days old (data last pulled ` +
       `${fmtStamp(meta.cache_fetched_at)}). They may not reflect recent games.`;
-    show(banner);
-  } else {
-    hide(banner);
+  }
+  const wantSample = meta.draft_status === 'dummy';
+  if (wantSample) {
+    sample.textContent =
+      `Sample data — the draft has not been entered. These picks are placeholders ` +
+      `to preview the board, not real selections.`;
+  }
+  const wantReplay = Number.isFinite(dataSeason) && dataSeason < rw;
+  if (wantReplay) {
+    replay.textContent =
+      `${dataSeason} replay — the ${rw} season has not started. ` +
+      `You're viewing final ${dataSeason} results, not live data.`;
+  }
+
+  // Priority order; show only the two most urgent that apply, hide the rest.
+  let showing = 0;
+  for (const [want, el] of [[wantStale, stale], [wantSample, sample], [wantReplay, replay]]) {
+    if (want && showing < 2) { show(el); showing++; } else { hide(el); }
   }
 }
 

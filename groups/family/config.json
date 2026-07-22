@@ -10,9 +10,13 @@
   "picks_per_manager": 4,
   "min_distinct_conferences": 4,
 
-  "_managers_note": "Locked real identities; remaining managers added at draft. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. `email` per manager (recipient list derives from these when email_enabled).",
+  "_managers_note": "Locked real identities; two more may be added later — a config.json + picks edit, never a rebuild. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. `email` per manager (recipient list derives from these when email_enabled).",
   "managers": [
-    { "manager_id": "zach", "display_name": "Zach", "email": "TODO" }
+    { "manager_id": "john",   "display_name": "John",   "email": "TODO" },
+    { "manager_id": "rachel", "display_name": "Rachel", "email": "TODO" },
+    { "manager_id": "gayden", "display_name": "Gayden", "email": "TODO" },
+    { "manager_id": "vic",    "display_name": "Vic",    "email": "TODO" },
+    { "manager_id": "zach",   "display_name": "Zach",   "email": "TODO" }
   ],
 
   "email_enabled": false

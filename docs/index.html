@@ -20,9 +20,14 @@
     </div>
     <nav class="group-switch" id="group-switch" aria-label="Choose a league"></nav>
   </div>
-  <!-- Provenance strip (STEP 5): as_of_week · generated_at · cache_fetched_at -->
+  <!-- Provenance strip (STEP 5): season · as_of_week · generated_at · cache_fetched_at -->
   <div class="provenance" id="provenance" hidden></div>
-  <div class="stale-banner" id="stale-banner" role="alert" hidden></div>
+  <!-- Banner hierarchy (STEP 4), most to least urgent: stale (red) > sample
+       (amber) > replay (gold). At most TWO show at once; if all three apply, the
+       two most urgent win. DOM order = visual order, most urgent on top. -->
+  <div class="stale-banner"  id="stale-banner"  role="alert"  hidden></div>
+  <div class="sample-banner" id="sample-banner" role="alert"  hidden></div>
+  <div class="replay-banner" id="replay-banner" role="status" hidden></div>
 </header>
 
 <main class="page" id="page">

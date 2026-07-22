@@ -16,6 +16,11 @@ correct; "Miami"/MAC (i.e. the person meant Miami (OH)) is caught, as is
 Draft rules (§5) are ALWAYS enforced per group — no unenforced path:
   - picks_per_manager: each manager has EXACTLY this many picks (no more, fewer).
   - min_distinct_conferences: those picks span at least this many conferences.
+  - team-sharing: two managers may hold the same team only on OPPOSITE sides.
+    Same team + same side across two managers scores BOTH as "winning" the same
+    bet — the worst bug class in the project — so it is exit 1, naming both
+    managers, the team, and the side. A single manager holding the same team
+    twice (any side) is likewise a failure.
 A manager with no real picks yet (all TODO placeholders) is SKIPPED, not failed,
 so undrafted rosters pass. A config missing either rule key is itself a failure.
 
@@ -33,6 +38,13 @@ import utils
 from utils import (resolve_canonical, canonical_conference, UnknownTeamError,
                    normalize_team_name, get_all_group_ids, load_group_picks,
                    load_group_config)
+
+
+_SIDE_LABEL = {"O": "over", "U": "under"}
+
+
+def _side_label(direction):
+    return f"{direction} ({_SIDE_LABEL.get(direction, direction)})"
 
 
 def _is_placeholder(pick):
@@ -83,7 +95,44 @@ def validate_group_data(group_id, config, picks):
             continue
         checked += 1
 
-    # 2) draft rules — ALWAYS enforced (no null/unenforced path). Both keys are
+    # 2) team-sharing gate (§5) — ALWAYS enforced. Two managers may hold the same
+    #    team only on OPPOSITE sides; same team + same side means both "win" the
+    #    same bet (the worst bug class here). A single manager holding a team twice
+    #    is also invalid. Keyed by CANONICAL team so "Miami"/"Miami (FL)" collide.
+    #    Picks that don't resolve are already reported above — skip them here.
+    by_team = {}  # canonical -> [(manager, direction), ...]
+    for pick in real:
+        try:
+            canonical = resolve_canonical(pick.get("team"))
+        except UnknownTeamError:
+            continue
+        by_team.setdefault(canonical, []).append(
+            (pick.get("manager", "?"), pick.get("direction")))
+    for canonical, entries in by_team.items():
+        # (a) same manager holding this team more than once — any side
+        mgr_counts = {}
+        for mgr, _d in entries:
+            mgr_counts[mgr] = mgr_counts.get(mgr, 0) + 1
+        for mgr, cnt in mgr_counts.items():
+            if cnt > 1:
+                err(mgr, canonical, "duplicate-team",
+                    f"holds '{canonical}' {cnt} times; a manager may not hold the "
+                    f"same team twice")
+        # (b) two+ DISTINCT managers on the SAME side — the silent double-win bug
+        by_side = {}  # direction -> ordered distinct managers
+        for mgr, direction in entries:
+            lst = by_side.setdefault(direction, [])
+            if mgr not in lst:
+                lst.append(mgr)
+        for direction, mgrs in by_side.items():
+            if len(mgrs) > 1:
+                names = " & ".join(sorted(mgrs))
+                err(names, canonical, "same-team-same-side",
+                    f"managers [{names}] all hold '{canonical}' on the "
+                    f"{_side_label(direction)} side — the same team may be shared "
+                    f"only on OPPOSITE sides")
+
+    # 3) draft rules — ALWAYS enforced (no null/unenforced path). Both keys are
     #    required; a missing one is a config failure, not a silent skip.
     ppm = config.get("picks_per_manager")
     mdc = config.get("min_distinct_conferences")

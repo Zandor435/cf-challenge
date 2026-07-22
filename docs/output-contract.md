@@ -29,11 +29,17 @@ run (real current week). All timestamps are ISO-8601 UTC.
   "group_id": "panel",
   "season": 2025,
   "as_of_week": 6,
+  "draft_status": "dummy",
   "generated_at": "2026-07-22T04:15:00+00:00",
   "cache_fetched_at": "2026-07-22T03:34:33+00:00"
 }
 ```
-`projection.json`'s `meta` carries two extra keys: `"ratings_source": "SP+"` and
+`draft_status` (standings.json only) mirrors the group's `picks.json` top-level
+field: `"dummy"` for engineered sample data — the site shows the amber
+**sample-data** banner — or `"final"` once the real draft is entered (`null` for
+the demo fixture and when the key is absent; only the literal `"dummy"` triggers
+the banner). `projection.json`'s `meta` carries two extra keys instead:
+`"ratings_source": "SP+"` and
 `"ratings_asof"` (ISO stamp of when the SP+ ratings used were pulled — the
 cache's `fetched_at`; SP+ is a single snapshot, not weekly history).
 

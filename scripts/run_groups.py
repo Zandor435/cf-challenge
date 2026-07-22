@@ -128,7 +128,8 @@ def run_group(slug, as_of_week):
             sys.exit(1)
 
     # Board 1 — fatal on failure (credibility spine).
-    standings = scoring.write_standings(config, picks, as_of_week)
+    standings = scoring.write_standings(config, picks, as_of_week,
+                                        utils.group_draft_status(slug))
     print(f"  [{slug}] standings.json ({len(standings['managers'])} managers)")
 
     # Board 2 — degrade, don't die.

@@ -21,6 +21,7 @@
   --red-bright:    #ff3b3b;
   --gold:          #e0b24a;
   --gold-dim:      #9c7f36;
+  --amber:         #f0a828;   /* sample-data banner — hotter than gold, cooler than red */
   --green:         #34c759;
   --green-dim:     #1c6b34;
   --dead:          #7a2626;
@@ -113,6 +114,20 @@ body {
 }
 .provenance b { color: var(--ink-2); font-weight: 500; }
 .provenance .prov-item { white-space: nowrap; }
+/* Season is the headline provenance fact — make it read first. */
+.provenance .prov-season { font-size: .74rem; }
+.provenance .prov-season b { color: var(--ink); }
+.provenance .prov-season-val {
+  color: var(--gold); font-weight: 700; letter-spacing: .5px; margin-left: 2px;
+}
+/* Replay banner — informational (gold), distinct from the red staleness alert. */
+.replay-banner {
+  background: linear-gradient(90deg, #2a2410, #1c180a);
+  border-top: 1px solid var(--gold);
+  color: #f3e2b0; font-size: .78rem; font-weight: 600;
+  padding: 8px 16px; text-align: center; letter-spacing: .2px;
+}
+.replay-banner::before { content: "↺ "; color: var(--gold); }
 .stale-banner {
   background: linear-gradient(90deg, #3a1414, #2a0f0f);
   border-top: 1px solid var(--red);
@@ -120,6 +135,15 @@ body {
   padding: 8px 16px; text-align: center; letter-spacing: .2px;
 }
 .stale-banner::before { content: "⚠ "; color: var(--red-bright); }
+/* Sample-data banner — amber, urgency BETWEEN red staleness and gold replay:
+   the picks are engineered dummies, not a real draft (STEP 4). */
+.sample-banner {
+  background: linear-gradient(90deg, #3a2a0c, #2a1e08);
+  border-top: 1px solid var(--amber, #e0a11a);
+  color: #ffe6b0; font-size: .78rem; font-weight: 600;
+  padding: 8px 16px; text-align: center; letter-spacing: .2px;
+}
+.sample-banner::before { content: "◐ "; color: var(--amber, #f0b52a); }
 
 /* ---------- Page shell -------------------------------------------------- */
 .page { max-width: var(--maxw); margin: 0 auto; padding: 18px 14px 40px; }
