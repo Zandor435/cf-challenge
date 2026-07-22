@@ -15,8 +15,24 @@ This is a PERMANENT tool — re-run each offseason against the new completed
 season. It does NOT change any constant; it reports and recommends. Constant
 changes wait for Zach's approval.
 
-Caveat (ARCHITECTURE §4): SP+ is partly preseason-weighted through ~September,
-so early-season calibration lags. The report is split weeks 1-5 vs 6+ to show it.
+*** HINDSIGHT-LEAKAGE WARNING — READ BEFORE TRUSTING ANY FITTED VALUE ***
+CFBD's SP+ endpoint (/ratings/sp?year=YYYY) returns the SEASON-FINAL rating
+only. Its `week` parameter is accepted but IGNORED (verified: Indiana 2024 SP+
+= 20.1 at no-week, week=3, week=10; 2025 cache value == live value == week=4
+value). So the SP+ block in data/cfbd_cache.json holds END-OF-SEASON ratings
+that already encode every game's result. Predicting week-3 games with them is
+HINDSIGHT LEAKAGE: games look more decided than they were live, the optimizer
+compensates by SHARPENING (a too-steep, too-small scale), and that steep scale
+would run OVERCONFIDENT on live in-season SP+. The fitted numbers this tool
+prints from a final-SP+ cache are therefore biased and MUST NOT be applied to
+the live projector. The inherited constant is safer than a leaky fit.
+Vintage-correct in-season ratings are available ONLY via Elo
+(/ratings/elo?year=&week=&seasonType=, verified to change week-by-week); SP+
+and FPI have no historical weekly vintage in CFBD. A non-leaky SP+ calibration
+is not possible with CFBD data — see the STEP 1 report / ARCHITECTURE §4.
+
+Caveat (ARCHITECTURE §4): SP+ is also partly preseason-weighted through ~Sept,
+so even the (leaky) early-season split lags. Report is split weeks 1-5 vs 6+.
 
 Usage:
     python scripts/calibrate.py
@@ -164,8 +180,15 @@ def calibrate_rating(name, rating_map, key):
 
 def main():
     season = utils.get_season()
+    print("!" * 72)
+    print("! HINDSIGHT-LEAKAGE WARNING: CFBD SP+/FPI have NO weekly vintage (the")
+    print("! `week` param is ignored). This cache holds SEASON-FINAL ratings, so the")
+    print("! fitted values below are leakage-biased (too-steep scale) and MUST NOT be")
+    print("! applied to the live projector. Vintage-correct in-season ratings exist")
+    print("! only via Elo (/ratings/elo?year=&week=). See the STEP 1 report.")
+    print("!" * 72)
     print("#" * 72)
-    print(f"# CALIBRATION BACKTEST — season {season}")
+    print(f"# CALIBRATION BACKTEST — season {season}  (final-SP+ / LEAKY — diagnostic only)")
     print(f"# current projector constants: WIN_PROB_POINTS_SCALE={WIN_PROB_POINTS_SCALE}, "
           f"HOME_FIELD_ADVANTAGE_PTS={HOME_FIELD_ADVANTAGE_PTS}")
     print("#" * 72)
@@ -173,18 +196,17 @@ def main():
     results = [r for r in (calibrate_rating(n, fn(season), k) for n, fn, k in RATINGS) if r]
 
     print("\n" + "#" * 72)
-    print("# RECOMMENDATION (Zach decides SP+ vs FPI and approves values)")
+    print("# LEAKY DIAGNOSTIC (do NOT adopt — final-SP+ fit, see leakage warning)")
     print("#" * 72)
     for r in sorted(results, key=lambda x: x["ll_fit"]):
         print(f"  {r['name']:5s} n={r['n']}: fitted scale={r['fitted'][0]}, hfa={r['fitted'][1]} "
               f"-> Brier {r['brier_cur']:.4f}->{r['brier_fit']:.4f}, "
               f"LogLoss {r['ll_cur']:.4f}->{r['ll_fit']:.4f}")
-    if results:
-        best = min(results, key=lambda x: x["ll_fit"])
-        print(f"\n  Lowest fitted log loss: {best['name']} "
-              f"(scale={best['fitted'][0]}, hfa={best['fitted'][1]}).")
-        print("  NOTE: constants NOT changed — awaiting approval (projector.py holds "
-              f"scale={WIN_PROB_POINTS_SCALE}, hfa={HOME_FIELD_ADVANTAGE_PTS}).")
+    print("\n  These fitted scales are biased TOO STEEP by hindsight leakage and are")
+    print("  NOT a recommendation. No constant changed — projector.py holds "
+          f"scale={WIN_PROB_POINTS_SCALE}, hfa={HOME_FIELD_ADVANTAGE_PTS}.")
+    print("  A non-leaky SP+ fit is impossible with CFBD (no vintage SP+); the only")
+    print("  vintage-correct path is Elo. Decision pending (see STEP 1 report).")
 
 
 if __name__ == "__main__":
