@@ -2,7 +2,7 @@
 """
 projector.py — Board 2: Projected Finish, ratings-driven (ARCHITECTURE §3, §10.3).
 
-Emits site/data/<group_id>/projection.json per docs/output-contract.md. Each
+Emits docs/data/<group_id>/projection.json per docs/output-contract.md. Each
 remaining game gets a win probability from the SP+ rating differential + home
 field; a pick's additional wins are the exact Poisson-binomial over those games
 (np.convolve, n<=13 — analytic, no Monte Carlo). Deterministic but clearly a
@@ -227,7 +227,7 @@ def build_projection(config, picks, as_of_week=None):
 
 def write_projection(config, picks, as_of_week=None):
     out = build_projection(config, picks, as_of_week)
-    path = utils.SITE_DATA_DIR / config["group_id"] / "projection.json"
+    path = utils.WEB_DATA_DIR / config["group_id"] / "projection.json"
     utils.save_json_atomic(path, out)
     return out
 

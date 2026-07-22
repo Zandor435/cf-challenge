@@ -29,7 +29,9 @@ for _stream in (sys.stdout, sys.stderr):
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 GROUPS_DIR = ROOT / "groups"
-SITE_DATA_DIR = ROOT / "site" / "data"
+# Engine write target (docs/output-contract.md). GitHub Pages serves from docs/
+# on main, so the boards live under docs/data/<group_id>/ and are committed.
+WEB_DATA_DIR = ROOT / "docs" / "data"
 
 CANONICAL_PATH = DATA_DIR / "teams_canonical.json"
 ALIASES_PATH = DATA_DIR / "team_aliases.json"
@@ -147,6 +149,17 @@ def load_cache(expected_season, path=None):
 def save_cache(cache, path=None):
     """Atomic cache write — never clobbers a good cache with a partial write."""
     save_json_atomic(path or CACHE_PATH, cache)
+
+
+def cache_fingerprint(path=None):
+    """sha256 of the RAW cache-file bytes (None if absent). The sanctioned way for
+    an integrity test to prove a failed/keyless fetch left data/cfbd_cache.json
+    byte-identical, WITHOUT referencing the cache path itself (test_cache_access
+    keeps all cache I/O inside utils.py). Bytes, not parsed JSON — so it catches
+    even a re-serialization that a JSON round-trip would hide."""
+    import hashlib
+    p = Path(path) if path else CACHE_PATH
+    return hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None
 
 
 # --- .env / secrets ---------------------------------------------------------

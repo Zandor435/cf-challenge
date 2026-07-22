@@ -6,7 +6,7 @@ Reshapes the ONE shared data/cfbd_cache.json into every group's boards:
     (fetch) -> validate -> score -> project -> timeline
 looping over all groups off the single cache (four groups cost the same CFBD
 calls as one). Everything keyed by group_id; the only write target is
-site/data/<group_id>/ (docs/output-contract.md).
+docs/data/<group_id>/ (docs/output-contract.md).
 
 Resilience (ARCHITECTURE §4, CLAUDE.md playbook rules 3/5):
   - Board 1 (standings) is the credibility spine: a scoring failure is FATAL.
@@ -89,7 +89,7 @@ def build_snapshot(standings, projection, eff_week):
 def append_timeline(config, snapshot):
     """Append `snapshot`, replacing any existing snapshot for the same effective
     week (idempotent), keeping snapshots sorted. Never rewrites earlier weeks."""
-    path = utils.SITE_DATA_DIR / config["group_id"] / "timeline.json"
+    path = utils.WEB_DATA_DIR / config["group_id"] / "timeline.json"
     if path.exists():
         tl = utils.load_json(path)
     else:
@@ -174,7 +174,7 @@ def main():
         run_group(slug, args.as_of_week)
 
     print(f"\nDone: {len(slugs)} group(s) scored off the shared "
-          f"season-{season} cache -> site/data/<group_id>/.")
+          f"season-{season} cache -> docs/data/<group_id>/.")
 
 
 if __name__ == "__main__":

@@ -177,10 +177,25 @@ def build_team_index(games):
     return idx
 
 
-def assert_sp_refreshed(games, sp_ratings):
-    """§6 guard: never write a scores-only cache. If we have games, we must have
-    SP+ too, or the projection would silently freeze with no error."""
-    if games and not sp_ratings:
+def assert_fetch_complete(games, sp_ratings):
+    """The single pre-write gate: a fetch must be COMPLETE or we write NOTHING
+    (playbook rules 3/5, ARCHITECTURE §4/§6). Any raise here is caught by main()'s
+    `except CFBDError -> degraded_exit`, which keeps the last good cache untouched.
+    Two ways a fetch is incomplete, both fatal-to-the-write:
+      - zero games came back (a zero-result fetch must never clobber real data —
+        rule 5); and
+      - games present but SP+ empty (a scores-only cache freezes the projection
+        with no error — §6, the silent no-reseed mode).
+    Auth failure is handled even earlier: get_api_key() exits before the client
+    is built, so no write path is reachable without a key. Together these mean the
+    cache is only ever replaced by a whole, coherent fetch — never partially."""
+    if not games:
+        raise CFBDError(
+            "fetch returned ZERO games. Refusing to overwrite the existing cache "
+            "with an empty/partial slate (playbook rule 5 — zero-result clobber "
+            "guard). Keeping the last good cache."
+        )
+    if not sp_ratings:
         raise CFBDError(
             "SP+ ratings came back EMPTY while games are present. Refusing to "
             "write a scores-only cache (ARCHITECTURE §6 — the silent no-reseed "
@@ -280,7 +295,16 @@ def archive_ratings(cache):
         week — we keep the existing file rather than overwrite it.
 
     Best-effort: the shared cache is already committed before this runs, so an
-    archive hiccup emits ::warning:: and never fails the pipeline (rule 3)."""
+    archive hiccup emits ::warning:: and never fails the pipeline (rule 3).
+
+    A keyless or degraded run NEVER reaches here (main() exits at get_api_key or
+    via degraded_exit before save_cache), but as an explicit belt-and-suspenders
+    we refuse to archive a cache without SP+ ratings — a vintage snapshot with no
+    ratings would be worthless and must never enter the calibration set."""
+    if not cache.get("sp_ratings"):
+        print("  ratings archive: skipped — cache carries no SP+ ratings "
+              "(degraded/empty fetch never archives).")
+        return
     try:
         season = cache["season"]
         # Fetch date from the cache's own stamp, so archive date == cache vintage.
@@ -351,7 +375,7 @@ def main():
 
         games = fetch_games(client, season)
         sp_ratings = fetch_sp(client, season)
-        assert_sp_refreshed(games, sp_ratings)          # §6 explicit guard
+        assert_fetch_complete(games, sp_ratings)        # pre-write gate (§4/§6, rule 5)
         fpi_ratings = fetch_fpi(client, season)         # secondary (calibration A/B)
     except CFBDError as e:
         degraded_exit(str(e), season)                    # §4 season-guarded fallback

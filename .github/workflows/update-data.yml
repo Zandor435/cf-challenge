@@ -11,11 +11,14 @@ on:
   #   - cron: "0 3 * * 1"
   workflow_dispatch: {}  # Manual trigger for testing
 
+# This pipeline has NO `on: push` trigger, so nothing it commits can re-trigger
+# it. See the recursion note on the commit step.
+
 jobs:
   update:
     runs-on: ubuntu-latest
     # Least-privilege deploy-from-inside (playbook rule 9): the job commits the
-    # regenerated site/data back to the branch Pages serves, so it needs write to
+    # regenerated docs/data back to the branch Pages serves, so it needs write to
     # repo contents — and ONLY that. The default GITHUB_TOKEN is read-only, which
     # silently blocked the commit/push step. A bot push with GITHUB_TOKEN does NOT
     # trigger other workflows, and this pipeline has no `on: push` trigger, so
@@ -23,7 +26,9 @@ jobs:
     permissions:
       contents: write
     env:
-      CFB_API_KEY: ${{ secrets.CFB_API_KEY }}
+      # The scripts read the env var CFB_API_KEY. Source it from a repo secret of
+      # EITHER name so a secret saved as CFBD_API_KEY also works (|| = first non-empty).
+      CFB_API_KEY: ${{ secrets.CFB_API_KEY || secrets.CFBD_API_KEY }}
 
     steps:
       - name: Checkout
@@ -39,20 +44,50 @@ jobs:
 
       # ====== SHARED: fetch results + SP+ into the one cache (needs-new-data) ======
       # continue-on-error (playbook rule 3): a fetch outage must not take the
-      # pipeline dark. fetch_results.py keeps the last good (correct-season)
-      # cache and exits non-fatally; the reshape step below runs off it.
+      # pipeline dark. fetch_results.py keeps the last good (correct-season) cache
+      # untouched and exits non-fatally; the reshape step below runs off it. A
+      # keyless/incomplete fetch writes NOTHING (test_fetch_integrity.py).
       - name: Fetch game results + SP+
+        id: fetch
         run: python scripts/fetch_results.py --season 2025
         continue-on-error: true
+
+      # ====== SURFACE the fetch outcome prominently (do not pass quietly) ======
+      # continue-on-error hides the red X, so a degraded run could read as clean.
+      # Make it loud: a ::warning:: annotation + a banner in the run Summary.
+      - name: Report fetch outcome
+        if: always()
+        run: |
+          if [ "${{ steps.fetch.outcome }}" = "success" ]; then
+            echo "### ✅ Fetch OK — scored off a fresh CFBD pull" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning title=Fetch degraded::CFBD fetch did not succeed (outcome=${{ steps.fetch.outcome }}). Scored off the LAST GOOD committed cache; boards may lag live results until the next successful pull. Check the CFB_API_KEY / CFBD_API_KEY secret and CFBD availability."
+            {
+              echo "### ⚠️ FETCH DEGRADED — ran off the last good cache"
+              echo ""
+              echo "The CFBD fetch step did not succeed (\`outcome=${{ steps.fetch.outcome }}\`)."
+              echo "Scoring ran off the **last committed cache** (architected fallback,"
+              echo "playbook rule 3), so the boards may lag live results until the next"
+              echo "successful pull."
+              echo ""
+              echo "**Check:** the repo secret is set — the workflow reads env \`CFB_API_KEY\`,"
+              echo "sourced from a secret named \`CFB_API_KEY\` or \`CFBD_API_KEY\` — and that"
+              echo "CFBD is reachable."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       # ====== RESHAPE: validate -> score -> project -> timeline, all groups ======
       # Reshapes-existing-data: runs regardless of the fetch outcome, off the
       # shared cache (degrades gracefully rather than freezing). Board 1 is
-      # fatal; the projector degrades. Writes site/data/<group_id>/.
+      # fatal; the projector degrades. Writes docs/data/<group_id>/.
       - name: Score + project all groups
         run: python scripts/run_groups.py --group all
 
-      # ====== DEPLOY ======
+      # ====== DEPLOY (commit-from-inside) ======
+      # [skip ci] on the commit message so this data push triggers NO workflow —
+      # not this pipeline (it has no `on: push` anyway) and not the Pages deploy
+      # (which is also path-filtered to ignore docs/data/**). Two independent
+      # guards against a deploy->pipeline loop; the cron stays commented out.
       - name: Commit and push
         run: |
           git config user.name "CFB Fantasy Bot"
@@ -61,6 +96,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update: $(date +%Y-%m-%d) weekly data refresh"
+            git commit -m "Update: $(date +%Y-%m-%d) weekly data refresh [skip ci]"
             git push
           fi

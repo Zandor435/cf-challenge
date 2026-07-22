@@ -2,7 +2,7 @@
 
 Every downstream consumer (site, email, pundit) reads **only** what this file
 defines. The engine writes exactly three files per group to the single write
-target `site/data/<group_id>/`:
+target `docs/data/<group_id>/` (GitHub Pages serves from `docs/` on main):
 
 | file | board | overwrite vs accumulate |
 |------|-------|-------------------------|

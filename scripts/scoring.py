@@ -2,7 +2,7 @@
 """
 scoring.py — Board 1: Standings, pure arithmetic (ARCHITECTURE §3, §10.2).
 
-Emits site/data/<group_id>/standings.json per docs/output-contract.md. Every
+Emits docs/data/<group_id>/standings.json per docs/output-contract.md. Every
 number is exact, reproducible-by-hand arithmetic off utils.team_state (the sole
 flag-aware / as-of-aware source): banked delta in the pick's O/U direction, a
 floor/ceiling envelope from games_remaining, and a CLINCHED/DEAD/LIVE status.
@@ -114,7 +114,7 @@ def build_standings(config, picks, as_of_week=None):
 
 def write_standings(config, picks, as_of_week=None):
     out = build_standings(config, picks, as_of_week)
-    path = utils.SITE_DATA_DIR / config["group_id"] / "standings.json"
+    path = utils.WEB_DATA_DIR / config["group_id"] / "standings.json"
     utils.save_json_atomic(path, out)
     return out
 

@@ -126,9 +126,9 @@ def main():
     with tempfile.TemporaryDirectory() as td:
         tl_path = Path(td) / "timeline.json"
         # monkeypatch the write target to the temp dir
-        orig = utils.SITE_DATA_DIR
+        orig = utils.WEB_DATA_DIR
         try:
-            utils.SITE_DATA_DIR = Path(td)
+            utils.WEB_DATA_DIR = Path(td)
             (Path(td) / config["group_id"]).mkdir(parents=True, exist_ok=True)
             snap6 = run_groups.build_snapshot(st6, pr6, 6)
             validate_timeline_snapshot(snap6, "wk6")
@@ -144,7 +144,7 @@ def main():
             check("timeline append-only + sorted", weeks == sorted(weeks) and weeks == [6, 14],
                   f"weeks={weeks}")
         finally:
-            utils.SITE_DATA_DIR = orig
+            utils.WEB_DATA_DIR = orig
 
     passed, total = sum(_res), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
