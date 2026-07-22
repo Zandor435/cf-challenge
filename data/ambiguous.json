@@ -1,0 +1,31 @@
+{
+  "_note": "Mechanically-generated acronym collisions — tokens that map to 2+ FBS teams, routed to the resolver's ambiguity guard so they never resolve silently. Merged with utils.AMBIGUOUS_BASE at runtime. Keyed by normalized token -> candidate canonical strings.",
+  "asu": [
+    "App State",
+    "Arizona State",
+    "Arkansas State"
+  ],
+  "bsu": [
+    "Ball State",
+    "Boise State"
+  ],
+  "fsu": [
+    "Florida State",
+    "Fresno State"
+  ],
+  "ksu": [
+    "Kansas State",
+    "Kennesaw State",
+    "Kent State"
+  ],
+  "msu": [
+    "Michigan State",
+    "Mississippi State",
+    "Missouri State"
+  ],
+  "osu": [
+    "Ohio State",
+    "Oklahoma State",
+    "Oregon State"
+  ]
+}
