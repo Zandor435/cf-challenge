@@ -296,11 +296,15 @@ def path_b(games_by_year, sp_by_year):
     return sB, sW
 
 
-def units_bridge(lines_by_year, sp_by_year, path_a_scale):
-    print("\n" + "=" * 76)
-    print("UNITS BRIDGE — SP+ differential vs closing spread (same games, same-year SP+)")
-    print("=" * 76)
-    xs, ys = [], []
+def joint_sample(lines_by_year, games_by_year, sp_by_year):
+    """Per-game (SP+diff, market_margin=-spread, home[neutral-aware], win) over
+    FBS-vs-FBS games with both teams SP+-rated (same-year final) and a closing
+    line. `home` = 0 for neutral-site games (from /games, joined on game id)."""
+    neutral = {}
+    for yr in BACKTEST_YEARS:
+        for g in games_by_year[yr]:
+            neutral[g.get("id")] = bool(g.get("neutralSite"))
+    sd, mk, hm, yw = [], [], [], []
     for yr in BACKTEST_YEARS:
         rmap = sp_map(sp_by_year, yr)
         for g in lines_by_year[yr]:
@@ -312,24 +316,80 @@ def units_bridge(lines_by_year, sp_by_year, path_a_scale):
             sp, _ = closing_spread(g)
             if sp is None:
                 continue
-            xs.append(-sp)            # market-implied home margin
-            ys.append(rmap[ht] - rmap[at])   # SP+ differential (no HFA)
-    xs, ys = np.array(xs), np.array(ys)
-    r = np.corrcoef(xs, ys)[0, 1]
-    fslope, fint = np.polyfit(xs, ys, 1)     # SP+diff ~ market_margin (user framing)
-    bslope, bint = np.polyfit(ys, xs, 1)     # market_margin ~ SP+diff (attenuation-correct)
-    scale_sp = path_a_scale / bslope
-    hfa_sp = bint / bslope
-    print(f"  n={len(xs)} games")
-    print(f"  nominal (SP+diff ~ market): slope={fslope:.3f}, intercept={fint:+.2f}, "
-          f"R^2={r * r:.3f}")
-    print(f"    slope ~= 1 -> SP+diff is on ~the same NOMINAL point scale as a spread;")
-    print(f"    intercept {fint:+.2f} ~ recovers market home-field (SP+diff carries none).")
-    print(f"  calibration (market ~ SP+diff, attenuation-correct): slope={bslope:.3f}")
-    print(f"    SP+ is noisier (R^2={r * r:.2f}) -> a weaker predictor needs a LARGER scale.")
-    print(f"    => SP+ scale = {path_a_scale}/{bslope:.3f} = {scale_sp:.2f}, implied HFA = {hfa_sp:.2f}")
-    print(f"    (final SP+ is leak-sharp; live SP+ noisier still -> true SP+ scale >= this.)")
-    return scale_sp, hfa_sp
+            hs, as_ = g.get("homeScore"), g.get("awayScore")
+            if hs is None or as_ is None or hs == as_:
+                continue
+            sd.append(rmap[ht] - rmap[at])
+            mk.append(-sp)
+            hm.append(0.0 if neutral.get(g.get("id"), False) else 1.0)
+            yw.append(1.0 if hs > as_ else 0.0)
+    return np.array(sd), np.array(mk), np.array(hm), np.array(yw)
+
+
+def _fit_projector_to_market(sd, mk, hm, yw):
+    """THE joint fit. In the projector's EXACT 2-param form (no intercept: a
+    neutral game between SP+-equal teams must be 50/50), pick (scale, HFA) so
+    p = sigma((SP+diff + HFA*home)/scale) best reproduces the market's leak-free
+    win prob q = sigma(-spread/scale_A), scored by cross-entropy (the same proper
+    scoring rule Path A / calibrate.py use). scale_A is the leak-free spread scale
+    on this same sample. Returns (scale_A, scale, hfa)."""
+    scale_A = fit_scale_only(mk, yw)
+    q = np.clip(sigmoid(mk, scale_A), EPS, 1 - EPS)
+
+    def xent(s, h):
+        p = np.clip(sigmoid(sd + h * hm, s), EPS, 1 - EPS)
+        return -np.mean(q * np.log(p) + (1 - q) * np.log(1 - p))
+
+    def best(scales, hfas):
+        b = (None, None, np.inf)
+        for s in scales:
+            for h in hfas:
+                v = xent(s, h)
+                if v < b[2]:
+                    b = (s, h, v)
+        return b
+    s0, h0, _ = best(np.arange(6.0, 20.01, 0.5), np.arange(0.0, 6.01, 0.5))
+    s1, h1, _ = best(np.arange(s0 - .5, s0 + .5001, .05), np.arange(max(0.0, h0 - .5), h0 + .5001, .05))
+    return scale_A, round(float(s1), 2), round(float(h1), 2)
+
+
+def market_bridge(lines_by_year, games_by_year, sp_by_year, n_boot=1500):
+    """ADOPTED method (BUILD 1). Jointly fit (scale, HFA) so the SP+ projector
+    reproduces the market's leak-free win probabilities, with bootstrap CIs."""
+    print("\n" + "=" * 76)
+    print("MARKET BRIDGE — jointly fit (scale, HFA) to reproduce the market's win prob")
+    print("=" * 76)
+    sd, mk, hm, yw = joint_sample(lines_by_year, games_by_year, sp_by_year)
+    n = len(sd)
+    scale_A, scale, hfa = _fit_projector_to_market(sd, mk, hm, yw)
+
+    # Nominal-units context: SP+diff vs spread (are they the same point scale?).
+    fslope = np.polyfit(mk, sd, 1)[0]
+    r2 = np.corrcoef(mk, sd)[0, 1] ** 2
+    print(f"  n={n} games ({int((hm == 0).sum())} neutral-site), same-year final SP+")
+    print(f"  nominal units: SP+diff ~ {fslope:.3f}*market_margin (R^2={r2:.3f}) — "
+          f"~same point scale; SP+ noisier -> needs a larger, flatter scale.")
+    print(f"  leak-free spread scale_A (this sample): {scale_A}")
+
+    # Bootstrap CIs (resample games; refit scale_A + the joint fit each draw).
+    rng = np.random.default_rng(20260722)
+    sc_bs, hf_bs = [], []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        _, sc, hf = _fit_projector_to_market(sd[idx], mk[idx], hm[idx], yw[idx])
+        sc_bs.append(sc)
+        hf_bs.append(hf)
+    sc_bs, hf_bs = np.array(sc_bs), np.array(hf_bs)
+    sc_ci = (np.percentile(sc_bs, 2.5), np.percentile(sc_bs, 97.5))
+    hf_ci = (np.percentile(hf_bs, 2.5), np.percentile(hf_bs, 97.5))
+
+    print(f"\n  JOINT FIT (projector form, cross-entropy to market q):")
+    print(f"    WIN_PROB_POINTS_SCALE   = {scale}   95% CI [{sc_ci[0]:.2f}, {sc_ci[1]:.2f}]")
+    print(f"    HOME_FIELD_ADVANTAGE_PTS = {hfa}   95% CI [{hf_ci[0]:.2f}, {hf_ci[1]:.2f}]")
+    print(f"    NOTE: this uses FINAL SP+ (leak-sharp); live in-season SP+ is noisier,")
+    print(f"    so the true live scale is ABOVE this — the adopted scale is a LOWER bound.")
+    print(f"    -> holding {WIN_PROB_POINTS_SCALE} (below the CI) runs the projector OVERCONFIDENT.")
+    return scale, hfa, sc_ci, hf_ci
 
 
 def main():
@@ -346,26 +406,24 @@ def main():
 
     a_scale, a_train = path_a(data["lines"])
     b_scale, w_scale = path_b(data["games"], data["sp"])
-    sp_scale, sp_hfa = units_bridge(data["lines"], data["sp"], a_scale)
+    adopt_scale, adopt_hfa, sc_ci, hf_ci = market_bridge(data["lines"], data["games"], data["sp"])
 
     def inside(x):
         return w_scale <= x <= b_scale
 
     print("\n" + "#" * 76)
-    print("# SUMMARY — the SP+ win-prob scale (report only; Zach decides)")
+    print("# SUMMARY — SP+ win-prob scale")
     print("#" * 76)
+    print(f"  ADOPTED market-bridge pair (BUILD 1)       : scale {adopt_scale} "
+          f"[{sc_ci[0]:.2f},{sc_ci[1]:.2f}], HFA {adopt_hfa} [{hf_ci[0]:.2f},{hf_ci[1]:.2f}]")
     print(f"  Path A closing-spread scale (SPREAD pts)   : {a_scale}  (train {a_train}, holds OOS)")
-    print(f"  Path A -> SP+ units (attenuation-correct)  : {sp_scale:.1f}  (implied HFA {sp_hfa:.1f})")
     print(f"  Path B prior-season SP+ scale (UPPER bnd)  : {b_scale}")
     print(f"  within-season leaky fit (LOWER bnd)        : {w_scale} pooled / "
-          f"{LEAKY_SINGLE_SEASON} single-season")
-    print(f"  current projector constant                 : {WIN_PROB_POINTS_SCALE}")
-    print(f"\n  BRACKET: {w_scale} <= true SP+ scale <= {b_scale}")
-    print(f"    projector {WIN_PROB_POINTS_SCALE}          : "
-          f"{'INSIDE' if inside(WIN_PROB_POINTS_SCALE) else 'OUTSIDE'}")
-    print(f"    market-implied SP+ scale {sp_scale:.1f} : {'INSIDE' if inside(sp_scale) else 'OUTSIDE'}")
-    print(f"    leaky {LEAKY_SINGLE_SEASON}              : "
-          f"{'INSIDE' if inside(LEAKY_SINGLE_SEASON) else 'OUTSIDE (too steep)'}")
+          f"{LEAKY_SINGLE_SEASON} single-season (REFUTED — too steep)")
+    print(f"  projector now holds                        : {WIN_PROB_POINTS_SCALE} / {HOME_FIELD_ADVANTAGE_PTS}")
+    print(f"\n  BRACKET: {w_scale} <= true SP+ scale <= {b_scale}   (adopted {adopt_scale} "
+          f"{'INSIDE' if inside(adopt_scale) else 'OUTSIDE'})")
+    print(f"    adopted scale is a LOWER bound (final SP+); live SP+ noisier -> true is higher.")
 
 
 if __name__ == "__main__":

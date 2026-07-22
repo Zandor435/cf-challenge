@@ -43,9 +43,12 @@ Caveat (ARCHITECTURE §4): SP+ is also partly preseason-weighted through ~Sept,
 so even the (leaky) early-season split lags. Report is split weeks 1-5 vs 6+.
 
 Usage:
-    python scripts/calibrate.py
+    python scripts/calibrate.py             # leaky final-SP+ diagnostic
+    python scripts/calibrate.py --archive   # BUILD 2: non-leaky vintage-archive fit
+                                            # (activates once the archive is deep enough)
 """
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -61,6 +64,12 @@ RATINGS = [
     ("SP+", utils.season_sp_ratings, "rating"),
     ("FPI", utils.season_fpi_ratings, "fpi"),
 ]
+
+# --archive mode (BUILD 2) — the non-leaky within-season fit. Gated so it only
+# reports once the vintage archive is deep enough to mean something.
+ARCHIVE_DIR = utils.DATA_DIR / "ratings_archive"
+MIN_ARCHIVE_WEEKS = 6       # need this many distinct pre-game vintages to fit
+MIN_ARCHIVE_ROWS = 200      # ...and this many leak-free game rows
 
 
 def load_games(rating_map, key):
@@ -186,7 +195,125 @@ def calibrate_rating(name, rating_map, key):
             "brier_fit": brier(p_fit, y), "ll_fit": log_loss(p_fit, y)}
 
 
+# --- BUILD 2: non-leaky within-season fit off the vintage archive -----------
+
+def load_archive_snapshots(season):
+    """All committed vintage snapshots for `season`, ascending by (week, date).
+    week=None (preseason) is normalized to 0. Returns [] if the archive is empty."""
+    season_dir = ARCHIVE_DIR / str(season)
+    if not season_dir.exists():
+        return []
+    snaps = []
+    for p in sorted(season_dir.glob("*.json")):
+        try:
+            s = utils.load_json(p)
+        except Exception:
+            continue
+        s["_week"] = 0 if s.get("week") is None else int(s["week"])
+        s["_date"] = s.get("date", p.stem)
+        snaps.append(s)
+    snaps.sort(key=lambda s: (s["_week"], s["_date"]))
+    return snaps
+
+
+def vintage_ratings_before(snaps, target_week):
+    """SP+ map {team: rating} from the LATEST snapshot whose reported week is
+    strictly before target_week (ratings that existed GOING INTO that week — no
+    hindsight). None if the archive doesn't reach back that far."""
+    usable = [s for s in snaps if s["_week"] <= target_week - 1]
+    if not usable:
+        return None
+    s = usable[-1]                 # snaps are (week, date)-sorted -> latest vintage
+    return {t: (r or {}).get("rating") for t, r in s.get("sp_ratings", {}).items()}
+
+
+def load_archive_games(season):
+    """Completed FBS-vs-FBS games predicted from the vintage SP+ taken BEFORE
+    each game's week (leak-free). Returns the same array shape as load_games plus
+    the count of distinct vintages actually used."""
+    snaps = load_archive_snapshots(season)
+    games = utils.season_games(season)
+    rh, ra, hf, wk, y = [], [], [], [], []
+    skipped_novintage = skipped_unrated = 0
+    used_weeks = set()
+    for g in games:
+        if not g.get("completed"):
+            continue
+        if g.get("home_classification") != "fbs" or g.get("away_classification") != "fbs":
+            continue
+        hp, ap = g.get("home_points"), g.get("away_points")
+        if hp is None or ap is None or hp == ap:
+            continue
+        gw = g.get("week")
+        if gw is None:
+            continue
+        vint = vintage_ratings_before(snaps, gw)
+        if vint is None:
+            skipped_novintage += 1
+            continue
+        h, a = g.get("home_team"), g.get("away_team")
+        rh_v, ra_v = vint.get(h), vint.get(a)
+        if rh_v is None or ra_v is None:
+            skipped_unrated += 1
+            continue
+        rh.append(float(rh_v)); ra.append(float(ra_v))
+        hf.append(0.0 if g.get("neutral_site") else 1.0)
+        wk.append(gw); y.append(1.0 if hp > ap else 0.0)
+        used_weeks.add(gw)
+    return (np.array(rh), np.array(ra), np.array(hf), np.array(wk), np.array(y),
+            len(used_weeks), skipped_novintage, skipped_unrated)
+
+
+def calibrate_archive(season):
+    """Non-leaky within-season SP+ calibration off the vintage archive. This is
+    the method that permanently supersedes the market bridge once enough live
+    weeks exist (docs/calibration-report.md). Gated: reports insufficiency until
+    the archive is deep enough."""
+    print("#" * 72)
+    print(f"# NON-LEAKY WITHIN-SEASON CALIBRATION — season {season} (vintage archive)")
+    print("#" * 72)
+    snaps = load_archive_snapshots(season)
+    if not snaps:
+        print(f"  archive empty (no data/ratings_archive/{season}/). It fills as")
+        print("  fetch_results.py runs through the live season. Until then use")
+        print("  calibrate_spread.py (market bridge). Nothing to fit.")
+        return None
+
+    rh, ra, hf, wk, y, n_weeks, skip_nv, skip_ur = load_archive_games(season)
+    print(f"  {len(snaps)} vintage snapshot(s) on disk; {len(y)} leak-free game rows "
+          f"across {n_weeks} distinct week(s).")
+    print(f"  skipped: {skip_nv} (no vintage before that week), {skip_ur} (team unrated in vintage).")
+    if n_weeks < MIN_ARCHIVE_WEEKS or len(y) < MIN_ARCHIVE_ROWS:
+        print(f"\n  INSUFFICIENT: need >= {MIN_ARCHIVE_WEEKS} weeks and "
+              f"{MIN_ARCHIVE_ROWS} rows to fit; have {n_weeks} / {len(y)}.")
+        print("  Keep running the season; use calibrate_spread.py (market bridge)")
+        print("  meanwhile. This mode activates automatically once deep enough.")
+        return None
+
+    fs, fh, _ = fit(rh, ra, hf, y)
+    p_cur = predict(rh, ra, hf, WIN_PROB_POINTS_SCALE, HOME_FIELD_ADVANTAGE_PTS)
+    p_fit = predict(rh, ra, hf, fs, fh)
+    print(f"\n  [VINTAGE FIT — no hindsight leakage]")
+    print(f"    current {WIN_PROB_POINTS_SCALE}/{HOME_FIELD_ADVANTAGE_PTS}: "
+          f"Brier={brier(p_cur, y):.4f}  LogLoss={log_loss(p_cur, y):.4f}")
+    print(f"    fitted  {fs}/{fh}: Brier={brier(p_fit, y):.4f}  LogLoss={log_loss(p_fit, y):.4f}")
+    print("    reliability (deciles, vintage-fitted):")
+    print_table(decile_table(p_fit, y))
+    print(f"\n  This IS leak-free (vintage-correct SP+). It supersedes the market-bridge")
+    print(f"  lower bound in docs/calibration-report.md. Re-fit projector.py to "
+          f"({fs}, {fh}) only on Zach's approval — no constant changes here.")
+    return {"fitted": (fs, fh), "n": len(y), "weeks": n_weeks}
+
+
 def main():
+    ap = argparse.ArgumentParser(description="SP+ win-prob scale calibration")
+    ap.add_argument("--archive", action="store_true",
+                    help="BUILD 2: non-leaky within-season fit off data/ratings_archive/")
+    args = ap.parse_args()
+    if args.archive:
+        calibrate_archive(utils.get_season())
+        return
+
     season = utils.get_season()
     print("!" * 72)
     print("! HINDSIGHT-LEAKAGE WARNING: CFBD SP+/FPI have NO weekly vintage (the")

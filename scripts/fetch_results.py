@@ -39,6 +39,14 @@ PASSES_PER_MONTH = 2 * 52 / 12  # twice-weekly cadence ≈ 8.67 passes/month
 MONTHLY_CEILING = 1000
 STALE_DAYS = 10  # fallback cache older than this = pipeline broken for cycles, not a blip
 
+# BUILD 2 — SP+ vintage archive. CFBD's /ratings/sp returns only the season-FINAL
+# rating (the `week` param is ignored), so past in-season vintages are
+# unrecoverable — but every fetch already pulls the CURRENT rating, so future
+# vintages are free. Snapshot each fetch here, keyed by fetch date + CFBD week,
+# append-only. This IS the future non-leaky calibration set (calibrate.py
+# --archive), so it is COMMITTED, never gitignored. See docs/calibration-report.md.
+ARCHIVE_DIR = utils.DATA_DIR / "ratings_archive"
+
 
 def _num(v):
     try:
@@ -257,6 +265,70 @@ def degraded_exit(reason, requested_season):
     sys.exit(0)  # non-fatal: downstream reshapes existing (correct-season) data
 
 
+def archive_ratings(cache):
+    """BUILD 2 — append this fetch's SP+/FPI (and closing lines, IF a future
+    fetch already pulls them — no extra call) to the committed vintage archive:
+    data/ratings_archive/<season>/<YYYY-MM-DD>.json, keyed by fetch date + the
+    CFBD-reported week.
+
+    Append-only, idempotent, never clobbers (playbook rule 5):
+      - one file per fetch DATE; twice-weekly cadence -> two files/week (distinct
+        vintages, same week — expected and kept),
+      - if today's file already exists, SKIP (a same-day re-run is a no-op; the
+        first good snapshot of the day wins), so no duplication and no overwrite,
+      - a warning (never a failure) if a same-date file somehow holds a different
+        week — we keep the existing file rather than overwrite it.
+
+    Best-effort: the shared cache is already committed before this runs, so an
+    archive hiccup emits ::warning:: and never fails the pipeline (rule 3)."""
+    try:
+        season = cache["season"]
+        # Fetch date from the cache's own stamp, so archive date == cache vintage.
+        fetched_at = cache.get("fetched_at", "")
+        date = fetched_at[:10] if len(fetched_at) >= 10 else \
+            datetime.now(timezone.utc).date().isoformat()
+        week = cache.get("week")
+        season_dir = ARCHIVE_DIR / str(season)
+        out = season_dir / f"{date}.json"
+
+        if out.exists():
+            try:
+                prev = utils.load_json(out)
+                if prev.get("week") != week:
+                    print(f"::warning:: ratings archive {out.name} already exists for "
+                          f"week {prev.get('week')} but this fetch reports week {week}; "
+                          f"keeping the existing snapshot (append-only, no overwrite).")
+                else:
+                    print(f"  ratings archive: {out.name} already present "
+                          f"(week {week}) — skipping (idempotent).")
+            except Exception:
+                print(f"  ratings archive: {out.name} exists — skipping (idempotent).")
+            return
+
+        snapshot = {
+            "date": date,
+            "week": week,
+            "fetched_at": fetched_at,
+            "season": season,
+            "source": cache.get("source", "CFBD"),
+            "sp_ratings": cache.get("sp_ratings", {}),
+            "fpi_ratings": cache.get("fpi_ratings", {}),
+            # Closing lines are NOT pulled by this fetch today (§4: lines are
+            # parked/cosmetic). If a future fetch adds them to the cache, they are
+            # archived here automatically with no extra API call.
+            "lines": cache.get("lines", {}),
+        }
+        utils.save_json_atomic(out, snapshot)
+        n_files = len(list(season_dir.glob("*.json")))
+        print(f"  ratings archive: appended {out.name} (week {week}, "
+              f"{len(snapshot['sp_ratings'])} SP+ / {len(snapshot['fpi_ratings'])} FPI); "
+              f"{n_files} vintage(s) archived for {season}.")
+    except Exception as e:
+        # Never let the archive take the pipeline dark — the cache is already saved.
+        print(f"::warning:: ratings-archive append failed ({type(e).__name__}: {e}); "
+              f"cache is unaffected. Continuing.")
+
+
 def main():
     ap = argparse.ArgumentParser(description="CFBD weekly fetch -> shared cache")
     # No season literal here: default is the single source (season.json).
@@ -321,6 +393,7 @@ def main():
         "fpi_ratings": fpi_ratings,
     }
     utils.save_cache(cache)
+    archive_ratings(cache)          # BUILD 2: append this vintage (append-only, best-effort)
 
     print(f"\n  season {season}: {len(games)} games "
           f"({completed} completed), {len(teams)} teams, "

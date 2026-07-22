@@ -15,8 +15,10 @@ leakage: games look more decided than they were live, so the optimizer sharpens
 (a too-small, too-steep scale) that would run overconfident on live in-season
 SP+. That is the `7.1`. It is a diagnostic, not a recommendation.
 
-**This report does not change any constant.** It reports leak-free evidence and
-one recommendation; Zach decides. Reproduce with `python scripts/calibrate_spread.py`.
+**Outcome (2026-07):** the leak-free evidence was adopted — `WIN_PROB_POINTS_SCALE`
+and `HOME_FIELD_ADVANTAGE_PTS` were **jointly** refit on the market bridge to
+**13.5 / 4.0** (see *Decision*, below). Reproduce with
+`python scripts/calibrate_spread.py`.
 
 ---
 
@@ -112,42 +114,77 @@ So the market, translated into SP+ units the right way, points at **~12**, not 9
 
 ---
 
-## The three numbers, side by side
+## The joint market-bridge fit — the adopted method
+
+Path A calibrates points in *spread* units; the projector runs on an *SP+*
+differential. The **market bridge** ties them together and yields both constants
+from one fit. In the projector's exact, intercept-free form
+`p = σ((SP+diff + HFA·home)/scale)`, pick `(scale, HFA)` to best reproduce the
+market's leak-free win probability `q = σ(-spread/scale_A)`, scored by
+cross-entropy (the same proper scoring rule Path A and `calibrate.py` use). Home
+is neutral-aware (from `/games`, joined on game id). Bootstrap (1,500 resamples):
+
+| constant | fitted | 95% CI | adopted |
+|---|---|---|---|
+| `WIN_PROB_POINTS_SCALE` | **13.55** | [12.77, 14.45] | **13.5** |
+| `HOME_FIELD_ADVANTAGE_PTS` | **3.95** | [3.65, 4.25] | **4.0** |
+
+Why a proper scoring rule and not margin-space OLS: the projector emits
+*probabilities* (fed to the Poisson-binomial and pool sim), so calibration lives
+in probability space. A margin-space OLS bridge gives ~11.9/4.0; the
+probability-space fit gives 13.5/4.0 because it correctly penalizes the
+overconfidence that SP+'s noise induces. Both **exceed 11.0** and put it below the
+CI. HFA 4.0 ≈ ~2.4 true home-field + ~1.6 a nominal-home offset (a small residual
+edge to the designated home team even at neutral sites) that the intercept-free
+form folds into the home term; genuinely neutral games get HFA=0.
+
+**It is a lower bound on flatness.** The bridge uses *final* SP+ (leak-sharp);
+live in-season SP+ is noisier, so its attenuation is worse and the true live scale
+is **above** 13.5. Holding a value *below* the fitted CI (as 11.0 was) runs the
+projector overconfident — the exact failure mode this exercise set out to avoid.
+
+## The numbers, side by side
 
 | number | value | status |
 |---|---|---|
-| **Path A** — closing-spread fit (spread pts) | **8.85** (train 9.1, holds OOS) | gold-standard, leak-free; *spread* units |
-| **Path A → SP+ units** (attenuation-correct) | **≈ 11.9**, HFA ≈ 3.9 | market translated to SP+ units; a lower estimate |
-| **Path B** — prior-season SP+ fit | **17.45** | leak-free upper bound (stale → flat) |
-| leaky within-season fit | 7.95 pooled / **7.1** single | biased lower bound (do not adopt) |
-| current projector | **11.0** / HFA 2.5 | inherited, was untested — now bracketed |
+| **ADOPTED — joint market-bridge pair** | **13.5 / 4.0** | scale CI [12.8, 14.4], HFA CI [3.7, 4.3]; a lower bound |
+| Path A — closing-spread fit (spread pts) | 8.85 (train 9.1, holds OOS) | gold-standard leak-free; *spread* units |
+| Path B — prior-season SP+ fit | 17.45 | leak-free upper bound (stale → flat) |
+| leaky within-season fit | 7.95 pooled / **7.1** single | biased lower bound — refuted |
+| old projector constant | **11.0 / 2.5** | inherited, untested; below the CI — **retired** |
+
+Bracket: **7.95 ≤ true SP+ scale ≤ 17.45.** Adopted 13.5 is inside; `7.1` is
+outside (too steep); old `11.0` was inside the bracket but below the market-bridge
+CI, i.e. too steep relative to the market.
 
 ---
 
-## Recommendation (report only — Zach decides)
+## Decision (adopted 2026-07)
 
-**Hold `11.0`, now for a real reason, not for lack of one.** Every leak-free line
-of evidence is consistent with it: it sits inside the only bracket we can build
-(7.95–17.45), and the market translated into SP+ units lands at ~11.9 — within a
-point of it. The leaky `7.1` is **refuted**: it is outside the bracket, too steep,
-and would run the projector overconfident on live data.
+**Set `WIN_PROB_POINTS_SCALE = 13.5`, `HOME_FIELD_ADVANTAGE_PTS = 4.0`** — the
+jointly-fitted market-bridge pair. `11.0` retired (below a lower bound →
+overconfident); `7.1` refuted (leak-steep, outside the bracket).
 
-Two honest caveats on that "hold":
+**Board impact** (replay at `--as-of-week 6`; only the test fixture has real
+picks yet — church/family/panel are pre-draft TODO placeholders and are
+unchanged): the flatter scale + higher HFA de-sharpen big favorites and tighten
+the race. Largest single-pick move: **Ohio State O10.5 win-prob 0.821 → 0.709
+(−0.112)**; the leader's pool-win prob compresses (owner-3 0.400 → 0.368),
+expected totals shrink toward the lines. Direction is exactly the intended
+de-overconfidence.
 
-1. **It's defensible, not validated to a point.** The bracket is wide because the
-   only two leak-free SP+ estimators are strongly biased in opposite directions.
-   If Zach wants a *tighter* number, the market bridge (~11.9) is the best single
-   point estimate, and **the evidence leans slightly UP from 11.0 toward ~12, not
-   down.** Moving 11.0 → 12 is a small, evidence-aligned change; moving toward 7.1
-   is not.
-2. **HFA 2.5 is at the low edge** of every estimate here (market intercept ~2.7,
-   attenuation-implied ~3.9, prior-season fit 5.45). A nudge to ~3 is mildly
-   supported, but it's a weaker signal than the scale and the two interact — so
-   if HFA moves, re-fit them together rather than eyeballing.
+## Supersession — the vintage archive (BUILD 2)
 
-The only way to *narrow* the SP+ bracket (a true within-season holdout) is to
-switch the ratings spine SP+ → **Elo**, the one CFBD rating with a real weekly
-vintage. That is a deliberate reopen of the ratings decision (ARCHITECTURE §4/§12),
-not a constant tweak, and is out of scope here.
+The market bridge is a **lower bound** only because CFBD gives us solely *final*
+SP+. That gap closes permanently going forward: `fetch_results.py` now snapshots
+the current SP+/FPI on every pass into `data/ratings_archive/<season>/` (committed,
+append-only — see that folder's README). Once the archive holds enough live weeks,
+`python scripts/calibrate.py --archive` fits the scale on the **vintage-correct**
+rating for each game (the snapshot taken *before* that game's week) — a true
+within-season holdout with **no** hindsight leakage and no market proxy. That fit
+**supersedes** this report's pair from the **2027 offseason** onward (first full
+2026 season archived). Until then the mode reports "insufficient — use the market
+bridge." A full spine switch SP+ → Elo remains a separate, deliberate reopen.
 
-*Run 2026-07 on 2021–2025 via `scripts/calibrate_spread.py`. Constants unchanged.*
+*Market bridge run 2026-07 on 2021–2025 via `scripts/calibrate_spread.py`;
+non-leaky successor via `scripts/calibrate.py --archive`.*

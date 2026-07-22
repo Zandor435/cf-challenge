@@ -33,8 +33,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
 
 # --- Tuning knobs (exposed on purpose — these get A/B'd, §4/§12) -------------
-HOME_FIELD_ADVANTAGE_PTS = 2.5     # points added to the home team's SP+ margin
-WIN_PROB_POINTS_SCALE = 11.0       # logistic scale (pts): p = 1/(1+exp(-margin/scale))
+# scale/HFA JOINTLY fitted on the leak-free market bridge (calibrate_spread.py,
+# 2026-07, 2021-2025): (scale, HFA) chosen so the SP+ projector reproduces the
+# closing-market win probability. Point est 13.55/3.95 (95% CI scale [12.8,14.4],
+# HFA [3.7,4.3]); adopted at 1-decimal. This is a LOWER bound on flatness — it
+# uses final SP+, and live in-season SP+ is noisier, so the true live scale is
+# higher. The old 11.0 (inherited, untested) sat BELOW the CI -> overconfident;
+# the leaky 7.1 is refuted (§12). Re-fit both together each offseason — never mix
+# a scale from one method with an HFA from another.
+HOME_FIELD_ADVANTAGE_PTS = 4.0     # points added to the home team's SP+ margin
+WIN_PROB_POINTS_SCALE = 13.5       # logistic scale (pts): p = 1/(1+exp(-margin/scale))
 FCS_FALLBACK_RATING = -35.0        # SP+ for an unrated (typically FCS) opponent
 POOL_SIM_TRIALS = 20000            # Monte-Carlo trials for shared-draw pool odds
 POOL_SIM_SEED_BASE = 20250101      # base seed; combined w/ group + week for reproducibility
