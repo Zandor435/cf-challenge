@@ -1,14 +1,6 @@
 name: Weekly Data Update
 
 on:
-  # DISARMED 2026-07-22 — cron stays OFF; Zach re-arms it, not the build.
-  # The keystone commit cleared the prior blockers: fetch + run_groups
-  # (validate -> score -> project -> timeline) now run green end-to-end via
-  # workflow_dispatch off the shared cache. Re-arm only after a manual
-  # workflow_dispatch run is confirmed green against the live season.
-  # schedule:
-  #   # Sunday 11 PM ET (Monday 3 AM UTC) — after Saturday games
-  #   - cron: "0 3 * * 1"
   workflow_dispatch: {}  # Manual trigger for testing
 
 # This pipeline has NO `on: push` trigger, so nothing it commits can re-trigger
@@ -59,9 +51,16 @@ jobs:
       # pipeline dark. fetch_results.py keeps the last good (correct-season) cache
       # untouched and exits non-fatally; the reshape step below runs off it. A
       # keyless/incomplete fetch writes NOTHING (test_fetch_integrity.py).
+      #
+      # NO --season literal here: fetch_results.py defaults to season.json's
+      # cfbd_default_season (utils.get_cfbd_default_season). This is deliberate —
+      # season.json is the single source of truth ("no season literal lives in any
+      # script"). If we hardcoded a year, a season flip would score the new season
+      # against a cache still tagged with the old one and trip the §6 guard
+      # (assert_season_matches_cache). Flip season.json only; the fetch follows.
       - name: Fetch game results + SP+
         id: fetch
-        run: python scripts/fetch_results.py --season 2025
+        run: python scripts/fetch_results.py
         continue-on-error: true
 
       # ====== SURFACE the fetch outcome prominently (do not pass quietly) ======
