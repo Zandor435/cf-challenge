@@ -367,12 +367,14 @@ def main():
     print(f"FETCH RESULTS — season {season}")
     print("=" * 60)
 
-    client = CFBDClient(utils.get_api_key())
     try:
         if args.simulate_failure:
-            client.call_count += 1  # a real attempt would have cost a call
+            # Exercises the commentary-bypass fallback (§4) with zero network
+            # calls — must never require a real key or client, so this check
+            # runs before either is touched.
             raise CFBDError("simulated fetch failure (--simulate-failure)")
 
+        client = CFBDClient(utils.get_api_key())
         games = fetch_games(client, season)
         sp_ratings = fetch_sp(client, season)
         assert_fetch_complete(games, sp_ratings)        # pre-write gate (§4/§6, rule 5)
