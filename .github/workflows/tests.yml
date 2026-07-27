@@ -1,0 +1,68 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}  # secondary trigger, for manual confirmation runs
+
+# Read-only. This workflow only runs the test suite — it never commits or
+# deploys, unlike pages.yml (pages:write) and update-data.yml (contents:write
+# + pages:write). No secrets are required by anything below.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+
+      # Each script below is a hand-rolled runner (check()/main() + an
+      # explicit sys.exit(0/1)), NOT a pytest test_*() module — bare
+      # `pytest scripts/` would import these files but collect ZERO test
+      # items from six of the seven, silently skipping almost the whole
+      # suite while still exiting 0. Run each directly so every check in
+      # every file actually executes and a real failure actually fails this
+      # job (a silent miss is worse than a loud stop).
+      - name: test_resolver.py
+        run: python scripts/test_resolver.py
+      - name: test_cache_access.py
+        run: python scripts/test_cache_access.py
+      - name: test_pick_rules.py
+        run: python scripts/test_pick_rules.py
+      - name: test_output_shape.py
+        run: python scripts/test_output_shape.py
+      - name: test_projector_correlation.py
+        run: python scripts/test_projector_correlation.py
+      - name: selftest_10_1.py
+        run: python scripts/selftest_10_1.py
+      - name: test_fetch_integrity.py
+        run: python scripts/test_fetch_integrity.py
+
+      # ARCHITECTURE §9: the fetch->score name/conference/draft-rule gate,
+      # run here against whatever picks are currently committed (the real
+      # groups' dummy picks today; real drafts once they land) so a bad
+      # picks.json fails CI loudly instead of only failing at the next live
+      # pipeline run.
+      - name: validate_team_names.py (§9 gate)
+        run: python scripts/validate_team_names.py
+
+      # Supplementary, not a replacement for the explicit runs above: catches
+      # the two genuinely pytest-style tests inside test_projector_correlation.py
+      # (test_realistic_partial_overlap, test_degenerate_opposite_single_team)
+      # plus anything pytest-style added going forward.
+      - name: pytest (supplementary discovery)
+        run: python -m pytest scripts/ -v
