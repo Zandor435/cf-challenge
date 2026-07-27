@@ -246,10 +246,15 @@ function renderBoard1(standings) {
 
 // ---------- Board 2 — Projected Finish ------------------------------------
 function projPickRow(p) {
+  const over = p.direction === 'O';
   return `<div class="proj-pick">
-    <span class="pp-team">${esc(p.team)}</span>
-    <span class="pp-line">${p.direction} ${p.line}</span>
-    <span class="pp-nums"><span class="beat">${pct(p.p_beat_line)}</span> beat &middot; ${fmtSigned(p.expected_delta)} exp</span>
+    <div class="pp-team-wrap">
+      <span class="pp-team">${esc(p.team)}</span>
+      <span class="pp-dir ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'}</span>
+    </div>
+    <span class="pp-line">${p.line}</span>
+    <span class="pp-win">${pct(p.p_beat_line)}</span>
+    <span class="pp-exp">${fmtSigned(p.expected_delta)}</span>
   </div>`;
 }
 function projManager(m) {
@@ -275,6 +280,9 @@ function projManager(m) {
         <div class="proj-range-med" style="left:${medPos}%"></div>
       </div>
       <div class="proj-range-labels"><span>p05 ${fmtSigned(m.p05)}</span><span>p95 ${fmtSigned(m.p95)}</span></div>
+    </div>
+    <div class="proj-picks-head">
+      <span>Team</span><span>Line</span><span>Win%</span><span>Exp</span>
     </div>
     <div class="proj-picks">${(m.picks || []).map(projPickRow).join('')}</div>
   </div>`;

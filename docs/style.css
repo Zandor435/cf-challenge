@@ -309,15 +309,31 @@ body {
 .proj-range-fill { position: absolute; top: 0; bottom: 0; border-radius: 100px; background: rgba(224,178,74,.28); }
 .proj-range-med { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--gold); }
 .proj-range-labels { display: flex; justify-content: space-between; margin-top: 4px; font-family: var(--mono); font-size: .6rem; color: var(--ink-3); }
-.proj-picks { margin-top: 10px; display: grid; gap: 5px; }
+.proj-picks-head {
+  display: grid; grid-template-columns: 1fr 52px 40px 52px; gap: 10px;
+  margin-top: 10px; padding: 10px 8px 4px; border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: .58rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: .8px; color: var(--ink-3);
+}
+.proj-picks-head span:not(:first-child) { text-align: right; }
+
+.proj-picks { margin-top: 5px; display: grid; gap: 5px; }
 .proj-pick {
-  display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: baseline;
+  display: grid; grid-template-columns: 1fr 52px 40px 52px; gap: 10px; align-items: center;
   font-size: .78rem; padding: 5px 8px; border-radius: var(--r-sm); background: rgba(0,0,0,.2);
 }
-.proj-pick .pp-team { font-family: var(--display); text-transform: uppercase; letter-spacing: .3px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.proj-pick .pp-line { font-family: var(--mono); color: var(--ink-3); }
-.proj-pick .pp-nums { font-family: var(--mono); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.proj-pick .pp-nums .beat { color: var(--gold); font-weight: 500; }
+.pp-team-wrap { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.proj-pick .pp-team { font-family: var(--display); text-transform: uppercase; letter-spacing: .3px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1 1 auto; }
+.pp-dir {
+  flex: 0 0 auto; display: inline-block; font-family: var(--body); font-weight: 700;
+  font-size: .6rem; text-transform: uppercase; letter-spacing: .4px;
+  padding: 1px 6px; border-radius: 100px;
+}
+.pp-dir.over  { background: rgba(52,199,89,.14); color: var(--green); border: 1px solid var(--green-dim); }
+.pp-dir.under { background: rgba(210,30,30,.12); color: #ff6b6b; border: 1px solid var(--dead); }
+.proj-pick .pp-line { font-family: var(--mono); color: var(--ink-3); text-align: right; font-variant-numeric: tabular-nums; }
+.proj-pick .pp-win  { font-family: var(--mono); color: var(--gold); font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.proj-pick .pp-exp  { font-family: var(--mono); color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
 
 /* Board 2 unavailable / stale (STEP 4) */
 .board2-unavailable {
