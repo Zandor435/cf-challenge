@@ -161,7 +161,7 @@ Doing step 3 *before* CC pulls SP+ means guessing from a model's memory (which g
 
 ### ADAPT (skeleton survives, content rewritten)
 - **`scoring.py` math** → win-total deltas. Keep config-driven I/O; rewrite the compute.
-- **`generate_commentary.py`** (1032 lines) → strip to **one pundit**. OpenAI-via-urllib call structure reuses (note: WC commentary runs on **OpenAI GPT**, key `OPENAI_API_KEY`, called via raw urllib — no SDK). `rome_column_template.md` + `pundit_roundtable.md` → one persona template. **Persona TBD** — candidates: Jim Rome, Kirk Herbstreit, Chris Berman, Scott Van Pelt. Zach will research/experiment.
+- **`generate_commentary.py`** (1032 lines) → strip to **one pundit**. OpenAI-via-urllib call structure reuses (note: WC commentary runs on **OpenAI GPT**, key `OPENAI_API_KEY`, called via raw urllib — no SDK). `rome_column_template.md` + `pundit_roundtable.md` → one persona template. **Persona DECIDED: Scott Van Pelt** (single persona; decided outside the repo, other candidates — Rome/Herbstreit/Berman — dropped).
 - **Analytics frontend** → keep the **Geckoboard tiled-grid design language**; rebuild the tiles (delta board, per-pick O/U tracker, envelope, projected-finish, hits/busts).
 - **`team_aliases.json`** (23 entries for WC) → **balloons** for CFB. Same mechanism, 5–10× the entries (see §9).
 
@@ -212,19 +212,19 @@ Doing step 3 *before* CC pulls SP+ means guessing from a model's memory (which g
 - **GPT / OpenAI:** commentary generation (the one pundit).
 - **Workflow rules that carry over:** read-only diagnostic prompts before authorizing fixes; batch piecemeal changes into one CC prompt; one CC thread per set of overlapping files; `git worktree` to isolate parallel threads; "definition of done" = committed AND pushed; sync repo before starting new threads.
 
-### Deploy target — decide deliberately
-WC ended up **Netlify-primary** (`netlify.toml`) with GitHub Pages as stopgap. For CF, pick deliberately rather than inherit. (Multi-group landing-page structure may favor one over the other — evaluate when the frontend is scaffolded.)
+### Deploy target — DECIDED: GitHub Pages
+WC ended up **Netlify-primary** (`netlify.toml`) with GitHub Pages as stopgap. CF decided deliberately rather than inheriting: **GitHub Pages**, built and live via `pages.yml` (human pushes) + an inline deploy from `update-data.yml` (bot commits, playbook rule 9), sharing one `pages` concurrency group. No `netlify.toml` exists or is planned.
 
 ---
 
 ## 12. Open Items (not blocking scaffold)
-- **Pundit persona** — Zach researching (Rome / Herbstreit / Berman / SVP).
+- **Pundit persona — DECIDED: Scott Van Pelt** (single persona; decided outside the repo, landed here 2026-07-27). Other candidates (Rome / Herbstreit / Berman) dropped.
 - **SP+ win-prob scale — DECIDED 2026-07. `WIN_PROB_POINTS_SCALE=13.5`, `HOME_FIELD_ADVANTAGE_PTS=4.0`, JOINTLY fitted on the leak-free market bridge.** Both constants come from one fit — never mix a scale from one method with an HFA from another.
   - **Method (`scripts/calibrate_spread.py`, report `docs/calibration-report.md`, 2021–2025).** A closing spread is set before kickoff and can't encode the result, so calibrating spread→P(win) is leak-free (Path A: spread scale 8.85, stable OOS). The **market bridge** then jointly picks the projector's `(scale, HFA)` — in its exact intercept-free form `p = σ((SP+diff + HFA·home)/scale)` — to best reproduce the market's leak-free win probability, scored by cross-entropy. Fitted pair **13.55 / 3.95** (95% CI scale **[12.8, 14.4]**, HFA **[3.7, 4.3]**), adopted at 1-decimal `13.5 / 4.0`. HFA 4.0 ≈ ~2.4 true home-field + ~1.6 a nominal-home offset the intercept-free form folds into the home term.
   - **It is a LOWER bound on flatness.** The bridge uses season-FINAL SP+ (the `week` param is ignored: Indiana 2024 SP+ = 20.1 at no-week/wk3/wk10; 2025 cache==live==wk4), which is *sharper* than the live in-season SP+ the projector actually runs on. Live SP+ is noisier → worse attenuation → the true live scale is **above** 13.5. So 13.5 is the floor; if anything the live projector should be flatter still.
   - **`11.0` RETIRED.** It was inherited from the wc-challenge repo (different sport/units), never tested here, and sat **below** the fitted CI — i.e. it ran the projector overconfident, below a lower bound. That is the failure mode we set out to avoid.
   - **`7.1` REFUTED.** It was `calibrate.py`'s in-season-SP+ fit, hindsight-leaked too steep; it sits outside the leak-free bracket **7.95 ≤ true scale ≤ 17.45** (below even the leaky lower bound). Do not adopt it.
   - **Re-fit each offseason**, and permanently once the SP+ vintage archive (§ below / BUILD 2) holds enough live weeks — that supersedes the bridge with a true within-season holdout. The only other vintage-correct in-season CFBD rating is **Elo** (`/ratings/elo?year=&week=&seasonType=`, week-varying); a full spine switch SP+→Elo remains a separate, deliberate reopen, not a constant tweak. FPI A/B has the same in-season leakage limitation and is shelved.
-- **Deploy target** — Netlify vs Pages, decide at frontend stage.
+- **Deploy target — DECIDED: GitHub Pages** (landed 2026-07-27, matches §11). No Netlify config exists or is planned.
 - **CFBD native win-probability endpoint — DECIDED (2026-07, during §10.1 research). Board 2 computes per-game win probability from the SP+ rating differential + home field; the native endpoint is rejected. Do NOT reopen in §10.3.** Reasoning: `/metrics/wp/pregame` is **spread-gated** — it returns a probability only for games with a *posted betting line*, so it cannot price games weeks out, and Board 2 needs *every remaining game from Week 1*. `/metrics/wp` is **in-game play-by-play only** (games already started). Neither yields a forward, full-season projection of unplayed games. The SP+-differential path is deterministic and defined for every scheduled game, which is what the Poisson-binomial projector requires.
 - **Cross-machine ding** — set a CC `Stop` hook in user-level settings on each Windows PC for an audible/toast alert on completion (VS-Code-extension audio can be flaky; use SAPI speak or a toast, and test it fires).
