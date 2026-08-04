@@ -45,7 +45,9 @@ def test_cache(season):
 
     # Per-team scheduled counts for FBS teams (from canonical) must be 12 or 13
     # in the NEUTRAL cache (which counts every game, conf-title games included).
-    canonical = {t["school"] for t in load_json(CANONICAL_PATH)["teams"]}
+    canonical_records = load_json(CANONICAL_PATH)["teams"]
+    canonical = {t["school"] for t in canonical_records}
+    fbs_conferences = {t["conference"] for t in canonical_records}
     teams = cache["teams"]
     fbs_present = [t for t in teams if t in canonical]
     outliers = {t: teams[t]["scheduled_games"] for t in fbs_present
@@ -58,15 +60,24 @@ def test_cache(season):
     # whether they count is per-group config. Assert the flag actually gates the
     # 13th game — NOT that "a 13th exists" (which asserted the old bug was present).
     games = cache["games"]
+    # teams_canonical.json carries a 2026 FBS addendum (Sacramento State, which
+    # was still FCS in 2025), so the canonical roster can be larger than the
+    # cache season's FBS field. Scope the census to canonical teams the cache
+    # actually has in an FBS conference that season — a magic 136 against the
+    # whole file would drift every time a newcomer is added.
+    fbs_this_season = {t for t in canonical
+                       if teams.get(t, {}).get("conference") in fbs_conferences}
     off = utils.count_scheduled_games(games, count_conference_championship=False)
-    off_fbs = {t: off.get(t, 0) for t in canonical}
+    off_fbs = {t: off.get(t, 0) for t in fbs_this_season}
     not12 = {t: n for t, n in off_fbs.items() if n != 12}
     check("flag OFF: all 136 FBS teams sit at 12",
-          len(canonical) == 136 and not not12,
-          f"{len(canonical)} FBS teams" + (f"; !=12: {not12}" if not12 else ""))
+          len(fbs_this_season) == 136 and not not12,
+          f"{len(fbs_this_season)} FBS teams this season "
+          f"({len(canonical)} canonical incl. later-season additions)"
+          + (f"; !=12: {not12}" if not12 else ""))
 
     on = utils.count_scheduled_games(games, count_conference_championship=True)
-    at13_on = sorted(t for t in canonical if on.get(t, 0) == 13)
+    at13_on = sorted(t for t in fbs_this_season if on.get(t, 0) == 13)
     champ = [g for g in games if g.get("conference_championship")]
     participants = {g["home_team"] for g in champ} | {g["away_team"] for g in champ}
     check("flag ON: exactly 18 FBS teams sit at 13", len(at13_on) == 18,

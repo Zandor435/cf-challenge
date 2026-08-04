@@ -9,9 +9,25 @@ does not resolve to a canonical FBS team fails the run (exit 1) and names it.
 
 The ambiguity guard resolve_team used to provide (bare "Miami"/"USC" raising) is
 replaced by a STRONGER, storage-appropriate check: cross-check each pick's team
-against its own `conference` field via teams_canonical.json. "Miami"/ACC is
-correct; "Miami"/MAC (i.e. the person meant Miami (OH)) is caught, as is
-"USC"/SEC vs "USC"/Big Ten — by the field that has to be filled in anyway.
+against its own `conference` field. "Miami"/ACC is correct; "Miami"/MAC (i.e. the
+person meant Miami (OH)) is caught, as is "USC"/SEC vs "USC"/Big Ten — by the
+field that has to be filled in anyway.
+
+REFERENCE AUTHORITY (locked): the conference cross-check, and the new line check
+below, both read data/team_win_totals_2026.json — the frozen draft-day reference
+built by build_team_reference.py, keyed by canonical team name. It is the SOLE
+authority on `conference` and `win_total` for the 2026 season.
+teams_canonical.json is deliberately NOT consulted for either: its conference
+field is a 2025-vintage snapshot that realignment has moved past (Boise State is
+Mountain West there, Pac-12 in 2026), so trusting it would fail correct picks and
+corrupt the 4-distinct-conference count. It stays authoritative for team IDENTITY
+only — resolve_canonical still runs against it. Per real pick, three checks:
+  - the team resolves to a canonical FBS team AND has a reference entry,
+  - the pick's `conference` equals the reference's conference,
+  - the pick's `line` equals the reference's `win_total` — a pick scored against
+    a line the league never agreed to is a silently wrong result, the same bug
+    class as a mis-resolved name.
+Every failure names the group, the manager, the team, and which field disagreed.
 
 Draft rules (§5) are ALWAYS enforced per group — no unenforced path:
   - picks_per_manager: each manager has EXACTLY this many picks (no more, fewer).
@@ -35,12 +51,37 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
-from utils import (resolve_canonical, canonical_conference, UnknownTeamError,
-                   normalize_team_name, get_all_group_ids, load_group_picks,
-                   load_group_config)
+from utils import (resolve_canonical, UnknownTeamError, normalize_team_name,
+                   get_all_group_ids, load_group_picks, load_group_config)
 
+# The frozen draft-day reference (§1 "the line never moves"), built by
+# build_team_reference.py. Sole authority on conference + win_total (see above).
+WIN_TOTALS_PATH = utils.DATA_DIR / "team_win_totals_2026.json"
 
 _SIDE_LABEL = {"O": "over", "U": "under"}
+
+_WIN_TOTALS = None
+
+
+def load_win_totals():
+    """{normalized canonical team -> {display_name, conference, win_total}}.
+    Keyed on the normalized name so it lines up with resolve_canonical's output
+    regardless of punctuation/diacritics ("San José State")."""
+    global _WIN_TOTALS
+    if _WIN_TOTALS is None:
+        raw = utils.load_json(WIN_TOTALS_PATH)   # missing file exits 1 — no silent pass
+        _WIN_TOTALS = {normalize_team_name(k): v
+                       for k, v in raw.get("teams", {}).items()}
+    return _WIN_TOTALS
+
+
+def _as_number(value):
+    """float(value) or None — a line stored as a string still compares, a
+    non-numeric one is reported rather than crashing the gate."""
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _side_label(direction):
@@ -72,28 +113,73 @@ def validate_group_data(group_id, config, picks):
                        "problem": problem, "detail": detail})
 
     real = _real_picks(picks)
+    reference = load_win_totals()
+    ref_conf = {}   # index into `real` -> the reference's conference for that pick
 
-    # 1) name resolution + conference cross-check, per real pick
-    for pick in real:
+    # 1) name resolution + conference/line cross-check against the frozen
+    #    win-totals reference, per real pick.
+    for idx, pick in enumerate(real):
         team = pick.get("team")
+        manager = pick.get("manager", "?")
         try:
             canonical = resolve_canonical(team)
         except UnknownTeamError as e:
             hint = f"did you mean: {', '.join(e.suggestions)}?" if e.suggestions else "no close match"
-            err(pick.get("manager", "?"), team, "not-canonical", hint)
+            err(manager, team, "not-canonical", hint)
             continue
+
+        entry = reference.get(normalize_team_name(canonical))
+        if entry is None:
+            err(manager, team, "not-in-reference",
+                f"'{canonical}' has no entry in {WIN_TOTALS_PATH.name} — there is "
+                f"no draft-day line to score this pick against")
+            continue
+        ref_conf[idx] = entry.get("conference")
+
+        pick_ok = True
+
+        # conference — the reference is the authority, NOT teams_canonical.json
         declared = pick.get("conference")
-        actual = canonical_conference(canonical)
+        actual = entry.get("conference")
         if declared is None:
-            err(pick.get("manager", "?"), team, "missing-conference",
+            err(manager, team, "missing-conference",
                 "pick has no `conference` field to cross-check")
-            continue
-        if normalize_team_name(declared) != normalize_team_name(actual):
-            err(pick.get("manager", "?"), team, "conference-mismatch",
-                f"'{canonical}' is in {actual!r}, but the pick says {declared!r} "
-                f"— wrong team? (e.g. Miami vs Miami (OH))")
-            continue
-        checked += 1
+            pick_ok = False
+        elif normalize_team_name(declared) != normalize_team_name(actual):
+            err(manager, team, "conference-mismatch",
+                f"CONFERENCE disagrees: {WIN_TOTALS_PATH.name} has '{canonical}' in "
+                f"{actual!r}, the pick says {declared!r} — wrong team (e.g. Miami vs "
+                f"Miami (OH)), or a stale pre-realignment conference")
+            pick_ok = False
+
+        # line — must equal the frozen draft-day win total exactly
+        declared_line = pick.get("line")
+        ref_line = _as_number(entry.get("win_total"))
+        if declared_line is None:
+            err(manager, team, "missing-line",
+                f"pick has no `line` field; {WIN_TOTALS_PATH.name} has "
+                f"win_total {entry.get('win_total')!r} for '{canonical}'")
+            pick_ok = False
+        else:
+            declared_num = _as_number(declared_line)
+            if declared_num is None:
+                err(manager, team, "line-not-numeric",
+                    f"pick line {declared_line!r} is not a number")
+                pick_ok = False
+            elif ref_line is None:
+                err(manager, team, "reference-line-not-numeric",
+                    f"{WIN_TOTALS_PATH.name} has a non-numeric win_total "
+                    f"{entry.get('win_total')!r} for '{canonical}'")
+                pick_ok = False
+            elif abs(declared_num - ref_line) > 1e-9:
+                err(manager, team, "line-mismatch",
+                    f"LINE disagrees: {WIN_TOTALS_PATH.name} has '{canonical}' at "
+                    f"{ref_line}, the pick says {declared_num} — the line is frozen "
+                    f"at draft (§1) and does not move")
+                pick_ok = False
+
+        if pick_ok:
+            checked += 1
 
     # 2) team-sharing gate (§5) — ALWAYS enforced. Two managers may hold the same
     #    team only on OPPOSITE sides; same team + same side means both "win" the
@@ -145,13 +231,17 @@ def validate_group_data(group_id, config, picks):
     # group by manager over REAL picks only -> managers with no real picks (all
     # TODO placeholders) never appear here, so undrafted rosters are skipped.
     by_mgr = {}
-    for pick in real:
-        by_mgr.setdefault(pick.get("manager", "?"), []).append(pick)
+    for idx, pick in enumerate(real):
+        by_mgr.setdefault(pick.get("manager", "?"), []).append((idx, pick))
     for mgr, mpicks in by_mgr.items():
         if len(mpicks) != ppm:
             err(mgr, "(roster)", "picks-per-manager",
                 f"has {len(mpicks)} pick(s), rule requires EXACTLY {ppm}")
-        confs = {p.get("conference") for p in mpicks if p.get("conference")}
+        # Conference per the REFERENCE (the authority) where the pick resolved;
+        # an unresolved pick falls back to its declared value, which is already
+        # reported above — so the count still reflects the whole roster.
+        confs = {ref_conf.get(i) or p.get("conference")
+                 for i, p in mpicks if ref_conf.get(i) or p.get("conference")}
         if len(confs) < mdc:
             err(mgr, "(roster)", "min-distinct-conferences",
                 f"{len(mpicks)} pick(s) span {len(confs)} conference(s) {sorted(confs)}, "

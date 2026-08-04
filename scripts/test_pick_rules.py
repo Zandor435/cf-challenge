@@ -20,8 +20,9 @@ bet — must be impossible):
   FAIL — one manager holding the same team twice
   PASS — same team, OPPOSITE sides (the only legal sharing)
 
-Fixtures use real canonical teams with correct conferences, so the ONLY possible
-error is the draft-rule violation (not a name/conference mismatch).
+Fixtures use real canonical teams with their real 2026 conference AND line (per
+data/team_win_totals_2026.json), so the ONLY possible error is the draft-rule
+violation — not a name, conference, or line mismatch.
 
 Usage:
     python scripts/test_pick_rules.py
@@ -35,16 +36,19 @@ from validate_team_names import validate_group_data
 
 RULES = {"picks_per_manager": 4, "min_distinct_conferences": 4}
 
-# (team, canonical conference) — verified against teams_canonical.json
-OHIO_STATE = ("Ohio State", "Big Ten")
-MICHIGAN = ("Michigan", "Big Ten")
-ALABAMA = ("Alabama", "SEC")
-GEORGIA = ("Georgia", "SEC")
-CLEMSON = ("Clemson", "ACC")
-MIAMI = ("Miami", "ACC")
-UTAH = ("Utah", "Big 12")
-BAYLOR = ("Baylor", "Big 12")
-BOISE = ("Boise State", "Mountain West")
+# (canonical team, conference, line) — verified against data/team_win_totals_2026.json,
+# which is the authority on BOTH conference and line (validate_team_names now checks
+# each pick against it). Note Boise State is Pac-12 in 2026: teams_canonical.json
+# still says Mountain West, and using that stale value here would fail the gate.
+OHIO_STATE = ("Ohio State", "Big Ten", 9.5)
+MICHIGAN = ("Michigan", "Big Ten", 8.5)
+ALABAMA = ("Alabama", "SEC", 8.5)
+GEORGIA = ("Georgia", "SEC", 9.5)
+CLEMSON = ("Clemson", "ACC", 7.5)
+MIAMI = ("Miami", "ACC", 10.5)
+UTAH = ("Utah", "Big 12", 8.5)
+BAYLOR = ("Baylor", "Big 12", 6.5)
+BOISE = ("Boise State", "Pac-12", 7.5)
 
 _res = []
 
@@ -55,14 +59,14 @@ def check(name, ok, detail=""):
 
 
 def picks(mgr, teamconfs):
-    return [{"manager": mgr, "team": t, "conference": c, "line": 9.5, "direction": "O"}
-            for t, c in teamconfs]
+    return [{"manager": mgr, "team": t, "conference": c, "line": ln, "direction": "O"}
+            for t, c, ln in teamconfs]
 
 
 def sided(mgr, items):
-    """Build picks with an explicit O/U side per pick: items = [((team, conf), dir)]."""
-    return [{"manager": mgr, "team": t, "conference": c, "line": 9.5, "direction": d}
-            for (t, c), d in items]
+    """Build picks with an explicit O/U side per pick: items = [((team, conf, line), dir)]."""
+    return [{"manager": mgr, "team": t, "conference": c, "line": ln, "direction": d}
+            for (t, c, ln), d in items]
 
 
 def problems_for(pk, manager=None):

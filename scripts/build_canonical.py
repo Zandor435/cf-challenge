@@ -64,6 +64,9 @@ ALIAS_SEED = {
     "Middle Tennessee State": "Middle Tennessee",
     "MTSU": "Middle Tennessee",
     "Brigham Young": "BYU",
+    # Books/lines list Florida International as "FIU"; the mechanical acronym
+    # pass only generates FI/UFI from the canonical, so this direction is hand-fed.
+    "FIU": "Florida International",
     # Common short forms.
     "Pitt": "Pittsburgh",
     "Cal": "California",
