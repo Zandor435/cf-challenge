@@ -456,14 +456,24 @@ def team_state(team, group_config, as_of_week=None):
     replay (games after week N are treated as unplayed).
 
     Returns a dict:
-      team, conference,
+      team,
       banked_wins, banked_losses,
       games_scheduled, games_played, games_remaining,
       remaining_games: [{opponent, home_away, week}, ...]  (ascending by week)
 
     Banked totals and remaining_games come off the SAME slate, so
     games_played + games_remaining == games_scheduled always — Board 1 and
-    Board 2 can never disagree on what is still to play."""
+    Board 2 can never disagree on what is still to play.
+
+    Deliberately does NOT return `conference`. It used to, via
+    canonical_conference() -> teams_canonical.json, which made the rendered
+    boards disagree with the picks: teams_canonical.json is a 2025-vintage
+    snapshot ("American Athletic", "Mid-American") while the frozen reference
+    data/team_win_totals_2026.json — the authority validate_team_names.py
+    gates every pick against — says "American"/"MAC". A pick's own
+    `conference` field is already checked against that reference, so the
+    scorers read it straight off the pick and there is only ONE source of
+    conference truth to drift."""
     flag = counts_conference_championship(group_config)
     season = get_season()                  # single source (season.json), not the config
     key = resolve_canonical(team)          # picks store canonical names (§9)
@@ -496,7 +506,6 @@ def team_state(team, group_config, as_of_week=None):
     remaining.sort(key=lambda r: (r["week"] is None, r["week"]))
     return {
         "team": key,
-        "conference": canonical_conference(key),
         "banked_wins": banked_wins,
         "banked_losses": banked_losses,
         "games_scheduled": games_played + len(remaining),

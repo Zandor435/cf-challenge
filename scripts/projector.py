@@ -97,9 +97,16 @@ def _team_cache(config, picks, as_of_week, sp_ratings):
         canonical = utils.resolve_canonical(pick["team"])
         if canonical not in cache:
             st = utils.team_state(pick["team"], config, as_of_week)
+            # conference comes off the pick, not team_state — it is gate-checked
+            # against the frozen reference (§9), the single source of truth. This
+            # cache holds ONE entry per team shared across managers, so it takes
+            # the conference from whichever pick lands here first; that is
+            # unambiguous because validate_team_names.py already fails any pick
+            # whose conference disagrees with the reference, so two picks on the
+            # same team cannot carry different values.
             cache[canonical] = {"banked_wins": st["banked_wins"],
                                 "probs": remaining_win_probs(st, sp_ratings),
-                                "conference": st["conference"]}
+                                "conference": pick["conference"]}
     return cache
 
 

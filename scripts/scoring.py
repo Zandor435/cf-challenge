@@ -51,7 +51,9 @@ def pick_standing(pick, config, as_of_week):
 
     return {
         "team": st["team"],
-        "conference": st["conference"],
+        # straight off the pick — it is gate-checked against the frozen
+        # reference, so it is the single source of conference truth (§9)
+        "conference": pick["conference"],
         "line": line,
         "direction": direction,
         "banked_wins": bw,
