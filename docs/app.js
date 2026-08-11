@@ -38,6 +38,12 @@ function fmtStamp(iso) {
     hour: '2-digit', minute: '2-digit',
   });
 }
+function fmtShort(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return '—';
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
 function daysSince(iso) {
   const d = new Date(iso);
   if (isNaN(d)) return null;
@@ -92,62 +98,46 @@ function renderSwitcher(activeId) {
 }
 
 // ---------- provenance strip (STEP 5) -------------------------------------
+// One quiet muted line. The season value flows from season.json via the
+// engine (meta.season) — nothing is hardcoded here. Replay and staleness are
+// inline, small, slate: wire-red is reserved for OVER badges and live states.
 function renderProvenance(meta) {
   const strip = $('provenance');
   const wk = (meta.as_of_week === null || meta.as_of_week === undefined)
-    ? 'Live (current week)' : `Week ${meta.as_of_week}`;
+    ? 'live' : `week ${meta.as_of_week}`;
   const dataSeason = Number(meta.season);
   const seasonLabel = Number.isFinite(dataSeason) ? String(dataSeason) : '—';
-  strip.innerHTML =
-    `<span class="prov-item prov-season"><b>Season</b> ` +
-      `<span class="prov-season-val">${esc(seasonLabel)}</span></span>` +
-    `<span class="prov-item"><b>Scored:</b> ${esc(wk)}</span>` +
-    `<span class="prov-item"><b>Generated:</b> ${esc(fmtStamp(meta.generated_at))}</span>` +
-    `<span class="prov-item"><b>Data pulled:</b> ${esc(fmtStamp(meta.cache_fetched_at))}</span>`;
-  show(strip);
 
-  // ---- Banner hierarchy (STEP 4) -----------------------------------------
-  // Three possible banners, most to least urgent:
-  //   stale (red)  >  sample (amber)  >  replay (gold)
-  // At most TWO show at once; if all three apply, the two most urgent win.
-  //
-  //  - stale:  cache older than STALE_DAYS — the numbers may be wrong. Loudest.
-  //  - sample: draft_status === 'dummy' — the picks are placeholders, not a real
-  //    draft. Clears the instant a group's picks.json flips to "final".
-  //  - replay: the data's season predates the real-world season (a newer season
-  //    kicked off but season.json isn't flipped). This is the guard staleness
-  //    CANNOT be: cache_fetched_at refreshes on every replay run, so age-based
-  //    staleness never trips while replaying a finished season. Clears on flip.
   const rw = realWorldSeason();
   const age = daysSince(meta.cache_fetched_at);
+  const isReplay = Number.isFinite(dataSeason) && dataSeason < rw;
+  const isStale = age !== null && age > STALE_DAYS;
 
-  const stale = $('stale-banner');
-  const sample = $('sample-banner');
-  const replay = $('replay-banner');
-
-  const wantStale = age !== null && age > STALE_DAYS;
-  if (wantStale) {
-    stale.textContent =
-      `These numbers are ${Math.floor(age)} days old (data last pulled ` +
-      `${fmtStamp(meta.cache_fetched_at)}). They may not reflect recent games.`;
+  const parts = [
+    `<b>${esc(seasonLabel)}${isReplay ? ' replay' : ''}</b>`,
+    `scored ${esc(wk)}`,
+    `gen ${esc(fmtShort(meta.generated_at))}`,
+    `data ${esc(fmtShort(meta.cache_fetched_at))}`,
+  ];
+  if (isStale) {
+    parts.push(`<span class="prov-stale" title="Data last pulled ` +
+      `${esc(fmtStamp(meta.cache_fetched_at))} — may not reflect recent games.">` +
+      `⚠ ${Math.floor(age)}d old</span>`);
   }
-  const wantSample = meta.draft_status === 'dummy';
-  if (wantSample) {
+  strip.innerHTML = parts.map((p) => `<span class="prov-item">${p}</span>`)
+    .join('<span class="prov-sep">&middot;</span>');
+  show(strip);
+
+  // Sample-data banner stays a visible band (gold wash, not accent-burning):
+  // dummy picks previewing the board must never read as a real draft.
+  const sample = $('sample-banner');
+  if (meta.draft_status === 'dummy') {
     sample.textContent =
       `Sample data — the draft has not been entered. These picks are placeholders ` +
       `to preview the board, not real selections.`;
-  }
-  const wantReplay = Number.isFinite(dataSeason) && dataSeason < rw;
-  if (wantReplay) {
-    replay.textContent =
-      `${dataSeason} replay — the ${rw} season has not started. ` +
-      `You're viewing final ${dataSeason} results, not live data.`;
-  }
-
-  // Priority order; show only the two most urgent that apply, hide the rest.
-  let showing = 0;
-  for (const [want, el] of [[wantStale, stale], [wantSample, sample], [wantReplay, replay]]) {
-    if (want && showing < 2) { show(el); showing++; } else { hide(el); }
+    show(sample);
+  } else {
+    hide(sample);
   }
 }
 
@@ -177,10 +167,12 @@ function rangeBar(floor, ceiling, mark, gMin, gMax) {
   const pos = (v) => Math.max(0, Math.min(100, ((v - gMin) / span) * 100));
   const l = pos(floor), r = pos(ceiling), m = pos(mark);
   const zero = pos(0);
+  // The delta-0 tick IS the line: banked lands there exactly when the team
+  // sits at its win total. Drawn whenever 0 is inside the group scale.
   return `<div class="range" title="Floor ${fmtSigned(floor)} · Banked ${fmtSigned(mark)} · Ceiling ${fmtSigned(ceiling)}">
     <div class="range-track">
-      <div class="range-fill" style="left:${l}%;right:${100 - r}%"></div>
-      ${gMin < 0 && gMax > 0 ? `<div class="range-zero" style="left:${zero}%"></div>` : ''}
+      <div class="range-fill" style="left:${l}%;width:${Math.max(r - l, 0.5)}%"></div>
+      ${gMin <= 0 && gMax >= 0 ? `<div class="range-zero" style="left:${zero}%"></div>` : ''}
       <div class="range-mark" style="left:${m}%"></div>
     </div>
   </div>`;

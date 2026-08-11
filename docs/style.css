@@ -92,43 +92,29 @@ body {
   color: var(--cf-ink);
 }
 
-/* ---------- Provenance strip -------------------------------------------- */
+/* ---------- Provenance: one quiet line ----------------------------------- */
 .provenance {
   max-width: var(--maxw); margin: 0 auto;
-  padding: 6px 16px 8px; display: flex; flex-wrap: wrap; gap: 4px 18px;
-  font-family: var(--mono); font-size: .66rem; color: var(--cf-slate);
+  padding: 5px 16px 7px; display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: 2px 7px;
+  font-family: var(--mono); font-size: .64rem; color: var(--cf-slate);
   border-top: var(--hairline-soft);
 }
-.provenance b { color: var(--cf-ink); font-weight: 500; }
+.provenance b { color: var(--cf-ink); font-weight: 700; letter-spacing: .5px; }
 .provenance .prov-item { white-space: nowrap; }
-.provenance .prov-season { font-size: .72rem; }
-.provenance .prov-season b { color: var(--cf-ink); }
-.provenance .prov-season-val {
-  color: var(--cf-ink); font-weight: 700; letter-spacing: .5px; margin-left: 2px;
-}
+.provenance .prov-sep { opacity: .5; }
+/* Staleness is inline text — small, muted, no alert box, no accent color. */
+.provenance .prov-stale { font-weight: 700; }
 
-/* ---------- Banners (hierarchy preserved: stale > sample > replay) ------- */
-/* Palette restraint applies here too: red for the loud one, gold WASH for
-   sample, plain slate rule for the informational replay note. */
-.stale-banner, .sample-banner, .replay-banner {
+/* Sample-data band — quiet gold wash, the one banner that stays a banner. */
+.sample-banner {
   font-family: var(--mono);
   font-size: .72rem; font-weight: 500; letter-spacing: .2px;
   padding: 8px 16px; text-align: center;
-}
-.stale-banner {
-  background: var(--cf-wire-red); color: var(--cf-newsprint);
-}
-.stale-banner::before { content: "\26A0  "; }
-.sample-banner {
   background: var(--gold-wash); color: var(--cf-ink);
   border-top: var(--hairline-soft);
 }
 .sample-banner::before { content: "\25D0  "; color: var(--cf-slate); }
-.replay-banner {
-  background: transparent; color: var(--cf-slate);
-  border-top: var(--hairline-soft);
-}
-.replay-banner::before { content: "\21BA  "; }
 
 /* ---------- Page shell -------------------------------------------------- */
 .page { max-width: var(--maxw); margin: 0 auto; padding: 20px 14px 40px; }
@@ -274,26 +260,27 @@ body {
 .pick-sub .st-clinched { color: var(--cf-ink); font-weight: 700; }
 .pick-sub .st-dead { color: var(--cf-slate); font-weight: 700; }
 
-/* Floor–ceiling range bar: thin track, filled floor→ceiling span, small
-   marker at the current banked position. Flat, no motion. */
-.range { margin-top: 6px; }
+/* Floor–ceiling range bar: a RANGE, not a line — visible filled segment from
+   floor to ceiling, square ink tick at the banked position, thin tick where
+   delta 0 sits (the line itself). Flat, no motion. */
+.range { margin-top: 7px; }
 .range-track {
-  position: relative; height: 3px; border-radius: 0;
-  background: rgba(74, 79, 85, .18);
+  position: relative; height: 6px; border-radius: 0;
+  background: rgba(74, 79, 85, .14);
 }
 .range-fill {
-  position: absolute; top: 0; bottom: 0;
-  background: rgba(74, 79, 85, .5);
+  position: absolute; top: 0; bottom: 0; min-width: 3px;
+  background: rgba(74, 79, 85, .45);
 }
 .range-zero {
   position: absolute; top: -2px; bottom: -2px; width: 1px;
-  background: rgba(74, 79, 85, .55);
+  background: var(--cf-slate);
 }
 .range-mark {
-  position: absolute; top: 50%; width: 5px; height: 5px;
-  background: var(--cf-ink); border-radius: 50%;
+  position: absolute; top: 50%; width: 3px; height: 12px;
+  background: var(--cf-ink);
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 1.5px var(--cf-newsprint);
+  box-shadow: 0 0 0 1px var(--cf-newsprint);
 }
 
 /* ---------- Board 2 — Projected finish (washed, dashed, subordinate) ------
