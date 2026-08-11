@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V3 · Manager Dossier — CF Challenge design lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* V3 — MANAGER DOSSIER. Structural departure: the owner is not a row in a
+   table, the owner IS the page. Oversized portrait, condensed nameplate,
+   record-card form strip, picks as a squad. Football Manager × Players'
+   Tribune, not a fantasy dashboard. */
+:root {
+  --paper: #EFE9DC; --ink: #201D18; --slate: #4A4F55;
+  --red: #A9331F; --gold: #C99A46;
+  --display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --serif: 'Newsreader', Georgia, serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--serif); line-height: 1.5; }
+.lab-bar {
+  display: flex; justify-content: space-between; align-items: baseline;
+  max-width: 600px; margin: 0 auto; padding: 12px 16px 10px;
+  font-family: var(--mono); font-size: .66rem; color: var(--slate);
+  border-bottom: 3px double var(--ink);
+}
+.lab-bar a { color: var(--red); text-decoration: none; }
+.lab-bar b { color: var(--ink); font-family: var(--display); font-weight: 700; font-size: .85rem; letter-spacing: 1.5px; text-transform: uppercase; }
+.wrap { max-width: 600px; margin: 0 auto; padding: 24px 16px 60px; }
+.spec-label { font-family: var(--mono); font-size: .6rem; letter-spacing: 1.6px; text-transform: uppercase; color: var(--slate); margin: 34px 0 10px; }
+.spec-label:first-child { margin-top: 0; }
+
+/* ---- Dossier hero ---- */
+.dossier { border: 1px solid var(--ink); background: var(--paper); }
+.hero { display: flex; gap: 16px; padding: 16px; border-bottom: 1px solid var(--ink); }
+.portrait {
+  flex: 0 0 158px; aspect-ratio: 5/7; background: var(--gold);
+  display: flex; align-items: flex-end; position: relative;
+}
+.portrait span { font-family: var(--mono); font-size: .54rem; letter-spacing: .8px; text-transform: uppercase; padding: 7px 8px; opacity: .55; }
+.hero-id { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+.hero-kicker { font-family: var(--mono); font-size: .6rem; letter-spacing: 1.8px; text-transform: uppercase; color: var(--red); font-weight: 700; }
+.hero-name {
+  font-family: var(--display); font-weight: 900; text-transform: uppercase;
+  font-size: clamp(56px, 17vw, 84px); line-height: .88; letter-spacing: .5px;
+  margin-top: 6px;
+}
+.hero-line { font-family: var(--mono); font-size: .64rem; color: var(--slate); margin-top: 8px; }
+.hero-line b { color: var(--ink); }
+/* Record-card form strip */
+.form-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--ink); }
+.form-cell { padding: 8px 10px 9px; border-right: 1px solid rgba(74,79,85,.4); }
+.form-cell:last-child { border-right: 0; }
+.form-cell .k { font-family: var(--mono); font-size: .54rem; letter-spacing: 1.2px; text-transform: uppercase; color: var(--slate); }
+.form-cell .v { font-family: var(--mono); font-weight: 700; font-size: 1.15rem; margin-top: 2px; font-variant-numeric: tabular-nums; }
+/* projection cells are visibly less certain: dashed top, steel, ≈ prefix */
+.form-cell.proj { border-top: 2px dashed var(--slate); margin-top: -1px; }
+.form-cell.proj .v { color: var(--slate); font-weight: 500; }
+.form-cell.proj .k::after { content: " ·proj"; color: var(--slate); }
+
+/* ---- Squad ---- */
+.squad-head {
+  font-family: var(--display); font-weight: 700; font-size: 1rem;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 9px 16px 7px; border-bottom: 1px solid var(--ink);
+}
+.sq { display: grid; grid-template-columns: 30px minmax(0,1fr) auto auto; gap: 0 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid rgba(74,79,85,.4); }
+.sq:last-child { border-bottom: 0; }
+.sq.dead { opacity: .5; }
+.sq-no { font-family: var(--display); font-weight: 900; font-size: 1.3rem; color: rgba(74,79,85,.55); line-height: 1; }
+.sq-team { font-family: var(--display); font-weight: 700; font-size: 1.25rem; letter-spacing: .5px; text-transform: uppercase; line-height: 1; }
+.sq-meta { font-family: var(--mono); font-size: .6rem; color: var(--slate); margin-top: 3px; display: flex; gap: 10px; }
+.st-live { color: var(--red); font-weight: 700; }
+.st-clinched { color: var(--ink); font-weight: 700; }
+.st-dead { font-weight: 700; }
+/* Jersey tag: line number big, direction small on top */
+.jersey {
+  display: inline-flex; flex-direction: column; align-items: center;
+  border: 1.5px solid var(--ink); padding: 3px 7px 4px; min-width: 46px; line-height: 1;
+}
+.jersey .dir { font-family: var(--display); font-weight: 700; font-size: .56rem; letter-spacing: 1.5px; text-transform: uppercase; }
+.jersey .ln { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.jersey.over { background: var(--red); border-color: var(--red); color: var(--paper); }
+.sq-right { text-align: right; }
+.sq-delta { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.sq-range { position: relative; height: 5px; width: 84px; background: rgba(74,79,85,.16); margin-top: 6px; margin-left: auto; }
+.sq-fill { position: absolute; top: 0; bottom: 0; min-width: 3px; background: rgba(74,79,85,.42); }
+.sq-zero { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--slate); }
+.sq-mark { position: absolute; top: 50%; width: 2px; height: 10px; background: var(--ink); transform: translate(-50%,-50%); }
+
+/* ---- Board 2: scout report ticket ---- */
+.scout { border: 1px dashed var(--ink); background: rgba(201,154,70,.18); padding: 12px 16px 14px; }
+.scout-kicker { font-family: var(--mono); font-size: .58rem; letter-spacing: 1.6px; text-transform: uppercase; color: var(--slate); }
+.scout-row { display: flex; align-items: baseline; gap: 22px; margin-top: 6px; flex-wrap: wrap; }
+.scout-name { font-family: var(--display); font-weight: 700; font-size: 1.35rem; letter-spacing: .5px; text-transform: uppercase; }
+.scout-num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.scout-num .n { font-weight: 700; font-size: 1.1rem; }
+.scout-num .k { display: block; font-size: .54rem; letter-spacing: 1.2px; text-transform: uppercase; color: var(--slate); margin-top: 1px; }
+.scout-note { font-style: italic; font-size: .84rem; color: var(--slate); margin-top: 8px; }
+
+/* ---- SVP cover: cover-story treatment, headline overlaps the art ---- */
+.svp { position: relative; }
+.svp-mast {
+  background: var(--red); color: var(--paper);
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 10px 14px; font-family: var(--mono);
+}
+.svp-mast .wm { font-size: .8rem; font-weight: 700; letter-spacing: 2px; }
+.svp-mast .wk { font-size: .7rem; letter-spacing: 1.5px; text-transform: uppercase; }
+.svp-cover { background: var(--gold); aspect-ratio: 4/3; display: flex; align-items: flex-start; justify-content: flex-end; }
+.svp-cover span { font-family: var(--mono); font-size: .58rem; letter-spacing: .8px; text-transform: uppercase; padding: 10px 12px; opacity: .55; }
+.svp-plate {
+  background: var(--paper); border: 1px solid var(--ink);
+  margin: -64px 14px 0; position: relative; padding: 14px 16px 18px;
+}
+.svp-kicker { font-family: var(--mono); font-size: .6rem; letter-spacing: 1.8px; text-transform: uppercase; color: var(--red); font-weight: 700; }
+.svp-headline { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: 44px; line-height: .92; margin-top: 6px; }
+.svp-teaser { font-size: 1rem; color: var(--slate); margin-top: 8px; max-width: 50ch; }
+.foot { margin-top: 34px; padding-top: 10px; border-top: 3px double var(--ink); font-family: var(--mono); font-size: .6rem; color: var(--slate); line-height: 1.7; }
+@media (max-width: 430px) {
+  .hero { gap: 12px; }
+  .portrait { flex-basis: 128px; }
+}
+</style>
+</head>
+<body>
+
+<div class="lab-bar"><b>V3 · Manager Dossier</b><a href="../index.html">&larr; design lab</a></div>
+
+<div class="wrap">
+  <div class="spec-label">Board 1 — the dossier replaces the card list</div>
+  <article class="dossier">
+    <div class="hero">
+      <div class="portrait"><span>Persona art — 5:7</span></div>
+      <div class="hero-id">
+        <div class="hero-kicker">Manager Dossier &middot; The Panel</div>
+        <div class="hero-name">Blaine</div>
+        <div class="hero-line"><b>28&ndash;11</b> across the squad &middot; wk 11</div>
+      </div>
+    </div>
+    <div class="form-strip">
+      <div class="form-cell"><div class="k">Rank</div><div class="v">2/4</div></div>
+      <div class="form-cell"><div class="k">Banked</div><div class="v">0.0</div></div>
+      <div class="form-cell proj"><div class="k">Total</div><div class="v">&asymp;+1.5</div></div>
+      <div class="form-cell proj"><div class="k">P(win)</div><div class="v">&asymp;41%</div></div>
+    </div>
+    <div class="squad-head">The Squad</div>
+    <div class="sq">
+      <div class="sq-no">01</div>
+      <div>
+        <div class="sq-team">Ohio State</div>
+        <div class="sq-meta"><span>Big Ten</span><span>8&ndash;1 &middot; 3 left</span><span class="st-live">LIVE</span></div>
+      </div>
+      <span class="jersey over"><span class="dir">Over</span><span class="ln">9.5</span></span>
+      <div class="sq-right">
+        <div class="sq-delta">-0.5</div>
+        <div class="sq-range"><div class="sq-fill" style="left:27.8%;width:33.3%"></div><div class="sq-zero" style="left:44.4%"></div><div class="sq-mark" style="left:38.9%"></div></div>
+      </div>
+    </div>
+    <div class="sq">
+      <div class="sq-no">02</div>
+      <div>
+        <div class="sq-team">Texas A&amp;M</div>
+        <div class="sq-meta"><span>SEC</span><span>10&ndash;1 &middot; 1 left</span><span class="st-clinched">CLINCHED</span></div>
+      </div>
+      <span class="jersey over"><span class="dir">Over</span><span class="ln">8.5</span></span>
+      <div class="sq-right">
+        <div class="sq-delta">+1.5</div>
+        <div class="sq-range"><div class="sq-fill" style="left:61.1%;width:11.1%"></div><div class="sq-zero" style="left:44.4%"></div><div class="sq-mark" style="left:61.1%"></div></div>
+      </div>
+    </div>
+    <div class="sq">
+      <div class="sq-no">03</div>
+      <div>
+        <div class="sq-team">Utah</div>
+        <div class="sq-meta"><span>Big 12</span><span>6&ndash;3 &middot; 3 left</span><span class="st-live">LIVE</span></div>
+      </div>
+      <span class="jersey"><span class="dir">Under</span><span class="ln">8.5</span></span>
+      <div class="sq-right">
+        <div class="sq-delta">+0.5</div>
+        <div class="sq-range"><div class="sq-fill" style="left:38.9%;width:33.3%"></div><div class="sq-zero" style="left:44.4%"></div><div class="sq-mark" style="left:50%"></div></div>
+      </div>
+    </div>
+    <div class="sq dead">
+      <div class="sq-no">04</div>
+      <div>
+        <div class="sq-team">Virginia</div>
+        <div class="sq-meta"><span>ACC</span><span>4&ndash;6 &middot; 2 left</span><span class="st-dead">DEAD</span></div>
+      </div>
+      <span class="jersey over"><span class="dir">Over</span><span class="ln">7.5</span></span>
+      <div class="sq-right">
+        <div class="sq-delta">-2.5</div>
+        <div class="sq-range"><div class="sq-fill" style="left:5.6%;width:22.2%"></div><div class="sq-zero" style="left:44.4%"></div><div class="sq-mark" style="left:16.7%"></div></div>
+      </div>
+    </div>
+  </article>
+
+  <div class="spec-label">Board 2 — scout report</div>
+  <section class="scout">
+    <div class="scout-kicker">Projected finish &middot; SP+ model &middot; updates weekly, can be wrong</div>
+    <div class="scout-row">
+      <span class="scout-name">Blaine</span>
+      <span class="scout-num"><span class="n">&asymp;+1.5</span><span class="k">Proj total</span></span>
+      <span class="scout-num"><span class="n">&asymp;41%</span><span class="k">P(win pool)</span></span>
+    </div>
+    <p class="scout-note">Estimate, not arithmetic — the dossier above is the exact record.</p>
+  </section>
+
+  <div class="spec-label">SVP weekly cover — cover-story treatment</div>
+  <section class="svp">
+    <div class="svp-mast"><span class="wm">cf challenge</span><span class="wk">Week 11</span></div>
+    <div class="svp-cover"><span>Cover art — persona pipeline</span></div>
+    <div class="svp-plate">
+      <div class="svp-kicker">The SVP Column</div>
+      <h1 class="svp-headline">One big thing</h1>
+      <p class="svp-teaser">Blaine is dead even at the break — and the Virginia over
+      is officially a sunk cost. What a dead pick does to the math.</p>
+    </div>
+  </section>
+
+  <div class="foot">
+    V3 · Manager Dossier — Barlow Condensed 900 (nameplate) &middot; Newsreader (voice)
+    &middot; IBM Plex Mono (record card) &middot; deep paper #EFE9DC &middot; structural, not a restyle:
+    owner-as-page, form strip, squad list, overlapping cover plate.
+  </div>
+</div>
+
+</body>
+</html>

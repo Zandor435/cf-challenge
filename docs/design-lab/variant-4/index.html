@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V4 · Overnight Wire — CF Challenge design lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* V4 — OVERNIGHT WIRE. Teletype dispatch: one type size does the data work,
+   heavy black rules, bracketed ranges, a rubber stamp for dead picks. This is
+   the DENSE one — the whole panel group, 16 picks, one screen. */
+:root {
+  --paper: #FAF7EF; --ink: #191713; --slate: #50555A; --red: #A9331F; --gold: #C99A46;
+  --serif: 'Bitter', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--mono); line-height: 1.45; }
+.lab-bar {
+  display: flex; justify-content: space-between; align-items: baseline;
+  max-width: 640px; margin: 0 auto; padding: 12px 16px 10px;
+  font-size: .66rem; color: var(--slate);
+  border-bottom: 2px solid var(--ink);
+}
+.lab-bar a { color: var(--red); text-decoration: none; }
+.lab-bar b { color: var(--ink); font-family: var(--serif); font-weight: 900; letter-spacing: .5px; }
+.wrap { max-width: 640px; margin: 0 auto; padding: 18px 16px 60px; }
+
+.dateline { font-size: .68rem; color: var(--slate); margin-bottom: 4px; }
+.dateline b { color: var(--ink); }
+
+.wire-rule { border: 0; border-top: 2px solid var(--ink); margin: 10px 0 0; }
+.wire-rule.thin { border-top-width: 1px; }
+
+/* Dense box score */
+.bs { width: 100%; border-collapse: collapse; font-size: .68rem; font-variant-numeric: tabular-nums; }
+.bs .mgr td {
+  border-top: 2px solid var(--ink); padding: 6px 4px 4px;
+  font-family: var(--serif); font-weight: 900; font-size: .92rem; letter-spacing: .3px;
+}
+.bs .mgr .bank { font-family: var(--mono); text-align: right; font-size: .92rem; }
+.bs .mgr .rk { font-family: var(--mono); font-weight: 400; color: var(--slate); font-size: .68rem; padding-right: 2px; }
+.bs td { padding: 2px 4px; white-space: nowrap; vertical-align: baseline; }
+.bs .p td { border-top: 1px dotted rgba(80,85,90,.5); }
+.bs .team { font-weight: 500; }
+.bs .conf { color: var(--slate); font-size: .6rem; }
+.bs .ou { font-weight: 700; }
+.bs .ou.over { color: var(--red); }
+.bs .rec, .bs .left { color: var(--slate); }
+.bs .rng { color: var(--slate); font-size: .64rem; }
+.bs .rng b { color: var(--ink); font-weight: 700; }
+.bs .delta { text-align: right; font-weight: 700; }
+.bs tr.deadrow td { opacity: .5; }
+.stamp {
+  display: inline-block; font-weight: 700; font-size: .56rem; letter-spacing: 1.5px;
+  color: var(--red); border: 1.5px solid var(--red); padding: 0 4px;
+  transform: rotate(-6deg); opacity: .85 !important;
+}
+.clinch { font-size: .6rem; font-weight: 700; letter-spacing: .5px; }
+.live { font-size: .6rem; font-weight: 700; letter-spacing: .5px; color: var(--red); }
+
+/* Projection wire */
+.pw-head { display: flex; justify-content: space-between; align-items: baseline; margin-top: 26px; border-top: 2px solid var(--ink); padding-top: 6px; }
+.pw-title { font-family: var(--serif); font-weight: 900; font-size: .95rem; }
+.pw-adv { font-size: .6rem; letter-spacing: 1px; color: var(--slate); text-transform: uppercase; }
+.pw { width: 100%; border-collapse: collapse; font-size: .68rem; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.pw td { padding: 3px 4px; border-top: 1px dotted rgba(80,85,90,.5); font-style: italic; color: var(--slate); }
+.pw td.nm { font-style: normal; color: var(--ink); font-weight: 500; }
+.pw td.num { text-align: right; }
+.pw tr:first-child td { border-top: 0; }
+.pw-note { font-size: .62rem; font-style: italic; color: var(--slate); margin-top: 6px; }
+
+/* SVP teletype */
+.tt { margin-top: 30px; border-top: 2px solid var(--ink); padding-top: 8px; }
+.tt-band { font-size: .66rem; letter-spacing: 1px; text-align: center; padding: 6px 0; border: 1px solid var(--ink); border-left: 0; border-right: 0; }
+.tt-cover { background: var(--gold); aspect-ratio: 5/7; max-width: 200px; margin-top: 14px; display: flex; align-items: flex-end; }
+.tt-cover span { font-size: .56rem; letter-spacing: .8px; text-transform: uppercase; padding: 8px 10px; opacity: .55; }
+.tt-kicker { font-size: .62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--slate); margin-top: 16px; }
+.tt-headline { font-family: var(--serif); font-weight: 900; font-size: 30px; line-height: 1.05; margin-top: 6px; }
+.tt-teaser { font-size: .74rem; color: var(--slate); margin-top: 8px; max-width: 62ch; }
+.foot { margin-top: 34px; padding-top: 10px; border-top: 2px solid var(--ink); font-size: .6rem; color: var(--slate); line-height: 1.7; }
+@media (max-width: 480px) {
+  .bs .rng { display: none; }         /* brackets yield first on tiny screens */
+}
+</style>
+</head>
+<body>
+
+<div class="lab-bar"><b>V4 · Overnight Wire</b><a href="../index.html">&larr; design lab</a></div>
+
+<div class="wrap">
+  <p class="dateline"><b>THE PANEL (CF WIRE)</b> — Week 11 standings follow. Exact banked
+  arithmetic; brackets show [floor &rarr; ceiling], mark is banked.</p>
+
+  <table class="bs">
+    <tr class="mgr"><td><span class="rk">1</span> Zach</td><td></td><td></td><td></td><td></td><td class="rng"></td><td class="bank">+3.0</td></tr>
+    <tr class="p"><td class="team">Ohio State</td><td class="conf">B1G</td><td class="ou">U9.5</td><td class="rec">8&ndash;1</td><td class="live">LIVE</td><td class="rng">[-1.5 &rarr; <b>-0.5</b> &rarr; +1.5]</td><td class="delta">-0.5</td></tr>
+    <tr class="p"><td class="team">Georgia</td><td class="conf">SEC</td><td class="ou">U9.5</td><td class="rec">7&ndash;3</td><td class="clinch">CLN</td><td class="rng">[+0.5 &rarr; <b>+0.5</b> &rarr; +2.5]</td><td class="delta">+0.5</td></tr>
+    <tr class="p"><td class="team">Miami</td><td class="conf">ACC</td><td class="ou">U10.5</td><td class="rec">6&ndash;4</td><td class="clinch">CLN</td><td class="rng">[+2.5 &rarr; <b>+2.5</b> &rarr; +4.5]</td><td class="delta">+2.5</td></tr>
+    <tr class="p"><td class="team">BYU</td><td class="conf">B12</td><td class="ou">U8.5</td><td class="rec">8&ndash;2</td><td class="live">LIVE</td><td class="rng">[-1.5 &rarr; <b>+0.5</b> &rarr; +0.5]</td><td class="delta">+0.5</td></tr>
+
+    <tr class="mgr"><td><span class="rk">2</span> Blaine</td><td></td><td></td><td></td><td></td><td class="rng"></td><td class="bank">0.0</td></tr>
+    <tr class="p"><td class="team">Ohio State</td><td class="conf">B1G</td><td class="ou over">O9.5</td><td class="rec">8&ndash;1</td><td class="live">LIVE</td><td class="rng">[-1.5 &rarr; <b>-0.5</b> &rarr; +1.5]</td><td class="delta">-0.5</td></tr>
+    <tr class="p"><td class="team">Texas A&amp;M</td><td class="conf">SEC</td><td class="ou over">O8.5</td><td class="rec">10&ndash;1</td><td class="clinch">CLN</td><td class="rng">[+1.5 &rarr; <b>+1.5</b> &rarr; +2.5]</td><td class="delta">+1.5</td></tr>
+    <tr class="p"><td class="team">Utah</td><td class="conf">B12</td><td class="ou">U8.5</td><td class="rec">6&ndash;3</td><td class="live">LIVE</td><td class="rng">[-0.5 &rarr; <b>+0.5</b> &rarr; +2.5]</td><td class="delta">+0.5</td></tr>
+    <tr class="p deadrow"><td class="team">Virginia</td><td class="conf">ACC</td><td class="ou over">O7.5</td><td class="rec">4&ndash;6</td><td><span class="stamp">DEAD</span></td><td class="rng">[-3.5 &rarr; <b>-2.5</b> &rarr; -1.5]</td><td class="delta">-2.5</td></tr>
+
+    <tr class="mgr"><td><span class="rk">3</span> Jonathan</td><td></td><td></td><td></td><td></td><td class="rng"></td><td class="bank">-1.0</td></tr>
+    <tr class="p"><td class="team">Memphis</td><td class="conf">AMER</td><td class="ou over">O7.5</td><td class="rec">8&ndash;2</td><td class="clinch">CLN</td><td class="rng">[+0.5 &rarr; <b>+0.5</b> &rarr; +2.5]</td><td class="delta">+0.5</td></tr>
+    <tr class="p deadrow"><td class="team">Oklahoma State</td><td class="conf">B12</td><td class="ou over">O6.5</td><td class="rec">3&ndash;7</td><td><span class="stamp">DEAD</span></td><td class="rng">[-3.5 &rarr; <b>-2.5</b> &rarr; -1.5]</td><td class="delta">-2.5</td></tr>
+    <tr class="p"><td class="team">Alabama</td><td class="conf">SEC</td><td class="ou over">O8.5</td><td class="rec">8&ndash;2</td><td class="live">LIVE</td><td class="rng">[-0.5 &rarr; <b>+0.5</b> &rarr; +1.5]</td><td class="delta">+0.5</td></tr>
+    <tr class="p"><td class="team">James Madison</td><td class="conf">SBC</td><td class="ou over">O8.5</td><td class="rec">9&ndash;1</td><td class="clinch">CLN</td><td class="rng">[+0.5 &rarr; <b>+0.5</b> &rarr; +2.5]</td><td class="delta">+0.5</td></tr>
+
+    <tr class="mgr"><td><span class="rk">4</span> Chris</td><td></td><td></td><td></td><td></td><td class="rng"></td><td class="bank">-2.0</td></tr>
+    <tr class="p"><td class="team">Indiana</td><td class="conf">B1G</td><td class="ou">U10.5</td><td class="rec">10&ndash;0</td><td class="live">LIVE</td><td class="rng">[-1.5 &rarr; <b>-0.5</b> &rarr; +0.5]</td><td class="delta">-0.5</td></tr>
+    <tr class="p deadrow"><td class="team">Ole Miss</td><td class="conf">SEC</td><td class="ou">U7.5</td><td class="rec">9&ndash;1</td><td><span class="stamp">DEAD</span></td><td class="rng">[-3.5 &rarr; <b>-2.5</b> &rarr; -1.5]</td><td class="delta">-2.5</td></tr>
+    <tr class="p"><td class="team">Georgia Tech</td><td class="conf">ACC</td><td class="ou">U6.5</td><td class="rec">5&ndash;5</td><td class="live">LIVE</td><td class="rng">[-0.5 &rarr; <b>+0.5</b> &rarr; +1.5]</td><td class="delta">+0.5</td></tr>
+    <tr class="p"><td class="team">Texas Tech</td><td class="conf">B12</td><td class="ou">U10.5</td><td class="rec">9&ndash;1</td><td class="live">LIVE</td><td class="rng">[-0.5 &rarr; <b>+0.5</b> &rarr; +1.5]</td><td class="delta">+0.5</td></tr>
+  </table>
+  <hr class="wire-rule">
+
+  <div class="pw-head">
+    <span class="pw-title">Projection wire</span>
+    <span class="pw-adv">SP+ &middot; advisory — not results</span>
+  </div>
+  <table class="pw">
+    <tr><td class="nm">Zach</td><td class="num">proj +3.5</td><td class="num">p(win) 52%</td></tr>
+    <tr><td class="nm">Blaine</td><td class="num">proj +1.5</td><td class="num">p(win) 41%</td></tr>
+    <tr><td class="nm">Jonathan</td><td class="num">proj -0.5</td><td class="num">p(win) 6%</td></tr>
+    <tr><td class="nm">Chris</td><td class="num">proj -1.5</td><td class="num">p(win) 1%</td></tr>
+  </table>
+  <p class="pw-note">Model estimate. It updates weekly and it can be wrong; the board above is arithmetic.</p>
+
+  <div class="tt">
+    <div class="tt-band">*** CF CHALLENGE WEEKLY &mdash; THE SVP COLUMN &mdash; WK 11 ***</div>
+    <div class="tt-cover"><span>Cover art — persona pipeline</span></div>
+    <div class="tt-kicker">The SVP Column</div>
+    <h1 class="tt-headline">One big thing</h1>
+    <p class="tt-teaser">Blaine is dead even at the break — and the Virginia over is
+    officially a sunk cost. What a dead pick does to the math. MORE TK.</p>
+  </div>
+
+  <div class="foot">
+    V4 · Overnight Wire — Bitter 900 (bylines) &middot; JetBrains Mono (everything else)
+    &middot; stark #FAF7EF &middot; bracketed [floor &rarr; bank &rarr; ceiling] ranges &middot; rubber-stamp DEAD
+    &middot; the dense one: 16 picks, one screen.
+  </div>
+</div>
+
+</body>
+</html>
