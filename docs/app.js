@@ -23,8 +23,10 @@ const hide = (el) => { if (el) el.hidden = true; };
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+// Every displayed number is rounded to one decimal before render — raw float
+// math never leaks into the page. Percentages render as whole percent.
 const fmtSigned = (n) => (n > 0 ? '+' : n < 0 ? '' : '') + Number(n).toFixed(1);
-const signClass = (n) => (n > 0.0001 ? 'pos' : n < -0.0001 ? 'neg' : 'zero');
+const fmtLine = (n) => Number(n).toFixed(1);
 const pct = (p) => (Number(p) * 100).toFixed(0) + '%';
 
 function fmtStamp(iso) {
@@ -167,124 +169,80 @@ function renderPreDraft(groupId, meta) {
 }
 
 // ---------- Board 1 — Standings -------------------------------------------
+// Per-pick floor–ceiling bar: muted track, filled floor→ceiling span, marker
+// at the current banked position. All pick bars in a group share one scale so
+// they read like columns in a box score.
 function rangeBar(floor, ceiling, mark, gMin, gMax) {
   const span = (gMax - gMin) || 1;
   const pos = (v) => Math.max(0, Math.min(100, ((v - gMin) / span) * 100));
   const l = pos(floor), r = pos(ceiling), m = pos(mark);
   const zero = pos(0);
-  return `<div class="range">
+  return `<div class="range" title="Floor ${fmtSigned(floor)} · Banked ${fmtSigned(mark)} · Ceiling ${fmtSigned(ceiling)}">
     <div class="range-track">
       <div class="range-fill" style="left:${l}%;right:${100 - r}%"></div>
       ${gMin < 0 && gMax > 0 ? `<div class="range-zero" style="left:${zero}%"></div>` : ''}
-      <div class="range-mark" style="left:${m}%" title="Banked ${fmtSigned(mark)}"></div>
-    </div>
-    <div class="range-labels">
-      <span class="floor-l">Floor ${fmtSigned(floor)}</span>
-      <span class="ceil-l">Ceiling ${fmtSigned(ceiling)}</span>
+      <div class="range-mark" style="left:${m}%"></div>
     </div>
   </div>`;
 }
 
-function pickRow(p) {
-  const cls = p.status === 'CLINCHED' ? 'clinched' : p.status === 'DEAD' ? 'dead' : '';
-  const rec = `<span class="rec"><span class="rec-w">${p.banked_wins}W</span>&ndash;` +
-              `<span class="rec-l">${p.banked_losses}L</span></span>`;
-  const rem = p.games_remaining > 0 ? `<span>${p.games_remaining} left</span>` : `<span>final</span>`;
-  return `<div class="pick ${cls}">
-    <div class="pick-flag"></div>
-    <div class="pick-main">
+function pickRow(p, gMin, gMax) {
+  const over = p.direction === 'O';
+  const cls = p.status === 'DEAD' ? ' dead' : '';
+  const rem = p.games_remaining > 0 ? `${p.games_remaining} left` : 'final';
+  const stCls = p.status === 'LIVE' ? 'st-live' : p.status === 'CLINCHED' ? 'st-clinched' : 'st-dead';
+  return `<div class="pick${cls}">
+    <div class="pick-line1">
       <div class="pick-team">${esc(p.team)}<span class="conf">${esc(p.conference || '')}</span></div>
-      <div class="pick-sub">
-        <span class="ou">${p.direction} ${p.line}</span>
-        ${rec} ${rem}
-      </div>
+      <span class="dir-badge ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'} ${fmtLine(p.line)}</span>
+      <span class="pick-delta">${fmtSigned(p.banked_delta)}</span>
     </div>
-    <div class="pick-right">
-      <span class="pick-delta ${signClass(p.banked_delta)}">${fmtSigned(p.banked_delta)}</span>
-      <span class="status-badge status-${p.status}">${p.status}</span>
+    <div class="pick-sub">
+      <span>${p.banked_wins}&ndash;${p.banked_losses}</span>
+      <span>${rem}</span>
+      <span class="${stCls}">${p.status}</span>
     </div>
+    ${rangeBar(p.floor, p.ceiling, p.banked_delta, gMin, gMax)}
   </div>`;
 }
 
-function managerCard(m, gMin, gMax) {
+function managerCard(m, groupName, gMin, gMax) {
   const picks = m.picks || [];
-  const nClinched = picks.filter((p) => p.status === 'CLINCHED').length;
-  const nDead = picks.filter((p) => p.status === 'DEAD').length;
-  const nLive = picks.filter((p) => p.status === 'LIVE').length;
-  const chips = [];
-  if (nClinched) chips.push(`<span class="chip chip-clinched">${nClinched} clinched</span>`);
-  if (nDead) chips.push(`<span class="chip chip-dead">${nDead} dead</span>`);
-  if (nLive) chips.push(`<span class="chip chip-remain">${nLive} live</span>`);
-
-  return `<details class="mgr"${m.rank === 1 ? ' open' : ''}>
-    <summary>
-      <div class="mgr-row">
-        <div class="rank rank-${m.rank}">${m.rank}</div>
-        <div class="mgr-id">
-          <div class="mgr-name">${esc(m.display_name)}</div>
-          ${chips.length ? `<div class="mgr-status-chips">${chips.join('')}</div>` : ''}
-        </div>
-        <div class="mgr-total">
-          <div class="val ${signClass(m.banked_total)}">${fmtSigned(m.banked_total)}</div>
-          <div class="lbl">Banked</div>
-        </div>
-        <div class="caret">&#9654;</div>
+  return `<article class="mgr">
+    <div class="mgr-row">
+      <div class="rank rank-${m.rank}">${m.rank}</div>
+      <div class="mgr-id">
+        <div class="mgr-name">${esc(m.display_name)}</div>
+        <div class="mgr-group-label">${esc(groupName)}</div>
       </div>
-      ${rangeBar(m.floor, m.ceiling, m.banked_total, gMin, gMax)}
-    </summary>
-    <div class="picks">${picks.map(pickRow).join('')}</div>
-  </details>`;
+      <div class="mgr-total">
+        <div class="val">${fmtSigned(m.banked_total)}</div>
+        <div class="lbl">Banked</div>
+      </div>
+    </div>
+    <div class="picks">${picks.map((p) => pickRow(p, gMin, gMax)).join('')}</div>
+  </article>`;
 }
 
 function renderBoard1(standings) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
-  const gMin = Math.min(0, ...mgrs.map((m) => m.floor));
-  const gMax = Math.max(0, ...mgrs.map((m) => m.ceiling));
-  $('standings').innerHTML = mgrs.map((m) => managerCard(m, gMin, gMax)).join('');
+  const groupName = groupLabel((standings.meta || {}).group_id || currentGroupId());
+  // Shared scale across every pick in the group so bars are comparable.
+  const allPicks = mgrs.flatMap((m) => m.picks || []);
+  const gMin = Math.min(0, ...allPicks.map((p) => p.floor));
+  const gMax = Math.max(0, ...allPicks.map((p) => p.ceiling));
+  $('standings').innerHTML = mgrs.map((m) => managerCard(m, groupName, gMin, gMax)).join('');
   show($('board1'));
 }
 
-// ---------- Board 2 — Projected Finish ------------------------------------
-function projPickRow(p) {
-  const over = p.direction === 'O';
-  return `<div class="proj-pick">
-    <div class="pp-team-wrap">
-      <span class="pp-team">${esc(p.team)}</span>
-      <span class="pp-dir ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'}</span>
-    </div>
-    <span class="pp-line">${p.line}</span>
-    <span class="pp-win">${pct(p.p_beat_line)}</span>
-    <span class="pp-exp">${fmtSigned(p.expected_delta)}</span>
-  </div>`;
-}
+// ---------- Board 2 — Projected finish ------------------------------------
+// Deliberately minimal: projected total delta + P(win pool) only. The per-pick
+// breakdown is Board 1's job; this board never mimics Board 1's certainty.
 function projManager(m) {
-  const lo = m.p05, hi = m.p95, med = m.p50;
-  const span = (hi - lo) || 1;
-  const medPos = Math.max(0, Math.min(100, ((med - lo) / span) * 100));
   return `<div class="proj-mgr">
-    <div class="proj-mgr-head">
-      <div class="proj-name">${esc(m.display_name)}</div>
-      <div class="proj-winpool">
-        <div class="val">${pct(m.p_win_pool)}</div>
-        <div class="lbl">Win pool</div>
-      </div>
-    </div>
-    <div class="proj-stats">
-      <span><span class="k">Exp total</span> ${fmtSigned(m.expected_total)}</span>
-      <span><span class="k">Range</span> ${fmtSigned(m.p05)} &hellip; ${fmtSigned(m.p95)}</span>
-      <span><span class="k">Median</span> ${fmtSigned(m.p50)}</span>
-    </div>
-    <div class="proj-range">
-      <div class="proj-range-track">
-        <div class="proj-range-fill" style="left:0;right:0"></div>
-        <div class="proj-range-med" style="left:${medPos}%"></div>
-      </div>
-      <div class="proj-range-labels"><span>p05 ${fmtSigned(m.p05)}</span><span>p95 ${fmtSigned(m.p95)}</span></div>
-    </div>
-    <div class="proj-picks-head">
-      <span>Team</span><span>Line</span><span>Win%</span><span>Exp</span>
-    </div>
-    <div class="proj-picks">${(m.picks || []).map(projPickRow).join('')}</div>
+    <div class="proj-name">${esc(m.display_name)}</div>
+    <span class="proj-total">${fmtSigned(m.expected_total)}</span>
+    <span class="proj-winpool">${pct(m.p_win_pool)}</span>
   </div>`;
 }
 function renderBoard2(projection, standings) {
@@ -307,7 +265,10 @@ function renderBoard2(projection, standings) {
       `(${fmtStamp(pStamp)}) than the standings above (${fmtStamp(sStamp)}). ` +
       `It may lag the latest results.</div>`;
   }
-  $('projection').innerHTML = note + mgrs.map(projManager).join('');
+  const head = `<div class="proj-head-row">
+    <span>Owner</span><span>Proj total</span><span>P(win pool)</span>
+  </div>`;
+  $('projection').innerHTML = note + head + mgrs.map(projManager).join('');
   show($('board2'));
 }
 function renderBoard2Unavailable(reason) {

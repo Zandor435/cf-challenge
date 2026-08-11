@@ -1,40 +1,33 @@
 /* ==========================================================================
-   CFB Pick'Em — two-board frontend (docs/output-contract.md)
-   Broadcast-scoreboard aesthetic: dark stadium night, condensed display type,
-   monospace tabular numbers. Board 1 (exact) is the hero; Board 2 (projection)
-   is deliberately lighter-weight and chrome-marked. Phone-first (390px).
+   CFB Pick'Em — sports-page identity (docs/output-contract.md unchanged).
+   Two templates, one identity:
+     · Standings board (Board 1 + Board 2): dense box-score pacing. Flat,
+       static, rule-driven — read your delta in one second.
+     · Weekly SVP column (svp.html): roomier, headline-led. The ONLY place
+       motion or illustration is allowed to live.
+   Palette restraint: wire-red and muted-gold are the only two accents on the
+   entire site. Gold is a projection WASH only — never text.
    ========================================================================== */
 
 :root {
-  --bg:            #0c0d10;
-  --bg-2:          #141619;
-  --card:          #181b20;
-  --card-hover:    #20242b;
-  --line:          #2a2f37;
-  --line-soft:     #21252c;
+  /* Design tokens — the whole site reads these, nothing hardcodes color. */
+  --cf-newsprint: #F1EDE3;   /* page and card background */
+  --cf-ink:       #1D1B18;   /* primary text */
+  --cf-slate:     #4A4F55;   /* secondary text, hairlines, dividers */
+  --cf-wire-red:  #A9331F;   /* single accent: over badges, active/live, SVP masthead */
+  --cf-muted-gold:#C99A46;   /* projection wash ONLY — Board 2 tint, never text */
 
-  --ink:           #f2f3f5;
-  --ink-2:         #aab0b8;
-  --ink-3:         #6b7280;
+  /* Derived, still token-fed */
+  --hairline: 1px solid var(--cf-slate);
+  --hairline-soft: 1px solid rgba(74, 79, 85, .35);
+  --gold-wash: rgba(201, 154, 70, .18);
 
-  --red:           #d21e1e;
-  --red-bright:    #ff3b3b;
-  --gold:          #e0b24a;
-  --gold-dim:      #9c7f36;
-  --amber:         #f0a828;   /* sample-data banner — hotter than gold, cooler than red */
-  --green:         #34c759;
-  --green-dim:     #1c6b34;
-  --dead:          #7a2626;
+  --display: 'Fraunces', 'Georgia', serif;
+  --body:    'IBM Plex Sans', system-ui, sans-serif;
+  --mono:    'IBM Plex Mono', ui-monospace, monospace;
 
-  --display: 'Oswald', 'Arial Narrow', sans-serif;
-  --body:    'Source Sans 3', system-ui, sans-serif;
-  --mono:    'JetBrains Mono', ui-monospace, monospace;
-
-  --r-sm: 5px;
-  --r-md: 9px;
-  --r-lg: 14px;
-  --maxw: 660px;      /* phone/small-tablet base; widened at 900px & 1240px below */
-  --shadow: 0 4px 18px rgba(0,0,0,.45);
+  --r: 2px;            /* stat sheet, not SaaS: 2px max radius everywhere */
+  --maxw: 660px;       /* phone/small-tablet base; widened at 900px & 1240px */
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,370 +36,426 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   font-family: var(--body);
-  color: var(--ink);
+  font-weight: 400;
+  color: var(--cf-ink);
   line-height: 1.5;
-  background:
-    radial-gradient(1200px 600px at 50% -10%, #1a1d23 0%, transparent 60%),
-    linear-gradient(180deg, #0c0d10 0%, #0a0b0e 100%);
-  background-attachment: fixed;
+  background: var(--cf-newsprint);
   min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
-/* ---------- Masthead ---------------------------------------------------- */
+/* ---------- Masthead (standings page) ----------------------------------- */
 .masthead {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(10,11,14,.86);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
-  box-shadow: 0 1px 0 rgba(255,255,255,.02);
+  background: var(--cf-newsprint);
+  /* Classic section-front double rule */
+  border-bottom: 3px solid var(--cf-ink);
+  box-shadow: 0 4px 0 -3px var(--cf-newsprint), 0 5px 0 -3px var(--cf-ink);
 }
 .masthead-inner {
   max-width: var(--maxw); margin: 0 auto;
-  padding: 12px 16px 10px;
+  padding: 14px 16px 11px;
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px;
 }
 .wordmark {
-  font-family: var(--display); font-weight: 700;
-  font-size: 1.42rem; letter-spacing: .5px; text-transform: uppercase;
-  line-height: 1; white-space: nowrap;
+  font-family: var(--display); font-weight: 900;
+  font-size: 1.5rem; letter-spacing: -.01em;
+  line-height: 1; white-space: nowrap; color: var(--cf-ink);
 }
-.wordmark-mark {
-  background: var(--red); color: #fff;
-  padding: 3px 7px 2px; border-radius: var(--r-sm);
-  box-shadow: 0 2px 0 #7a1010;
-}
-.wordmark-rest { color: var(--ink); }
+.wordmark-mark { color: var(--cf-ink); }
+.wordmark-rest { color: var(--cf-ink); }
 .wordmark-season {
   font-family: var(--mono); font-size: .7rem; font-weight: 500;
-  color: var(--ink-3); letter-spacing: 1px; margin-left: 2px;
+  color: var(--cf-slate); letter-spacing: 1px; margin-left: 4px;
 }
 
-/* Group switcher */
+/* Group switcher — flat mono tabs; active = wire-red (live/active state) */
 .group-switch { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
 .group-btn {
-  font-family: var(--display); text-transform: uppercase;
-  font-size: .78rem; font-weight: 500; letter-spacing: .6px;
-  color: var(--ink-2); background: transparent;
-  border: 1px solid var(--line); border-radius: 100px;
-  padding: 5px 12px; cursor: pointer; transition: all .15s ease;
-  min-height: 32px;
+  font-family: var(--mono); text-transform: uppercase;
+  font-size: .66rem; font-weight: 500; letter-spacing: .8px;
+  color: var(--cf-slate); background: transparent;
+  border: 1px solid var(--cf-slate); border-radius: var(--r);
+  padding: 5px 11px; cursor: pointer;
+  min-height: 30px;
 }
-.group-btn:hover { color: var(--ink); border-color: #3a414c; background: var(--card); }
+.group-btn:hover { color: var(--cf-ink); border-color: var(--cf-ink); }
 .group-btn[aria-current="true"] {
-  color: #fff; background: var(--red); border-color: var(--red);
-  box-shadow: 0 2px 8px rgba(210,30,30,.35);
+  color: var(--cf-newsprint); background: var(--cf-wire-red);
+  border-color: var(--cf-wire-red); font-weight: 700;
 }
 .group-btn.is-demo { border-style: dashed; }
 .group-btn.is-demo[aria-current="true"] {
-  background: var(--gold-dim); border-color: var(--gold); box-shadow: none; color: #17140a;
+  background: transparent; border: 1px dashed var(--cf-ink);
+  color: var(--cf-ink);
 }
 
-/* ---------- Provenance strip (STEP 5) ----------------------------------- */
+/* ---------- Provenance strip -------------------------------------------- */
 .provenance {
   max-width: var(--maxw); margin: 0 auto;
-  padding: 7px 16px; display: flex; flex-wrap: wrap; gap: 6px 18px;
-  font-family: var(--mono); font-size: .68rem; color: var(--ink-3);
-  border-top: 1px solid var(--line-soft);
+  padding: 6px 16px 8px; display: flex; flex-wrap: wrap; gap: 4px 18px;
+  font-family: var(--mono); font-size: .66rem; color: var(--cf-slate);
+  border-top: var(--hairline-soft);
 }
-.provenance b { color: var(--ink-2); font-weight: 500; }
+.provenance b { color: var(--cf-ink); font-weight: 500; }
 .provenance .prov-item { white-space: nowrap; }
-/* Season is the headline provenance fact — make it read first. */
-.provenance .prov-season { font-size: .74rem; }
-.provenance .prov-season b { color: var(--ink); }
+.provenance .prov-season { font-size: .72rem; }
+.provenance .prov-season b { color: var(--cf-ink); }
 .provenance .prov-season-val {
-  color: var(--gold); font-weight: 700; letter-spacing: .5px; margin-left: 2px;
+  color: var(--cf-ink); font-weight: 700; letter-spacing: .5px; margin-left: 2px;
 }
-/* Replay banner — informational (gold), distinct from the red staleness alert. */
-.replay-banner {
-  background: linear-gradient(90deg, #2a2410, #1c180a);
-  border-top: 1px solid var(--gold);
-  color: #f3e2b0; font-size: .78rem; font-weight: 600;
-  padding: 8px 16px; text-align: center; letter-spacing: .2px;
+
+/* ---------- Banners (hierarchy preserved: stale > sample > replay) ------- */
+/* Palette restraint applies here too: red for the loud one, gold WASH for
+   sample, plain slate rule for the informational replay note. */
+.stale-banner, .sample-banner, .replay-banner {
+  font-family: var(--mono);
+  font-size: .72rem; font-weight: 500; letter-spacing: .2px;
+  padding: 8px 16px; text-align: center;
 }
-.replay-banner::before { content: "↺ "; color: var(--gold); }
 .stale-banner {
-  background: linear-gradient(90deg, #3a1414, #2a0f0f);
-  border-top: 1px solid var(--red);
-  color: #ffd9d9; font-size: .78rem; font-weight: 600;
-  padding: 8px 16px; text-align: center; letter-spacing: .2px;
+  background: var(--cf-wire-red); color: var(--cf-newsprint);
 }
-.stale-banner::before { content: "⚠ "; color: var(--red-bright); }
-/* Sample-data banner — amber, urgency BETWEEN red staleness and gold replay:
-   the picks are engineered dummies, not a real draft (STEP 4). */
+.stale-banner::before { content: "\26A0  "; }
 .sample-banner {
-  background: linear-gradient(90deg, #3a2a0c, #2a1e08);
-  border-top: 1px solid var(--amber, #e0a11a);
-  color: #ffe6b0; font-size: .78rem; font-weight: 600;
-  padding: 8px 16px; text-align: center; letter-spacing: .2px;
+  background: var(--gold-wash); color: var(--cf-ink);
+  border-top: var(--hairline-soft);
 }
-.sample-banner::before { content: "◐ "; color: var(--amber, #f0b52a); }
+.sample-banner::before { content: "\25D0  "; color: var(--cf-slate); }
+.replay-banner {
+  background: transparent; color: var(--cf-slate);
+  border-top: var(--hairline-soft);
+}
+.replay-banner::before { content: "\21BA  "; }
 
 /* ---------- Page shell -------------------------------------------------- */
-.page { max-width: var(--maxw); margin: 0 auto; padding: 18px 14px 40px; }
-.loading { color: var(--ink-3); text-align: center; padding: 60px 0; font-family: var(--mono); font-size: .85rem; }
+.page { max-width: var(--maxw); margin: 0 auto; padding: 20px 14px 40px; }
+.loading {
+  color: var(--cf-slate); text-align: center; padding: 60px 0;
+  font-family: var(--mono); font-size: .8rem;
+}
 
-/* ---------- Pre-draft state (STEP 3) ------------------------------------ */
+/* ---------- Pre-draft state --------------------------------------------- */
 .predraft {
-  border: 1px dashed #3a414c; border-radius: var(--r-lg);
-  background:
-    repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 10px, transparent 10px 20px),
-    var(--card);
-  padding: 40px 26px; text-align: center; margin-top: 8px;
+  border: 1px dashed var(--cf-ink); border-radius: var(--r);
+  background: var(--cf-newsprint);
+  padding: 44px 26px; text-align: center; margin-top: 8px;
 }
 .predraft-badge {
-  display: inline-block; font-family: var(--display); text-transform: uppercase;
-  letter-spacing: 1.4px; font-weight: 600; font-size: .74rem;
-  color: var(--gold); border: 1px solid var(--gold-dim); border-radius: 100px;
-  padding: 5px 14px; margin-bottom: 18px;
+  display: inline-block; font-family: var(--mono); text-transform: uppercase;
+  letter-spacing: 1.4px; font-weight: 500; font-size: .66rem;
+  color: var(--cf-slate); border: var(--hairline); border-radius: var(--r);
+  padding: 5px 12px; margin-bottom: 20px;
 }
 .predraft h1 {
-  font-family: var(--display); text-transform: uppercase; font-weight: 700;
-  font-size: 1.7rem; line-height: 1.05; letter-spacing: .5px; margin-bottom: 6px;
+  font-family: var(--display); font-weight: 900;
+  font-size: 1.9rem; line-height: 1.05; letter-spacing: -.01em; margin-bottom: 6px;
 }
-.predraft .predraft-group { color: var(--gold); }
-.predraft p { color: var(--ink-2); max-width: 42ch; margin: 10px auto 0; font-size: .95rem; }
-.predraft .predraft-meta { color: var(--ink-3); font-family: var(--mono); font-size: .74rem; margin-top: 18px; }
+.predraft .predraft-group { color: var(--cf-wire-red); }
+.predraft p { color: var(--cf-slate); max-width: 44ch; margin: 10px auto 0; font-size: .92rem; }
+.predraft .predraft-meta {
+  color: var(--cf-slate); font-family: var(--mono); font-size: .72rem; margin-top: 20px;
+}
+.predraft a { color: var(--cf-wire-red); }
 
 /* ---------- Board scaffolding ------------------------------------------- */
-.board { margin-top: 22px; }
+.board { margin-top: 26px; }
 .board-head { margin-bottom: 12px; }
 .board-title {
-  font-family: var(--display); text-transform: uppercase; font-weight: 700;
-  font-size: 1.5rem; letter-spacing: .5px; line-height: 1;
-  display: flex; align-items: center; gap: 10px;
+  font-family: var(--display); font-weight: 600;
+  font-size: 1.3rem; letter-spacing: 0; line-height: 1.1;
+  display: flex; align-items: baseline; gap: 10px;
 }
-.board-sub { color: var(--ink-2); font-size: .86rem; margin-top: 5px; }
+.board-sub { color: var(--cf-slate); font-size: .84rem; margin-top: 4px; }
 .tag {
   font-family: var(--mono); font-size: .58rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 1.2px;
-  padding: 3px 7px; border-radius: 4px; transform: translateY(-2px);
+  padding: 3px 7px; border-radius: var(--r);
 }
-.tag-exact { background: var(--red); color: #fff; }
-.tag-proj  { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); }
+.tag-exact { background: var(--cf-ink); color: var(--cf-newsprint); }
+.tag-proj  {
+  background: transparent; color: var(--cf-slate);
+  border: 1px dashed var(--cf-slate);
+}
 
-/* ---------- Board 1 — Standings (hero) ---------------------------------- */
-.mgr { border: 1px solid var(--line); border-radius: var(--r-md);
-       background: var(--card); margin-bottom: 9px; overflow: hidden; box-shadow: var(--shadow); }
-.mgr > summary { list-style: none; cursor: pointer; }
-.mgr > summary::-webkit-details-marker { display: none; }
+/* ---------- Board 1 — Standings (exact; solid, confident) ---------------- */
+.mgr {
+  background: var(--cf-newsprint);
+  border: 1px solid var(--cf-ink);
+  border-top-width: 3px;                  /* box-score head rule */
+  border-radius: var(--r);
+  margin-bottom: 14px;
+}
 
 .mgr-row {
-  display: grid; grid-template-columns: 30px 1fr auto 20px;
-  align-items: center; gap: 12px; padding: 13px 14px;
+  display: grid; grid-template-columns: 26px minmax(0,1fr) auto;
+  align-items: baseline; gap: 0 12px; padding: 12px 14px 10px;
+  border-bottom: var(--hairline);
 }
-.mgr-row:hover { background: var(--card-hover); }
 .rank {
-  font-family: var(--display); font-weight: 700; font-size: 1.35rem;
-  color: var(--ink-3); text-align: center; line-height: 1;
+  font-family: var(--mono); font-weight: 500; font-size: .95rem;
+  color: var(--cf-slate); text-align: center; line-height: 1;
+  align-self: center;
 }
-.rank.rank-1 { color: var(--gold); }
+.rank.rank-1 { color: var(--cf-ink); font-weight: 700; }
 .mgr-id { min-width: 0; }
 .mgr-name {
-  font-family: var(--display); text-transform: uppercase; font-weight: 600;
-  font-size: 1.12rem; letter-spacing: .3px; line-height: 1.05;
+  font-family: var(--display); font-weight: 600;
+  font-size: 1.18rem; letter-spacing: 0; line-height: 1.1;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.mgr-status-chips { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
-.chip {
-  font-family: var(--mono); font-size: .58rem; font-weight: 700; letter-spacing: .6px;
-  text-transform: uppercase; padding: 2px 6px; border-radius: 3px; line-height: 1.4;
+.mgr-group-label {
+  font-family: var(--mono); font-size: .6rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 1.2px; color: var(--cf-slate);
+  margin-top: 3px;
 }
-.chip-clinched { background: rgba(52,199,89,.14); color: var(--green); border: 1px solid var(--green-dim); }
-.chip-dead     { background: rgba(210,30,30,.12); color: #ff6b6b; border: 1px solid var(--dead); }
-.chip-remain   { background: var(--bg-2); color: var(--ink-3); border: 1px solid var(--line); }
-
-.mgr-total { text-align: right; }
+.mgr-total { text-align: right; align-self: center; }
 .mgr-total .val {
-  font-family: var(--mono); font-weight: 700; font-size: 1.5rem;
-  font-variant-numeric: tabular-nums; line-height: 1;
+  font-family: var(--mono); font-weight: 700; font-size: 1.55rem;
+  font-variant-numeric: tabular-nums; line-height: 1; color: var(--cf-ink);
 }
-.mgr-total .lbl { font-family: var(--mono); font-size: .55rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 1px; }
-.val.pos { color: var(--green); }
-.val.neg { color: #ff6b6b; }
-.val.zero { color: var(--ink-2); }
+.mgr-total .lbl {
+  font-family: var(--mono); font-size: .56rem; color: var(--cf-slate);
+  text-transform: uppercase; letter-spacing: 1.2px; margin-top: 3px;
+}
 
-.caret { color: var(--ink-3); transition: transform .18s ease; text-align: center; font-size: .8rem; }
-.mgr[open] .caret { transform: rotate(90deg); }
-
-/* Floor→ceiling range bar */
-.range { padding: 0 14px 13px; }
-.range-track {
-  position: relative; height: 8px; border-radius: 100px;
-  background: var(--bg-2); border: 1px solid var(--line-soft); overflow: visible;
-}
-.range-fill {
-  position: absolute; top: 0; bottom: 0; border-radius: 100px;
-  background: linear-gradient(90deg, rgba(255,107,107,.55), rgba(224,178,74,.5), rgba(52,199,89,.6));
-}
-.range-zero { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--ink-3); }
-.range-mark {
-  position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%;
-  background: #fff; border: 2px solid var(--bg); transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 1px rgba(0,0,0,.5);
-}
-.range-labels {
-  display: flex; justify-content: space-between; margin-top: 6px;
-  font-family: var(--mono); font-size: .64rem; color: var(--ink-3);
-}
-.range-labels .floor-l { color: #ff8f8f; }
-.range-labels .ceil-l  { color: #7fe0a0; }
-
-/* Pick detail (expanded) */
-.picks { border-top: 1px solid var(--line-soft); background: rgba(0,0,0,.18); padding: 4px 0; }
+/* Pick rows — one per pick, hairline-separated */
 .pick {
-  display: grid; grid-template-columns: 4px 1fr auto; gap: 0 12px; align-items: center;
-  padding: 11px 14px 11px 0; border-bottom: 1px solid var(--line-soft); position: relative;
+  padding: 9px 14px 10px;
+  border-bottom: var(--hairline-soft);
 }
 .pick:last-child { border-bottom: 0; }
-.pick-flag { align-self: stretch; border-radius: 0 2px 2px 0; background: var(--line); }
-.pick.clinched .pick-flag { background: var(--green); }
-.pick.dead     .pick-flag { background: var(--dead); }
-.pick.dead { opacity: .62; }
-.pick-main { min-width: 0; }
+.pick.dead { opacity: .55; }
+
+.pick-line1 {
+  display: grid; grid-template-columns: minmax(0,1fr) auto auto;
+  align-items: baseline; gap: 0 10px;
+}
 .pick-team {
-  font-family: var(--display); text-transform: uppercase; font-weight: 600;
-  font-size: 1rem; letter-spacing: .3px; line-height: 1.1;
+  font-family: var(--body); font-weight: 500;
+  font-size: .9rem; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
 }
-.pick-team .conf { font-family: var(--body); font-size: .68rem; color: var(--ink-3); text-transform: none; letter-spacing: 0; margin-left: 6px; font-weight: 400; }
-.pick-sub { font-family: var(--mono); font-size: .72rem; color: var(--ink-2); margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
-.pick-sub .ou { color: var(--ink); font-weight: 500; }
-.pick-sub .rec-w { color: var(--green); }
-.pick-sub .rec-l { color: #ff6b6b; }
-.pick-right { text-align: right; display: flex; align-items: center; gap: 10px; }
-.pick-delta { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
-.status-badge {
-  font-family: var(--display); text-transform: uppercase; font-weight: 600;
-  font-size: .62rem; letter-spacing: .8px; padding: 3px 7px; border-radius: 4px; white-space: nowrap;
+.pick-team .conf {
+  font-weight: 400; font-size: .68rem; color: var(--cf-slate); margin-left: 6px;
 }
-.status-LIVE     { color: var(--ink-2); background: var(--bg-2); border: 1px solid var(--line); }
-.status-CLINCHED { color: #0b1c10; background: var(--green); }
-.status-DEAD     { color: #fff; background: var(--dead); }
 
-/* ---------- Board 2 — Projected Finish (subordinate) -------------------- */
-.board2 { opacity: .96; }
-.board2 .board-title { font-size: 1.24rem; color: var(--ink-2); font-weight: 600; }
-.proj-disclaimer { color: var(--gold-dim); font-style: italic; font-size: .82rem; }
+/* Direction badge: shows the line. over = solid wire-red / newsprint text;
+   under = ink outline, transparent fill. 2px radius — stat sheet, not pills. */
+.dir-badge {
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: .64rem; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; white-space: nowrap;
+  padding: 2px 6px; border-radius: var(--r); line-height: 1.4;
+  align-self: center;
+}
+.dir-badge.over {
+  background: var(--cf-wire-red); color: var(--cf-newsprint);
+  border: 1px solid var(--cf-wire-red);
+}
+.dir-badge.under {
+  background: transparent; color: var(--cf-ink);
+  border: 1px solid var(--cf-ink);
+}
+
+.pick-delta {
+  font-family: var(--mono); font-weight: 700; font-size: .95rem;
+  font-variant-numeric: tabular-nums; text-align: right; color: var(--cf-ink);
+  min-width: 3.4ch;
+}
+
+.pick-sub {
+  font-family: var(--mono); font-size: .64rem; color: var(--cf-slate);
+  margin-top: 2px; display: flex; flex-wrap: wrap; gap: 2px 12px;
+}
+.pick-sub .st-live { color: var(--cf-wire-red); font-weight: 700; }
+.pick-sub .st-clinched { color: var(--cf-ink); font-weight: 700; }
+.pick-sub .st-dead { color: var(--cf-slate); font-weight: 700; }
+
+/* Floor–ceiling range bar: thin track, filled floor→ceiling span, small
+   marker at the current banked position. Flat, no motion. */
+.range { margin-top: 6px; }
+.range-track {
+  position: relative; height: 3px; border-radius: 0;
+  background: rgba(74, 79, 85, .18);
+}
+.range-fill {
+  position: absolute; top: 0; bottom: 0;
+  background: rgba(74, 79, 85, .5);
+}
+.range-zero {
+  position: absolute; top: -2px; bottom: -2px; width: 1px;
+  background: rgba(74, 79, 85, .55);
+}
+.range-mark {
+  position: absolute; top: 50%; width: 5px; height: 5px;
+  background: var(--cf-ink); border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1.5px var(--cf-newsprint);
+}
+
+/* ---------- Board 2 — Projected finish (washed, dashed, subordinate) ------
+   The Board 1 / Board 2 visual split is load-bearing: exact = solid ink
+   border on plain newsprint; projection = gold WASH + dashed border. Do not
+   let a future edit make these look equally certain. */
+.proj-disclaimer { color: var(--cf-slate); font-style: italic; font-size: .8rem; }
 .projection {
-  border: 1px dashed var(--gold-dim); border-radius: var(--r-md);
-  background: repeating-linear-gradient(135deg, rgba(224,178,74,.03) 0 12px, transparent 12px 24px);
-  padding: 4px;
+  border: 1px dashed var(--cf-ink); border-radius: var(--r);
+  background: var(--gold-wash);
 }
-.proj-mgr { padding: 12px 12px; border-bottom: 1px solid var(--line-soft); }
+.proj-mgr {
+  display: grid; grid-template-columns: minmax(0,1fr) auto auto;
+  align-items: baseline; gap: 0 20px;
+  padding: 10px 14px;
+  border-bottom: var(--hairline-soft);
+}
 .proj-mgr:last-child { border-bottom: 0; }
-.proj-mgr-head { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
-.proj-name { font-family: var(--display); text-transform: uppercase; font-weight: 500; font-size: 1rem; color: var(--ink); letter-spacing: .3px; }
-.proj-winpool { text-align: right; }
-.proj-winpool .val { font-family: var(--mono); font-weight: 700; font-size: 1.2rem; color: var(--gold); }
-.proj-winpool .lbl { font-family: var(--mono); font-size: .52rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 1px; }
-.proj-stats { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 7px; font-family: var(--mono); font-size: .72rem; color: var(--ink-2); }
-.proj-stats .k { color: var(--ink-3); }
-.proj-range { margin-top: 9px; }
-.proj-range-track { position: relative; height: 5px; border-radius: 100px; background: var(--bg-2); border: 1px solid var(--line-soft); }
-.proj-range-fill { position: absolute; top: 0; bottom: 0; border-radius: 100px; background: rgba(224,178,74,.28); }
-.proj-range-med { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--gold); }
-.proj-range-labels { display: flex; justify-content: space-between; margin-top: 4px; font-family: var(--mono); font-size: .6rem; color: var(--ink-3); }
-.proj-picks-head {
-  display: grid; grid-template-columns: 1fr 52px 40px 52px; gap: 10px;
-  margin-top: 10px; padding: 10px 8px 4px; border-top: 1px solid var(--line);
-  font-family: var(--mono); font-size: .58rem; font-weight: 500;
-  text-transform: uppercase; letter-spacing: .8px; color: var(--ink-3);
+.proj-head-row {
+  display: grid; grid-template-columns: minmax(0,1fr) auto auto;
+  gap: 0 20px; padding: 8px 14px 4px;
+  font-family: var(--mono); font-size: .56rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 1.2px; color: var(--cf-slate);
+  border-bottom: var(--hairline-soft);
 }
-.proj-picks-head span:not(:first-child) { text-align: right; }
+.proj-head-row span:not(:first-child) { text-align: right; }
+.proj-name {
+  font-family: var(--display); font-weight: 600; font-size: 1rem;
+  color: var(--cf-ink); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; min-width: 0;
+}
+.proj-total, .proj-winpool {
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  text-align: right; color: var(--cf-ink);
+}
+.proj-total { font-weight: 500; font-size: .9rem; min-width: 5ch; }
+.proj-winpool { font-weight: 700; font-size: .9rem; min-width: 5ch; }
 
-.proj-picks { margin-top: 5px; display: grid; gap: 5px; }
-.proj-pick {
-  display: grid; grid-template-columns: 1fr 52px 40px 52px; gap: 10px; align-items: center;
-  font-size: .78rem; padding: 5px 8px; border-radius: var(--r-sm); background: rgba(0,0,0,.2);
-}
-.pp-team-wrap { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.proj-pick .pp-team { font-family: var(--display); text-transform: uppercase; letter-spacing: .3px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1 1 auto; }
-.pp-dir {
-  flex: 0 0 auto; display: inline-block; font-family: var(--body); font-weight: 700;
-  font-size: .6rem; text-transform: uppercase; letter-spacing: .4px;
-  padding: 1px 6px; border-radius: 100px;
-}
-.pp-dir.over  { background: rgba(52,199,89,.14); color: var(--green); border: 1px solid var(--green-dim); }
-.pp-dir.under { background: rgba(210,30,30,.12); color: #ff6b6b; border: 1px solid var(--dead); }
-.proj-pick .pp-line { font-family: var(--mono); color: var(--ink-3); text-align: right; font-variant-numeric: tabular-nums; }
-.proj-pick .pp-win  { font-family: var(--mono); color: var(--gold); font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
-.proj-pick .pp-exp  { font-family: var(--mono); color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
-
-/* Board 2 unavailable / stale (STEP 4) */
-.board2-unavailable {
-  border: 1px dashed var(--line); border-radius: var(--r-md);
-  background: var(--card); padding: 26px 20px; text-align: center; color: var(--ink-2);
-}
-.board2-unavailable .u-title { font-family: var(--display); text-transform: uppercase; letter-spacing: .8px; font-weight: 600; color: var(--ink); font-size: 1rem; margin-bottom: 6px; }
-.board2-unavailable .u-sub { font-size: .84rem; color: var(--ink-3); max-width: 46ch; margin: 0 auto; }
+/* Projection staleness / unavailable notes */
 .proj-stale-note {
-  font-family: var(--mono); font-size: .72rem; color: var(--gold);
-  background: rgba(224,178,74,.08); border: 1px solid var(--gold-dim);
-  border-radius: var(--r-sm); padding: 7px 10px; margin: 4px 4px 10px;
+  font-family: var(--mono); font-size: .68rem; color: var(--cf-ink);
+  border-bottom: var(--hairline-soft);
+  padding: 8px 14px;
 }
-.proj-stale-note::before { content: "⚠ "; }
+.proj-stale-note::before { content: "\26A0  "; color: var(--cf-wire-red); }
+.board2-unavailable {
+  padding: 26px 20px; text-align: center; color: var(--cf-slate);
+}
+.board2-unavailable .u-title {
+  font-family: var(--display); font-weight: 600;
+  color: var(--cf-ink); font-size: 1rem; margin-bottom: 6px;
+}
+.board2-unavailable .u-sub {
+  font-size: .82rem; color: var(--cf-slate); max-width: 46ch; margin: 0 auto;
+}
 
 /* ---------- Errors / footer --------------------------------------------- */
 .load-error {
-  border: 1px solid var(--dead); border-radius: var(--r-md);
-  background: rgba(210,30,30,.06); padding: 30px 22px; text-align: center; margin-top: 12px;
+  border: 1px solid var(--cf-wire-red); border-radius: var(--r);
+  background: var(--cf-newsprint); padding: 30px 22px; text-align: center; margin-top: 12px;
 }
-.load-error h2 { font-family: var(--display); text-transform: uppercase; color: #ff6b6b; margin-bottom: 6px; }
-.load-error p { color: var(--ink-2); font-size: .88rem; }
-.site-foot { max-width: var(--maxw); margin: 0 auto; padding: 24px 16px 40px; border-top: 1px solid var(--line-soft); }
-.site-foot p { color: var(--ink-3); font-size: .74rem; line-height: 1.6; }
+.load-error h2 {
+  font-family: var(--display); font-weight: 600;
+  color: var(--cf-wire-red); margin-bottom: 6px;
+}
+.load-error p { color: var(--cf-slate); font-size: .86rem; }
+.site-foot {
+  max-width: var(--maxw); margin: 0 auto; padding: 22px 16px 40px;
+  border-top: var(--hairline);
+}
+.site-foot p { color: var(--cf-slate); font-size: .72rem; line-height: 1.6; }
+
+/* ==========================================================================
+   Weekly SVP column (svp.html) — the column page. Roomier, headline-led.
+   ========================================================================== */
+.svp-masthead {
+  background: var(--cf-wire-red);
+  color: var(--cf-newsprint);
+}
+.svp-masthead-inner {
+  max-width: 560px; margin: 0 auto;
+  padding: 12px 18px;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  font-family: var(--mono);
+}
+.svp-wordmark {
+  font-size: .82rem; font-weight: 700; letter-spacing: 2px; text-transform: lowercase;
+}
+.svp-week {
+  font-size: .72rem; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.svp-page { max-width: 560px; margin: 0 auto; padding: 30px 18px 60px; }
+
+/* Cover art: placeholder ONLY — solid muted-gold block until the persona
+   pipeline (generate_persona_batch.py) delivers real trading-card art. */
+.svp-cover {
+  background: var(--cf-muted-gold);
+  aspect-ratio: 5 / 4;
+  border-radius: var(--r);
+  display: flex; align-items: flex-end; justify-content: flex-start;
+}
+.svp-cover-note {
+  font-family: var(--mono); font-size: .62rem; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--cf-ink);
+  padding: 10px 12px; opacity: .55;
+}
+
+.svp-kicker {
+  font-family: var(--mono); font-size: .66rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 1.8px; color: var(--cf-slate);
+  margin-top: 26px;
+}
+.svp-headline {
+  font-family: var(--display); font-weight: 900;
+  font-size: 28px; line-height: 1.08; letter-spacing: -.01em;
+  color: var(--cf-ink); margin-top: 8px;
+}
+.svp-teaser {
+  font-family: var(--body); font-size: .95rem; color: var(--cf-slate);
+  margin-top: 10px; max-width: 52ch;
+}
+.svp-rule {
+  border: 0; border-top: var(--hairline); margin: 28px 0 14px;
+}
+.svp-foot-note {
+  font-family: var(--mono); font-size: .68rem; color: var(--cf-slate);
+}
+.svp-foot-note a { color: var(--cf-wire-red); }
 
 /* ---------- Responsive: desktop comfort --------------------------------- */
 @media (min-width: 680px) {
-  .wordmark { font-size: 1.6rem; }
-  .board-title { font-size: 1.7rem; }
-  .board2 .board-title { font-size: 1.34rem; }
-  .mgr-row { padding: 15px 18px; }
-  .predraft h1 { font-size: 2.1rem; }
+  .wordmark { font-size: 1.65rem; }
+  .board-title { font-size: 1.45rem; }
+  .mgr-row { padding: 14px 18px 11px; }
+  .pick { padding: 10px 18px 11px; }
+  .predraft h1 { font-size: 2.3rem; }
+  .svp-headline { font-size: 34px; }
 }
 
 /* Width steps. --maxw is the single knob every shell element reads
-   (.masthead-inner / .provenance / .page / .site-foot), so widening the board
-   is one override per step. Below 900px nothing here applies and the
-   phone-first 660px column is untouched. Internal grids get proportional
-   nudges so rows don't read as a name floating in whitespace. */
+   (.masthead-inner / .provenance / .page / .site-foot). Below 900px nothing
+   here applies and the phone-first 660px column is untouched. */
 @media (min-width: 900px) {
   :root { --maxw: 880px; }
-
-  .page { padding: 20px 22px 44px; }
-  .mgr-row { padding: 16px 22px; gap: 16px; }
-  .range { padding: 0 22px 15px; }
-  .pick { padding: 12px 22px 12px 0; gap: 0 16px; }
-  .proj-mgr { padding: 14px 16px; }
-
-  /* Give the numeric columns real weight instead of a thin strip pinned to the
-     right edge. Head + row must stay in lockstep. */
-  .proj-picks-head,
-  .proj-pick { grid-template-columns: minmax(0, 1fr) 74px 58px 74px; gap: 14px; }
-
-  /* On the narrow board .pp-team grows to fill, which parks the OVER/UNDER pill
-     against the number columns once the team column is this wide. Let the name
-     size to content so the pill stays attached to it. */
-  .proj-pick .pp-team { flex: 0 1 auto; }
+  .page { padding: 22px 22px 44px; }
+  .mgr-row { padding: 15px 22px 12px; }
+  .pick { padding: 11px 22px 12px; }
+  .proj-mgr, .proj-head-row, .proj-stale-note { padding-left: 22px; padding-right: 22px; }
 }
 
 @media (min-width: 1240px) {
   :root { --maxw: 1120px; }
-
-  .page { padding: 22px 28px 48px; }
-  .mgr-row { padding: 17px 26px; }
-  .range { padding: 0 26px 16px; }
-  .pick { padding: 13px 26px 13px 0; }
-  .proj-mgr { padding: 15px 18px; }
-
-  .proj-picks-head,
-  .proj-pick { grid-template-columns: minmax(0, 1fr) 88px 68px 88px; }
+  .page { padding: 24px 28px 48px; }
+  .mgr-row { padding: 16px 26px 12px; }
+  .pick { padding: 11px 26px 12px; }
+  .proj-mgr, .proj-head-row, .proj-stale-note { padding-left: 26px; padding-right: 26px; }
 }
 
-/* Respect reduced motion */
+/* The standings board is flat and static by design; nothing here animates.
+   Belt-and-suspenders for anything that slips in later: */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
