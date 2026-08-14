@@ -7,23 +7,39 @@
 <meta name="description" content="Season-long college football pick'em: exact standings + a weekly SP+ projection.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header class="masthead">
   <div class="masthead-inner">
-    <div class="wordmark">
-      <span class="wordmark-mark">CFB</span> <span class="wordmark-rest">Pick&rsquo;Em</span>
-      <span class="wordmark-season" id="wordmark-season"></span>
-    </div>
-    <nav class="group-switch" id="group-switch" aria-label="Choose a league"></nav>
+    <!-- Brand: shield + season wordmark. Season text is filled from
+         standings.json meta.season — never hardcoded. -->
+    <a class="brand" href="index.html" id="brand-link">
+      <svg class="brand-shield" width="44" height="50" viewBox="0 0 44 50" fill="none" aria-hidden="true">
+        <path d="M22 2L4 9v14c0 12 8 22 18 26 10-4 18-14 18-26V9L22 2z" fill="#111"></path>
+        <text x="22" y="31" text-anchor="middle" font-family="Roboto Condensed, sans-serif"
+              font-size="13" font-weight="900" fill="#FFB000" letter-spacing="-0.5">O/U</text>
+      </svg>
+      <span class="brand-text">
+        <span class="brand-line1"><span id="wordmark-season"></span> CFB</span>
+        <span class="brand-line2">Over/Under Challenge</span>
+      </span>
+    </a>
+    <!-- Second-tier page nav (HOME / STANDINGS / WEEKLY RECAP / PROFILES /
+         ANALYTICS). Distinct from the group switcher below — one picks a
+         league, the other picks a page. Do not merge them. -->
+    <nav class="page-nav" id="page-nav" aria-label="Site sections"></nav>
   </div>
-  <!-- Provenance: ONE quiet line — season(+replay) · scored · gen · data · stale.
-       Replay + staleness live inline here, small and muted; wire-red is reserved
-       for OVER badges and live states, never chrome. -->
-  <div class="provenance" id="provenance" hidden></div>
+
+  <div class="masthead-sub">
+    <!-- Group switcher (?group=) — unchanged behavior, restyled. -->
+    <nav class="group-switch" id="group-switch" aria-label="Choose a league"></nav>
+    <!-- Provenance: ONE quiet line — season(+replay) · scored · gen · data · stale. -->
+    <div class="provenance" id="provenance" hidden></div>
+  </div>
+
   <!-- Sample-data banner keeps a visible band: dummy picks must never read as a
        real draft (STEP 4). -->
   <div class="sample-banner" id="sample-banner" role="alert" hidden></div>
@@ -32,31 +48,67 @@
 <main class="page" id="page">
   <div class="loading" id="loading">Loading&hellip;</div>
 
-  <!-- Pre-draft state (STEP 3) -->
-  <section class="predraft" id="predraft" hidden></section>
+  <!-- Unbuilt page tabs land here (same pattern as the Figma export's
+       placeholder). No routing, no new pages. -->
+  <section class="coming-soon" id="coming-soon" hidden></section>
 
-  <!-- Fatal load error -->
-  <section class="load-error" id="load-error" hidden></section>
+  <div id="home-content">
+    <!-- Hero banner — only rendered once real picks exist. -->
+    <section class="hero" id="hero" hidden></section>
 
-  <!-- Board 1 — Standings (exact) -->
-  <section class="board board1" id="board1" hidden>
-    <div class="board-head">
-      <h2 class="board-title">Standings <span class="tag tag-exact">Exact</span></h2>
-      <!-- Board 1 = solid ink border, plain newsprint: this is the stat page. -->
-      <p class="board-sub">Banked results only — pure arithmetic, reproducible by hand. No estimates.</p>
+    <!-- Pre-draft state (STEP 3) -->
+    <section class="predraft" id="predraft" hidden></section>
+
+    <!-- Fatal load error -->
+    <section class="load-error" id="load-error" hidden></section>
+
+    <div class="grid-top">
+      <!-- Board 1 — Standings (exact) -->
+      <section class="card board1" id="board1" hidden>
+        <div class="card-head">
+          <h2 class="card-title">Standings</h2>
+          <span class="card-tag tag-exact" id="board1-week"></span>
+        </div>
+        <p class="card-sub">Banked results only — pure arithmetic, reproducible by hand. No estimates.</p>
+        <div class="standings" id="standings"></div>
+      </section>
+
+      <!-- Editorial slot. The commentary pipeline is still stubbed, so this is
+           an honest placeholder, NOT invented copy. Wire to real commentary
+           output once that pipeline exists. -->
+      <section class="card editorial" id="editorial" hidden>
+        <div class="ed-kicker">The Column</div>
+        <h2 class="ed-headline">Weekly recap<br>coming soon</h2>
+        <p class="ed-body">The commentary pipeline isn&rsquo;t wired up yet, so there&rsquo;s no
+          write-up for this week. Rather than fill the slot with filler, it stays
+          empty until there&rsquo;s something real to publish.</p>
+        <p class="ed-body">In the meantime, the column preview lives on its own page.</p>
+        <a class="ed-link" href="svp.html" id="editorial-link">Read the SVP column &rarr;</a>
+      </section>
     </div>
-    <div class="standings" id="standings"></div>
-  </section>
 
-  <!-- Board 2 — Projected Finish (subordinate, labeled projection) -->
-  <section class="board board2" id="board2" hidden>
-    <div class="board-head">
-      <!-- Label must read "projected finish" — never anything implying certainty. -->
-      <h2 class="board-title">Projected finish <span class="tag tag-proj">Projection</span></h2>
-      <p class="board-sub proj-disclaimer" id="proj-disclaimer"></p>
+    <div class="grid-bottom">
+      <!-- Scoreboard — client-side transform of standings.json (teams, not
+           managers). Shared teams collapse into one row with both owners. -->
+      <section class="card scoreboard" id="scoreboard" hidden>
+        <div class="card-head">
+          <h2 class="card-title">Scoreboard: selected teams</h2>
+        </div>
+        <p class="card-sub">Every drafted team, once. Teams taken on both sides show both owners.</p>
+        <div class="sb-cols" id="sb-cols"></div>
+      </section>
+
+      <!-- Board 2 — win probabilities (labeled projection; degrades alone) -->
+      <section class="card board2" id="board2" hidden>
+        <div class="card-head">
+          <h2 class="card-title">Win probabilities</h2>
+          <span class="card-tag tag-proj">Projection</span>
+        </div>
+        <p class="card-sub proj-disclaimer" id="proj-disclaimer"></p>
+        <div class="projection" id="projection"></div>
+      </section>
     </div>
-    <div class="projection" id="projection"></div>
-  </section>
+  </div>
 </main>
 
 <footer class="site-foot">

@@ -1,447 +1,607 @@
 /* ==========================================================================
-   CFB Pick'Em — sports-page identity (docs/output-contract.md unchanged).
+   CFB Pick'Em — sports-desk identity (docs/output-contract.md unchanged).
+   Visual system ported from the Figma landing-page design:
+     · Roboto Condensed  — headings, labels, nav, manager names
+     · Inter             — body copy
+     · JetBrains Mono    — every numeric / stat value
+     · White ground, hairline borders, amber accent, green/red for +/-
    Two templates, one identity:
-     · Standings board (Board 1 + Board 2): dense box-score pacing. Flat,
-       static, rule-driven — read your delta in one second.
-     · Weekly SVP column (svp.html): roomier, headline-led. The ONLY place
-       motion or illustration is allowed to live.
-   Palette restraint: wire-red and muted-gold are the only two accents on the
-   entire site. Gold is a projection WASH only — never text.
+     · Standings page (index.html) — dense card grid, box-score pacing.
+     · Weekly SVP column (svp.html) — roomier, headline-led.
    ========================================================================== */
 
 :root {
-  /* Design tokens — the whole site reads these, nothing hardcodes color. */
-  --cf-newsprint: #F1EDE3;   /* page and card background */
-  --cf-ink:       #1D1B18;   /* primary text */
-  --cf-slate:     #4A4F55;   /* secondary text, hairlines, dividers */
-  --cf-wire-red:  #A9331F;   /* single accent: over badges, active/live, SVP masthead */
-  --cf-muted-gold:#C99A46;   /* projection wash ONLY — Board 2 tint, never text */
+  /* Design tokens — the whole site reads these; nothing hardcodes color. */
+  --bg:          #ffffff;
+  --bg-subtle:   #f7f7f7;
+  --text:        #111111;
+  --text-muted:  #666666;
+  --text-faint:  #999999;
+  --border:      #e2e2e2;
+  --border-soft: #f0f0f0;
+  --accent:      #FFB000;
+  --accent-alt:  #FFE135;
+  --positive:    #2FAE39;
+  --negative:    #FF2020;
+  --ink-panel:   #111111;   /* hero / dark ground */
 
-  /* Derived, still token-fed */
-  --hairline: 1px solid var(--cf-slate);
-  --hairline-soft: 1px solid rgba(74, 79, 85, .35);
-  --gold-wash: rgba(201, 154, 70, .18);
+  --display: 'Roboto Condensed', 'Arial Narrow', system-ui, sans-serif;
+  --body:    'Inter', system-ui, -apple-system, sans-serif;
+  --mono:    'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
-  --display: 'Fraunces', 'Georgia', serif;
-  --body:    'IBM Plex Sans', system-ui, sans-serif;
-  --mono:    'IBM Plex Mono', ui-monospace, monospace;
+  --maxw: 1400px;
+  --gap: 12px;
 
-  --r: 2px;            /* stat sheet, not SaaS: 2px max radius everywhere */
-  --maxw: 660px;       /* phone/small-tablet base; widened at 900px & 1240px */
+  /* Manager row grid — shared by the standings header and every card so the
+     columns line up across separate bordered articles. */
+  --mgr-grid: 40px 40px minmax(0, 1fr) 86px 78px;
+  --sb-grid: 26px minmax(0, 1fr) 80px 58px 44px 68px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Any display rule below would otherwise beat the UA's [hidden] rule, and the
+   whole page's state machine (pre-draft, load error, coming soon, both boards)
+   is driven by the hidden attribute. */
+[hidden] { display: none !important; }
 
 html { -webkit-text-size-adjust: 100%; }
 
 body {
   font-family: var(--body);
+  font-size: 14px;
   font-weight: 400;
-  color: var(--cf-ink);
   line-height: 1.5;
-  background: var(--cf-newsprint);
+  color: var(--text);
+  background: var(--bg);
   min-height: 100vh;
   text-rendering: optimizeLegibility;
 }
 
+h1, h2, h3, h4, h5 { font-family: var(--display); font-weight: 900; }
+
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
-/* ---------- Masthead (standings page) ----------------------------------- */
+a { color: inherit; }
+
+/* Semantic value colors, used by numbers everywhere. */
+.pos  { color: var(--positive); }
+.neg  { color: var(--negative); }
+.flat { color: var(--text-muted); }
+
+/* ---------- Masthead ----------------------------------------------------- */
 .masthead {
   position: sticky; top: 0; z-index: 50;
-  background: var(--cf-newsprint);
-  /* Classic section-front double rule */
-  border-bottom: 3px solid var(--cf-ink);
-  box-shadow: 0 4px 0 -3px var(--cf-newsprint), 0 5px 0 -3px var(--cf-ink);
+  background: var(--bg);
+  border-bottom: 2px solid var(--border);
 }
 .masthead-inner {
   max-width: var(--maxw); margin: 0 auto;
-  padding: 14px 16px 11px;
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px;
-}
-.wordmark {
-  font-family: var(--display); font-weight: 900;
-  font-size: 1.5rem; letter-spacing: -.01em;
-  line-height: 1; white-space: nowrap; color: var(--cf-ink);
-}
-.wordmark-mark { color: var(--cf-ink); }
-.wordmark-rest { color: var(--cf-ink); }
-.wordmark-season {
-  font-family: var(--mono); font-size: .7rem; font-weight: 500;
-  color: var(--cf-slate); letter-spacing: 1px; margin-left: 4px;
+  padding: 10px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px 18px;
 }
 
-/* Group switcher — flat mono tabs; active = wire-red (live/active state) */
-.group-switch { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+/* Brand: shield + two-line wordmark. */
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  text-decoration: none; color: inherit;
+}
+.brand-shield { flex-shrink: 0; display: block; }
+.brand-text { display: block; line-height: 1.08; }
+.brand-line1 {
+  display: block; font-family: var(--display); font-weight: 900;
+  font-size: 1.75rem; letter-spacing: -.01em; color: var(--text);
+  text-transform: uppercase;
+}
+.brand-line2 {
+  display: block; font-family: var(--display); font-weight: 700;
+  font-size: .8rem; letter-spacing: .05em; color: var(--accent);
+  text-transform: uppercase;
+}
+
+/* Page nav — square, butted tabs; active tab fills amber. */
+.page-nav { display: flex; flex-wrap: wrap; gap: 0; }
+.nav-btn {
+  font-family: var(--display); font-weight: 700;
+  font-size: .78rem; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text); background: var(--bg); text-decoration: none;
+  border: 1px solid var(--border); border-left: none;
+  padding: 8px 16px; min-height: 34px; cursor: pointer;
+  display: inline-flex; align-items: center;
+  transition: background .1s;
+}
+.nav-btn:first-child { border-left: 1px solid var(--border); }
+.nav-btn:hover { background: var(--bg-subtle); }
+.nav-btn[aria-current="true"] { background: var(--accent); }
+
+/* Sub-bar: group switcher (?group=) + provenance line. */
+.masthead-sub {
+  max-width: var(--maxw); margin: 0 auto;
+  padding: 0 20px 8px;
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 6px 16px;
+}
+
+/* Group switcher — outlined mono chips; active = ink fill. Kept visually
+   distinct from the page nav on purpose: it selects a LEAGUE, not a page. */
+.group-switch { display: flex; flex-wrap: wrap; gap: 6px; }
 .group-btn {
   font-family: var(--mono); text-transform: uppercase;
-  font-size: .66rem; font-weight: 500; letter-spacing: .8px;
-  color: var(--cf-slate); background: transparent;
-  border: 1px solid var(--cf-slate); border-radius: var(--r);
-  padding: 5px 11px; cursor: pointer;
-  min-height: 30px;
+  font-size: .64rem; font-weight: 500; letter-spacing: .06em;
+  color: var(--text-muted); background: transparent;
+  border: 1px solid var(--border);
+  padding: 5px 11px; cursor: pointer; min-height: 28px;
+  transition: background .1s, color .1s;
 }
-.group-btn:hover { color: var(--cf-ink); border-color: var(--cf-ink); }
+.group-btn:hover { color: var(--text); border-color: var(--text-faint); }
 .group-btn[aria-current="true"] {
-  color: var(--cf-newsprint); background: var(--cf-wire-red);
-  border-color: var(--cf-wire-red); font-weight: 700;
+  color: var(--bg); background: var(--text); border-color: var(--text);
+  font-weight: 600;
 }
 .group-btn.is-demo { border-style: dashed; }
 .group-btn.is-demo[aria-current="true"] {
-  background: transparent; border: 1px dashed var(--cf-ink);
-  color: var(--cf-ink);
+  background: transparent; border: 1px dashed var(--text); color: var(--text);
 }
 
 /* ---------- Provenance: one quiet line ----------------------------------- */
 .provenance {
-  max-width: var(--maxw); margin: 0 auto;
-  padding: 5px 16px 7px; display: flex; flex-wrap: wrap; align-items: baseline;
-  gap: 2px 7px;
-  font-family: var(--mono); font-size: .64rem; color: var(--cf-slate);
-  border-top: var(--hairline-soft);
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 7px;
+  font-family: var(--mono); font-size: .62rem; color: var(--text-faint);
 }
-.provenance b { color: var(--cf-ink); font-weight: 700; letter-spacing: .5px; }
+.provenance b { color: var(--text-muted); font-weight: 600; letter-spacing: .04em; }
 .provenance .prov-item { white-space: nowrap; }
 .provenance .prov-sep { opacity: .5; }
-/* Staleness is inline text — small, muted, no alert box, no accent color. */
-.provenance .prov-stale { font-weight: 700; }
+/* Staleness is inline text — small, muted, no alert box. */
+.provenance .prov-stale { font-weight: 600; color: var(--text); }
 
-/* Sample-data band — quiet gold wash, the one banner that stays a banner. */
+/* Sample-data band — the one banner that stays a banner. */
 .sample-banner {
   font-family: var(--mono);
-  font-size: .72rem; font-weight: 500; letter-spacing: .2px;
-  padding: 8px 16px; text-align: center;
-  background: var(--gold-wash); color: var(--cf-ink);
-  border-top: var(--hairline-soft);
+  font-size: .7rem; font-weight: 500; letter-spacing: .01em;
+  padding: 8px 20px; text-align: center;
+  background: var(--accent-alt); color: var(--text);
+  border-top: 1px solid var(--border);
 }
-.sample-banner::before { content: "\25D0  "; color: var(--cf-slate); }
+.sample-banner::before { content: "\25D0  "; color: var(--text-muted); }
 
-/* ---------- Page shell -------------------------------------------------- */
-.page { max-width: var(--maxw); margin: 0 auto; padding: 20px 14px 40px; }
+/* ---------- Page shell --------------------------------------------------- */
+.page { max-width: var(--maxw); margin: 0 auto; padding: 20px 20px 60px; }
 .loading {
-  color: var(--cf-slate); text-align: center; padding: 60px 0;
+  color: var(--text-faint); text-align: center; padding: 60px 0;
   font-family: var(--mono); font-size: .8rem;
 }
+#home-content { display: flex; flex-direction: column; gap: var(--gap); }
+.grid-top, .grid-bottom { display: grid; grid-template-columns: 1fr; gap: var(--gap); align-items: start; }
 
-/* ---------- Pre-draft state --------------------------------------------- */
+/* Card — the single container primitive. */
+.card { background: var(--bg); border: 1px solid var(--border); padding: 20px; }
+.card-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.card-title {
+  font-family: var(--display); font-weight: 900;
+  font-size: 1.9rem; letter-spacing: -.01em; line-height: 1;
+  text-transform: uppercase;
+}
+.card-tag {
+  font-family: var(--display); font-weight: 700;
+  font-size: 1.05rem; letter-spacing: .04em; text-transform: uppercase;
+}
+.tag-exact { color: var(--accent); }
+.tag-proj  { color: var(--text-faint); }
+.card-sub { color: var(--text-muted); font-size: .78rem; margin-top: 5px; }
+
+/* Column labels shared by every table head. */
+.mgr-head span, .sb-head span, .proj-head-row span {
+  font-family: var(--mono); font-size: .58rem; font-weight: 500;
+  color: var(--text-faint); letter-spacing: .08em; text-transform: uppercase;
+}
+
+/* ---------- Avatar (initials only — no photo upload, static host) -------- */
+.avatar {
+  flex-shrink: 0; border-radius: 50%;
+  border: 2px solid var(--mc); padding: 2px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.avatar > span {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: color-mix(in srgb, var(--mc) 14%, transparent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-weight: 900; color: var(--mc);
+  line-height: 1; user-select: none;
+}
+.avatar.on-dark > span { background: #1e1e1e; }
+.avatar-lg { width: 56px; height: 56px; font-size: 20px; }
+.avatar-md { width: 40px; height: 40px; font-size: 14px; }
+.avatar-sm { width: 28px; height: 28px; font-size: 10px; }
+
+/* ---------- Hero banner -------------------------------------------------- */
+.hero {
+  background: var(--ink-panel);
+  border-bottom: 4px solid var(--accent);
+  padding: 24px 24px 22px;
+  display: grid; grid-template-columns: 1fr; gap: 22px; align-items: center;
+}
+.hero-kicker {
+  font-family: var(--mono); font-size: .62rem; color: var(--accent);
+  letter-spacing: .12em; text-transform: uppercase; margin-bottom: 8px;
+}
+.hero-title {
+  font-family: var(--display); font-weight: 900;
+  font-size: 2rem; line-height: 1.05; letter-spacing: -.01em;
+  color: #fff; text-transform: uppercase; margin-bottom: 6px;
+}
+.hero-title span { color: var(--accent); }
+.hero-sub { font-size: .86rem; color: var(--text-faint); line-height: 1.5; }
+.hero-sub b { color: #fff; font-weight: 600; }
+.hero-sub .mono { font-weight: 600; color: #fff; }
+.hero-sub .hero-pos { color: var(--accent); }
+
+.hero-mgrs { display: flex; flex-wrap: wrap; gap: 16px 20px; }
+.hero-mgr { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 66px; }
+.hero-mgr-name {
+  font-family: var(--display); font-weight: 900; font-size: .74rem;
+  color: #fff; letter-spacing: .04em; text-transform: uppercase;
+  text-align: center; line-height: 1.1;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hero-mgr-total { font-size: .68rem; color: var(--accent); }
+.hero-mgr-total.neg { color: #FF6B6B; }
+
+/* ---------- Board 1 — Standings ------------------------------------------ */
+.standings { margin-top: 14px; }
+.mgr-head {
+  display: grid; grid-template-columns: var(--mgr-grid); gap: 0 10px;
+  padding: 0 14px 8px; border-bottom: 1px solid var(--border);
+}
+.mgr-head span:nth-child(4), .mgr-head span:nth-child(5) { text-align: center; }
+
+.mgr { border-bottom: 1px solid var(--border-soft); }
+.mgr:last-child { border-bottom: none; }
+
+.mgr-row {
+  display: grid; grid-template-columns: var(--mgr-grid);
+  align-items: center; gap: 0 10px;
+  padding: 12px 14px 10px; position: relative;
+}
+/* Manager color bar — the row's identity tie to the hero avatars. */
+.mgr-row::before {
+  content: ""; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; background: var(--mc);
+}
+.rank {
+  font-family: var(--display); font-weight: 900; font-size: 2.4rem;
+  line-height: 1; color: var(--text); text-align: left; padding-left: 8px;
+}
+.mgr-id { min-width: 0; }
+.mgr-name {
+  font-family: var(--display); font-weight: 900;
+  font-size: 1.3rem; letter-spacing: .02em; line-height: 1.1;
+  text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mgr-sub {
+  font-size: .68rem; color: var(--text-muted); margin-top: 2px; font-style: italic;
+}
+.mgr-total { text-align: center; }
+.mgr-total .val {
+  font-weight: 600; font-size: 1.5rem; line-height: 1; color: var(--accent);
+}
+.mgr-total .val.neg { color: var(--negative); }
+.mgr-total .lbl {
+  font-family: var(--mono); font-size: .52rem; color: var(--text-faint);
+  text-transform: uppercase; letter-spacing: .1em; margin-top: 4px;
+}
+.mgr-move {
+  text-align: center; font-size: .82rem; font-weight: 600;
+}
+.mgr-move.none { color: var(--text-faint); }
+
+/* Pick rows — one per pick, hairline-separated */
+.picks { padding-bottom: 6px; }
+.pick { padding: 8px 14px 9px 22px; border-top: 1px solid var(--border-soft); }
+.pick.dead { opacity: .5; }
+
+.pick-line1 {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center; gap: 0 10px;
+}
+.pick-team {
+  font-family: var(--body); font-weight: 500;
+  font-size: .84rem; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+.pick-team .conf {
+  font-weight: 400; font-size: .66rem; color: var(--text-faint); margin-left: 6px;
+}
+
+/* Direction badge: over = amber fill; under = ink outline. Square, no pills. */
+.dir-badge {
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: .6rem; font-weight: 600; letter-spacing: .03em;
+  text-transform: uppercase; white-space: nowrap;
+  padding: 2px 6px; line-height: 1.4;
+}
+.dir-badge.over  { background: var(--accent); color: var(--text); border: 1px solid var(--accent); }
+.dir-badge.under { background: transparent; color: var(--text); border: 1px solid var(--text); }
+
+.pick-delta {
+  font-weight: 600; font-size: .92rem; text-align: right;
+  color: var(--text); min-width: 3.6ch;
+}
+
+.pick-sub {
+  font-family: var(--mono); font-size: .6rem; color: var(--text-faint);
+  margin-top: 3px; display: flex; flex-wrap: wrap; gap: 2px 12px;
+}
+.pick-sub .st-live { color: var(--text); font-weight: 600; }
+.pick-sub .st-clinched { color: var(--positive); font-weight: 600; }
+.pick-sub .st-dead { color: var(--text-faint); font-weight: 600; }
+
+/* Floor–ceiling range bar — Board 1's credibility feature. A RANGE, not a
+   line: filled segment from floor to ceiling in the manager's color, square
+   tick at the banked position, thin tick where delta 0 (the line) sits.
+   Flat, no motion. Not in the Figma mock; carried forward deliberately. */
+.range { margin-top: 7px; }
+.range-track { position: relative; height: 6px; background: var(--border-soft); }
+.range-fill { position: absolute; top: 0; bottom: 0; min-width: 3px; }
+.range-zero {
+  position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--text-faint);
+}
+.range-mark {
+  position: absolute; top: 50%; width: 3px; height: 12px;
+  background: var(--text); transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px var(--bg);
+}
+
+/* ---------- Editorial slot (honest placeholder) -------------------------- */
+.editorial { border-left: 3px solid var(--accent); }
+.ed-kicker {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-faint); margin-bottom: 10px;
+}
+.ed-headline {
+  font-family: var(--display); font-weight: 900;
+  font-size: 2.6rem; line-height: .95; letter-spacing: -.02em;
+  text-transform: uppercase; color: var(--text);
+  padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+}
+.ed-body { font-size: .92rem; line-height: 1.7; color: #222; margin-bottom: 14px; }
+.ed-link {
+  font-family: var(--display); font-weight: 700; font-size: .86rem;
+  letter-spacing: .05em; text-transform: uppercase;
+  color: var(--text); text-decoration: none;
+  border-bottom: 2px solid var(--accent); padding-bottom: 2px;
+}
+.ed-link:hover { background: var(--accent-alt); }
+
+/* ---------- Scoreboard --------------------------------------------------- */
+.sb-cols { display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 14px; }
+.sb-col { min-width: 0; }
+.sb-row {
+  display: grid; grid-template-columns: var(--sb-grid); gap: 0 8px;
+  align-items: center; padding: 6px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.sb-head { padding: 4px 0 8px; border-bottom: 1px solid var(--border); }
+/* Wide screens: the meta wrapper dissolves so owners/O-U/record sit in the
+   parent grid as real columns. Phones re-materialize it as a second line. */
+.sb-meta { display: contents; }
+.sb-head span:nth-child(n+3) { text-align: center; }
+.sb-chip {
+  font-family: var(--display); font-weight: 900; font-size: .5rem;
+  letter-spacing: -.02em; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 22px; background: var(--bg-subtle);
+  border: 1px solid var(--border); color: var(--text-muted);
+}
+.sb-team {
+  font-size: .76rem; font-weight: 500; color: #222; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sb-team .sb-conf { color: var(--text-faint); font-weight: 400; font-size: .64rem; margin-left: 5px; }
+.sb-owners { font-size: .68rem; text-align: center; line-height: 1.3; }
+.sb-owner { color: var(--mc); font-weight: 600; }
+.sb-comma { color: var(--text-faint); }
+.sb-ou, .sb-cur, .sb-delta { font-size: .68rem; text-align: center; color: #333; }
+.sb-delta { font-weight: 600; }
+/* Both sides of a shared team stack inside the cell rather than overflowing. */
+.sb-ou.is-multi > span, .sb-delta.is-multi > span { display: block; line-height: 1.35; }
+
+/* ---------- Board 2 — Win probabilities ---------------------------------- */
+.projection { margin-top: 14px; }
+.proj-disclaimer { font-style: italic; }
+.proj-head-row {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.proj-mgr { padding: 14px 0 0; }
+.proj-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 7px; }
+.proj-who { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.proj-name {
+  font-family: var(--display); font-weight: 900; font-size: 1rem;
+  text-transform: uppercase; letter-spacing: .02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.proj-nums { display: flex; align-items: baseline; gap: 10px; flex-shrink: 0; }
+.proj-total { font-size: .74rem; color: var(--text-muted); }
+.proj-winpool { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+.proj-bar { height: 10px; background: var(--border-soft); overflow: hidden; }
+.proj-bar-fill { height: 100%; background: var(--mc); }
+.proj-foot { font-size: .68rem; color: var(--text-faint); margin-top: 18px; line-height: 1.5; }
+
+/* Projection staleness / unavailable notes */
+.proj-stale-note {
+  font-family: var(--mono); font-size: .66rem; color: var(--text);
+  background: var(--bg-subtle); border-left: 3px solid var(--accent);
+  padding: 8px 10px; margin-bottom: 10px;
+}
+.proj-stale-note::before { content: "\26A0  "; color: var(--text-muted); }
+.board2-unavailable { padding: 26px 6px; text-align: center; color: var(--text-muted); }
+.board2-unavailable .u-title {
+  font-family: var(--display); font-weight: 900; text-transform: uppercase;
+  color: var(--text); font-size: 1.05rem; margin-bottom: 6px;
+}
+.board2-unavailable .u-sub { font-size: .8rem; color: var(--text-muted); max-width: 46ch; margin: 0 auto; }
+
+/* ---------- Pre-draft / errors / coming soon / footer -------------------- */
 .predraft {
-  border: 1px dashed var(--cf-ink); border-radius: var(--r);
-  background: var(--cf-newsprint);
-  padding: 44px 26px; text-align: center; margin-top: 8px;
+  border: 1px dashed var(--text); background: var(--bg);
+  padding: 48px 26px; text-align: center;
 }
 .predraft-badge {
   display: inline-block; font-family: var(--mono); text-transform: uppercase;
-  letter-spacing: 1.4px; font-weight: 500; font-size: .66rem;
-  color: var(--cf-slate); border: var(--hairline); border-radius: var(--r);
+  letter-spacing: .12em; font-weight: 500; font-size: .64rem;
+  color: var(--text-muted); border: 1px solid var(--border);
   padding: 5px 12px; margin-bottom: 20px;
 }
 .predraft h1 {
   font-family: var(--display); font-weight: 900;
-  font-size: 1.9rem; line-height: 1.05; letter-spacing: -.01em; margin-bottom: 6px;
+  font-size: 2.2rem; line-height: 1.02; letter-spacing: -.01em;
+  text-transform: uppercase; margin-bottom: 6px;
 }
-.predraft .predraft-group { color: var(--cf-wire-red); }
-.predraft p { color: var(--cf-slate); max-width: 44ch; margin: 10px auto 0; font-size: .92rem; }
+.predraft .predraft-group { color: var(--accent); }
+.predraft p { color: var(--text-muted); max-width: 46ch; margin: 10px auto 0; font-size: .9rem; }
 .predraft .predraft-meta {
-  color: var(--cf-slate); font-family: var(--mono); font-size: .72rem; margin-top: 20px;
+  color: var(--text-faint); font-family: var(--mono); font-size: .7rem; margin-top: 20px;
 }
-.predraft a { color: var(--cf-wire-red); }
+.predraft a { color: var(--text); border-bottom: 2px solid var(--accent); text-decoration: none; }
 
-/* ---------- Board scaffolding ------------------------------------------- */
-.board { margin-top: 26px; }
-.board-head { margin-bottom: 12px; }
-.board-title {
-  font-family: var(--display); font-weight: 600;
-  font-size: 1.3rem; letter-spacing: 0; line-height: 1.1;
-  display: flex; align-items: baseline; gap: 10px;
-}
-.board-sub { color: var(--cf-slate); font-size: .84rem; margin-top: 4px; }
-.tag {
-  font-family: var(--mono); font-size: .58rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 1.2px;
-  padding: 3px 7px; border-radius: var(--r);
-}
-.tag-exact { background: var(--cf-ink); color: var(--cf-newsprint); }
-.tag-proj  {
-  background: transparent; color: var(--cf-slate);
-  border: 1px dashed var(--cf-slate);
-}
-
-/* ---------- Board 1 — Standings (exact; solid, confident) ---------------- */
-.mgr {
-  background: var(--cf-newsprint);
-  border: 1px solid var(--cf-ink);
-  border-top-width: 3px;                  /* box-score head rule */
-  border-radius: var(--r);
-  margin-bottom: 14px;
-}
-
-.mgr-row {
-  display: grid; grid-template-columns: 26px minmax(0,1fr) auto;
-  align-items: baseline; gap: 0 12px; padding: 12px 14px 10px;
-  border-bottom: var(--hairline);
-}
-.rank {
-  font-family: var(--mono); font-weight: 500; font-size: .95rem;
-  color: var(--cf-slate); text-align: center; line-height: 1;
-  align-self: center;
-}
-.rank.rank-1 { color: var(--cf-ink); font-weight: 700; }
-.mgr-id { min-width: 0; }
-.mgr-name {
-  font-family: var(--display); font-weight: 600;
-  font-size: 1.18rem; letter-spacing: 0; line-height: 1.1;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.mgr-group-label {
-  font-family: var(--mono); font-size: .6rem; font-weight: 500;
-  text-transform: uppercase; letter-spacing: 1.2px; color: var(--cf-slate);
-  margin-top: 3px;
-}
-.mgr-total { text-align: right; align-self: center; }
-.mgr-total .val {
-  font-family: var(--mono); font-weight: 700; font-size: 1.55rem;
-  font-variant-numeric: tabular-nums; line-height: 1; color: var(--cf-ink);
-}
-.mgr-total .lbl {
-  font-family: var(--mono); font-size: .56rem; color: var(--cf-slate);
-  text-transform: uppercase; letter-spacing: 1.2px; margin-top: 3px;
-}
-
-/* Pick rows — one per pick, hairline-separated */
-.pick {
-  padding: 9px 14px 10px;
-  border-bottom: var(--hairline-soft);
-}
-.pick:last-child { border-bottom: 0; }
-.pick.dead { opacity: .55; }
-
-.pick-line1 {
-  display: grid; grid-template-columns: minmax(0,1fr) auto auto;
-  align-items: baseline; gap: 0 10px;
-}
-.pick-team {
-  font-family: var(--body); font-weight: 500;
-  font-size: .9rem; line-height: 1.25;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
-}
-.pick-team .conf {
-  font-weight: 400; font-size: .68rem; color: var(--cf-slate); margin-left: 6px;
-}
-
-/* Direction badge: shows the line. over = solid wire-red / newsprint text;
-   under = ink outline, transparent fill. 2px radius — stat sheet, not pills. */
-.dir-badge {
-  font-family: var(--mono); font-variant-numeric: tabular-nums;
-  font-size: .64rem; font-weight: 700; letter-spacing: .5px;
-  text-transform: uppercase; white-space: nowrap;
-  padding: 2px 6px; border-radius: var(--r); line-height: 1.4;
-  align-self: center;
-}
-.dir-badge.over {
-  background: var(--cf-wire-red); color: var(--cf-newsprint);
-  border: 1px solid var(--cf-wire-red);
-}
-.dir-badge.under {
-  background: transparent; color: var(--cf-ink);
-  border: 1px solid var(--cf-ink);
-}
-
-.pick-delta {
-  font-family: var(--mono); font-weight: 700; font-size: .95rem;
-  font-variant-numeric: tabular-nums; text-align: right; color: var(--cf-ink);
-  min-width: 3.4ch;
-}
-
-.pick-sub {
-  font-family: var(--mono); font-size: .64rem; color: var(--cf-slate);
-  margin-top: 2px; display: flex; flex-wrap: wrap; gap: 2px 12px;
-}
-.pick-sub .st-live { color: var(--cf-wire-red); font-weight: 700; }
-.pick-sub .st-clinched { color: var(--cf-ink); font-weight: 700; }
-.pick-sub .st-dead { color: var(--cf-slate); font-weight: 700; }
-
-/* Floor–ceiling range bar: a RANGE, not a line — visible filled segment from
-   floor to ceiling, square ink tick at the banked position, thin tick where
-   delta 0 sits (the line itself). Flat, no motion. */
-.range { margin-top: 7px; }
-.range-track {
-  position: relative; height: 6px; border-radius: 0;
-  background: rgba(74, 79, 85, .14);
-}
-.range-fill {
-  position: absolute; top: 0; bottom: 0; min-width: 3px;
-  background: rgba(74, 79, 85, .45);
-}
-.range-zero {
-  position: absolute; top: -2px; bottom: -2px; width: 1px;
-  background: var(--cf-slate);
-}
-.range-mark {
-  position: absolute; top: 50%; width: 3px; height: 12px;
-  background: var(--cf-ink);
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 1px var(--cf-newsprint);
-}
-
-/* ---------- Board 2 — Projected finish (washed, dashed, subordinate) ------
-   The Board 1 / Board 2 visual split is load-bearing: exact = solid ink
-   border on plain newsprint; projection = gold WASH + dashed border. Do not
-   let a future edit make these look equally certain. */
-.proj-disclaimer { color: var(--cf-slate); font-style: italic; font-size: .8rem; }
-.projection {
-  border: 1px dashed var(--cf-ink); border-radius: var(--r);
-  background: var(--gold-wash);
-}
-.proj-mgr {
-  display: grid; grid-template-columns: minmax(0,1fr) auto auto;
-  align-items: baseline; gap: 0 20px;
-  padding: 10px 14px;
-  border-bottom: var(--hairline-soft);
-}
-.proj-mgr:last-child { border-bottom: 0; }
-.proj-head-row {
-  display: grid; grid-template-columns: minmax(0,1fr) auto auto;
-  gap: 0 20px; padding: 8px 14px 4px;
-  font-family: var(--mono); font-size: .56rem; font-weight: 500;
-  text-transform: uppercase; letter-spacing: 1.2px; color: var(--cf-slate);
-  border-bottom: var(--hairline-soft);
-}
-.proj-head-row span:not(:first-child) { text-align: right; }
-.proj-name {
-  font-family: var(--display); font-weight: 600; font-size: 1rem;
-  color: var(--cf-ink); white-space: nowrap; overflow: hidden;
-  text-overflow: ellipsis; min-width: 0;
-}
-.proj-total, .proj-winpool {
-  font-family: var(--mono); font-variant-numeric: tabular-nums;
-  text-align: right; color: var(--cf-ink);
-}
-.proj-total { font-weight: 500; font-size: .9rem; min-width: 5ch; }
-.proj-winpool { font-weight: 700; font-size: .9rem; min-width: 5ch; }
-
-/* Projection staleness / unavailable notes */
-.proj-stale-note {
-  font-family: var(--mono); font-size: .68rem; color: var(--cf-ink);
-  border-bottom: var(--hairline-soft);
-  padding: 8px 14px;
-}
-.proj-stale-note::before { content: "\26A0  "; color: var(--cf-wire-red); }
-.board2-unavailable {
-  padding: 26px 20px; text-align: center; color: var(--cf-slate);
-}
-.board2-unavailable .u-title {
-  font-family: var(--display); font-weight: 600;
-  color: var(--cf-ink); font-size: 1rem; margin-bottom: 6px;
-}
-.board2-unavailable .u-sub {
-  font-size: .82rem; color: var(--cf-slate); max-width: 46ch; margin: 0 auto;
-}
-
-/* ---------- Errors / footer --------------------------------------------- */
 .load-error {
-  border: 1px solid var(--cf-wire-red); border-radius: var(--r);
-  background: var(--cf-newsprint); padding: 30px 22px; text-align: center; margin-top: 12px;
+  border: 1px solid var(--negative); background: var(--bg);
+  padding: 34px 22px; text-align: center;
 }
 .load-error h2 {
-  font-family: var(--display); font-weight: 600;
-  color: var(--cf-wire-red); margin-bottom: 6px;
+  font-family: var(--display); font-weight: 900; text-transform: uppercase;
+  color: var(--negative); margin-bottom: 6px; font-size: 1.5rem;
 }
-.load-error p { color: var(--cf-slate); font-size: .86rem; }
+.load-error p { color: var(--text-muted); font-size: .84rem; }
+
+.coming-soon { padding: 80px 0; text-align: center; }
+.cs-label {
+  font-family: var(--display); font-weight: 700; font-size: 1.5rem;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--text-faint);
+}
+.cs-sub { font-size: .84rem; color: var(--text-faint); margin-top: 8px; }
+
 .site-foot {
-  max-width: var(--maxw); margin: 0 auto; padding: 22px 16px 40px;
-  border-top: var(--hairline);
+  max-width: var(--maxw); margin: 0 auto; padding: 22px 20px 40px;
+  border-top: 1px solid var(--border);
 }
-.site-foot p { color: var(--cf-slate); font-size: .72rem; line-height: 1.6; }
+.site-foot p { color: var(--text-faint); font-size: .7rem; line-height: 1.6; }
 
 /* ==========================================================================
-   Weekly SVP column (svp.html) — the column page. Roomier, headline-led.
+   Weekly SVP column (svp.html) — roomier, headline-led.
    ========================================================================== */
-.svp-masthead {
-  background: var(--cf-wire-red);
-  color: var(--cf-newsprint);
-}
+.svp-masthead { background: var(--ink-panel); border-bottom: 4px solid var(--accent); }
 .svp-masthead-inner {
-  max-width: 560px; margin: 0 auto;
-  padding: 12px 18px;
-  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
-  font-family: var(--mono);
+  max-width: 720px; margin: 0 auto; padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
 .svp-wordmark {
-  font-size: .82rem; font-weight: 700; letter-spacing: 2px; text-transform: lowercase;
+  font-family: var(--display); font-weight: 900; font-size: 1.15rem;
+  letter-spacing: .04em; text-transform: uppercase; color: #fff;
+  text-decoration: none;
 }
+.svp-wordmark span { color: var(--accent); }
 .svp-week {
-  font-size: .72rem; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--mono); font-size: .68rem; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
 }
+/* Same tab primitive as the home page, inverted for the dark column masthead. */
+.svp-nav { display: flex; flex-wrap: wrap; gap: 0; }
+.svp-nav .nav-btn {
+  background: transparent; color: #fff; border-color: #333;
+}
+.svp-nav .nav-btn:hover { background: #1e1e1e; }
+.svp-nav .nav-btn[aria-current="true"] { background: var(--accent); color: var(--text); border-color: var(--accent); }
 
-.svp-page { max-width: 560px; margin: 0 auto; padding: 30px 18px 60px; }
+.svp-page { max-width: 720px; margin: 0 auto; padding: 28px 20px 60px; }
 
-/* Cover art: placeholder ONLY — solid muted-gold block until the persona
-   pipeline (generate_persona_batch.py) delivers real trading-card art. */
+/* Cover art: placeholder ONLY — flat block until the persona pipeline
+   (generate_persona_batch.py) delivers real trading-card art. */
 .svp-cover {
-  background: var(--cf-muted-gold);
+  background: var(--bg-subtle); border: 1px solid var(--border);
   aspect-ratio: 5 / 4;
-  border-radius: var(--r);
   display: flex; align-items: flex-end; justify-content: flex-start;
 }
 .svp-cover-note {
-  font-family: var(--mono); font-size: .62rem; letter-spacing: .8px;
-  text-transform: uppercase; color: var(--cf-ink);
-  padding: 10px 12px; opacity: .55;
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-faint); padding: 10px 12px;
 }
 
 .svp-kicker {
-  font-family: var(--mono); font-size: .66rem; font-weight: 500;
-  text-transform: uppercase; letter-spacing: 1.8px; color: var(--cf-slate);
+  font-family: var(--mono); font-size: .62rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: .14em; color: var(--text-faint);
   margin-top: 26px;
 }
 .svp-headline {
   font-family: var(--display); font-weight: 900;
-  font-size: 28px; line-height: 1.08; letter-spacing: -.01em;
-  color: var(--cf-ink); margin-top: 8px;
+  font-size: 2.6rem; line-height: .98; letter-spacing: -.02em;
+  text-transform: uppercase; color: var(--text); margin-top: 8px;
 }
-.svp-teaser {
-  font-family: var(--body); font-size: .95rem; color: var(--cf-slate);
-  margin-top: 10px; max-width: 52ch;
-}
-.svp-rule {
-  border: 0; border-top: var(--hairline); margin: 28px 0 14px;
-}
-.svp-foot-note {
-  font-family: var(--mono); font-size: .68rem; color: var(--cf-slate);
-}
-.svp-foot-note a { color: var(--cf-wire-red); }
+.svp-teaser { font-size: .98rem; line-height: 1.7; color: #222; margin-top: 18px; max-width: 60ch; }
+.svp-rule { border: 0; border-top: 1px solid var(--border); margin: 28px 0 14px; }
+.svp-foot-note { font-family: var(--mono); font-size: .66rem; color: var(--text-faint); }
+.svp-foot-note a { color: var(--text); border-bottom: 2px solid var(--accent); text-decoration: none; }
 
-/* ---------- Responsive: desktop comfort --------------------------------- */
-@media (min-width: 680px) {
-  .wordmark { font-size: 1.65rem; }
-  .board-title { font-size: 1.45rem; }
-  .mgr-row { padding: 14px 18px 11px; }
-  .pick { padding: 10px 18px 11px; }
-  .predraft h1 { font-size: 2.3rem; }
-  .svp-headline { font-size: 34px; }
+/* ---------- Responsive --------------------------------------------------- */
+@media (max-width: 700px) {
+  /* The masthead stacks to ~4 rows on a phone; sticking it would eat most of
+     the viewport. Let it scroll away instead. */
+  .masthead { position: static; }
 }
 
-/* Width steps. --maxw is the single knob every shell element reads
-   (.masthead-inner / .provenance / .page / .site-foot). Below 900px nothing
-   here applies and the phone-first 660px column is untouched. */
+@media (max-width: 560px) {
+  :root {
+    --mgr-grid: 28px 28px minmax(0, 1fr) 58px 52px;
+    --sb-grid: 24px minmax(0, 1fr) 72px 50px 42px 60px;
+  }
+  /* Scoreboard folds to two lines: team + delta on top, owners/O-U/record
+     beneath. The column header row makes no sense folded, so it's dropped. */
+  .sb-head { display: none; }
+  .sb-row { grid-template-columns: 24px minmax(0, 1fr) auto; row-gap: 2px; padding: 8px 0; }
+  .sb-chip { grid-row: 1 / span 2; align-self: start; }
+  .sb-team { grid-row: 1; grid-column: 2; white-space: normal; }
+  .sb-delta { grid-row: 1; grid-column: 3; text-align: right; }
+  .sb-meta { display: flex; flex-wrap: wrap; gap: 2px 10px; grid-row: 2; grid-column: 2 / span 2; }
+  .sb-owners, .sb-ou, .sb-cur { text-align: left; }
+
+  .avatar-lg { width: 48px; height: 48px; font-size: 17px; }
+  .avatar-md { width: 28px; height: 28px; font-size: 10px; }
+  .mgr-row, .mgr-head { gap: 0 7px; }
+  .mgr-head span { font-size: .52rem; letter-spacing: .06em; }
+  .page { padding: 16px 12px 44px; }
+  .brand-line1 { font-size: 1.35rem; }
+  .brand-line2 { font-size: .68rem; }
+  .brand-shield { width: 34px; height: 39px; }
+  .nav-btn { font-size: .68rem; padding: 7px 10px; }
+  .card { padding: 16px 14px; }
+  .card-title { font-size: 1.5rem; }
+  .rank { font-size: 1.8rem; padding-left: 6px; }
+  .mgr-name { font-size: 1.05rem; }
+  .mgr-total .val { font-size: 1.2rem; }
+  .hero { padding: 20px 16px; }
+  .hero-title { font-size: 1.5rem; }
+  .ed-headline { font-size: 2rem; }
+  .svp-headline { font-size: 2rem; }
+}
+
 @media (min-width: 900px) {
-  :root { --maxw: 880px; }
-  .page { padding: 22px 22px 44px; }
-  .mgr-row { padding: 15px 22px 12px; }
-  .pick { padding: 11px 22px 12px; }
-  .proj-mgr, .proj-head-row, .proj-stale-note { padding-left: 22px; padding-right: 22px; }
+  .hero { grid-template-columns: 1fr auto; padding: 28px 32px; }
+  .hero-title { font-size: 2.3rem; }
+  .sb-cols { grid-template-columns: 1fr 1fr; }
+  .sb-cols .sb-col:first-child { border-right: 1px solid var(--border); padding-right: 16px; }
+  .sb-cols .sb-col:last-child { padding-left: 16px; }
 }
 
-@media (min-width: 1240px) {
-  :root { --maxw: 1120px; }
-  .page { padding: 24px 28px 48px; }
-  .mgr-row { padding: 16px 26px 12px; }
-  .pick { padding: 11px 26px 12px; }
-  .proj-mgr, .proj-head-row, .proj-stale-note { padding-left: 26px; padding-right: 26px; }
+@media (min-width: 1100px) {
+  .grid-top { grid-template-columns: 62fr 38fr; }
+  .grid-bottom { grid-template-columns: 70fr 30fr; }
+  .card-title { font-size: 2.1rem; }
+  .ed-headline { font-size: 3rem; }
 }
 
-/* The standings board is flat and static by design; nothing here animates.
+/* The boards are flat and static by design; only the win-prob bar eases in.
    Belt-and-suspenders for anything that slips in later: */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }

@@ -1,8 +1,14 @@
 /* ==========================================================================
-   app.js — CFB Pick'Em two-board renderer.
-   Reads ONLY site/data/<group>/{standings,projection}.json, exactly as
+   app.js — CFB Pick'Em renderer.
+   Reads ONLY site/data/<group>/{standings,projection,timeline}.json, exactly as
    docs/output-contract.md defines them. The engine computes; the site displays.
    No field is read that the contract does not define.
+
+   Sections rendered here (all from the three contract files above):
+     hero        — leader + every manager's banked total (standings.json)
+     board1      — exact standings, incl. the floor/ceiling range bar
+     scoreboard  — client-side re-pivot of standings.json by TEAM, not manager
+     board2      — win probabilities from projection.json (degrades alone)
    ========================================================================== */
 'use strict';
 
@@ -16,6 +22,25 @@ const GROUPS = [
 const DEMO = { id: 'test', label: 'Demo Fixture' };
 const STALE_DAYS = 8;               // STEP 5: cache older than this = visible warning
 
+// Second-tier page nav. HOME and STANDINGS are both this page (it already holds
+// both boards); WEEKLY RECAP is svp.html; the rest are honest placeholders.
+const PAGE_NAV = [
+  { label: 'HOME',         kind: 'home' },
+  { label: 'STANDINGS',    kind: 'home', scrollTo: 'board1' },
+  { label: 'WEEKLY RECAP', kind: 'link', href: 'svp.html' },
+  { label: 'PROFILES',     kind: 'soon' },
+  { label: 'ANALYTICS',    kind: 'soon' },
+];
+
+// Manager colors are assigned per manager, generically — NOT hardcoded to any
+// one group's roster. Managers are sorted by the stable `manager_id` join key
+// and indexed into this palette, so a given person keeps the same color across
+// renders and every group (4, 5, or 8 managers) gets distinct colors.
+const MANAGER_PALETTE = [
+  '#FF8C00', '#2FAE39', '#2563EB', '#FF2020',
+  '#7C3AED', '#0891B2', '#DB2777', '#B45309',
+];
+
 // ---------- helpers --------------------------------------------------------
 const $ = (id) => document.getElementById(id);
 const show = (el) => { if (el) el.hidden = false; };
@@ -28,6 +53,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
 const fmtSigned = (n) => (n > 0 ? '+' : n < 0 ? '' : '') + Number(n).toFixed(1);
 const fmtLine = (n) => Number(n).toFixed(1);
 const pct = (p) => (Number(p) * 100).toFixed(0) + '%';
+const round1 = (n) => Math.round(Number(n) * 10) / 10;
 
 function fmtStamp(iso) {
   if (!iso) return '—';
@@ -79,6 +105,42 @@ function groupLabel(id) {
   return g ? g.label : id;
 }
 
+// ---------- manager identity (color + initials) ----------------------------
+// Built once per render off whatever manager list standings.json returns.
+function buildManagerIdentity(managers) {
+  const ids = managers.map((m) => m.manager_id).slice().sort();
+  const map = {};
+  managers.forEach((m) => {
+    map[m.manager_id] = {
+      color: MANAGER_PALETTE[ids.indexOf(m.manager_id) % MANAGER_PALETTE.length],
+      initials: initialsOf(m.display_name),
+    };
+  });
+  return map;
+}
+// "Jonathan" -> JO, "Texas A&M John" -> TJ. Two letters keeps every roster's
+// initials distinct enough to scan (Gunner/Gayden -> GU/GA).
+function initialsOf(name) {
+  const words = String(name).trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return '?';
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+// Team chips carry no color in the contract, so the abbreviation is derived
+// from the name only: first four letters of the first word ("Ohio State" ->
+// OHIO, "Ole Miss" -> OLE). Deterministic, and never invents a team field.
+function teamAbbr(name) {
+  const first = String(name).trim().split(/\s+/)[0] || '?';
+  return first.replace(/[^A-Za-z0-9]/g, '').slice(0, 4).toUpperCase() || '?';
+}
+
+// Size comes from a CSS class (avatar-sm/md/lg), not an inline pixel value, so
+// the responsive rules can shrink avatars without fighting inline styles.
+function avatar(ident, sizeClass, cls) {
+  return `<span class="avatar ${sizeClass} ${cls || ''}" style="--mc:${ident.color}">` +
+    `<span>${esc(ident.initials)}</span></span>`;
+}
+
 // ---------- masthead / switcher -------------------------------------------
 function renderSwitcher(activeId) {
   const nav = $('group-switch');
@@ -97,10 +159,51 @@ function renderSwitcher(activeId) {
   });
 }
 
+// Page nav. PROFILES / ANALYTICS swap the home content for a COMING SOON panel
+// — no new pages, no routing, and the group query param is preserved on links.
+function renderPageNav(groupId) {
+  const nav = $('page-nav');
+  const q = `?group=${encodeURIComponent(groupId)}`;
+  nav.innerHTML = PAGE_NAV.map((p, i) => {
+    if (p.kind === 'link') {
+      return `<a class="nav-btn" href="${esc(p.href)}${q}" data-i="${i}">${esc(p.label)}</a>`;
+    }
+    return `<button class="nav-btn" data-i="${i}"` +
+      `${p.kind === 'home' && i === 0 ? ' aria-current="true"' : ''}>${esc(p.label)}</button>`;
+  }).join('');
+
+  nav.querySelectorAll('button.nav-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const spec = PAGE_NAV[Number(btn.dataset.i)];
+      nav.querySelectorAll('.nav-btn').forEach((b) => b.removeAttribute('aria-current'));
+      btn.setAttribute('aria-current', 'true');
+      if (spec.kind === 'soon') {
+        hide($('home-content'));
+        $('coming-soon').innerHTML =
+          `<div class="cs-label">${esc(spec.label)} — Coming soon</div>` +
+          `<p class="cs-sub">This section hasn&rsquo;t been built yet.</p>`;
+        show($('coming-soon'));
+        window.scrollTo({ top: 0 });
+      } else {
+        hide($('coming-soon'));
+        show($('home-content'));
+        const target = spec.scrollTo && $(spec.scrollTo);
+        if (target && !target.hidden) target.scrollIntoView({ block: 'start' });
+        else window.scrollTo({ top: 0 });
+      }
+    });
+  });
+
+  // Keep the group selection when navigating to the column / brand home.
+  $('brand-link').setAttribute('href', `index.html${q}`);
+  const edLink = $('editorial-link');
+  if (edLink) edLink.setAttribute('href', `svp.html${q}`);
+}
+
 // ---------- provenance strip (STEP 5) -------------------------------------
 // One quiet muted line. The season value flows from season.json via the
 // engine (meta.season) — nothing is hardcoded here. Replay and staleness are
-// inline, small, slate: wire-red is reserved for OVER badges and live states.
+// inline, small and muted: the accent is reserved for live/leading states.
 function renderProvenance(meta) {
   const strip = $('provenance');
   const wk = (meta.as_of_week === null || meta.as_of_week === undefined)
@@ -128,8 +231,8 @@ function renderProvenance(meta) {
     .join('<span class="prov-sep">&middot;</span>');
   show(strip);
 
-  // Sample-data banner stays a visible band (gold wash, not accent-burning):
-  // dummy picks previewing the board must never read as a real draft.
+  // Sample-data banner stays a visible band: dummy picks previewing the board
+  // must never read as a real draft.
   const sample = $('sample-banner');
   if (meta.draft_status === 'dummy') {
     sample.textContent =
@@ -158,11 +261,94 @@ function renderPreDraft(groupId, meta) {
   show(el);
 }
 
+// ---------- week-over-week move (timeline.json) ----------------------------
+// The contract has no "this week" delta on standings.json, so the move is
+// derived from timeline.json — the append-only per-week history — by summing
+// each snapshot's picks' banked_delta (which is exactly banked_total). If the
+// latest snapshot already equals the live standings, the baseline is the one
+// before it. Returns null when there's no honest comparison to draw, and the
+// column then renders as an em dash rather than a fabricated zero.
+function snapshotTotals(snap) {
+  const out = {};
+  (snap.managers || []).forEach((m) => {
+    out[m.manager_id] = round1((m.picks || [])
+      .reduce((s, p) => s + Number(p.banked_delta), 0));
+  });
+  return out;
+}
+function computeMoves(standings, timeline) {
+  const snaps = (timeline && timeline.snapshots) || [];
+  if (snaps.length < 2) return null;
+
+  const current = {};
+  (standings.managers || []).forEach((m) => { current[m.manager_id] = round1(m.banked_total); });
+
+  const latest = snapshotTotals(snaps[snaps.length - 1]);
+  const ids = Object.keys(current);
+  const latestMatchesNow = ids.every((id) => Math.abs((latest[id] ?? NaN) - current[id]) < 1e-9);
+  const base = snaps[snaps.length - (latestMatchesNow ? 2 : 1)];
+  if (!base) return null;
+
+  const baseTotals = snapshotTotals(base);
+  const moves = {};
+  ids.forEach((id) => {
+    if (id in baseTotals) moves[id] = round1(current[id] - baseTotals[id]);
+  });
+  if (!Object.keys(moves).length) return null;
+  return { week: base.as_of_week, moves };
+}
+
+// ---------- Hero banner ----------------------------------------------------
+// Leader + every manager's banked total. Only shown once real picks exist —
+// the same gate that governs Board 1 / Board 2 vs. the pre-draft state.
+function renderHero(standings, ident) {
+  const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
+  if (!mgrs.length) return;
+  const meta = standings.meta || {};
+  const leader = mgrs[0];
+  const wk = (meta.as_of_week === null || meta.as_of_week === undefined)
+    ? 'Live' : `Week ${meta.as_of_week}`;
+  const season = Number.isFinite(Number(meta.season)) ? String(meta.season) : '';
+
+  // The sub-line is derived, never invented: the gap to second place, or a tie.
+  let sub;
+  if (mgrs.length > 1) {
+    const gap = round1(leader.banked_total - mgrs[1].banked_total);
+    sub = gap === 0
+      ? `Tied with <b>${esc(mgrs[1].display_name)}</b> at <span class="mono">${fmtSigned(leader.banked_total)}</span> banked.`
+      : `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span> &middot; ` +
+        `<span class="mono">${fmtLine(gap)}</span> clear of <b>${esc(mgrs[1].display_name)}</b>.`;
+  } else {
+    sub = `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span>.`;
+  }
+
+  $('hero').innerHTML =
+    `<div class="hero-main">
+      <div class="hero-kicker">${esc(season)} CFB Over/Under Challenge &middot; ` +
+        `${esc(groupLabel(meta.group_id || currentGroupId()))} &middot; ${esc(wk)}</div>
+      <h1 class="hero-title">Current leader: <span>${esc(leader.display_name)}</span></h1>
+      <p class="hero-sub">${sub}</p>
+    </div>
+    <div class="hero-mgrs">` +
+      mgrs.map((m) => {
+        const id = ident[m.manager_id];
+        const neg = m.banked_total < 0;
+        return `<div class="hero-mgr">
+          ${avatar(id, 'avatar-lg', 'on-dark')}
+          <div class="hero-mgr-name">${esc(m.display_name)}</div>
+          <div class="hero-mgr-total mono${neg ? ' neg' : ''}">${fmtSigned(m.banked_total)}</div>
+        </div>`;
+      }).join('') +
+    `</div>`;
+  show($('hero'));
+}
+
 // ---------- Board 1 — Standings -------------------------------------------
 // Per-pick floor–ceiling bar: muted track, filled floor→ceiling span, marker
 // at the current banked position. All pick bars in a group share one scale so
-// they read like columns in a box score.
-function rangeBar(floor, ceiling, mark, gMin, gMax) {
+// they read like columns in a box score. This bar is the credibility feature
+// of Board 1 — exact, reproducible arithmetic made visible. Keep it.
+function rangeBar(floor, ceiling, mark, gMin, gMax, color) {
   const span = (gMax - gMin) || 1;
   const pos = (v) => Math.max(0, Math.min(100, ((v - gMin) / span) * 100));
   const l = pos(floor), r = pos(ceiling), m = pos(mark);
@@ -171,78 +357,189 @@ function rangeBar(floor, ceiling, mark, gMin, gMax) {
   // sits at its win total. Drawn whenever 0 is inside the group scale.
   return `<div class="range" title="Floor ${fmtSigned(floor)} · Banked ${fmtSigned(mark)} · Ceiling ${fmtSigned(ceiling)}">
     <div class="range-track">
-      <div class="range-fill" style="left:${l}%;width:${Math.max(r - l, 0.5)}%"></div>
+      <div class="range-fill" style="left:${l}%;width:${Math.max(r - l, 0.5)}%;background:${color}40"></div>
       ${gMin <= 0 && gMax >= 0 ? `<div class="range-zero" style="left:${zero}%"></div>` : ''}
       <div class="range-mark" style="left:${m}%"></div>
     </div>
   </div>`;
 }
 
-function pickRow(p, gMin, gMax) {
+function pickRow(p, gMin, gMax, color) {
   const over = p.direction === 'O';
   const cls = p.status === 'DEAD' ? ' dead' : '';
   const rem = p.games_remaining > 0 ? `${p.games_remaining} left` : 'final';
   const stCls = p.status === 'LIVE' ? 'st-live' : p.status === 'CLINCHED' ? 'st-clinched' : 'st-dead';
+  const dCls = p.banked_delta > 0 ? ' pos' : p.banked_delta < 0 ? ' neg' : '';
   return `<div class="pick${cls}">
     <div class="pick-line1">
       <div class="pick-team">${esc(p.team)}<span class="conf">${esc(p.conference || '')}</span></div>
       <span class="dir-badge ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'} ${fmtLine(p.line)}</span>
-      <span class="pick-delta">${fmtSigned(p.banked_delta)}</span>
+      <span class="pick-delta mono${dCls}">${fmtSigned(p.banked_delta)}</span>
     </div>
     <div class="pick-sub">
       <span>${p.banked_wins}&ndash;${p.banked_losses}</span>
       <span>${rem}</span>
       <span class="${stCls}">${p.status}</span>
     </div>
-    ${rangeBar(p.floor, p.ceiling, p.banked_delta, gMin, gMax)}
+    ${rangeBar(p.floor, p.ceiling, p.banked_delta, gMin, gMax, color)}
   </div>`;
 }
 
-function managerCard(m, groupName, gMin, gMax) {
+function managerCard(m, ident, gMin, gMax, moves) {
   const picks = m.picks || [];
-  return `<article class="mgr">
+  const id = ident[m.manager_id];
+  const tCls = m.banked_total < 0 ? ' neg' : '';
+
+  let moveCell = `<div class="mgr-move none mono">—</div>`;
+  if (moves && m.manager_id in moves.moves) {
+    const v = moves.moves[m.manager_id];
+    const cls = v > 0 ? 'pos' : v < 0 ? 'neg' : 'flat';
+    const arrow = v > 0 ? '↑' : v < 0 ? '↓' : '·';
+    moveCell = `<div class="mgr-move ${cls} mono">${arrow} ${fmtSigned(v)}</div>`;
+  }
+
+  return `<article class="mgr" style="--mc:${id.color}">
     <div class="mgr-row">
-      <div class="rank rank-${m.rank}">${m.rank}</div>
+      <div class="rank">${m.rank}</div>
+      ${avatar(id, 'avatar-md')}
       <div class="mgr-id">
         <div class="mgr-name">${esc(m.display_name)}</div>
-        <div class="mgr-group-label">${esc(groupName)}</div>
+        <div class="mgr-sub">${picks.length} team${picks.length === 1 ? '' : 's'}</div>
       </div>
       <div class="mgr-total">
-        <div class="val">${fmtSigned(m.banked_total)}</div>
+        <div class="val mono${tCls}">${fmtSigned(m.banked_total)}</div>
         <div class="lbl">Banked</div>
       </div>
+      ${moveCell}
     </div>
-    <div class="picks">${picks.map((p) => pickRow(p, gMin, gMax)).join('')}</div>
+    <div class="picks">${picks.map((p) => pickRow(p, gMin, gMax, id.color)).join('')}</div>
   </article>`;
 }
 
-function renderBoard1(standings) {
+function renderBoard1(standings, ident, moves) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
-  const groupName = groupLabel((standings.meta || {}).group_id || currentGroupId());
+  const meta = standings.meta || {};
+  const wk = (meta.as_of_week === null || meta.as_of_week === undefined)
+    ? 'Live' : `Week ${meta.as_of_week}`;
+  $('board1-week').textContent = wk;
+
   // Shared scale across every pick in the group so bars are comparable.
   const allPicks = mgrs.flatMap((m) => m.picks || []);
   const gMin = Math.min(0, ...allPicks.map((p) => p.floor));
   const gMax = Math.max(0, ...allPicks.map((p) => p.ceiling));
-  $('standings').innerHTML = mgrs.map((m) => managerCard(m, groupName, gMin, gMax)).join('');
+
+  const head = `<div class="mgr-head">
+    <span>Rank</span><span></span><span>Manager</span><span>Banked</span>
+    <span>${moves ? `Since wk ${esc(String(moves.week))}` : 'Move'}</span>
+  </div>`;
+  $('standings').innerHTML =
+    head + mgrs.map((m) => managerCard(m, ident, gMin, gMax, moves)).join('');
   show($('board1'));
 }
 
-// ---------- Board 2 — Projected finish ------------------------------------
-// Deliberately minimal: projected total delta + P(win pool) only. The per-pick
-// breakdown is Board 1's job; this board never mimics Board 1's certainty.
-function projManager(m) {
-  return `<div class="proj-mgr">
-    <div class="proj-name">${esc(m.display_name)}</div>
-    <span class="proj-total">${fmtSigned(m.expected_total)}</span>
-    <span class="proj-winpool">${pct(m.p_win_pool)}</span>
+// ---------- Scoreboard — standings.json re-pivoted by team -----------------
+// Pure client-side transform: every manager's picks flattened into one row per
+// TEAM. Where two managers hold the same team (the draft allows opposite sides)
+// the row carries both owners and both sides.
+function buildTeamRows(standings) {
+  const rows = new Map();
+  (standings.managers || []).forEach((m) => {
+    (m.picks || []).forEach((p) => {
+      if (!rows.has(p.team)) {
+        rows.set(p.team, {
+          team: p.team,
+          conference: p.conference || '',
+          banked_wins: p.banked_wins,
+          banked_losses: p.banked_losses,
+          games_remaining: p.games_remaining,
+          owners: [],
+          sides: [],
+        });
+      }
+      const row = rows.get(p.team);
+      row.owners.push({ id: m.manager_id, name: m.display_name });
+      // Collapse identical sides (same line + direction) so two managers on the
+      // same side show one O/U value, while opposite sides show both.
+      const key = `${p.line}${p.direction}`;
+      let side = row.sides.find((s) => s.key === key);
+      if (!side) {
+        side = { key, line: p.line, direction: p.direction, banked_delta: p.banked_delta, status: p.status };
+        row.sides.push(side);
+      }
+    });
+  });
+  return [...rows.values()].sort((a, b) => a.team.localeCompare(b.team));
+}
+
+function teamRowHTML(r, ident) {
+  const owners = r.owners.map((o) =>
+    `<span class="sb-owner" style="--mc:${ident[o.id].color}">${esc(o.name)}</span>`).join('<span class="sb-comma">,</span> ');
+  // A team held on both sides gets both lines and both deltas, stacked — one
+  // row per team, never two.
+  const multi = r.sides.length > 1 ? ' is-multi' : '';
+  const ou = r.sides.map((s) =>
+    `<span>${fmtLine(s.line)}&nbsp;${s.direction === 'O' ? 'O' : 'U'}</span>`).join('');
+  const delta = r.sides.map((s) => {
+    const cls = s.banked_delta > 0 ? 'pos' : s.banked_delta < 0 ? 'neg' : 'flat';
+    return `<span class="${cls}">${fmtSigned(s.banked_delta)}</span>`;
+  }).join('');
+  const rem = r.games_remaining > 0 ? `${r.games_remaining} left` : 'final';
+
+  // .sb-meta is display:contents on wide screens (its children become grid
+  // cells) and a flex row on phones, where the table folds to two lines.
+  return `<div class="sb-row">
+    <span class="sb-chip">${esc(teamAbbr(r.team))}</span>
+    <span class="sb-team">${esc(r.team)}<span class="sb-conf">${esc(r.conference)}</span></span>
+    <span class="sb-meta">
+      <span class="sb-owners">${owners}</span>
+      <span class="sb-ou mono${multi}">${ou}</span>
+      <span class="sb-cur mono" title="${esc(rem)}">${r.banked_wins}&ndash;${r.banked_losses}</span>
+    </span>
+    <span class="sb-delta mono${multi}">${delta}</span>
   </div>`;
 }
-function renderBoard2(projection, standings) {
+
+function renderScoreboard(standings, ident) {
+  const rows = buildTeamRows(standings);
+  if (!rows.length) return;
+  const mid = Math.ceil(rows.length / 2);
+  const header = `<div class="sb-row sb-head">
+    <span></span><span>Team</span>
+    <span class="sb-meta"><span>Owner</span><span>O/U</span><span>Cur</span></span>
+    <span>&Delta;</span>
+  </div>`;
+  const col = (list) => `<div class="sb-col">${header}${list.map((r) => teamRowHTML(r, ident)).join('')}</div>`;
+  $('sb-cols').innerHTML = col(rows.slice(0, mid)) + col(rows.slice(mid));
+  show($('scoreboard'));
+}
+
+// ---------- Board 2 — Win probabilities ------------------------------------
+// Deliberately minimal: P(win pool) as a bar, plus the projected total. The
+// per-pick breakdown is Board 1's job; this board never mimics Board 1's
+// certainty. It degrades independently of Board 1.
+function projManager(m, ident) {
+  const id = ident[m.manager_id];
+  const p = Math.max(0, Math.min(1, Number(m.p_win_pool)));
+  return `<div class="proj-mgr" style="--mc:${id ? id.color : '#666'}">
+    <div class="proj-top">
+      <div class="proj-who">
+        ${id ? avatar(id, 'avatar-sm') : ''}
+        <span class="proj-name">${esc(m.display_name)}</span>
+      </div>
+      <div class="proj-nums">
+        <span class="proj-total mono">${fmtSigned(m.expected_total)}</span>
+        <span class="proj-winpool mono">${pct(m.p_win_pool)}</span>
+      </div>
+    </div>
+    <div class="proj-bar"><div class="proj-bar-fill" style="width:${(p * 100).toFixed(1)}%"></div></div>
+  </div>`;
+}
+function renderBoard2(projection, standings, ident) {
   const disc = $('proj-disclaimer');
   const src = (projection.meta && projection.meta.ratings_source) || 'SP+';
   disc.textContent =
     `Model estimate from ${src} ratings — it updates weekly and can be wrong. ` +
-    `Board 1 above is exact arithmetic.`;
+    `Board 1 is exact arithmetic.`;
 
   const mgrs = (projection.managers || []).slice();
   // Order to mirror Board 1 where possible (p_win_pool desc as the contract sorts).
@@ -254,13 +551,15 @@ function renderBoard2(projection, standings) {
   const sStamp = standings.meta && standings.meta.cache_fetched_at;
   if (pStamp && sStamp && new Date(pStamp) < new Date(sStamp)) {
     note = `<div class="proj-stale-note">This projection was built from an earlier data pull ` +
-      `(${fmtStamp(pStamp)}) than the standings above (${fmtStamp(sStamp)}). ` +
+      `(${fmtStamp(pStamp)}) than the standings (${fmtStamp(sStamp)}). ` +
       `It may lag the latest results.</div>`;
   }
   const head = `<div class="proj-head-row">
-    <span>Owner</span><span>Proj total</span><span>P(win pool)</span>
+    <span>Owner</span><span>Proj total &middot; P(win pool)</span>
   </div>`;
-  $('projection').innerHTML = note + head + mgrs.map(projManager).join('');
+  $('projection').innerHTML = note + head + mgrs.map((m) => projManager(m, ident)).join('') +
+    `<p class="proj-foot">Percent chance to finish with the group&rsquo;s highest total, ` +
+    `from the shared-draw simulation.</p>`;
   show($('board2'));
 }
 function renderBoard2Unavailable(reason) {
@@ -269,7 +568,7 @@ function renderBoard2Unavailable(reason) {
   $('projection').innerHTML = `<div class="board2-unavailable">
     <div class="u-title">Projection unavailable</div>
     <div class="u-sub">${esc(reason)} The projection can fail without affecting the standings ` +
-    `above — those are exact and always render. Check back after the next update.</div>
+    `— those are exact and always render. Check back after the next update.</div>
   </div>`;
   show($('board2'));
 }
@@ -279,6 +578,7 @@ async function main() {
   const groupId = currentGroupId();
   $('wordmark-season').textContent = '';
   renderSwitcher(groupId);
+  renderPageNav(groupId);
 
   let standings;
   try {
@@ -305,12 +605,26 @@ async function main() {
     return;
   }
 
-  renderBoard1(standings);
+  const ident = buildManagerIdentity(standings.managers || []);
+
+  // Week-over-week move is a nice-to-have: a missing timeline.json must not
+  // affect anything else on the page.
+  let moves = null;
+  try {
+    moves = computeMoves(standings, await fetchJSON(`data/${groupId}/timeline.json`));
+  } catch (e) {
+    moves = null;
+  }
+
+  renderHero(standings, ident);
+  renderBoard1(standings, ident, moves);
+  renderScoreboard(standings, ident);
+  show($('editorial'));
 
   // Board 2 degrades independently of Board 1 (STEP 4).
   try {
     const projection = await fetchJSON(`data/${groupId}/projection.json`);
-    renderBoard2(projection, standings);
+    renderBoard2(projection, standings, ident);
   } catch (e) {
     renderBoard2Unavailable(`It was not found for this group (${esc(e.message)}).`);
   }

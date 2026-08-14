@@ -7,7 +7,7 @@
 <meta name="description" content="Weekly SVP column: one big thing from the week's pick'em action.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,16 +17,24 @@
 
 <header class="svp-masthead">
   <div class="svp-masthead-inner">
-    <span class="svp-wordmark">cf challenge</span>
+    <a class="svp-wordmark" href="index.html">CF <span>Challenge</span></a>
+    <!-- The three built tabs only. PROFILES / ANALYTICS are unbuilt and their
+         COMING SOON placeholder lives on the home page, so they are not
+         linked from here rather than pointing at nothing. -->
+    <nav class="svp-nav" aria-label="Site sections">
+      <a class="nav-btn" href="index.html">Home</a>
+      <a class="nav-btn" href="index.html">Standings</a>
+      <span class="nav-btn" aria-current="true">Weekly recap</span>
+    </nav>
     <span class="svp-week">Week 01</span>
   </div>
 </header>
 
 <main class="svp-page">
-  <!-- Cover art: placeholder ONLY — a solid muted-gold block. Real art comes
-       from the persona pipeline (generate_persona_batch.py) once the Gemini
-       key issue is resolved, in the trading-card coach-persona style defined
-       in groups/panel/personas.json. Do not build a different style here. -->
+  <!-- Cover art: placeholder ONLY — a flat block. Real art comes from the
+       persona pipeline (generate_persona_batch.py) once the Gemini key issue
+       is resolved, in the trading-card coach-persona style defined in
+       groups/panel/personas.json. Do not build a different style here. -->
   <figure class="svp-cover">
     <figcaption class="svp-cover-note">Cover art — persona pipeline</figcaption>
   </figure>
@@ -43,6 +51,18 @@
   <p class="svp-foot-note">Filed weekly. Standings live on the
     <a href="index.html">board</a>.</p>
 </main>
+
+<script>
+  // Presentation only: carry ?group= back to the board so the league selection
+  // survives the round trip. No data is read here.
+  (function () {
+    var q = location.search;
+    if (!q) return;
+    document.querySelectorAll('a[href="index.html"]').forEach(function (a) {
+      a.setAttribute('href', 'index.html' + q);
+    });
+  })();
+</script>
 
 </body>
 </html>
