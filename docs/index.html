@@ -52,6 +52,21 @@
        placeholder). No routing, no new pages. -->
   <section class="coming-soon" id="coming-soon" hidden></section>
 
+  <!-- STANDINGS tab — the detailed per-pick board, on its own. Same view
+       swap the unbuilt tabs use: no routing, no second fetch. Home shows the
+       compact overview; this is the stat page, full width and alone. -->
+  <section class="standings-detail" id="standings-detail" hidden>
+    <section class="card">
+      <div class="card-head">
+        <h2 class="card-title">Standings</h2>
+        <span class="card-tag tag-exact" id="detail-week"></span>
+      </div>
+      <p class="card-sub">Every pick with its floor&ndash;ceiling range. Banked results
+        only — pure arithmetic, reproducible by hand. No estimates.</p>
+      <div class="standings" id="standings-detail-list"></div>
+    </section>
+  </section>
+
   <div id="home-content">
     <!-- Hero banner — only rendered once real picks exist. -->
     <section class="hero" id="hero" hidden></section>
@@ -69,7 +84,8 @@
           <h2 class="card-title">Standings</h2>
           <span class="card-tag tag-exact" id="board1-week"></span>
         </div>
-        <p class="card-sub">Banked results only — pure arithmetic, reproducible by hand. No estimates.</p>
+        <p class="card-sub">Banked results only — pure arithmetic, reproducible by hand.
+          Open the Standings tab for every pick&rsquo;s range.</p>
         <div class="standings" id="standings"></div>
       </section>
 

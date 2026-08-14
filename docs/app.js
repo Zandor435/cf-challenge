@@ -26,11 +26,13 @@ const STALE_DAYS = 8;               // STEP 5: cache older than this = visible w
 // both boards); WEEKLY RECAP is svp.html; the rest are honest placeholders.
 const PAGE_NAV = [
   { label: 'HOME',         kind: 'home' },
-  { label: 'STANDINGS',    kind: 'home', scrollTo: 'board1' },
+  { label: 'STANDINGS',    kind: 'detail' },
   { label: 'WEEKLY RECAP', kind: 'link', href: 'svp.html' },
   { label: 'PROFILES',     kind: 'soon' },
   { label: 'ANALYTICS',    kind: 'soon' },
 ];
+// The three swappable views. Exactly one is visible at a time.
+const VIEWS = { home: 'home-content', detail: 'standings-detail', soon: 'coming-soon' };
 
 // Manager colors are assigned per manager, generically — NOT hardcoded to any
 // one group's roster. Managers are sorted by the stable `manager_id` join key
@@ -159,8 +161,15 @@ function renderSwitcher(activeId) {
   });
 }
 
-// Page nav. PROFILES / ANALYTICS swap the home content for a COMING SOON panel
-// — no new pages, no routing, and the group query param is preserved on links.
+function setView(view) {
+  Object.entries(VIEWS).forEach(([k, id]) => (k === view ? show($(id)) : hide($(id))));
+  window.scrollTo({ top: 0 });
+}
+
+// Page nav. STANDINGS swaps in the detailed per-pick board; PROFILES /
+// ANALYTICS swap in a COMING SOON panel. All three are view swaps against
+// already-fetched data — no new pages, no routing, no second fetch, and the
+// group query param is preserved on links.
 function renderPageNav(groupId) {
   const nav = $('page-nav');
   const q = `?group=${encodeURIComponent(groupId)}`;
@@ -178,19 +187,16 @@ function renderPageNav(groupId) {
       nav.querySelectorAll('.nav-btn').forEach((b) => b.removeAttribute('aria-current'));
       btn.setAttribute('aria-current', 'true');
       if (spec.kind === 'soon') {
-        hide($('home-content'));
         $('coming-soon').innerHTML =
           `<div class="cs-label">${esc(spec.label)} — Coming soon</div>` +
           `<p class="cs-sub">This section hasn&rsquo;t been built yet.</p>`;
-        show($('coming-soon'));
-        window.scrollTo({ top: 0 });
-      } else {
-        hide($('coming-soon'));
-        show($('home-content'));
-        const target = spec.scrollTo && $(spec.scrollTo);
-        if (target && !target.hidden) target.scrollIntoView({ block: 'start' });
-        else window.scrollTo({ top: 0 });
+      } else if (spec.kind === 'detail' && !$('standings-detail-list').childElementCount) {
+        // Reachable before/without a successful load (pre-draft, load error).
+        // Say so rather than showing an empty board.
+        $('standings-detail-list').innerHTML =
+          `<p class="detail-empty">No standings to show yet — see the notice on the Home tab.</p>`;
       }
+      setView(spec.kind);
     });
   });
 
@@ -385,34 +391,68 @@ function pickRow(p, gMin, gMax, color) {
   </div>`;
 }
 
+// Week-over-week move cell — shared by both densities so the two boards can
+// never disagree. An em dash when computeMoves() found no honest baseline.
+function moveCell(managerId, moves) {
+  if (!moves || !(managerId in moves.moves)) return `<div class="mgr-move none mono">—</div>`;
+  const v = moves.moves[managerId];
+  const cls = v > 0 ? 'pos' : v < 0 ? 'neg' : 'flat';
+  const arrow = v > 0 ? '↑' : v < 0 ? '↓' : '·';
+  return `<div class="mgr-move ${cls} mono">${arrow} ${fmtSigned(v)}</div>`;
+}
+function moveHead(moves) {
+  return moves ? `Since wk ${esc(String(moves.week))}` : 'Move';
+}
+function totalCell(m) {
+  return `<div class="mgr-total">
+    <div class="val mono${m.banked_total < 0 ? ' neg' : ''}">${fmtSigned(m.banked_total)}</div>
+    <div class="lbl">Banked</div>
+  </div>`;
+}
+function identityCell(m, id, picks) {
+  return `<div class="rank">${m.rank}</div>
+    ${avatar(id, 'avatar-md')}
+    <div class="mgr-id">
+      <div class="mgr-name">${esc(m.display_name)}</div>
+      <div class="mgr-sub">${picks.length} team${picks.length === 1 ? '' : 's'}</div>
+    </div>`;
+}
+
 function managerCard(m, ident, gMin, gMax, moves) {
   const picks = m.picks || [];
   const id = ident[m.manager_id];
-  const tCls = m.banked_total < 0 ? ' neg' : '';
-
-  let moveCell = `<div class="mgr-move none mono">—</div>`;
-  if (moves && m.manager_id in moves.moves) {
-    const v = moves.moves[m.manager_id];
-    const cls = v > 0 ? 'pos' : v < 0 ? 'neg' : 'flat';
-    const arrow = v > 0 ? '↑' : v < 0 ? '↓' : '·';
-    moveCell = `<div class="mgr-move ${cls} mono">${arrow} ${fmtSigned(v)}</div>`;
-  }
-
   return `<article class="mgr" style="--mc:${id.color}">
     <div class="mgr-row">
-      <div class="rank">${m.rank}</div>
-      ${avatar(id, 'avatar-md')}
-      <div class="mgr-id">
-        <div class="mgr-name">${esc(m.display_name)}</div>
-        <div class="mgr-sub">${picks.length} team${picks.length === 1 ? '' : 's'}</div>
-      </div>
-      <div class="mgr-total">
-        <div class="val mono${tCls}">${fmtSigned(m.banked_total)}</div>
-        <div class="lbl">Banked</div>
-      </div>
-      ${moveCell}
+      ${identityCell(m, id, picks)}
+      ${totalCell(m)}
+      ${moveCell(m.manager_id, moves)}
     </div>
     <div class="picks">${picks.map((p) => pickRow(p, gMin, gMax, id.color)).join('')}</div>
+  </article>`;
+}
+
+// ---------- Board 1, compact (Home tab) ------------------------------------
+// One row per manager: identity, banked total, week move, and the portfolio as
+// abbreviation chips with a status dot. No range bar, record, or O/U line —
+// that detail is the STANDINGS tab's job.
+const STATUS_DOT = { CLINCHED: 'dot-clinched', DEAD: 'dot-dead', LIVE: 'dot-live' };
+
+function pickChip(p) {
+  const dot = STATUS_DOT[p.status] || 'dot-live';
+  return `<span class="chip-cell" title="${esc(p.team)} — ${esc(p.status)}">
+    <span class="chip">${esc(teamAbbr(p.team))}</span>
+    <span class="dot ${dot}"></span>
+  </span>`;
+}
+
+function compactCard(m, ident, moves) {
+  const picks = m.picks || [];
+  const id = ident[m.manager_id];
+  return `<article class="mgr-c" style="--mc:${id.color}">
+    ${identityCell(m, id, picks)}
+    ${totalCell(m)}
+    ${moveCell(m.manager_id, moves)}
+    <div class="chips">${picks.map(pickChip).join('')}</div>
   </article>`;
 }
 
@@ -423,6 +463,23 @@ function renderBoard1(standings, ident, moves) {
     ? 'Live' : `Week ${meta.as_of_week}`;
   $('board1-week').textContent = wk;
 
+  const head = `<div class="mgr-head mgr-head-c">
+    <span>Rank</span><span></span><span>Manager</span><span>Banked</span>
+    <span>${moveHead(moves)}</span><span>Portfolio</span>
+  </div>`;
+  $('standings').innerHTML = head + mgrs.map((m) => compactCard(m, ident, moves)).join('');
+  show($('board1'));
+}
+
+// ---------- Board 1, detailed (STANDINGS tab) ------------------------------
+// Rendered once from the same standings.json main() already fetched; the nav
+// only toggles its visibility.
+function renderStandingsDetail(standings, ident, moves) {
+  const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
+  const meta = standings.meta || {};
+  $('detail-week').textContent = (meta.as_of_week === null || meta.as_of_week === undefined)
+    ? 'Live' : `Week ${meta.as_of_week}`;
+
   // Shared scale across every pick in the group so bars are comparable.
   const allPicks = mgrs.flatMap((m) => m.picks || []);
   const gMin = Math.min(0, ...allPicks.map((p) => p.floor));
@@ -430,11 +487,10 @@ function renderBoard1(standings, ident, moves) {
 
   const head = `<div class="mgr-head">
     <span>Rank</span><span></span><span>Manager</span><span>Banked</span>
-    <span>${moves ? `Since wk ${esc(String(moves.week))}` : 'Move'}</span>
+    <span>${moveHead(moves)}</span>
   </div>`;
-  $('standings').innerHTML =
+  $('standings-detail-list').innerHTML =
     head + mgrs.map((m) => managerCard(m, ident, gMin, gMax, moves)).join('');
-  show($('board1'));
 }
 
 // ---------- Scoreboard — standings.json re-pivoted by team -----------------
@@ -617,7 +673,8 @@ async function main() {
   }
 
   renderHero(standings, ident);
-  renderBoard1(standings, ident, moves);
+  renderBoard1(standings, ident, moves);          // Home tab — compact
+  renderStandingsDetail(standings, ident, moves); // Standings tab — full detail
   renderScoreboard(standings, ident);
   show($('editorial'));
 

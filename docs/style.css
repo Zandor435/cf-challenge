@@ -258,6 +258,45 @@ a { color: inherit; }
 .mgr { border-bottom: 1px solid var(--border-soft); }
 .mgr:last-child { border-bottom: none; }
 
+/* Compact density (Home tab): the same identity/total/move cells as the
+   detailed board, plus the portfolio as chips, all on ONE row. */
+.mgr-head-c { grid-template-columns: var(--mgr-grid) 140px; }
+.mgr-head-c span:last-child { text-align: left; }
+.mgr-c {
+  display: grid; grid-template-columns: var(--mgr-grid) 140px;
+  align-items: center; gap: 0 10px;
+  padding: 11px 14px; position: relative;
+  border-bottom: 1px solid var(--border-soft);
+}
+.mgr-c:last-child { border-bottom: none; }
+.mgr-c::before {
+  content: ""; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; background: var(--mc);
+}
+.mgr-c .rank { font-size: 2rem; }
+
+/* Portfolio chips: team abbreviation in the manager's color + a status dot.
+   The abbreviation is derived from the team name (teamAbbr) — the contract
+   carries no team color or short code. */
+.chips { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 6px; }
+.chip-cell { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.chip {
+  font-family: var(--display); font-weight: 900; font-size: .62rem;
+  letter-spacing: -.02em; line-height: 1; text-align: center;
+  padding: 4px 5px; min-width: 0; flex: 1;
+  color: var(--mc);
+  background: color-mix(in srgb, var(--mc) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mc) 32%, transparent);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot-clinched { background: var(--positive); }
+.dot-dead     { background: var(--negative); }
+.dot-live     { background: var(--accent); }
+
+/* STANDINGS tab shell */
+.detail-empty { color: var(--text-faint); font-size: .86rem; padding: 26px 0; text-align: center; }
+
 .mgr-row {
   display: grid; grid-template-columns: var(--mgr-grid);
   align-items: center; gap: 0 10px;
@@ -568,7 +607,14 @@ a { color: inherit; }
 
   .avatar-lg { width: 48px; height: 48px; font-size: 17px; }
   .avatar-md { width: 28px; height: 28px; font-size: 10px; }
-  .mgr-row, .mgr-head { gap: 0 7px; }
+  /* Compact row folds: identity/total/move on line 1, chips across line 2. */
+  .mgr-c, .mgr-head-c { grid-template-columns: var(--mgr-grid); }
+  .mgr-c .chips { grid-column: 1 / -1; grid-template-columns: repeat(4, 1fr); }
+  .mgr-head-c span:last-child { display: none; }
+  .mgr-c .rank { font-size: 1.6rem; }
+
+  .mgr-row, .mgr-head, .mgr-head-c { gap: 0 7px; }
+  .mgr-c { gap: 9px 7px; }
   .mgr-head span { font-size: .52rem; letter-spacing: .06em; }
   .page { padding: 16px 12px 44px; }
   .brand-line1 { font-size: 1.35rem; }
@@ -595,7 +641,9 @@ a { color: inherit; }
 }
 
 @media (min-width: 1100px) {
-  .grid-top { grid-template-columns: 62fr 38fr; }
+  /* Re-balanced for the compact standings card — the 62/38 split was tuned
+     for the old full-detail board, which now lives on the Standings tab. */
+  .grid-top { grid-template-columns: 55fr 45fr; }
   .grid-bottom { grid-template-columns: 70fr 30fr; }
   .card-title { font-size: 2.1rem; }
   .ed-headline { font-size: 3rem; }
