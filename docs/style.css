@@ -294,7 +294,23 @@ a { color: inherit; }
 .dot-dead     { background: var(--negative); }
 .dot-live     { background: var(--accent); }
 
-/* STANDINGS tab shell */
+/* STANDINGS tab shell. The section stays full-bleed, but the card inside is
+   capped to an article measure and centered: the pick row's team-name column
+   is minmax(0,1fr), so past ~900px extra width becomes dead space between a
+   short team name and its O/U badge rather than useful information.
+   Home's compact board (.board1) is unaffected — it uses the full column. */
+#standings-detail > .card { max-width: 920px; margin: 0 auto; }
+/* Capping the card alone isn't enough: .pick-line1's name column is
+   minmax(0,1fr), so it still absorbed ~615px of slack and pushed the badge
+   and delta to the far edge. Cap the name track so name / O/U / delta read as
+   one cluster, still column-aligned row to row. The range bar underneath is
+   unconstrained and keeps the card's full width. */
+#standings-detail .pick-line1 {
+  grid-template-columns: minmax(0, 260px) minmax(96px, auto) 56px;
+  justify-content: start;   /* leftover space collects at the end... */
+  justify-items: start;     /* ...and tracks don't stretch their contents */
+}
+#standings-detail .pick-delta { justify-self: stretch; text-align: right; }
 .detail-empty { color: var(--text-faint); font-size: .86rem; padding: 26px 0; text-align: center; }
 
 .mgr-row {
