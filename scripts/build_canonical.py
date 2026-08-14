@@ -71,6 +71,31 @@ ALIAS_SEED = {
     "Pitt": "Pittsburgh",
     "Cal": "California",
     "UNC": "North Carolina",
+    # Recovered 2026-08-14: these 21 lived ONLY in the generated
+    # data/team_aliases.json, never here. Because this script REBUILDS that file
+    # from ALIAS_SEED + mechanical acronyms, every hand edit to the output was
+    # silently destroyed on the next run — and a pick typed "FAU"/"WKU"/"ODU"
+    # would then fail the §9 gate. Seeded so a re-run reproduces them.
+    "Pitt Panthers": "Pittsburgh",
+    "Central Florida": "UCF",
+    "FAU": "Florida Atlantic",
+    "UT San Antonio": "UTSA",
+    "Southern Methodist": "SMU",
+    "Texas Christian": "TCU",
+    "Nevada Las Vegas": "UNLV",
+    "BGSU": "Bowling Green",
+    "Bowling Green St": "Bowling Green",
+    "Middle Tennessee St": "Middle Tennessee",
+    "La Tech": "Louisiana Tech",
+    "Texas St": "Texas State",
+    "Ga Southern": "Georgia Southern",
+    "Ga State": "Georgia State",
+    "Georgia St": "Georgia State",
+    "Coastal": "Coastal Carolina",
+    "WKU": "Western Kentucky",
+    "Mass": "Massachusetts",
+    "North Carolina St": "NC State",
+    "ODU": "Old Dominion",
     # "St." -> "State" (normalization strips the period but not the abbreviation).
     "Ohio St.": "Ohio State",
     "Penn St.": "Penn State",
@@ -97,6 +122,16 @@ ALIAS_SEED = {
 def fetch_fbs_teams(client, season):
     print(f"  fetching /teams/fbs?year={season}")
     raw = client.get("/teams/fbs", {"year": season})
+    if raw:
+        # Shape probe, not decoration: `logos` is NOT the 1-2 URL array it is
+        # often assumed to be. Verified 2026-08-14 — CFBD returns 16 entries per
+        # team, its own CDN at 8 sizes x light/dark, interleaved light-then-dark
+        # descending by size: 500,500-dark,256,256-dark,...,16,16-dark. Consumers
+        # must PICK a size rather than trust logos[0] (that's the 500px asset).
+        # Print the first raw team so a re-run re-verifies instead of assuming.
+        print(f"  raw team keys: {sorted(raw[0].keys())}")
+        print(f"  raw[0].logos ({len(raw[0].get('logos') or [])} entries): "
+              f"{(raw[0].get('logos') or ['<none>'])[:2]}")
     teams = []
     for t in raw:
         school = t.get("school")
@@ -107,6 +142,9 @@ def fetch_fbs_teams(client, season):
             "school": school,
             "conference": t.get("conference"),
             "abbreviation": t.get("abbreviation"),
+            # Full array kept as returned: the size choice belongs to whoever
+            # renders it (the site picks a small light variant per chip).
+            "logos": t.get("logos"),
         })
     teams.sort(key=lambda x: x["school"])
     print(f"  -> {len(teams)} FBS teams")
@@ -192,12 +230,13 @@ def main():
             print(f"  '{k}': {v}")
         sys.exit(2)
 
-    save_json_atomic(CANONICAL_PATH, {
+    canonical_payload = {
         "season": season,
         "source": "CFBD /teams/fbs",
         "count": len(teams),
         "teams": teams,
-    })
+    }
+    save_json_atomic(CANONICAL_PATH, canonical_payload)
 
     # --- Audit the OLD alias map's targets against canonical -----------------
     old_audit = []  # (variant, target, ok, suggestion)
@@ -328,6 +367,18 @@ def main():
     print(f"ambiguity guard:  {len(utils.AMBIGUOUS_BASE)} curated (usc, miami) "
           f"+ {len(generated_ambiguous)} generated")
     print(f"CFBD calls:       {client.call_count}")
+
+    # --- Publish the spine to the site ---------------------------------------
+    # Team identity (abbreviation + logos) is the same for every group, so this
+    # is the first SHARED file under docs/data/ — deliberately NOT nested under
+    # a <group_id> like standings/projection/timeline, which are per-group. The
+    # site fetches it once and degrades to text chips if it is missing, so it is
+    # not part of the output contract and no board depends on it.
+    web_path = utils.WEB_DATA_DIR / "teams_canonical.json"
+    web_path.parent.mkdir(parents=True, exist_ok=True)
+    save_json_atomic(web_path, canonical_payload)
+    print(f"site copy:        {web_path.relative_to(utils.ROOT)} "
+          f"({web_path.stat().st_size // 1024} KB)")
 
 
 if __name__ == "__main__":

@@ -275,9 +275,23 @@ a { color: inherit; }
 }
 .mgr-c .rank { font-size: 2rem; }
 
+/* Team mark: the real CFBD logo, with the colored abbreviation box underneath
+   as the fallback. .has-logo hides the text; app.js strips that class if the
+   image fails to load, so the chip reappears with no layout shift. */
+.team-mark { display: inline-flex; align-items: center; justify-content: center; min-width: 0; }
+.team-mark.has-logo > .chip, .team-mark.has-logo > .sb-chip { display: none; }
+.team-logo { display: block; object-fit: contain; }
+/* The text chip fills its cell (it's a box); a logo is intrinsically sized, so
+   it must NOT stretch or the status dot drifts to the far edge of the cell. */
+.mark-chip { flex: 1; justify-content: flex-start; }
+.mark-chip.has-logo { flex: 0 0 auto; }
+.mark-chip > .chip { flex: 1; }
+.mark-chip .team-logo { width: 24px; height: 24px; }
+.mark-sb .team-logo { width: 22px; height: 22px; }
+
 /* Portfolio chips: team abbreviation in the manager's color + a status dot.
-   The abbreviation is derived from the team name (teamAbbr) — the contract
-   carries no team color or short code. */
+   The abbreviation is CFBD's official one (teams_canonical.json), falling back
+   to teamAbbr() when a team isn't in that file. */
 .chips { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 6px; }
 .chip-cell { display: flex; align-items: center; gap: 4px; min-width: 0; }
 .chip {

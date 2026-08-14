@@ -128,12 +128,72 @@ function initialsOf(name) {
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
   return (words[0][0] + words[1][0]).toUpperCase();
 }
-// Team chips carry no color in the contract, so the abbreviation is derived
-// from the name only: first four letters of the first word ("Ohio State" ->
-// OHIO, "Ole Miss" -> OLE). Deterministic, and never invents a team field.
+// FALLBACK ONLY. Real abbreviations come from teams_canonical.json; this is
+// what a chip shows when a team is missing from that file (or the file itself
+// failed to load): first four letters of the first word ("Ohio State" -> OHIO,
+// "Ole Miss" -> OLE). Deterministic, and never invents a team field.
 function teamAbbr(name) {
   const first = String(name).trim().split(/\s+/)[0] || '?';
   return first.replace(/[^A-Za-z0-9]/g, '').slice(0, 4).toUpperCase() || '?';
+}
+
+// ---------- team identity (abbreviation + logo) ----------------------------
+// Keyed by `school`, the canonical string pick.team already carries. Empty
+// when teams_canonical.json is missing — every consumer falls back to a text
+// chip, so this is cosmetic and never blocks a board (same posture as Board 2).
+let TEAM_INFO = {};
+
+// CFBD returns SIXTEEN logo URLs per team — 8 sizes x light/dark, interleaved
+// light-then-dark descending 500..16 — so logos[0] is the 500px asset, far too
+// big for a 24px chip. Take a small LIGHT variant: 64px covers 2x displays.
+function pickLogo(logos) {
+  if (!Array.isArray(logos)) return null;
+  const urls = logos.filter((u) => typeof u === 'string' && u);
+  const light = urls.filter((u) => !u.includes('/logos-dark/'));
+  const pool = light.length ? light : urls;
+  if (!pool.length) return null;
+  return pool.find((u) => u.includes('/64/')) || pool.find((u) => u.includes('/128/')) || pool[0];
+}
+
+function buildTeamIndex(canonical) {
+  const out = {};
+  ((canonical && canonical.teams) || []).forEach((t) => {
+    if (t && t.school) {
+      out[t.school] = { abbreviation: t.abbreviation || null, logo: pickLogo(t.logos) };
+    }
+  });
+  return out;
+}
+
+// One team chip: the real logo where we have one, otherwise the colored
+// abbreviation box. Both are emitted; .has-logo hides the text until/unless
+// the image fails, which is how the onerror path degrades with no reflow.
+function teamMark(team, variant) {
+  const info = TEAM_INFO[team];
+  const abbr = (info && info.abbreviation) || teamAbbr(team);
+  const logo = info && info.logo;
+  const text = variant === 'sb'
+    ? `<span class="sb-chip">${esc(abbr)}</span>`
+    : `<span class="chip">${esc(abbr)}</span>`;
+  if (!logo) return `<span class="team-mark mark-${variant}">${text}</span>`;
+  return `<span class="team-mark mark-${variant} has-logo">` +
+    `<img class="team-logo" src="${esc(logo)}" alt="${esc(abbr)}" loading="lazy">` +
+    `${text}</span>`;
+}
+
+// Third fallback tier: the URL was present but the image didn't load. Drop the
+// img and let the text chip underneath show.
+function markLogoFailed(img) {
+  const mark = img.closest('.team-mark');
+  if (mark) mark.classList.remove('has-logo');
+  img.remove();
+}
+function wireLogoFallbacks(root) {
+  root.querySelectorAll('img.team-logo').forEach((img) => {
+    // Catch images that already failed before this ran (cached 404s).
+    if (img.complete && img.naturalWidth === 0) { markLogoFailed(img); return; }
+    img.addEventListener('error', () => markLogoFailed(img), { once: true });
+  });
 }
 
 // Size comes from a CSS class (avatar-sm/md/lg), not an inline pixel value, so
@@ -440,7 +500,7 @@ const STATUS_DOT = { CLINCHED: 'dot-clinched', DEAD: 'dot-dead', LIVE: 'dot-live
 function pickChip(p) {
   const dot = STATUS_DOT[p.status] || 'dot-live';
   return `<span class="chip-cell" title="${esc(p.team)} — ${esc(p.status)}">
-    <span class="chip">${esc(teamAbbr(p.team))}</span>
+    ${teamMark(p.team, 'chip')}
     <span class="dot ${dot}"></span>
   </span>`;
 }
@@ -468,6 +528,7 @@ function renderBoard1(standings, ident, moves) {
     <span>${moveHead(moves)}</span><span>Portfolio</span>
   </div>`;
   $('standings').innerHTML = head + mgrs.map((m) => compactCard(m, ident, moves)).join('');
+  wireLogoFallbacks($('standings'));
   show($('board1'));
 }
 
@@ -544,7 +605,7 @@ function teamRowHTML(r, ident) {
   // .sb-meta is display:contents on wide screens (its children become grid
   // cells) and a flex row on phones, where the table folds to two lines.
   return `<div class="sb-row">
-    <span class="sb-chip">${esc(teamAbbr(r.team))}</span>
+    ${teamMark(r.team, 'sb')}
     <span class="sb-team">${esc(r.team)}<span class="sb-conf">${esc(r.conference)}</span></span>
     <span class="sb-meta">
       <span class="sb-owners">${owners}</span>
@@ -566,6 +627,7 @@ function renderScoreboard(standings, ident) {
   </div>`;
   const col = (list) => `<div class="sb-col">${header}${list.map((r) => teamRowHTML(r, ident)).join('')}</div>`;
   $('sb-cols').innerHTML = col(rows.slice(0, mid)) + col(rows.slice(mid));
+  wireLogoFallbacks($('sb-cols'));
   show($('scoreboard'));
 }
 
@@ -636,9 +698,18 @@ async function main() {
   renderSwitcher(groupId);
   renderPageNav(groupId);
 
+  // Team identity is shared across groups, so it is fetched alongside (not
+  // after) standings — one round trip, and a failure here only costs logos.
+  const [standingsRes, teamsRes] = await Promise.allSettled([
+    fetchJSON(`data/${groupId}/standings.json`),
+    fetchJSON('data/teams_canonical.json'),
+  ]);
+  TEAM_INFO = teamsRes.status === 'fulfilled' ? buildTeamIndex(teamsRes.value) : {};
+
   let standings;
   try {
-    standings = await fetchJSON(`data/${groupId}/standings.json`);
+    if (standingsRes.status === 'rejected') throw standingsRes.reason;
+    standings = standingsRes.value;
   } catch (e) {
     hide($('loading'));
     $('load-error').innerHTML =
