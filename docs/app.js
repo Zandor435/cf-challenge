@@ -107,7 +107,24 @@ function groupLabel(id) {
   return g ? g.label : id;
 }
 
-// ---------- manager identity (color + initials) ----------------------------
+// ---------- manager portraits (coach profiles) -----------------------------
+// Optional art layer. `assets/portraits/manifest.json` names a file per
+// (group, manager); a manager absent from it renders initials, which is what
+// every group did before portraits existed. Same posture as team logos — the
+// art is cosmetic and never blocks a board.
+let PORTRAITS = {};
+
+function buildPortraitIndex(manifest, groupId) {
+  const entries = (manifest && manifest.portraits && manifest.portraits[groupId]) || {};
+  const out = {};
+  Object.keys(entries).forEach((mgr) => {
+    const file = entries[mgr];
+    if (typeof file === 'string' && file) out[mgr] = `assets/portraits/${file}`;
+  });
+  return out;
+}
+
+// ---------- manager identity (color + initials + portrait) -----------------
 // Built once per render off whatever manager list standings.json returns.
 function buildManagerIdentity(managers) {
   const ids = managers.map((m) => m.manager_id).slice().sort();
@@ -116,6 +133,7 @@ function buildManagerIdentity(managers) {
     map[m.manager_id] = {
       color: MANAGER_PALETTE[ids.indexOf(m.manager_id) % MANAGER_PALETTE.length],
       initials: initialsOf(m.display_name),
+      photo: PORTRAITS[m.manager_id] || null,
     };
   });
   return map;
@@ -198,10 +216,34 @@ function wireLogoFallbacks(root) {
 
 // Size comes from a CSS class (avatar-sm/md/lg), not an inline pixel value, so
 // the responsive rules can shrink avatars without fighting inline styles.
+// Portrait and initials are BOTH emitted; .has-photo hides the initials until
+// (unless) the image fails, so the fallback costs no reflow — the team-logo
+// pattern above, applied to people. alt is empty because the manager's name is
+// always rendered next to the avatar: the photo is decorative, not the label.
 function avatar(ident, sizeClass, cls) {
-  return `<span class="avatar ${sizeClass} ${cls || ''}" style="--mc:${ident.color}">` +
-    `<span>${esc(ident.initials)}</span></span>`;
+  const initials = `<span>${esc(ident.initials)}</span>`;
+  const base = `avatar ${sizeClass} ${cls || ''}`;
+  if (!ident.photo) {
+    return `<span class="${base}" style="--mc:${ident.color}">${initials}</span>`;
+  }
+  return `<span class="${base} has-photo" style="--mc:${ident.color}">` +
+    `<img class="mgr-photo" src="${esc(ident.photo)}" alt="" loading="lazy">` +
+    `${initials}</span>`;
 }
+
+// Portrait fallback tier: the manifest named a file but it didn't load (wrong
+// extension, never copied in). Drop the img and let the initials show. Wired
+// once at boot in the CAPTURE phase — `error` does not bubble, and delegating
+// beats re-wiring after every board render.
+function markPhotoFailed(img) {
+  const av = img.closest('.avatar');
+  if (av) av.classList.remove('has-photo');
+  img.remove();
+}
+document.addEventListener('error', (e) => {
+  const el = e.target;
+  if (el && el.tagName === 'IMG' && el.classList.contains('mgr-photo')) markPhotoFailed(el);
+}, true);
 
 // ---------- masthead / switcher -------------------------------------------
 function renderSwitcher(activeId) {
@@ -698,13 +740,18 @@ async function main() {
   renderSwitcher(groupId);
   renderPageNav(groupId);
 
-  // Team identity is shared across groups, so it is fetched alongside (not
-  // after) standings — one round trip, and a failure here only costs logos.
-  const [standingsRes, teamsRes] = await Promise.allSettled([
+  // Team identity and the portrait manifest are shared across groups, so both
+  // are fetched alongside (not after) standings — one round trip, and a failure
+  // in either only costs art: logos fall back to chips, portraits to initials.
+  const [standingsRes, teamsRes, portraitsRes] = await Promise.allSettled([
     fetchJSON(`data/${groupId}/standings.json`),
     fetchJSON('data/teams_canonical.json'),
+    fetchJSON('assets/portraits/manifest.json'),
   ]);
   TEAM_INFO = teamsRes.status === 'fulfilled' ? buildTeamIndex(teamsRes.value) : {};
+  PORTRAITS = portraitsRes.status === 'fulfilled'
+    ? buildPortraitIndex(portraitsRes.value, groupId)
+    : {};
 
   let standings;
   try {

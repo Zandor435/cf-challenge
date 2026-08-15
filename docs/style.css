@@ -196,7 +196,11 @@ a { color: inherit; }
   color: var(--text-faint); letter-spacing: .08em; text-transform: uppercase;
 }
 
-/* ---------- Avatar (initials only — no photo upload, static host) -------- */
+/* ---------- Avatar (initials, or a coach-profile portrait) --------------- */
+/* Portraits are static files committed under assets/portraits/ and named by
+   assets/portraits/manifest.json — no upload path, no runtime host. A manager
+   with no portrait keeps the initials disc, so the two states coexist in one
+   roster without the rows changing size. */
 .avatar {
   flex-shrink: 0; border-radius: 50%;
   border: 2px solid var(--mc); padding: 2px;
@@ -210,6 +214,15 @@ a { color: inherit; }
   line-height: 1; user-select: none;
 }
 .avatar.on-dark > span { background: #1e1e1e; }
+/* Photo tier: hide the initials, fill the disc. `top` centring keeps the head
+   in frame when a 5:7 profile is cropped to a circle. If the img errors the
+   class comes off and the initials underneath take over with no reflow. */
+.avatar.has-photo > span { display: none; }
+.avatar > img.mgr-photo {
+  width: 100%; height: 100%; border-radius: 50%; display: block;
+  object-fit: cover; object-position: center top;
+  background: color-mix(in srgb, var(--mc) 14%, transparent);
+}
 .avatar-lg { width: 56px; height: 56px; font-size: 20px; }
 .avatar-md { width: 40px; height: 40px; font-size: 14px; }
 .avatar-sm { width: 28px; height: 28px; font-size: 10px; }

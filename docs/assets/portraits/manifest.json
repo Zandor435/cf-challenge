@@ -1,0 +1,13 @@
+{
+  "_note": "Coach-profile portraits for the site's manager avatars (docs/app.js -> buildPortraitIndex). Keys are group_id, then manager_id (the stable join key from groups/<group>/config.json — NOT display_name). Values are paths relative to this folder. A manager listed here renders their portrait; anyone absent renders the initials disc, and a listed-but-missing file falls back to initials too. This file is the only place a portrait is wired in — the engine never reads or writes it.",
+  "_adding_a_group": "Copy the image files into assets/portraits/<group_id>/, then add one line per manager below. Filenames are free-form; the manifest is what maps them. Keep the extension honest (.png vs .jpg) — a wrong extension is served with the wrong type and falls back to initials.",
+
+  "portraits": {
+    "panel": {
+      "blaine": "panel/blaine.png",
+      "chris": "panel/chris.png",
+      "jonathan": "panel/jonathan.png",
+      "zach": "panel/zach.png"
+    }
+  }
+}
