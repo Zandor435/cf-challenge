@@ -454,23 +454,43 @@ def detect_ironies(cur, prior, race_rows, leader_changed):
 
 
 def heater_streak(timeline, week, mid):
-    """Consecutive snapshot-to-snapshot banked gains ending at the latest
-    transition. Read straight off timeline.json — no extra persistence."""
+    """The current run of not-losing-ground, read straight off timeline.json.
+
+    Returns (gaining_weeks, span_weeks): how many weeks in the run actually
+    banked something, and how many calendar weeks the run covers.
+
+    A ZERO-movement week is NEUTRAL — it neither counts nor breaks. BYE WEEKS
+    ARE THE REASON: a team on a bye banks nothing, so the manager's total is
+    flat, and treating flat as a break would end a heater because a team didn't
+    play rather than because it cooled off. Only LOSING ground ends the run.
+
+    Reporting both numbers is what keeps the evidence honest: with a neutral
+    week inside the run, gaining_weeks is no longer "consecutive weeks", so the
+    column must be handed "N gaining weeks in the last M" rather than a single
+    number it would read as a streak of N straight weeks (sacred rule 1)."""
     snaps = sorted([s for s in timeline.get("snapshots", [])
                     if s.get("as_of_week") is not None
                     and int(s["as_of_week"]) <= week],
                    key=lambda s: int(s["as_of_week"]))
+    weeks = [int(s["as_of_week"]) for s in snaps]
     totals = []
     for s in snaps:
         st = state_from_snapshot(s).get(mid)
         totals.append(st["banked_total"] if st else None)
-    streak = 0
+
+    gaining, oldest = 0, len(totals) - 1
     for i in range(len(totals) - 1, 0, -1):
         a, b = totals[i], totals[i - 1]
-        if a is None or b is None or a - b <= 0:
-            break
-        streak += 1
-    return streak
+        if a is None or b is None:
+            break                      # unknown state: the run stops here
+        delta = a - b
+        if delta < 0:
+            break                      # lost ground: the run is over
+        if delta > 0:
+            gaining += 1               # banked something
+        oldest = i - 1                 # zero: neutral, keep walking back
+    span = (weeks[-1] - weeks[oldest]) if len(weeks) > 1 else 0
+    return gaining, span
 
 
 def detect_heater(cur, prior, race_rows, timeline, week, weeks_elapsed):
@@ -484,7 +504,17 @@ def detect_heater(cur, prior, race_rows, timeline, week, weeks_elapsed):
     The quoted number stays the raw gain — that is what the boards show and what
     the column must print. Only the internal ranking number is normalized, plus
     the rate, which is published so the pundit can quote it instead of doing
-    arithmetic of its own (sacred rule 1)."""
+    arithmetic of its own (sacred rule 1).
+
+    BYES, stated deliberately, because the two halves treat them differently:
+      - the RATE is per CALENDAR week, so a bye dampens it. A manager whose team
+        sat out banked less per week, and is by that measure less hot right now.
+        Dividing by weeks-that-had-games instead would need per-manager schedule
+        data, coupling this to the cache for a distinction the streak already
+        carries.
+      - the STREAK is bye-transparent (heater_streak: zero is neutral). A team
+        that didn't play didn't cool off.
+    Both signals are published so the column can use whichever the week wants."""
     if not prior:
         return []
     gains = [(r["manager_id"], r["delta_this_week"]) for r in race_rows
@@ -492,27 +522,32 @@ def detect_heater(cur, prior, race_rows, timeline, week, weeks_elapsed):
     if not gains:
         return []
     mid, gain = max(gains, key=lambda kv: kv[1])
-    span = max(1, weeks_elapsed or 1)
-    rate = _r(gain / span)
+    elapsed = max(1, weeks_elapsed or 1)
+    rate = _r(gain / elapsed)
     if rate < HEATER_MIN_DELTA:
         return []
-    streak = heater_streak(timeline, week, mid)
-    score = rate + HEATER_STREAK_WEIGHT * streak
+    gaining, run_span = heater_streak(timeline, week, mid)
+    score = rate + HEATER_STREAK_WEIGHT * gaining
     m = cur[mid]
     movers = sorted(m["picks"].values(),
                     key=lambda p: -(p["banked_delta"] or 0))[:2]
+    # "N gaining week(s) in the last M" — never "an N-week streak", which a
+    # neutral (bye) week inside the run would make false.
+    run = (f"{gaining} gaining week(s) in the last {run_span}" if run_span
+           else f"{gaining} gaining week(s)")
     return [{
         "type": "heater",
         "narrative_score": _r(score),
         "managers": [mid],
         "gain_per_week": rate,
+        "gaining_weeks": gaining,
+        "run_span_weeks": run_span,
         "picks": [pick_payload(mid, pk, _prior_pick(prior, mid, pk["team"]))
                   for pk in movers],
         "race_position": race_position(race_rows, [mid]),
-        "evidence": (f"{mid} banked {gain:+g} game(s) over {span} week(s) "
-                     f"({rate:+g} per week), the group's largest gain, on a "
-                     f"{streak}-week positive streak; now rank {m['rank']} at "
-                     f"{m['banked_total']:+g}."),
+        "evidence": (f"{mid} banked {gain:+g} game(s) over {elapsed} week(s) "
+                     f"({rate:+g} per week), the group's largest gain, with "
+                     f"{run}; now rank {m['rank']} at {m['banked_total']:+g}."),
     }]
 
 

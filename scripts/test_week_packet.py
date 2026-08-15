@@ -318,6 +318,102 @@ def validate_heater():
           len(B.detect_heater(cur, prior, rows, empty_tl, 16, None)) == 1)
 
 
+# --- Bye weeks ---------------------------------------------------------------
+# A bye is a week in which a team plays no game. Nothing is banked and nothing
+# is scheduled away, so a bye is INVISIBLE to the boards: banked_delta, floor
+# and ceiling are all unchanged. These fixtures put a bye in the MIDDLE of a
+# 3-week span, with games either side, and pin what each windowed rule does with
+# it. The contract, stated once:
+#
+#   collapse  — a bye can neither CAUSE a collapse (no ceiling moves) nor MASK
+#               one (a real slide either side of it still totals up).
+#   streak    — bye-transparent. Zero movement is neutral; only losing ground
+#               ends the run. A team that didn't play didn't cool off.
+#   rate      — per CALENDAR week, so a bye DOES dampen it. That is intended:
+#               the manager banked less per week. The streak carries the "still
+#               hot" signal; the rate carries "how fast, lately".
+
+def _mgr_snap(week, mid, total, ceiling=0.0):
+    """A one-pick snapshot whose banked_delta sums to `total`."""
+    return {"as_of_week": week, "generated_at": "", "managers": [
+        {"manager_id": mid, "p_win_pool": None, "picks": [
+            {"team": "Ohio State", "banked_delta": total, "floor": 0.0,
+             "ceiling": ceiling, "expected_delta": None, "p_beat_line": None}]}]}
+
+
+def validate_byes():
+    # --- streak: bye in the middle of a run --------------------------------
+    # wk10 -> 11 banked +1; wk11 -> 12 BYE (flat); wk12 -> 13 banked +1.
+    bye_run = {"snapshots": [_mgr_snap(10, "ann", 0.0), _mgr_snap(11, "ann", 1.0),
+                             _mgr_snap(12, "ann", 1.0), _mgr_snap(13, "ann", 2.0)]}
+    gaining, span = B.heater_streak(bye_run, 13, "ann")
+    check("bye/streak: a bye does not break the run",
+          gaining == 2 and span == 3, f"gaining={gaining}, span={span}")
+    check("bye/streak: the bye week is not counted as a gain",
+          gaining == 2, "2 games banked across a 3-week span")
+
+    # Losing ground still ends it, bye or no bye.
+    lost = {"snapshots": [_mgr_snap(10, "ann", 0.0), _mgr_snap(11, "ann", 5.0),
+                          _mgr_snap(12, "ann", 3.0), _mgr_snap(13, "ann", 4.0)]}
+    gaining, span = B.heater_streak(lost, 13, "ann")
+    check("bye/streak: losing ground ends the run", gaining == 1 and span == 1,
+          f"gaining={gaining}, span={span}")
+
+    # An all-bye stretch: nothing banked, but nothing lost either.
+    idle = {"snapshots": [_mgr_snap(10, "ann", 2.0), _mgr_snap(11, "ann", 2.0),
+                          _mgr_snap(12, "ann", 2.0)]}
+    gaining, span = B.heater_streak(idle, 12, "ann")
+    check("bye/streak: an idle stretch gains nothing and breaks nothing",
+          gaining == 0 and span == 2, f"gaining={gaining}, span={span}")
+
+    # --- evidence must not call a run with a bye in it a streak -------------
+    cur = {"ann": _mgr("ann", 1, {"Ohio State": _pick("Ohio State", "O", 9.5, 2.0)})}
+    prior = {"ann": {"banked_total": 0.0, "floor": 0.0, "ceiling": 0.0,
+                     "rank": 1, "picks": {}}}
+    rows = [{"manager_id": "ann", "gap_to_leader": 0.0, "delta_this_week": 2.0,
+             "rank_change": 0}]
+    got = B.detect_heater(cur, prior, rows, bye_run, 13, 1)
+    check("bye/evidence: reports gaining weeks and the span, not a streak",
+          got and "2 gaining week(s) in the last 3" in got[0]["evidence"],
+          got[0]["evidence"] if got else "no heater")
+    check("bye/evidence: never claims consecutive weeks",
+          got and "streak" not in got[0]["evidence"])
+    check("bye/packet: both run numbers published for the pundit",
+          got and got[0]["gaining_weeks"] == 2 and got[0]["run_span_weeks"] == 3)
+
+    # --- rate: per calendar week, so a bye dampens it (INTENDED) -----------
+    # +2 banked across 2 calendar weeks with a bye in one of them = 1.0/wk,
+    # not 2.0/wk. The manager really did bank less per week.
+    check("bye/rate: normalization is per CALENDAR week, so a bye dampens it",
+          B.detect_heater(cur, prior, rows, bye_run, 13, 2) == []
+          and len(B.detect_heater(cur, prior, rows, bye_run, 13, 1)) == 1,
+          "+2 over 2 weeks = 1.0/wk, below HEATER_MIN_DELTA 1.5")
+
+    # --- collapse: a bye neither causes nor masks one ----------------------
+    # Ceilings across the window: wk10 4.0, wk11 4.0 (bye), wk12 4.0 -> flat.
+    flat = {"snapshots": [_mgr_snap(10, "ann", 0.0, ceiling=4.0),
+                          _mgr_snap(11, "ann", 0.0, ceiling=4.0),
+                          _mgr_snap(12, "ann", 0.0, ceiling=4.0)]}
+    cur_flat = {"ann": _mgr("ann", 1, {"Ohio State": _pick("Ohio State", "O", 9.5, 0.0)}),
+                "bob": _mgr("bob", 2, {"Iowa": _pick("Iowa", "O", 7.5, 0.0)})}
+    cur_flat["ann"]["picks"]["Ohio State"]["ceiling"] = 4.0
+    check("bye/collapse: a bye cannot CAUSE a collapse (no ceiling moves)",
+          B.detect_collapses(cur_flat, prior, _rows("ann", "bob"), flat, 13) == [])
+
+    # A real slide with a bye inside it: 5.0 -> 4.0 -> (bye) 4.0 -> 3.0.
+    slide = {"snapshots": [_mgr_snap(10, "ann", 0.0, ceiling=5.0),
+                           _mgr_snap(11, "ann", 0.0, ceiling=4.0),
+                           _mgr_snap(12, "ann", 0.0, ceiling=4.0)]}
+    cur_slide = {"ann": _mgr("ann", 1, {"Ohio State": _pick("Ohio State", "O", 9.5, 0.0)}),
+                 "bob": _mgr("bob", 2, {"Iowa": _pick("Iowa", "O", 7.5, 0.0)})}
+    cur_slide["ann"]["picks"]["Ohio State"]["ceiling"] = 3.0
+    got = B.detect_collapses(cur_slide, prior, _rows("ann", "bob"), slide, 13)
+    check("bye/collapse: a bye does not MASK a real slide", len(got) == 1,
+          f"{len(got)} found")
+    check("bye/collapse: the windowed change spans the bye",
+          got and got[0]["ceiling_change_over_window"] == -2.0)
+
+
 # --- Unknown prior state -----------------------------------------------------
 
 def validate_no_prior():
@@ -377,6 +473,9 @@ def main():
 
     print("\nHeater normalization:")
     validate_heater()
+
+    print("\nBye weeks:")
+    validate_byes()
 
     print("\nUnknown prior state:")
     validate_no_prior()
