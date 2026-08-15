@@ -60,7 +60,8 @@ import utils
 
 FEUD_MIN_DIVERGENCE = 0.5        # min |deltaA - deltaB| for a feud to rank
 FEUD_ADJACENCY_BONUS = 2.0       # bonus when the two are adjacent in the table
-COLLAPSE_MIN_CEILING_DROP = 1.0  # min ceiling loss (games) to count as collapse
+COLLAPSE_LOOKBACK_WEEKS = 3      # a collapse is a SLIDE, measured over a window
+COLLAPSE_MIN_CEILING_DROP = 2.0  # min ceiling loss (games) across that window
 COLLAPSE_TOP_HALF_ONLY = True    # a collapse only reads as one from up high
 IRONY_BASE = 3.0                 # flat score for a newly clinched/dead pick
 IRONY_LEADER_FLIP_BONUS = 4.0    # bonus when the week changed the leader
@@ -361,10 +362,35 @@ def detect_feuds(cur, prior, picks, race_rows):
     return stories
 
 
-def detect_collapses(cur, prior, race_rows):
-    """A ceiling falling on someone who was flying: ceiling loss >= threshold
-    while the manager sits in the top half."""
+def collapse_baseline(timeline, week):
+    """The snapshot COLLAPSE_LOOKBACK_WEEKS back, for measuring a slide.
+
+    Returns (state, weeks_spanned) or (None, None). Falls back to the earliest
+    snapshot before `week` when the season isn't that old yet, and reports the
+    span it actually used so the evidence can't overstate the window."""
+    older = [s for s in timeline.get("snapshots", [])
+             if s.get("as_of_week") is not None and int(s["as_of_week"]) < week]
+    if not older:
+        return None, None
+    target = week - COLLAPSE_LOOKBACK_WEEKS
+    eligible = [s for s in older if int(s["as_of_week"]) <= target]
+    snap = (max(eligible, key=lambda s: int(s["as_of_week"])) if eligible
+            else min(older, key=lambda s: int(s["as_of_week"])))
+    return state_from_snapshot(snap), week - int(snap["as_of_week"])
+
+
+def detect_collapses(cur, prior, race_rows, timeline, week):
+    """A ceiling falling on someone mid-flight — measured over a WINDOW.
+
+    Week-over-week this is degenerate: exactly one game is played, so a pick's
+    ceiling can only ever drop by exactly 1.0, and a 1.0 threshold reduces
+    'collapse' to a binary 'did this team lose' that fires for a third of all
+    pick-weeks. A slide is cumulative, so measure it across
+    COLLAPSE_LOOKBACK_WEEKS and require a real loss of upside over that span."""
     if not prior:
+        return []
+    base, span = collapse_baseline(timeline, week)
+    if not base:
         return []
     n = len(cur)
     half = math.ceil(n / 2)
@@ -373,8 +399,8 @@ def detect_collapses(cur, prior, race_rows):
         if COLLAPSE_TOP_HALF_ONLY and m["rank"] > half:
             continue
         for team, pk in m["picks"].items():
-            pp = _prior_pick(prior, mid, team)
-            change = _sub(pk["ceiling"], pp["ceiling"] if pp else None)
+            bp = base.get(mid, {}).get("picks", {}).get(team)
+            change = _sub(pk["ceiling"], bp["ceiling"] if bp else None)
             if change is None or change > -COLLAPSE_MIN_CEILING_DROP:
                 continue
             drop = abs(change)
@@ -383,12 +409,15 @@ def detect_collapses(cur, prior, race_rows):
                 "type": "collapse",
                 "narrative_score": _r(score),
                 "managers": [mid],
-                "picks": [pick_payload(mid, pk, pp)],
+                "lookback_weeks": span,
+                "ceiling_change_over_window": _r(change),
+                "picks": [pick_payload(mid, pk, _prior_pick(prior, mid, team))],
                 "race_position": race_position(race_rows, [mid]),
                 "evidence": (
                     f"{mid}'s {team} {pk['direction']} {pk['line']} lost "
-                    f"{drop:g} game(s) of ceiling ({pp['ceiling']:+g} -> "
-                    f"{pk['ceiling']:+g}) while sitting rank {m['rank']} of {n}."),
+                    f"{drop:g} game(s) of ceiling over {span} week(s) "
+                    f"({bp['ceiling']:+g} -> {pk['ceiling']:+g}) while sitting "
+                    f"rank {m['rank']} of {n}."),
             })
     return stories
 
@@ -655,8 +684,13 @@ def build_packet(group_id, cli_week=None):
     standings = _require(web / "standings.json", group_id)
     projection = _require(web / "projection.json", group_id)
     timeline = _require(web / "timeline.json", group_id)
-    _require(utils.GROUPS_DIR / group_id / "config.json", group_id)
-    _require(utils.GROUPS_DIR / group_id / "picks.json", group_id)
+    # The `test` fixture has no groups/<slug>/ dir — utils.load_group()
+    # synthesizes its config from data/test_picks.json (§10.2). Same carve-out
+    # run_groups.py makes, so the gitignored test group can exercise the packet
+    # across consecutive weeks without fixtures touching production files.
+    if group_id != utils.TEST_GROUP_ID:
+        _require(utils.GROUPS_DIR / group_id / "config.json", group_id)
+        _require(utils.GROUPS_DIR / group_id / "picks.json", group_id)
 
     config, picks = utils.load_group(group_id)
     cache = utils.load_cache(season)
@@ -677,7 +711,7 @@ def build_packet(group_id, cli_week=None):
     leader_changed = bool(prior_leader and prior_leader != race["leader"])
 
     stories = (detect_feuds(cur, prior, picks, rows)
-               + detect_collapses(cur, prior, rows)
+               + detect_collapses(cur, prior, rows, timeline, week)
                + detect_ironies(cur, prior, rows, leader_changed)
                + detect_heater(cur, prior, rows, timeline, week, weeks_elapsed))
     stories = rank_storylines(stories)

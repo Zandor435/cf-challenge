@@ -218,6 +218,67 @@ def validate_feuds():
           len(B.detect_feuds(solo, None, [picks[0]], _rows("ann"))) == 0)
 
 
+# --- Collapse window ---------------------------------------------------------
+
+def _snap(week, mid, team, ceiling):
+    return {"as_of_week": week, "generated_at": "", "managers": [
+        {"manager_id": mid, "p_win_pool": None, "picks": [
+            {"team": team, "banked_delta": 0.0, "floor": 0.0,
+             "ceiling": ceiling, "expected_delta": None, "p_beat_line": None}]}]}
+
+
+def validate_collapse():
+    """A collapse is a SLIDE across a window, not a single loss.
+
+    Week over week exactly one game is played, so a pick's ceiling can only fall
+    by exactly 1.0 — a 1-week threshold makes 'collapse' a binary 'did this team
+    lose' that fires constantly. These pin the window instead."""
+    prior = {"ann": {"banked_total": 0.0, "floor": 0.0, "ceiling": 0.0,
+                     "rank": 1, "picks": {}}}
+    rows = _rows("ann", "bob")
+
+    def cur_with(ceiling):
+        return {"ann": _mgr("ann", 1, {"Ohio State": _pick("Ohio State", "O", 9.5, 0.0)}),
+                "bob": _mgr("bob", 2, {"Iowa": _pick("Iowa", "O", 7.5, 0.0)})}
+
+    cur = cur_with(3.0)
+    cur["ann"]["picks"]["Ohio State"]["ceiling"] = 4.0     # 5.0 -> 4.0 = one loss
+    tl = {"snapshots": [_snap(10, "ann", "Ohio State", 5.0)]}
+    check("collapse: a single week's -1.0 is not a collapse",
+          B.detect_collapses(cur, prior, rows, tl, 13) == [])
+
+    cur["ann"]["picks"]["Ohio State"]["ceiling"] = 3.0     # 5.0 -> 3.0 across 3wk
+    got = B.detect_collapses(cur, prior, rows, tl, 13)
+    check("collapse: a -2.0 slide across the window ranks", len(got) == 1,
+          f"{len(got)} found")
+    if got:
+        check("collapse: reports the window it measured",
+              got[0]["lookback_weeks"] == 3, f"span={got[0]['lookback_weeks']}")
+        check("collapse: publishes the windowed change",
+              got[0]["ceiling_change_over_window"] == -2.0)
+        check("collapse: evidence names the span",
+              "over 3 week(s)" in got[0]["evidence"])
+
+    # Season too young for a full window: fall back, but report the REAL span.
+    young = {"snapshots": [_snap(12, "ann", "Ohio State", 5.0)]}
+    got = B.detect_collapses(cur, prior, rows, young, 13)
+    check("collapse: falls back to the earliest snapshot when the season is young",
+          len(got) == 1 and got[0]["lookback_weeks"] == 1,
+          f"span={got[0]['lookback_weeks'] if got else 'n/a'}")
+    check("collapse: the fallback does not overstate the window",
+          got and "over 1 week(s)" in got[0]["evidence"])
+
+    # Bottom half: the ceiling can fall, but it is not a story from down there.
+    low = {"ann": _mgr("ann", 2, {"Ohio State": _pick("Ohio State", "O", 9.5, 0.0)}),
+           "bob": _mgr("bob", 1, {"Iowa": _pick("Iowa", "O", 7.5, 0.0)})}
+    low["ann"]["picks"]["Ohio State"]["ceiling"] = 3.0
+    check("collapse: bottom-half manager excluded",
+          B.detect_collapses(low, prior, rows, tl, 13) == [])
+
+    check("collapse: no snapshot at all -> no collapse",
+          B.detect_collapses(cur, prior, rows, {"snapshots": []}, 13) == [])
+
+
 # --- Heater normalization ----------------------------------------------------
 
 def validate_heater():
@@ -270,7 +331,7 @@ def validate_no_prior():
     check("no prior: rank_change is null", row["rank_change"] is None)
     check("no prior: total_delta still real", row["total_delta"] == 2.5)
     check("no prior: collapse/irony/heater suppressed",
-          B.detect_collapses(cur, None, race["standings"]) == []
+          B.detect_collapses(cur, None, race["standings"], {"snapshots": []}, 1) == []
           and B.detect_ironies(cur, None, race["standings"], False) == []
           and B.detect_heater(cur, None, race["standings"], {"snapshots": []},
                               1, None) == [])
@@ -310,6 +371,9 @@ def main():
 
     print("\nFeud detection (in-memory fixtures):")
     validate_feuds()
+
+    print("\nCollapse window:")
+    validate_collapse()
 
     print("\nHeater normalization:")
     validate_heater()
