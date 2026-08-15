@@ -32,6 +32,15 @@ docs/data/*/timeline.json
 # Test fixture output — a synthetic replay group, never committed to history.
 docs/data/test/
 
+# Commentary intermediates (groups/<group>/output/). Split by overwrite-vs-
+# accumulate (playbook rule 5): week_packet.json and the dry-run prompt preview
+# are REGENERATED from committed engine output every run, so they are ignored —
+# committing them would just be a second copy of docs/data/<group>/ that can
+# drift. The filed columns and column_memory.json ACCUMULATE (season-long
+# continuity the pundit reads back), so they stay tracked.
+groups/*/output/week_packet.json
+groups/*/output/commentary_prompt_preview.txt
+
 # Multi-year backtest cache for calibrate_spread.py. Fetched from CFBD on demand
 # (data/backtest_cache/{lines,sp,games}.json), regenerable with --refresh. Kept
 # OUT of the repo and OUT of the season-guarded production cache (data/cfbd_cache.json).
