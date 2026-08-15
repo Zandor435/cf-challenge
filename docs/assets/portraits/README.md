@@ -19,21 +19,46 @@ filename in `manifest.json` against what's actually on disk.
 
 ## Adding portraits for a group
 
-1. Drop the images in `assets/portraits/<group_id>/`.
-2. Add one line per manager to `manifest.json`, keyed by **`manager_id`** from
-   `groups/<group_id>/config.json` — the stable join key, never `display_name`.
-3. Commit the images. They are site assets, not engine output; nothing in
-   `scripts/` reads or regenerates them, and `docs/output-contract.md` does not
-   cover them.
+Use `scripts/make_avatars.py` — it crops, shrinks, names, and updates
+`manifest.json` in one pass:
+
+```
+python scripts/make_avatars.py --src "<folder of source art>" --group panel
+```
+
+Add `--dry-run` first to see the mapping without writing anything. It matches
+source filenames to managers by name; when the filenames are opaque
+(`persona_01.jpg`), it refuses to guess and prints the exact `--map` line to
+paste back:
+
+```
+python scripts/make_avatars.py --src ... --map blaine="persona_01.jpg" --map chris="persona_02.jpg"
+```
+
+Then commit the PNGs it wrote. Doing it by hand instead is fine — drop files in
+`assets/portraits/<group_id>/` and add one line per manager to `manifest.json`,
+keyed by **`manager_id`** from `groups/<group_id>/config.json` (the stable join
+key, never `display_name`).
+
+Either way these are site assets, not engine output: nothing in the pipeline
+reads or regenerates them, and `docs/output-contract.md` does not cover them.
 
 ## Sizing
 
-Avatars crop to a circle at 56 / 40 / 28 px (`object-fit: cover`,
+Avatars crop to a circle at 56 / 40 / 28 CSS px (`object-fit: cover`,
 `object-position: center top`), so anything square-ish or portrait works and the
-head stays in frame. The design-lab direction is a **5:7 portrait** in
-`--cf-muted-gold` (`docs/design-lab/NOTES.md`) — source at 5:7 and the same file
-serves both the circles today and a dossier hero later. Keep files small (a few
-hundred KB each); they ship in the Pages build.
+head stays in frame. `make_avatars.py` writes **256 px squares** — enough for a
+4x display, ~7-100 KB per file depending on the art — cropped high (`--anchor
+upper`) to match that CSS, so a pre-squared file passes through the browser's
+crop untouched.
+
+Keep them small: there is no image host and no resizing at request time, so the
+committed file is what every visitor downloads with the Pages build. Don't
+commit 4 MB originals.
+
+The design-lab direction is a **5:7 portrait** in `--cf-muted-gold`
+(`docs/design-lab/NOTES.md`). Keep the 5:7 originals outside the repo — the same
+source then feeds both the circles today and a dossier hero later.
 
 ## Where the source art lives
 
@@ -43,8 +68,14 @@ Copy the chosen ones in by hand — no build step reaches onto a local drive.
 
 ### panel
 
-`manifest.json` already lists all four Panel managers (`blaine`, `chris`,
-`jonathan`, `zach`) pointing at `panel/<manager_id>.png`. The four images from
-`output\personas\Fat friends\Fat...` go here under those names. Rename on copy,
-or edit the manifest values to match whatever the files are actually called —
-either works, but the extension has to be real.
+The four profiles in `output\personas\Fat friends\Fat...` are Panel's. Point
+the script at that folder and it does the rest:
+
+```
+python scripts/make_avatars.py --src "C:\Users\zacha\Claude Code\cf-challenge\output\personas\Fat friends\Fat" --dry-run
+```
+
+Check the mapping it prints, drop `--dry-run`, commit the four PNGs.
+`manifest.json` already lists all four managers at `panel/<manager_id>.png`, so
+even a hand copy only needs the files named `blaine.png`, `chris.png`,
+`jonathan.png`, `zach.png`.
