@@ -64,7 +64,7 @@ COLLAPSE_MIN_CEILING_DROP = 1.0  # min ceiling loss (games) to count as collapse
 COLLAPSE_TOP_HALF_ONLY = True    # a collapse only reads as one from up high
 IRONY_BASE = 3.0                 # flat score for a newly clinched/dead pick
 IRONY_LEADER_FLIP_BONUS = 4.0    # bonus when the week changed the leader
-HEATER_MIN_DELTA = 1.5           # min banked gain to count as a heater
+HEATER_MIN_DELTA = 1.5           # min banked gain PER WEEK to count as a heater
 HEATER_STREAK_WEIGHT = 1.0       # per consecutive positive week
 BAD_BEAT_MAX_MARGIN = 8          # points; wider than this isn't a bad beat
 QUIET_WEEK_FLOOR = 1.0           # top score below this => quiet_week
@@ -444,8 +444,18 @@ def heater_streak(timeline, week, mid):
     return streak
 
 
-def detect_heater(cur, prior, race_rows, timeline, week):
-    """The biggest banked gainer of the week, if the gain clears the floor."""
+def detect_heater(cur, prior, race_rows, timeline, week, weeks_elapsed):
+    """The biggest banked gainer of the week, if the RATE clears the floor.
+
+    Scored per week, not per snapshot gap. A raw gain rewards nothing but the
+    length of the gap: across a 10-week hole every manager who moved at all
+    outscores every other storyline type and the heater permanently owns slot 1.
+    At the intended cadence weeks_elapsed == 1 and this is an exact no-op.
+
+    The quoted number stays the raw gain — that is what the boards show and what
+    the column must print. Only the internal ranking number is normalized, plus
+    the rate, which is published so the pundit can quote it instead of doing
+    arithmetic of its own (sacred rule 1)."""
     if not prior:
         return []
     gains = [(r["manager_id"], r["delta_this_week"]) for r in race_rows
@@ -453,10 +463,12 @@ def detect_heater(cur, prior, race_rows, timeline, week):
     if not gains:
         return []
     mid, gain = max(gains, key=lambda kv: kv[1])
-    if gain < HEATER_MIN_DELTA:
+    span = max(1, weeks_elapsed or 1)
+    rate = _r(gain / span)
+    if rate < HEATER_MIN_DELTA:
         return []
     streak = heater_streak(timeline, week, mid)
-    score = gain + HEATER_STREAK_WEIGHT * streak
+    score = rate + HEATER_STREAK_WEIGHT * streak
     m = cur[mid]
     movers = sorted(m["picks"].values(),
                     key=lambda p: -(p["banked_delta"] or 0))[:2]
@@ -464,12 +476,14 @@ def detect_heater(cur, prior, race_rows, timeline, week):
         "type": "heater",
         "narrative_score": _r(score),
         "managers": [mid],
+        "gain_per_week": rate,
         "picks": [pick_payload(mid, pk, _prior_pick(prior, mid, pk["team"]))
                   for pk in movers],
         "race_position": race_position(race_rows, [mid]),
-        "evidence": (f"{mid} banked {gain:+g} game(s) since the prior snapshot, "
-                     f"the group's largest gain, on a {streak}-week positive "
-                     f"streak; now rank {m['rank']} at {m['banked_total']:+g}."),
+        "evidence": (f"{mid} banked {gain:+g} game(s) over {span} week(s) "
+                     f"({rate:+g} per week), the group's largest gain, on a "
+                     f"{streak}-week positive streak; now rank {m['rank']} at "
+                     f"{m['banked_total']:+g}."),
     }]
 
 
@@ -651,6 +665,7 @@ def build_packet(group_id, cli_week=None):
     prior_snap = prior_snapshot(timeline, week)
     prior = state_from_snapshot(prior_snap) if prior_snap else None
     prior_week = int(prior_snap["as_of_week"]) if prior_snap else None
+    weeks_elapsed = (week - prior_week) if prior_week is not None else None
 
     cur = state_from_standings(standings, projection)
     race = build_race(cur, prior, config)
@@ -664,7 +679,7 @@ def build_packet(group_id, cli_week=None):
     stories = (detect_feuds(cur, prior, picks, rows)
                + detect_collapses(cur, prior, rows)
                + detect_ironies(cur, prior, rows, leader_changed)
-               + detect_heater(cur, prior, rows, timeline, week))
+               + detect_heater(cur, prior, rows, timeline, week, weeks_elapsed))
     stories = rank_storylines(stories)
     if not stories or stories[0]["narrative_score"] < QUIET_WEEK_FLOOR:
         stories = [quiet_week_story(rows)]
@@ -683,7 +698,7 @@ def build_packet(group_id, cli_week=None):
         # must say so rather than compress a 10-week move into one Saturday.
         "comparison": {
             "prior_week": prior_week,
-            "weeks_elapsed": (week - prior_week) if prior_week is not None else None,
+            "weeks_elapsed": weeks_elapsed,
             "basis": (f"since week {prior_week}" if prior_week is not None
                       else "no prior snapshot — week-over-week movement unknown"),
         },
