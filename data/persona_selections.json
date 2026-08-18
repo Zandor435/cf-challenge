@@ -1,0 +1,64 @@
+{
+  "_note": "APPROVED persona art selections, decided by Z on 2026-08-18. This file is the RECORD of which generated variants won; it is not read by the pipeline yet. Sources live in the gitignored output/ tree — winners under output/personas/recolor/<manager>/ and output/banners/panel/, rejects moved to output/archive/ (kept, never deleted). Publishing a winner is still an explicit step: scripts/prepare_portraits.py --map (avatars/posters) or --banner (hero art). `banner_rotation` is the approved pool for a site rotation that is NOT built yet — today docs/assets/banners/panel.webp holds a single static file.",
+  "decided": "2026-08-18",
+  "panel": {
+    "avatars": {
+      "_note": "Which variant supplies each manager's published poster + face crop. 'original' means the un-recolored approved art already in docs/assets/portraits/panel/ — no republish needed.",
+      "blaine": {
+        "source": "recolor:accent",
+        "team": "Oklahoma State",
+        "file": "output/personas/recolor/blaine/blaine_accent_gemini.png",
+        "published": false
+      },
+      "jonathan": {
+        "source": "recolor:accent",
+        "team": "Texas Tech",
+        "file": "output/personas/recolor/jonathan/jonathan_accent_gemini.png",
+        "published": false
+      },
+      "zach": {
+        "source": "recolor:accent",
+        "team": "Wake Forest",
+        "file": "output/personas/recolor/zach/zach_accent_gemini.png",
+        "published": false
+      },
+      "chris": {
+        "source": "original",
+        "team": "Colorado",
+        "file": "output/personas/Fat friends/Fat/fat beck.png",
+        "published": true,
+        "reason": "The original black-and-gold FAT PRIME jacket reads better than any recolor; it is already what is live."
+      }
+    },
+    "alternates": {
+      "_note": "Approved and retained, but not the published pick. Kept out of the archive on purpose.",
+      "chris": [
+        {
+          "source": "recolor:jacket",
+          "file": "output/personas/recolor/chris/chris_jacket_gemini.png",
+          "reason": "Gold jacket version — held as a second approved look."
+        }
+      ]
+    },
+    "banner_rotation": {
+      "_note": "All eight are approved for rotation. Style order is presentation order, not preference.",
+      "comic": ["01", "02", "03"],
+      "vintage70s": ["01"],
+      "tradingcard": ["01"],
+      "boxart": ["01", "02", "03"],
+      "live_now": "tradingcard_01",
+      "live_note": "tradingcard_02 was the provisional pick before this review; it is archived, so the live file was swapped to tradingcard_01."
+    },
+    "archived": {
+      "_note": "Rejected, moved to output/archive/. Recoverable — nothing was deleted.",
+      "recolors": [
+        "blaine: jacket, polo, quarterzip",
+        "jonathan: jacket, polo, quarterzip",
+        "zach: jacket, polo, quarterzip",
+        "chris: accent, polo, quarterzip"
+      ],
+      "banners": ["tradingcard_02", "tradingcard_03", "vintage70s_02", "vintage70s_03"],
+      "count_discrepancy": "Chris was described as 'archive the other two' but keeping only the gold jacket leaves THREE rejects (accent, polo, quarterzip). All three were archived; say the word if one should come back."
+    }
+  }
+}
