@@ -6,27 +6,34 @@
     "blaine": {
       "display_name": "Blaine",
       "team": "Oklahoma State",
-      "traits": ["a distinctive mullet hairstyle"],
+      "traits": [
+        "a distinctive mullet hairstyle"
+      ],
       "silhouette_cue": "the mullet"
     },
     "chris": {
       "display_name": "Chris",
       "team": "Colorado",
-      "traits": ["dark sunglasses, always worn"],
+      "traits": [
+        "dark sunglasses, always worn"
+      ],
       "silhouette_cue": "the sunglasses"
     },
     "jonathan": {
       "display_name": "Jonathan",
       "team": "Texas Tech",
-      "traits": ["a black eye patch over one eye"],
-      "silhouette_cue": "the eye patch"
+      "traits": [
+        "a black eye patch over one eye"
+      ],
+      "silhouette_cue": "the eye patch",
+      "_phase2_finding": "The eye patch did NOT survive as a background cue in any of the 12 Phase 2 tunnel frames where Jonathan was a background figure — it renders as ordinary dark sunglasses or is lost to shadow. It holds perfectly in the foreground. Treat it as a lead-only cue; a background-readable cue for Jonathan would need to be a silhouette-scale shape, not a face detail."
     },
     "zach": {
       "display_name": "Zach",
       "team": "Wake Forest",
       "traits": [],
       "silhouette_cue": null,
-      "_todo": "No distinguishing trait was stated for Zach. Left empty rather than invented — fill this in and the scene prompts will pick it up automatically. Until then his background-figure silhouette has no cue to key on."
+      "_todo": "STILL EMPTY. Phase 2 confirmed the cost: at depth Zach is separable only by the WF wordmark bleeding through from his reference — wardrobe, not silhouette — and he shares gold with Chris, so the two are told apart only by Chris's sunglasses. A hat, beard, build or posture cue would fix it. Not invented here."
     }
   }
 }

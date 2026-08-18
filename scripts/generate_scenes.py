@@ -19,11 +19,9 @@ Hard rules enforced here, not left to the prompt author:
   - ILLUSTRATED ONLY. STYLE_SET carries no photographic, cinematic or
     film-stock language, and --check-prompts fails the run if a banned term
     appears in any assembled prompt.
-  - No food, eating, weight or body-comedy language in any prompt string.
-    NOTE: this is a real trade-off. The approved 28 relied on explicit
-    "heavy-set / do not slim" wording to hold body shape. That wording is
-    banned here, so build fidelity now rests ENTIRELY on the reference
-    images. Watch for drift at the Phase 2 gate.
+  - BUILD_LOCK restates body shape in every scene prompt. Phase 2 proved
+    reference images alone do not carry build: without it, the manager whose
+    reference is a podium crop came back slimmed in 4/4 renders.
   - Traits come from groups/panel/personas.json. A manager with no recorded
     cue gets no invented one.
 
@@ -72,17 +70,32 @@ STYLE_SET = {
 }
 
 # Assembled prompts are scanned for these before a single call is made.
+# ILLUSTRATED-ONLY ONLY. This guard is technical, not editorial: photoreal
+# staging is what breaks likeness once a body is in motion. Body/food/weight
+# terms were removed at Z's instruction on 2026-08-18 -- this is a private site,
+# the subjects are the author's own friends, and the body-shape wording is
+# load-bearing for build fidelity (see BUILD_LOCK).
 BANNED_TERMS = [
     "photo", "photograph", "photorealistic", "photoreal", "cinematic",
     "kodachrome", "film grain", "film stock", "35mm", "dslr", "lens flare",
     "hyperrealistic", "realistic render",
-    "fat", "obese", "heavy-set", "heavyset", "overweight", "weight", "belly",
-    "food", "eating", "eat", "snack", "hungry",
 ]
 
 ILLUSTRATION_LOCK = (
     " This is an ILLUSTRATION, not a photograph. Keep the drawn, hand-made "
     "quality throughout."
+)
+
+# The wording the approved 28 relied on to hold body shape. Reference images
+# alone did NOT carry it: without this clause Zach came back visibly slimmed in
+# all four Phase 2 tunnel renders, because his source poster is a podium crop
+# that shows very little of his body. Text and reference do different jobs --
+# the reference carries the face, this carries the build.
+BUILD_LOCK = (
+    " Every one of these men is large, heavy-set and big-bodied. Keep each "
+    "man's body shape, size and build exactly as it appears in his reference "
+    "image. Do NOT slim anyone down, do NOT shrink anyone, do NOT give anyone "
+    "an athletic or average build."
 )
 
 NO_TEXT = (
@@ -194,6 +207,24 @@ def fidelity_clause(lead_cue, other_cues):
     )
 
 
+# Preference order for a manager's character reference. "accent" is the
+# approved pick for three of the four, but Chris's accent was archived after
+# review and only his gold jacket survives, so the reference MUST be resolved
+# from what is actually on disk. Hardcoding a variant silently breaks the whole
+# batch the moment a selection changes.
+REF_PREFERENCE = ["accent", "jacket", "quarterzip", "polo"]
+
+
+def resolve_reference(mid):
+    """Return the kept recolor to use as this manager's character reference."""
+    d = ROOT / "output" / "personas" / "recolor" / mid
+    have = {f.stem.split("_")[1]: f for f in d.glob(f"{mid}_*_gemini.png")}
+    for slug in REF_PREFERENCE:
+        if slug in have:
+            return have[slug], slug
+    return None, None
+
+
 def load_personas():
     data = json.loads(PERSONAS.read_text(encoding="utf-8"))
     return data["managers"]
@@ -211,7 +242,7 @@ def check_prompt(text, label):
         first, or the guard rejects its own safety wording.
     """
     scanned = text
-    for constant in (ILLUSTRATION_LOCK, NO_TEXT):
+    for constant in (ILLUSTRATION_LOCK, NO_TEXT, BUILD_LOCK):
         scanned = scanned.replace(constant, " ")
     low = scanned.lower()
     hits = sorted({t for t in BANNED_TERMS
@@ -253,7 +284,7 @@ def build_scene_prompt(setup, lead, styles_key, personas, colors, huddle_angle=N
     text += " Team colors: " + "; ".join(wardrobe) + "."
     text += fidelity_clause(lead_p.get("silhouette_cue"),
                             [personas[m].get("silhouette_cue") for m in others])
-    text += ILLUSTRATION_LOCK + NO_TEXT
+    text += BUILD_LOCK + ILLUSTRATION_LOCK + NO_TEXT
     return text, [lead] + others
 
 
@@ -326,8 +357,16 @@ def main() -> int:
                 prompt, order = build_scene_prompt(
                     args.phase, lead, style, personas, colors, args.huddle_angle)
                 check_prompt(prompt, f"{args.phase}/{lead}/{style}")
-                refs = [ROOT / "output" / "personas" / "recolor" / m /
-                        f"{m}_accent_gemini.png" for m in order]
+                refs = []
+                for m in order:
+                    rp, _slug = resolve_reference(m)
+                    if rp is None:
+                        print(f"ERROR: no kept recolor on disk for {m!r} — "
+                              f"every variant appears to be archived. Restore "
+                              f"one from output/archive/recolor/{m}/ or pass a "
+                              f"different --leads set.", file=sys.stderr)
+                        return 1
+                    refs.append(rp)
                 if plate:
                     refs = refs + [plate]
                 for i in range(1, n + 1):
