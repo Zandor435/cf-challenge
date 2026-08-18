@@ -23,17 +23,20 @@
       "display_name": "Jonathan",
       "team": "Texas Tech",
       "traits": [
-        "a black eye patch over one eye"
+        "a black eye patch over one eye",
+        "a forward-worn sun visor"
       ],
-      "silhouette_cue": "the eye patch",
-      "_phase2_finding": "The eye patch did NOT survive as a background cue in any of the 12 Phase 2 tunnel frames where Jonathan was a background figure — it renders as ordinary dark sunglasses or is lost to shadow. It holds perfectly in the foreground. Treat it as a lead-only cue; a background-readable cue for Jonathan would need to be a silhouette-scale shape, not a face detail."
+      "silhouette_cue": "the forward-worn sun visor",
+      "_phase2_finding": "Phase 2: the eye patch survived 0/12 as a background cue -- it renders as ordinary sunglasses or is lost to shadow. It still holds perfectly in the foreground, so it stays in traits; the visor replaces it as the silhouette_cue because a visor is a shape that reads at distance and a face detail is not."
     },
     "zach": {
       "display_name": "Zach",
       "team": "Wake Forest",
-      "traits": [],
-      "silhouette_cue": null,
-      "_todo": "STILL EMPTY. Phase 2 confirmed the cost: at depth Zach is separable only by the WF wordmark bleeding through from his reference — wardrobe, not silhouette — and he shares gold with Chris, so the two are told apart only by Chris's sunglasses. A hat, beard, build or posture cue would fix it. Not invented here."
+      "traits": [
+        "a backwards Wake Forest gold ball cap"
+      ],
+      "silhouette_cue": "the backwards gold ball cap",
+      "_phase2_finding": "Phase 2: Zach had no cue and was separable at depth only by the WF wordmark bleeding through from his reference -- wardrobe, not silhouette -- and he shares gold with Chris. The backwards cap fixes it with a silhouette-scale shape."
     }
   }
 }
