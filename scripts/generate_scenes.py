@@ -48,7 +48,8 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import gemini_image  # noqa: E402
 from recolor_personas import color_name, team_colors  # noqa: E402
-from scene_batch import BATCH, FULLCARD, POSTERS, POSTER_NAMES  # noqa: E402
+from scene_batch import (BATCH, FULLCARD, MATCHUP_FULLCARD, MATCHUPS,  # noqa: E402
+                         POSTERS, POSTER_NAMES)
 
 ROOT = Path(__file__).resolve().parent.parent
 PERSONAS = ROOT / "groups" / "panel" / "personas.json"
@@ -282,6 +283,26 @@ def build_poster_prompt(entry, style, personas, colors, plate):
     who = entry["who"]
     names = [POSTER_NAMES[m] for m in who]
 
+    # Textless bills keep the FORM of fight-poster furniture and drop its
+    # content: ornament where lettering would go, so the layout still reads as
+    # a bill at a glance. Garment lettering baked into the source portraits is
+    # explicitly allowed through -- it reads as clothing, not as furniture.
+    ORNAMENT = (
+        " Where a fight bill would carry lettering, put ORNAMENT and nothing "
+        "else: laurel scrollwork, ribbon banners whose interiors are "
+        "completely empty, art-deco rules and bars, radiating starburst rays, "
+        "and decorative frames enclosing empty space. The layout must read "
+        "instantly as a fight bill while containing not one readable "
+        "character.")
+    NO_FURNITURE_TEXT = (
+        " CRITICAL -- NO TEXT: no names, no surnames, no sanctioning-body "
+        "wordmark, no promotional line, no numbers, no dates, no odds, no "
+        "letters and no numerals anywhere in the poster furniture, the "
+        "background, the frames, the banners or the lower band. The ONLY "
+        "lettering permitted anywhere is whatever is already printed on the "
+        "men's own clothing in the reference images. Every banner and frame "
+        "must be left blank.")
+
     if entry.get("fullcard"):
         head = ("A gaudy 1980s closed-circuit boxing FULL CARD bill poster, "
                 + STYLE_SET[style] + ". All FOUR men appear as the fight card: "
@@ -298,7 +319,7 @@ def build_poster_prompt(entry, style, personas, colors, plate):
                      + ", ".join(names[2:]) + " in smaller all-capital slab "
                      "lettering flanking the undercard. A sanctioning-body "
                      "wordmark across the very top. The promotional line \""
-                     + entry["promo"] + "\" in bold display lettering.")
+                     + entry.get("promo", "") + "\" in bold display lettering.")
     else:
         head = ("A gaudy 1980s closed-circuit boxing title-fight poster, "
                 + STYLE_SET[style] + ". TWO men in half-profile facing each "
@@ -314,7 +335,7 @@ def build_poster_prompt(entry, style, personas, colors, plate):
                      + names[0] + " in heavy all-capital slab lettering on the "
                      "LEFT side and " + names[1] + " in the same treatment on "
                      "the RIGHT side. A sanctioning-body wordmark across the "
-                     "very top. The promotional line \"" + entry["promo"]
+                     "very top. The promotional line \"" + entry.get("promo", "")
                      + "\" in bold display lettering.")
 
     trophy = (" Between the figures at chest height, smaller than any of their "
@@ -352,8 +373,12 @@ def build_poster_prompt(entry, style, personas, colors, plate):
             "ornament, no texture, no pattern, no imagery. It must stay "
             "entirely empty.")
 
-    text = (head + trophy + split + colors_txt + likeness + BUILD_LOCK
-            + lettering + numbers + band + ILLUSTRATION_LOCK)
+    if entry.get("textless"):
+        text = (head + trophy + split + colors_txt + likeness + BUILD_LOCK
+                + ORNAMENT + band + NO_FURNITURE_TEXT + ILLUSTRATION_LOCK)
+    else:
+        text = (head + trophy + split + colors_txt + likeness + BUILD_LOCK
+                + lettering + numbers + band + ILLUSTRATION_LOCK)
 
     refs = []
     for mid in who:
@@ -433,7 +458,8 @@ def main() -> int:
     # "trophy_plate" is the Phase 1 OBJECT; "trophy" is the Phase 3 SCENE that
     # uses it. Distinct names -- sharing one would make the scene unreachable.
     ap.add_argument("--phase", required=True,
-                    choices=["trophy_plate", "batch", "posters"] + list(SETUPS))
+                    choices=["trophy_plate", "batch", "posters", "matchups"]
+                            + list(SETUPS))
     ap.add_argument("--styles", default="painted",
                     help=f"comma-separated ({', '.join(STYLE_SET)})")
     ap.add_argument("--leads", default="blaine,chris,jonathan,zach")
@@ -462,7 +488,7 @@ def main() -> int:
     colors = team_colors()
 
     jobs = []   # (out_path, prompt, ref_paths, aspect)
-    if args.phase == "posters":
+    if args.phase in ("posters", "matchups"):
         aspect = args.aspect or "3:4"
         style = styles[0]
         if not args.trophy_plate:
@@ -474,9 +500,11 @@ def main() -> int:
         if not plate.exists():
             print("ERROR: trophy plate not found: " + str(plate), file=sys.stderr)
             return 1
-        for e in list(POSTERS) + [FULLCARD]:
+        entries = (list(MATCHUPS) + [MATCHUP_FULLCARD]
+                   if args.phase == "matchups" else list(POSTERS) + [FULLCARD])
+        for e in entries:
             prompt, refs = build_poster_prompt(e, style, personas, colors, plate)
-            check_prompt(prompt, "posters/" + e["slug"])
+            check_prompt(prompt, args.phase + "/" + e["slug"])
             for i in range(1, n + 1):
                 jobs.append((ROOT / "output" / "posters" / "panel" /
                              ("panel_" + e["slug"] + "_" + format(i, "02d") + ".png"),

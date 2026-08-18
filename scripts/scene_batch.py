@@ -225,3 +225,19 @@ POSTERS = [
 # as a card rather than squared off as a pairing.
 FULLCARD = dict(slug="fight_fullcard", who=ALL, promo="THE FULL CARD",
                 fullcard=True)
+
+
+# ---------------------------------------------------------------------------
+# Matchup posters: the same seven bills with the lettering taken out and
+# ornament put in its place. Derived from POSTERS rather than restated, so a
+# change to a pairing or to split_ground can never drift between the two sets.
+# The promo line is dropped -- there is no line to render.
+# ---------------------------------------------------------------------------
+MATCHUPS = [
+    dict(slug=p["slug"].replace("fight_", "matchup_"), who=list(p["who"]),
+         textless=True, **({"split_ground": True} if p.get("split_ground") else {}))
+    for p in POSTERS
+]
+
+MATCHUP_FULLCARD = dict(slug="matchup_fullcard", who=ALL, fullcard=True,
+                        textless=True)
