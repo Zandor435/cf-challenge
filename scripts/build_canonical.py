@@ -236,12 +236,33 @@ def main():
             print(f"  '{k}': {v}")
         sys.exit(2)
 
+    # Regeneration is DESTRUCTIVE to hand-added entries. Sacramento State is a
+    # 2026 FBS newcomer hand-added so 2026 picks resolve; a rebuild for season
+    # 2025 silently drops it (and the _note documenting it), which is exactly
+    # what happened once. Name every school that would disappear instead of
+    # letting the count quietly fall -- rule 4: a silent miss is worse than a
+    # loud stop. Warn rather than exit: realignment makes some drops legitimate.
+    prior = load_json(CANONICAL_PATH) if CANONICAL_PATH.exists() else None
+    prior_note = (prior or {}).get("_note")
+    dropped = sorted(
+        {t.get("school") for t in (prior or {}).get("teams", []) if t.get("school")}
+        - {t["school"] for t in teams})
+    if dropped:
+        print(f"  ::warning:: {len(dropped)} team(s) present before this rebuild "
+              f"and NOT in /teams/fbs?year={season}: {', '.join(dropped)}")
+        print(f"  ::warning:: hand-added entries must be re-applied after a "
+              f"re-run, along with the _note describing them.")
+
     canonical_payload = {
         "season": season,
         "source": "CFBD /teams/fbs",
         "count": len(teams),
         "teams": teams,
     }
+    # Carry the curation note forward; it documents the hand-added entries and
+    # is the only record of why the count can exceed the raw CFBD response.
+    if prior_note:
+        canonical_payload = {"_note": prior_note, **canonical_payload}
     save_json_atomic(CANONICAL_PATH, canonical_payload)
 
     # --- Audit the OLD alias map's targets against canonical -----------------

@@ -1,7 +1,8 @@
 {
+  "_note": "Team IDENTITY spine only. The `conference` field here is a 2025-vintage snapshot and is NOT kept in sync with realignment — for the 2026 season, data/team_win_totals_2026.json is the sole authority on conference (and on the win-total line). `logos` is CFBD's own CDN array, 16 entries per team: 8 sizes x light/dark, interleaved light-then-dark descending 500..16, so logos[0] is the 500px light asset — consumers pick a size (the site uses a small light variant). Addendum: Sacramento State (id 16) is a 2026 FBS newcomer, sourced from CFBD /teams/fbs?year=2026, hand-added so 2026 picks resolve; re-running build_canonical.py for season 2025 will drop it again (and this note) — re-apply both after any re-run, reading/writing UTF-8 (utils.load_json / save_json_atomic) so 'San José State' survives.",
   "season": 2025,
   "source": "CFBD /teams/fbs",
-  "count": 136,
+  "count": 137,
   "teams": [
     {
       "id": 2005,
@@ -2445,6 +2446,32 @@
         "https://cdn.collegefootballdata.com/logos-dark/32/2567.png",
         "https://cdn.collegefootballdata.com/logos/16/2567.png",
         "https://cdn.collegefootballdata.com/logos-dark/16/2567.png"
+      ]
+    },
+    {
+      "id": 16,
+      "school": "Sacramento State",
+      "conference": "Mid-American",
+      "abbreviation": "SAC",
+      "color": "#00573c",
+      "alt_color": "#cdb97d",
+      "logos": [
+        "https://cdn.collegefootballdata.com/logos/500/16.png",
+        "https://cdn.collegefootballdata.com/logos-dark/500/16.png",
+        "https://cdn.collegefootballdata.com/logos/256/16.png",
+        "https://cdn.collegefootballdata.com/logos-dark/256/16.png",
+        "https://cdn.collegefootballdata.com/logos/128/16.png",
+        "https://cdn.collegefootballdata.com/logos-dark/128/16.png",
+        "https://cdn.collegefootballdata.com/logos/96/16.png",
+        "https://cdn.collegefootballdata.com/logos-dark/96/16.png",
+        "https://cdn.collegefootballdata.com/logos/64/16.png",
+        "https://cdn.collegefootballdata.com/logos-dark/64/16.png",
+        "https://cdn.collegefootballdata.com/logos/48/16.png",
+        "https://cdn.collegefootballdata.com/logos-dark/48/16.png",
+        "https://cdn.collegefootballdata.com/logos/32/16.png",
+        "https://cdn.collegefootballdata.com/logos-dark/32/16.png",
+        "https://cdn.collegefootballdata.com/logos/16/16.png",
+        "https://cdn.collegefootballdata.com/logos-dark/16/16.png"
       ]
     },
     {
