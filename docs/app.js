@@ -109,17 +109,79 @@ function groupLabel(id) {
 
 // ---------- manager identity (color + initials) ----------------------------
 // Built once per render off whatever manager list standings.json returns.
+// ---------- contrast fitting ----------------------------------------------
+// Team colors are picked for helmets, not for legibility on a white card.
+// Measured: Colorado #cfb87c and Wake Forest #ceb888 both sit at 1.94:1 against
+// white and effectively disappear; Texas Tech #c30020 is only 2.65:1 on the dark
+// hero. So each identity carries TWO fitted variants -- one per ground -- rather
+// than the raw hex, keeping the team's hue while clearing WCAG's 3:1 non-text
+// threshold. The raw value is kept for large fills, where contrast is moot.
+const LIGHT_GROUND = '#ffffff';
+const DARK_GROUND = '#1e1e1e';
+const MIN_CONTRAST = 3;
+
+function hexToRgb(h) {
+  const t = String(h || '').replace('#', '').trim();
+  if (!/^[0-9a-fA-F]{6}$/.test(t)) return null;
+  return [0, 2, 4].map((i) => parseInt(t.slice(i, i + 2), 16));
+}
+function rgbToHex(rgb) {
+  return '#' + rgb.map((v) => {
+    const n = Math.max(0, Math.min(255, Math.round(v)));
+    return n.toString(16).padStart(2, '0');
+  }).join('');
+}
+function relLum(rgb) {
+  const f = (v) => {
+    const x = v / 255;
+    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]);
+}
+function contrastRatio(a, b) {
+  const la = relLum(a), lb = relLum(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+// Walk the color toward black (on a light ground) or white (on a dark one) in
+// fixed steps until it clears `target`, then stop. Returns the input untouched
+// if it already passes or can't be parsed.
+function fitContrast(hex, groundHex, target) {
+  const c = hexToRgb(hex), ground = hexToRgb(groundHex);
+  if (!c || !ground) return hex;
+  const toward = relLum(ground) > 0.5 ? [0, 0, 0] : [255, 255, 255];
+  const STEPS = 20;
+  let out = c;
+  for (let i = 1; i <= STEPS && contrastRatio(out, ground) < target; i += 1) {
+    const t = i / STEPS;
+    out = c.map((v, k) => v + (toward[k] - v) * t);
+  }
+  return rgbToHex(out);
+}
+
 function buildManagerIdentity(managers, groupId) {
   const ids = managers.map((m) => m.manager_id).slice().sort();
-  const withArt = new Set(PORTRAITS[groupId] || []);
+  // Manifest is {manager_id: {team, color}}; tolerate the earlier
+  // {group: [id, ...]} array shape so a stale file still renders.
+  const raw = PORTRAITS[groupId];
+  const art = Array.isArray(raw)
+    ? Object.fromEntries(raw.map((id) => [id, {}]))
+    : (raw || {});
   const map = {};
   managers.forEach((m) => {
     // Path convention is fixed by scripts/prepare_portraits.py: it writes the
     // pair <manager_id>.webp (poster) + <manager_id>-face.webp (avatar crop).
-    const base = withArt.has(m.manager_id)
-      ? `assets/portraits/${groupId}/${m.manager_id}` : null;
+    const entry = Object.prototype.hasOwnProperty.call(art, m.manager_id)
+      ? (art[m.manager_id] || {}) : null;
+    const base = entry ? `assets/portraits/${groupId}/${m.manager_id}` : null;
+    // Team color when the manager has art, else the derived palette. Still
+    // never hardcoded per roster -- the palette remains the fallback path.
+    const seed = (entry && entry.color)
+      || MANAGER_PALETTE[ids.indexOf(m.manager_id) % MANAGER_PALETTE.length];
     map[m.manager_id] = {
-      color: MANAGER_PALETTE[ids.indexOf(m.manager_id) % MANAGER_PALETTE.length],
+      color: fitContrast(seed, LIGHT_GROUND, MIN_CONTRAST),
+      colorDark: fitContrast(seed, DARK_GROUND, MIN_CONTRAST),
+      teamColor: seed,
+      team: (entry && entry.team) || null,
       initials: initialsOf(m.display_name),
       name: m.display_name,
       poster: base ? `${base}.webp` : null,
@@ -221,15 +283,16 @@ function wireImageFallbacks(root) {
 // Size comes from a CSS class (avatar-sm/md/lg), not an inline pixel value, so
 // the responsive rules can shrink avatars without fighting inline styles.
 function avatar(ident, sizeClass, cls) {
+  const vars = `--mc:${ident.color};--mcd:${ident.colorDark || ident.color}`;
   const shell = `class="avatar ${sizeClass} ${cls || ''}`;
   const initials = `<span>${esc(ident.initials)}</span>`;
   if (!ident.face) {
-    return `<span ${shell}" style="--mc:${ident.color}">${initials}</span>`;
+    return `<span ${shell}" style="${vars}">${initials}</span>`;
   }
   // Both are emitted; .has-portrait hides the initials until/unless the image
   // fails (mirrors .has-logo on team marks) so the fallback costs no reflow.
   // alt is empty on purpose: the manager's name is always adjacent as text.
-  return `<span ${shell} has-portrait" style="--mc:${ident.color}">` +
+  return `<span ${shell} has-portrait" style="${vars}">` +
     `${initials}<img class="avatar-img" src="${esc(ident.face)}" alt="" ` +
     `loading="lazy"></span>`;
 }
@@ -432,6 +495,17 @@ function computeMoves(standings, timeline) {
 // ---------- Hero banner ----------------------------------------------------
 // Leader + every manager's banked total. Only shown once real picks exist —
 // the same gate that governs Board 1 / Board 2 vs. the pre-draft state.
+// Which groups have a published kickoff banner. Declared in the manifest under
+// a reserved key rather than probed by URL, for the same reason portraits are:
+// a group without one must cost zero failed requests. BANNER_KEY starts with '$'
+// so it can never collide with a group slug (slugs are path/URL segments).
+const BANNER_KEY = '$banners';
+
+function bannerFor(groupId) {
+  const list = (PORTRAITS && PORTRAITS[BANNER_KEY]) || [];
+  return list.indexOf(groupId) >= 0 ? `assets/banners/${groupId}.webp` : null;
+}
+
 function renderHero(standings, ident) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   if (!mgrs.length) return;
@@ -453,7 +527,14 @@ function renderHero(standings, ident) {
     sub = `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span>.`;
   }
 
-  $('hero').innerHTML =
+  const banner = bannerFor(meta.group_id || currentGroupId());
+  // Decorative: the headline below carries the same information as text, so the
+  // banner is alt="" rather than duplicating it for a screen reader.
+  const bannerHTML = banner
+    ? `<div class="hero-banner"><img src="${esc(banner)}" alt="" loading="eager"></div>`
+    : '';
+
+  $('hero').innerHTML = bannerHTML +
     `<div class="hero-main">
       <div class="hero-kicker">${esc(season)} CFB Over/Under Challenge &middot; ` +
         `${esc(groupLabel(meta.group_id || currentGroupId()))} &middot; ${esc(wk)}</div>
@@ -471,6 +552,14 @@ function renderHero(standings, ident) {
         </div>`;
       }).join('') +
     `</div>`;
+  // Third-tier fallback, same contract as logos and portraits: if the banner
+  // 404s or fails to decode, drop the whole block rather than leaving a gap.
+  const bimg = $('hero').querySelector('.hero-banner img');
+  if (bimg) {
+    const drop = () => { const w = bimg.closest('.hero-banner'); if (w) w.remove(); };
+    if (bimg.complete && bimg.naturalWidth === 0) drop();
+    else bimg.addEventListener('error', drop, { once: true });
+  }
   show($('hero'));
 }
 

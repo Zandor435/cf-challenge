@@ -142,6 +142,12 @@ def fetch_fbs_teams(client, season):
             "school": school,
             "conference": t.get("conference"),
             "abbreviation": t.get("abbreviation"),
+            # Team colors, kept as CFBD's hex strings. Note the naming: CFBD's
+            # `color` is the VIVID primary and `alternateColor` is usually black
+            # -- do not assume "alt" means the interesting one. Consumed by the
+            # site for manager identity color and by the persona art prompts.
+            "color": t.get("color"),
+            "alt_color": t.get("alternateColor"),
             # Full array kept as returned: the size choice belongs to whoever
             # renders it (the site picks a small light variant per chip).
             "logos": t.get("logos"),

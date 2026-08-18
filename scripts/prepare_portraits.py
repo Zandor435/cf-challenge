@@ -52,6 +52,10 @@ CASCADE = Path(cv2.data.haarcascades) / "haarcascade_frontalface_default.xml"
 # to decide whether to emit an <img> at all, so a group with no art emits no
 # 404s -- same "only render what we know exists" contract as team logos.
 MANIFEST = OUT_ROOT / "index.json"
+CANONICAL = ROOT / "docs" / "data" / "teams_canonical.json"
+# Reserved manifest key listing groups that have a kickoff banner. Leading
+# "$" guarantees it can never collide with a group slug.
+BANNER_KEY = "$banners"
 
 
 def detect_face(img: Image.Image):
@@ -78,26 +82,90 @@ def face_square(img: Image.Image, box, expand: float):
     return (left, top, left + side, top + side)
 
 
-def update_manifest(group: str, manager_ids) -> None:
-    """Merge this run's managers into the manifest without dropping others."""
+def update_manifest(group: str, entries: dict) -> None:
+    """Merge this run's managers into the manifest without dropping others.
+
+    Shape is {group: {manager_id: {team, color}}}. app.js already fetches this
+    file for the has-art check, so carrying the team color here gets it to the
+    frontend without touching standings.json or the output contract.
+    """
     data = {}
     if MANIFEST.exists():
         try:
             data = json.loads(MANIFEST.read_text())
         except (json.JSONDecodeError, OSError):
             data = {}
-    have = set(data.get(group, [])) | set(manager_ids)
-    data[group] = sorted(have)
+    existing = data.get(group)
+    # Tolerate the original {group: [id, ...]} shape so an old file upgrades
+    # in place instead of exploding.
+    if isinstance(existing, list):
+        existing = {mid: {} for mid in existing}
+    elif not isinstance(existing, dict):
+        existing = {}
+    existing.update(entries)
+    data[group] = dict(sorted(existing.items()))
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     MANIFEST.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n")
-    print(f"  manifest: {group} -> {', '.join(data[group])}")
+    for mid, meta in data[group].items():
+        print(f"  manifest: {group}/{mid} team={meta.get('team') or '-'} "
+              f"color={meta.get('color') or '-'}")
+
+
+def team_color(team: str):
+    """Primary hex for a school from the canonical file, or None."""
+    if not team:
+        return None
+    try:
+        data = json.loads(CANONICAL.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    for t in data.get("teams", []):
+        if t.get("school") == team:
+            return t.get("color")
+    return None
+
+
+def publish_banner(group: str, src: Path, width: int, quality: int,
+                   force: bool) -> int:
+    """Write the chosen group banner to docs/assets/banners/<group>.webp."""
+    out_dir = ROOT / "docs" / "assets" / "banners"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out = out_dir / f"{group}.webp"
+    if out.exists() and not force:
+        print(f"  skip (exists): {out.relative_to(ROOT)}")
+        return 0
+    img = Image.open(src).convert("RGB")
+    if img.width > width:
+        img = img.resize((width, round(img.height * width / img.width)), Image.LANCZOS)
+    img.save(out, "WEBP", quality=quality, method=6)
+    print(f"  wrote {out.relative_to(ROOT)} ({out.stat().st_size // 1024} KB, "
+          f"{img.width}x{img.height})")
+    # Declare it, or the frontend will never ask for it. ACCUMULATES.
+    data = {}
+    if MANIFEST.exists():
+        try:
+            data = json.loads(MANIFEST.read_text())
+        except (json.JSONDecodeError, OSError):
+            data = {}
+    have = set(data.get(BANNER_KEY) or [])
+    have.add(group)
+    data[BANNER_KEY] = sorted(have)
+    MANIFEST.parent.mkdir(parents=True, exist_ok=True)
+    MANIFEST.write_text(json.dumps(data, indent=1, sort_keys=True) + chr(10))
+    print(f"  manifest: {BANNER_KEY} -> {', '.join(data[BANNER_KEY])}")
+    return 1
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--group", required=True, help="group slug, e.g. panel")
-    ap.add_argument("--map", action="append", default=[], metavar="ID=PATH",
-                    help="manager_id=source image path (repeatable)")
+    ap.add_argument("--map", action="append", default=[], metavar="ID=PATH[:TEAM]",
+                    help="manager_id=source image path, optionally :Team Name "
+                         "to record that team's primary color (repeatable)")
+    ap.add_argument("--banner", metavar="PATH",
+                    help="publish PATH as this group's hero banner, then exit")
+    ap.add_argument("--banner-px", type=int, default=1600,
+                    help="banner max width (default 1600)")
     ap.add_argument("--poster-px", type=int, default=900, help="poster long edge")
     ap.add_argument("--face-px", type=int, default=256, help="face crop side")
     ap.add_argument("--expand", type=float, default=2.3,
@@ -110,18 +178,36 @@ def main() -> int:
     ap.add_argument("--preview-out", default="portrait_preview.jpg")
     args = ap.parse_args()
 
+    if args.banner:
+        src = Path(args.banner)
+        if not src.is_absolute():
+            src = ROOT / args.banner
+        if not src.exists():
+            print(f"ERROR: banner not found: {src}", file=sys.stderr)
+            return 1
+        n = publish_banner(args.group, src, args.banner_px, args.quality, args.force)
+        print(f"\ndone: {n} banner written.")
+        return 0
+
     pairs = []
     for entry in args.map:
         if "=" not in entry:
             ap.error(f"--map needs ID=PATH, got: {entry!r}")
         mid, _, raw = entry.partition("=")
+        # Optional ":Team Name" suffix. rsplit so a Windows drive letter in an
+        # absolute path (C:\...) can never be mistaken for the separator.
+        team = None
+        if ":" in raw and not raw[1:3] == ":\\":
+            head, _, tail = raw.rpartition(":")
+            if head and not head.endswith(":"):
+                raw, team = head, tail.strip()
         src = Path(raw)
         if not src.is_absolute():
             src = ROOT / raw
         if not src.exists():
             print(f"ERROR: source not found for {mid!r}: {src}", file=sys.stderr)
             return 1
-        pairs.append((mid.strip(), src))
+        pairs.append((mid.strip(), src, team))
     if not pairs:
         ap.error("at least one --map ID=PATH is required")
 
@@ -129,8 +215,8 @@ def main() -> int:
     if not args.preview:
         out_dir.mkdir(parents=True, exist_ok=True)
 
-    tiles, written_ids, made, skipped, failed = [], [], 0, 0, 0
-    for mid, src in pairs:
+    tiles, written, made, skipped, failed = [], {}, 0, 0, 0
+    for mid, src, team in pairs:
         img = Image.open(src).convert("RGB")
         box = detect_face(img)
         if box is None:
@@ -160,7 +246,10 @@ def main() -> int:
             made += 1
             print(f"  wrote {path.relative_to(ROOT)} "
                   f"({path.stat().st_size // 1024} KB)")
-        written_ids.append(mid)
+        # Recorded even when every file was skipped: the manifest is how the
+        # frontend learns the team color, and a re-run must be able to add it to
+        # art that is already published.
+        written[mid] = {"team": team, "color": team_color(team)}
 
     if args.preview and tiles:
         CW, CH = 300, 380
@@ -178,8 +267,8 @@ def main() -> int:
               f"order: {', '.join(m for m, *_ in tiles)})")
         return 0 if failed == 0 else 2
 
-    if written_ids:
-        update_manifest(args.group, written_ids)
+    if written:
+        update_manifest(args.group, written)
     print(f"\ndone: {made} written, {skipped} skipped, {failed} failed.")
     return 0 if failed == 0 else 2
 

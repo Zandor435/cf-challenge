@@ -1,14 +1,15 @@
 {
-  "_note": "Team IDENTITY spine only. The `conference` field here is a 2025-vintage snapshot and is NOT kept in sync with realignment — for the 2026 season, data/team_win_totals_2026.json is the sole authority on conference (and on the win-total line). `logos` is CFBD's own CDN array, 16 entries per team: 8 sizes x light/dark, interleaved light-then-dark descending 500..16, so logos[0] is the 500px light asset — consumers pick a size (the site uses a small light variant). Addendum: Sacramento State (id 16) is a 2026 FBS newcomer, sourced from CFBD /teams/fbs?year=2026, hand-added so 2026 picks resolve; re-running build_canonical.py for season 2025 will drop it again (and this note) — re-apply both after any re-run, reading/writing UTF-8 (utils.load_json / save_json_atomic) so 'San José State' survives.",
   "season": 2025,
   "source": "CFBD /teams/fbs",
-  "count": 137,
+  "count": 136,
   "teams": [
     {
       "id": 2005,
       "school": "Air Force",
       "conference": "Mountain West",
       "abbreviation": "AF",
+      "color": "#003594",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2005.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2005.png",
@@ -33,6 +34,8 @@
       "school": "Akron",
       "conference": "Mid-American",
       "abbreviation": "AKR",
+      "color": "#041e42",
+      "alt_color": "#a89968",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2006.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2006.png",
@@ -57,6 +60,8 @@
       "school": "Alabama",
       "conference": "SEC",
       "abbreviation": "ALA",
+      "color": "#9e1b32",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/333.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/333.png",
@@ -81,6 +86,8 @@
       "school": "App State",
       "conference": "Sun Belt",
       "abbreviation": "APP",
+      "color": "#000000",
+      "alt_color": "#ffcd00",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2026.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2026.png",
@@ -105,6 +112,8 @@
       "school": "Arizona",
       "conference": "Big 12",
       "abbreviation": "ARIZ",
+      "color": "#cc0033",
+      "alt_color": "#003366",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/12.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/12.png",
@@ -129,6 +138,8 @@
       "school": "Arizona State",
       "conference": "Big 12",
       "abbreviation": "ASU",
+      "color": "#ffc627",
+      "alt_color": "#8c1d40",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/9.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/9.png",
@@ -153,6 +164,8 @@
       "school": "Arkansas",
       "conference": "SEC",
       "abbreviation": "ARK",
+      "color": "#a32136",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/8.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/8.png",
@@ -177,6 +190,8 @@
       "school": "Arkansas State",
       "conference": "Sun Belt",
       "abbreviation": "ARST",
+      "color": "#cc092f",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2032.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2032.png",
@@ -201,6 +216,8 @@
       "school": "Army",
       "conference": "American Athletic",
       "abbreviation": "ARMY",
+      "color": "#000000",
+      "alt_color": "#d3bc8d",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/349.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/349.png",
@@ -225,6 +242,8 @@
       "school": "Auburn",
       "conference": "SEC",
       "abbreviation": "AUB",
+      "color": "#0c2340",
+      "alt_color": "#f26522",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2.png",
@@ -249,6 +268,8 @@
       "school": "BYU",
       "conference": "Big 12",
       "abbreviation": "BYU",
+      "color": "#003da5",
+      "alt_color": "#002e5d",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/252.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/252.png",
@@ -273,6 +294,8 @@
       "school": "Ball State",
       "conference": "Mid-American",
       "abbreviation": "BALL",
+      "color": "#ba0c2f",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2050.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2050.png",
@@ -297,6 +320,8 @@
       "school": "Baylor",
       "conference": "Big 12",
       "abbreviation": "BAY",
+      "color": "#154734",
+      "alt_color": "#ffb81c",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/239.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/239.png",
@@ -321,6 +346,8 @@
       "school": "Boise State",
       "conference": "Mountain West",
       "abbreviation": "BOIS",
+      "color": "#0033a0",
+      "alt_color": "#d64309",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/68.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/68.png",
@@ -345,6 +372,8 @@
       "school": "Boston College",
       "conference": "ACC",
       "abbreviation": "BC",
+      "color": "#8c2232",
+      "alt_color": "#dbcca6",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/103.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/103.png",
@@ -369,6 +398,8 @@
       "school": "Bowling Green",
       "conference": "Mid-American",
       "abbreviation": "BGSU",
+      "color": "#fd5000",
+      "alt_color": "#4f2c1d",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/189.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/189.png",
@@ -393,6 +424,8 @@
       "school": "Buffalo",
       "conference": "Mid-American",
       "abbreviation": "BUF",
+      "color": "#005bbb",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2084.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2084.png",
@@ -417,6 +450,8 @@
       "school": "California",
       "conference": "ACC",
       "abbreviation": "CAL",
+      "color": "#041e42",
+      "alt_color": "#ffc72c",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/25.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/25.png",
@@ -441,6 +476,8 @@
       "school": "Central Michigan",
       "conference": "Mid-American",
       "abbreviation": "CMU",
+      "color": "#6a0032",
+      "alt_color": "#ffc82e",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2117.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2117.png",
@@ -465,6 +502,8 @@
       "school": "Charlotte",
       "conference": "American Athletic",
       "abbreviation": "CLT",
+      "color": "#005035",
+      "alt_color": "#a49665",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2429.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2429.png",
@@ -489,6 +528,8 @@
       "school": "Cincinnati",
       "conference": "Big 12",
       "abbreviation": "CIN",
+      "color": "#000000",
+      "alt_color": "#e00122",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2132.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2132.png",
@@ -513,6 +554,8 @@
       "school": "Clemson",
       "conference": "ACC",
       "abbreviation": "CLEM",
+      "color": "#f56600",
+      "alt_color": "#522d80",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/228.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/228.png",
@@ -537,6 +580,8 @@
       "school": "Coastal Carolina",
       "conference": "Sun Belt",
       "abbreviation": "CCU",
+      "color": "#006f71",
+      "alt_color": "#a27752",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/324.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/324.png",
@@ -561,6 +606,8 @@
       "school": "Colorado",
       "conference": "Big 12",
       "abbreviation": "COLO",
+      "color": "#cfb87c",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/38.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/38.png",
@@ -585,6 +632,8 @@
       "school": "Colorado State",
       "conference": "Mountain West",
       "abbreviation": "CSU",
+      "color": "#1e4d2b",
+      "alt_color": "#c8c372",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/36.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/36.png",
@@ -609,6 +658,8 @@
       "school": "Delaware",
       "conference": "Conference USA",
       "abbreviation": "DEL",
+      "color": "#00539f",
+      "alt_color": "#ffd200",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/48.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/48.png",
@@ -633,6 +684,8 @@
       "school": "Duke",
       "conference": "ACC",
       "abbreviation": "DUKE",
+      "color": "#00539b",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/150.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/150.png",
@@ -657,6 +710,8 @@
       "school": "East Carolina",
       "conference": "American Athletic",
       "abbreviation": "ECU",
+      "color": "#592a8a",
+      "alt_color": "#fdc82f",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/151.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/151.png",
@@ -681,6 +736,8 @@
       "school": "Eastern Michigan",
       "conference": "Mid-American",
       "abbreviation": "EMU",
+      "color": "#046a38",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2199.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2199.png",
@@ -705,6 +762,8 @@
       "school": "Florida",
       "conference": "SEC",
       "abbreviation": "FLA",
+      "color": "#0021a5",
+      "alt_color": "#fa4616",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/57.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/57.png",
@@ -729,6 +788,8 @@
       "school": "Florida Atlantic",
       "conference": "American Athletic",
       "abbreviation": "FAU",
+      "color": "#003366",
+      "alt_color": "#cc0000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2226.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2226.png",
@@ -753,6 +814,8 @@
       "school": "Florida International",
       "conference": "Conference USA",
       "abbreviation": "FIU",
+      "color": "#091f3f",
+      "alt_color": "#c3993f",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2229.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2229.png",
@@ -777,6 +840,8 @@
       "school": "Florida State",
       "conference": "ACC",
       "abbreviation": "FSU",
+      "color": "#782f40",
+      "alt_color": "#ceb888",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/52.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/52.png",
@@ -801,6 +866,8 @@
       "school": "Fresno State",
       "conference": "Mountain West",
       "abbreviation": "FRES",
+      "color": "#c41230",
+      "alt_color": "#13284c",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/278.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/278.png",
@@ -825,6 +892,8 @@
       "school": "Georgia",
       "conference": "SEC",
       "abbreviation": "UGA",
+      "color": "#ba0c2f",
+      "alt_color": "#2c2a29",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/61.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/61.png",
@@ -849,6 +918,8 @@
       "school": "Georgia Southern",
       "conference": "Sun Belt",
       "abbreviation": "GASO",
+      "color": "#041e42",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/290.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/290.png",
@@ -873,6 +944,8 @@
       "school": "Georgia State",
       "conference": "Sun Belt",
       "abbreviation": "GAST",
+      "color": "#0039a6",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2247.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2247.png",
@@ -897,6 +970,8 @@
       "school": "Georgia Tech",
       "conference": "ACC",
       "abbreviation": "GT",
+      "color": "#b3a369",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/59.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/59.png",
@@ -921,6 +996,8 @@
       "school": "Hawai'i",
       "conference": "Mountain West",
       "abbreviation": "HAW",
+      "color": "#024731",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/62.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/62.png",
@@ -945,6 +1022,8 @@
       "school": "Houston",
       "conference": "Big 12",
       "abbreviation": "HOU",
+      "color": "#c8102e",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/248.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/248.png",
@@ -969,6 +1048,8 @@
       "school": "Illinois",
       "conference": "Big Ten",
       "abbreviation": "ILL",
+      "color": "#ff5f05",
+      "alt_color": "#13294b",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/356.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/356.png",
@@ -993,6 +1074,8 @@
       "school": "Indiana",
       "conference": "Big Ten",
       "abbreviation": "IU",
+      "color": "#990000",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/84.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/84.png",
@@ -1017,6 +1100,8 @@
       "school": "Iowa",
       "conference": "Big Ten",
       "abbreviation": "IOWA",
+      "color": "#000000",
+      "alt_color": "#ffcd00",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2294.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2294.png",
@@ -1041,6 +1126,8 @@
       "school": "Iowa State",
       "conference": "Big 12",
       "abbreviation": "ISU",
+      "color": "#c8102e",
+      "alt_color": "#f1be48",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/66.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/66.png",
@@ -1065,6 +1152,8 @@
       "school": "Jacksonville State",
       "conference": "Conference USA",
       "abbreviation": "JXST",
+      "color": "#cc0000",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/55.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/55.png",
@@ -1089,6 +1178,8 @@
       "school": "James Madison",
       "conference": "Sun Belt",
       "abbreviation": "JMU",
+      "color": "#450084",
+      "alt_color": "#cbb677",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/256.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/256.png",
@@ -1113,6 +1204,8 @@
       "school": "Kansas",
       "conference": "Big 12",
       "abbreviation": "KU",
+      "color": "#0051ba",
+      "alt_color": "#e8000d",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2305.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2305.png",
@@ -1137,6 +1230,8 @@
       "school": "Kansas State",
       "conference": "Big 12",
       "abbreviation": "KSU",
+      "color": "#512888",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2306.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2306.png",
@@ -1161,6 +1256,8 @@
       "school": "Kennesaw State",
       "conference": "Conference USA",
       "abbreviation": "KENN",
+      "color": "#fdbb30",
+      "alt_color": "#0b1315",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/338.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/338.png",
@@ -1185,6 +1282,8 @@
       "school": "Kent State",
       "conference": "Mid-American",
       "abbreviation": "KENT",
+      "color": "#002664",
+      "alt_color": "#eaab00",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2309.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2309.png",
@@ -1209,6 +1308,8 @@
       "school": "Kentucky",
       "conference": "SEC",
       "abbreviation": "UK",
+      "color": "#0033a0",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/96.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/96.png",
@@ -1233,6 +1334,8 @@
       "school": "LSU",
       "conference": "SEC",
       "abbreviation": "LSU",
+      "color": "#461d7c",
+      "alt_color": "#fdd023",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/99.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/99.png",
@@ -1257,6 +1360,8 @@
       "school": "Liberty",
       "conference": "Conference USA",
       "abbreviation": "LIB",
+      "color": "#0a254e",
+      "alt_color": "#b72025",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2335.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2335.png",
@@ -1281,6 +1386,8 @@
       "school": "Louisiana",
       "conference": "Sun Belt",
       "abbreviation": "UL",
+      "color": "#ce181e",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/309.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/309.png",
@@ -1305,6 +1412,8 @@
       "school": "Louisiana Tech",
       "conference": "Conference USA",
       "abbreviation": "LT",
+      "color": "#003087",
+      "alt_color": "#cb333b",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2348.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2348.png",
@@ -1329,6 +1438,8 @@
       "school": "Louisville",
       "conference": "ACC",
       "abbreviation": "LOU",
+      "color": "#c9001f",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/97.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/97.png",
@@ -1353,6 +1464,8 @@
       "school": "Marshall",
       "conference": "Sun Belt",
       "abbreviation": "MRSH",
+      "color": "#00b140",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/276.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/276.png",
@@ -1377,6 +1490,8 @@
       "school": "Maryland",
       "conference": "Big Ten",
       "abbreviation": "MD",
+      "color": "#ce1126",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/120.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/120.png",
@@ -1401,6 +1516,8 @@
       "school": "Massachusetts",
       "conference": "Mid-American",
       "abbreviation": "MASS",
+      "color": "#881c1c",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/113.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/113.png",
@@ -1425,6 +1542,8 @@
       "school": "Memphis",
       "conference": "American Athletic",
       "abbreviation": "MEM",
+      "color": "#00498f",
+      "alt_color": "#9c9ea1",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/235.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/235.png",
@@ -1449,6 +1568,8 @@
       "school": "Miami",
       "conference": "ACC",
       "abbreviation": "MIA",
+      "color": "#f47321",
+      "alt_color": "#005030",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2390.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2390.png",
@@ -1473,6 +1594,8 @@
       "school": "Miami (OH)",
       "conference": "Mid-American",
       "abbreviation": "M-OH",
+      "color": "#c41230",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/193.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/193.png",
@@ -1497,6 +1620,8 @@
       "school": "Michigan",
       "conference": "Big Ten",
       "abbreviation": "MICH",
+      "color": "#00274c",
+      "alt_color": "#ffcb05",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/130.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/130.png",
@@ -1521,6 +1646,8 @@
       "school": "Michigan State",
       "conference": "Big Ten",
       "abbreviation": "MSU",
+      "color": "#173f35",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/127.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/127.png",
@@ -1545,6 +1672,8 @@
       "school": "Middle Tennessee",
       "conference": "Conference USA",
       "abbreviation": "MTSU",
+      "color": "#036eb7",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2393.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2393.png",
@@ -1569,6 +1698,8 @@
       "school": "Minnesota",
       "conference": "Big Ten",
       "abbreviation": "MINN",
+      "color": "#7a0019",
+      "alt_color": "#ffcc33",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/135.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/135.png",
@@ -1593,6 +1724,8 @@
       "school": "Mississippi State",
       "conference": "SEC",
       "abbreviation": "MSST",
+      "color": "#5d1725",
+      "alt_color": "#c1c6c8",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/344.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/344.png",
@@ -1617,6 +1750,8 @@
       "school": "Missouri",
       "conference": "SEC",
       "abbreviation": "MIZ",
+      "color": "#f1b82d",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/142.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/142.png",
@@ -1641,6 +1776,8 @@
       "school": "Missouri State",
       "conference": "Conference USA",
       "abbreviation": "MOST",
+      "color": "#5e0009",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2623.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2623.png",
@@ -1665,6 +1802,8 @@
       "school": "NC State",
       "conference": "ACC",
       "abbreviation": "NCSU",
+      "color": "#cc0000",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/152.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/152.png",
@@ -1689,6 +1828,8 @@
       "school": "Navy",
       "conference": "American Athletic",
       "abbreviation": "NAVY",
+      "color": "#00225b",
+      "alt_color": "#b5a67c",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2426.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2426.png",
@@ -1713,6 +1854,8 @@
       "school": "Nebraska",
       "conference": "Big Ten",
       "abbreviation": "NEB",
+      "color": "#d00000",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/158.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/158.png",
@@ -1737,6 +1880,8 @@
       "school": "Nevada",
       "conference": "Mountain West",
       "abbreviation": "NEV",
+      "color": "#041e42",
+      "alt_color": "#8a8d8f",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2440.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2440.png",
@@ -1761,6 +1906,8 @@
       "school": "New Mexico",
       "conference": "Mountain West",
       "abbreviation": "UNM",
+      "color": "#ba0c2f",
+      "alt_color": "#a7a8aa",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/167.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/167.png",
@@ -1785,6 +1932,8 @@
       "school": "New Mexico State",
       "conference": "Conference USA",
       "abbreviation": "NMSU",
+      "color": "#8c0b42",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/166.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/166.png",
@@ -1809,6 +1958,8 @@
       "school": "North Carolina",
       "conference": "ACC",
       "abbreviation": "UNC",
+      "color": "#7bafd4",
+      "alt_color": "#13294b",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/153.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/153.png",
@@ -1833,6 +1984,8 @@
       "school": "North Texas",
       "conference": "American Athletic",
       "abbreviation": "UNT",
+      "color": "#00853e",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/249.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/249.png",
@@ -1857,6 +2010,8 @@
       "school": "Northern Illinois",
       "conference": "Mid-American",
       "abbreviation": "NIU",
+      "color": "#c8102e",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2459.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2459.png",
@@ -1881,6 +2036,8 @@
       "school": "Northwestern",
       "conference": "Big Ten",
       "abbreviation": "NU",
+      "color": "#582c83",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/77.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/77.png",
@@ -1905,6 +2062,8 @@
       "school": "Notre Dame",
       "conference": "FBS Independents",
       "abbreviation": "ND",
+      "color": "#0c2340",
+      "alt_color": "#c99700",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/87.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/87.png",
@@ -1929,6 +2088,8 @@
       "school": "Ohio",
       "conference": "Mid-American",
       "abbreviation": "OHIO",
+      "color": "#024230",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/195.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/195.png",
@@ -1953,6 +2114,8 @@
       "school": "Ohio State",
       "conference": "Big Ten",
       "abbreviation": "OSU",
+      "color": "#ba0c2f",
+      "alt_color": "#a7b1b7",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/194.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/194.png",
@@ -1977,6 +2140,8 @@
       "school": "Oklahoma",
       "conference": "SEC",
       "abbreviation": "OU",
+      "color": "#841617",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/201.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/201.png",
@@ -2001,6 +2166,8 @@
       "school": "Oklahoma State",
       "conference": "Big 12",
       "abbreviation": "OKST",
+      "color": "#fe5c00",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/197.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/197.png",
@@ -2025,6 +2192,8 @@
       "school": "Old Dominion",
       "conference": "Sun Belt",
       "abbreviation": "ODU",
+      "color": "#043657",
+      "alt_color": "#98c5ea",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/295.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/295.png",
@@ -2049,6 +2218,8 @@
       "school": "Ole Miss",
       "conference": "SEC",
       "abbreviation": "MISS",
+      "color": "#13294b",
+      "alt_color": "#cf142b",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/145.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/145.png",
@@ -2073,6 +2244,8 @@
       "school": "Oregon",
       "conference": "Big Ten",
       "abbreviation": "ORE",
+      "color": "#007030",
+      "alt_color": "#fee11a",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2483.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2483.png",
@@ -2097,6 +2270,8 @@
       "school": "Oregon State",
       "conference": "Pac-12",
       "abbreviation": "ORST",
+      "color": "#dc4405",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/204.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/204.png",
@@ -2121,6 +2296,8 @@
       "school": "Penn State",
       "conference": "Big Ten",
       "abbreviation": "PSU",
+      "color": "#001e44",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/213.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/213.png",
@@ -2145,6 +2322,8 @@
       "school": "Pittsburgh",
       "conference": "ACC",
       "abbreviation": "PITT",
+      "color": "#003594",
+      "alt_color": "#ffb81c",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/221.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/221.png",
@@ -2169,6 +2348,8 @@
       "school": "Purdue",
       "conference": "Big Ten",
       "abbreviation": "PUR",
+      "color": "#ceb888",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2509.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2509.png",
@@ -2193,6 +2374,8 @@
       "school": "Rice",
       "conference": "American Athletic",
       "abbreviation": "RICE",
+      "color": "#00205b",
+      "alt_color": "#c1c6c8",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/242.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/242.png",
@@ -2217,6 +2400,8 @@
       "school": "Rutgers",
       "conference": "Big Ten",
       "abbreviation": "RUTG",
+      "color": "#ce0e2d",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/164.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/164.png",
@@ -2241,6 +2426,8 @@
       "school": "SMU",
       "conference": "ACC",
       "abbreviation": "SMU",
+      "color": "#d70000",
+      "alt_color": "#0033a1",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2567.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2567.png",
@@ -2261,34 +2448,12 @@
       ]
     },
     {
-      "id": 16,
-      "school": "Sacramento State",
-      "conference": "Mid-American",
-      "abbreviation": "SAC",
-      "logos": [
-        "https://cdn.collegefootballdata.com/logos/500/16.png",
-        "https://cdn.collegefootballdata.com/logos-dark/500/16.png",
-        "https://cdn.collegefootballdata.com/logos/256/16.png",
-        "https://cdn.collegefootballdata.com/logos-dark/256/16.png",
-        "https://cdn.collegefootballdata.com/logos/128/16.png",
-        "https://cdn.collegefootballdata.com/logos-dark/128/16.png",
-        "https://cdn.collegefootballdata.com/logos/96/16.png",
-        "https://cdn.collegefootballdata.com/logos-dark/96/16.png",
-        "https://cdn.collegefootballdata.com/logos/64/16.png",
-        "https://cdn.collegefootballdata.com/logos-dark/64/16.png",
-        "https://cdn.collegefootballdata.com/logos/48/16.png",
-        "https://cdn.collegefootballdata.com/logos-dark/48/16.png",
-        "https://cdn.collegefootballdata.com/logos/32/16.png",
-        "https://cdn.collegefootballdata.com/logos-dark/32/16.png",
-        "https://cdn.collegefootballdata.com/logos/16/16.png",
-        "https://cdn.collegefootballdata.com/logos-dark/16/16.png"
-      ]
-    },
-    {
       "id": 2534,
       "school": "Sam Houston",
       "conference": "Conference USA",
       "abbreviation": "SHSU",
+      "color": "#f56423",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2534.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2534.png",
@@ -2313,6 +2478,8 @@
       "school": "San Diego State",
       "conference": "Mountain West",
       "abbreviation": "SDSU",
+      "color": "#a6192e",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/21.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/21.png",
@@ -2337,6 +2504,8 @@
       "school": "San José State",
       "conference": "Mountain West",
       "abbreviation": "SJSU",
+      "color": "#0055a2",
+      "alt_color": "#e5a823",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/23.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/23.png",
@@ -2361,6 +2530,8 @@
       "school": "South Alabama",
       "conference": "Sun Belt",
       "abbreviation": "USA",
+      "color": "#00205b",
+      "alt_color": "#bf0d3e",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/6.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/6.png",
@@ -2385,6 +2556,8 @@
       "school": "South Carolina",
       "conference": "SEC",
       "abbreviation": "SC",
+      "color": "#73000a",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2579.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2579.png",
@@ -2409,6 +2582,8 @@
       "school": "South Florida",
       "conference": "American Athletic",
       "abbreviation": "USF",
+      "color": "#006747",
+      "alt_color": "#cfc493",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/58.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/58.png",
@@ -2433,6 +2608,8 @@
       "school": "Southern Miss",
       "conference": "Sun Belt",
       "abbreviation": "USM",
+      "color": "#ffc72c",
+      "alt_color": "#231f20",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2572.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2572.png",
@@ -2457,6 +2634,8 @@
       "school": "Stanford",
       "conference": "ACC",
       "abbreviation": "STAN",
+      "color": "#8c1515",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/24.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/24.png",
@@ -2481,6 +2660,8 @@
       "school": "Syracuse",
       "conference": "ACC",
       "abbreviation": "SYR",
+      "color": "#f76900",
+      "alt_color": "#000e54",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/183.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/183.png",
@@ -2505,6 +2686,8 @@
       "school": "TCU",
       "conference": "Big 12",
       "abbreviation": "TCU",
+      "color": "#4d1979",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2628.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2628.png",
@@ -2529,6 +2712,8 @@
       "school": "Temple",
       "conference": "American Athletic",
       "abbreviation": "TEM",
+      "color": "#a41e35",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/218.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/218.png",
@@ -2553,6 +2738,8 @@
       "school": "Tennessee",
       "conference": "SEC",
       "abbreviation": "TENN",
+      "color": "#ff8200",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2633.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2633.png",
@@ -2577,6 +2764,8 @@
       "school": "Texas",
       "conference": "SEC",
       "abbreviation": "TEX",
+      "color": "#bf5700",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/251.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/251.png",
@@ -2601,6 +2790,8 @@
       "school": "Texas A&M",
       "conference": "SEC",
       "abbreviation": "TA&M",
+      "color": "#500000",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/245.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/245.png",
@@ -2625,6 +2816,8 @@
       "school": "Texas State",
       "conference": "Sun Belt",
       "abbreviation": "TXST",
+      "color": "#501214",
+      "alt_color": "#6a5638",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/326.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/326.png",
@@ -2649,6 +2842,8 @@
       "school": "Texas Tech",
       "conference": "Big 12",
       "abbreviation": "TTU",
+      "color": "#c30020",
+      "alt_color": "#000000",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2641.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2641.png",
@@ -2673,6 +2868,8 @@
       "school": "Toledo",
       "conference": "Mid-American",
       "abbreviation": "TOL",
+      "color": "#0b2240",
+      "alt_color": "#ffcd00",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2649.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2649.png",
@@ -2697,6 +2894,8 @@
       "school": "Troy",
       "conference": "Sun Belt",
       "abbreviation": "TROY",
+      "color": "#862633",
+      "alt_color": "#b1b1b1",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2653.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2653.png",
@@ -2721,6 +2920,8 @@
       "school": "Tulane",
       "conference": "American Athletic",
       "abbreviation": "TULN",
+      "color": "#006747",
+      "alt_color": "#418fde",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2655.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2655.png",
@@ -2745,6 +2946,8 @@
       "school": "Tulsa",
       "conference": "American Athletic",
       "abbreviation": "TLSA",
+      "color": "#003595",
+      "alt_color": "#d0b787",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/202.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/202.png",
@@ -2769,6 +2972,8 @@
       "school": "UAB",
       "conference": "American Athletic",
       "abbreviation": "UAB",
+      "color": "#1a5632",
+      "alt_color": "#fdb913",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/5.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/5.png",
@@ -2793,6 +2998,8 @@
       "school": "UCF",
       "conference": "Big 12",
       "abbreviation": "UCF",
+      "color": "#000000",
+      "alt_color": "#b4a169",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2116.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2116.png",
@@ -2817,6 +3024,8 @@
       "school": "UCLA",
       "conference": "Big Ten",
       "abbreviation": "UCLA",
+      "color": "#2774ae",
+      "alt_color": "#f2a900",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/26.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/26.png",
@@ -2841,6 +3050,8 @@
       "school": "UConn",
       "conference": "FBS Independents",
       "abbreviation": "CONN",
+      "color": "#000e2f",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/41.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/41.png",
@@ -2865,6 +3076,8 @@
       "school": "UL Monroe",
       "conference": "Sun Belt",
       "abbreviation": "ULM",
+      "color": "#840029",
+      "alt_color": "#fdb913",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2433.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2433.png",
@@ -2889,6 +3102,8 @@
       "school": "UNLV",
       "conference": "Mountain West",
       "abbreviation": "UNLV",
+      "color": "#cf0a2c",
+      "alt_color": "#cac8c8",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2439.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2439.png",
@@ -2913,6 +3128,8 @@
       "school": "USC",
       "conference": "Big Ten",
       "abbreviation": "USC",
+      "color": "#990000",
+      "alt_color": "#ffcc00",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/30.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/30.png",
@@ -2937,6 +3154,8 @@
       "school": "UTEP",
       "conference": "Conference USA",
       "abbreviation": "UTEP",
+      "color": "#ff8200",
+      "alt_color": "#041e42",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2638.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2638.png",
@@ -2961,6 +3180,8 @@
       "school": "UTSA",
       "conference": "American Athletic",
       "abbreviation": "UTSA",
+      "color": "#0c2340",
+      "alt_color": "#f15a22",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2636.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2636.png",
@@ -2985,6 +3206,8 @@
       "school": "Utah",
       "conference": "Big 12",
       "abbreviation": "UTAH",
+      "color": "#be0000",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/254.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/254.png",
@@ -3009,6 +3232,8 @@
       "school": "Utah State",
       "conference": "Mountain West",
       "abbreviation": "USU",
+      "color": "#0f2439",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/328.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/328.png",
@@ -3033,6 +3258,8 @@
       "school": "Vanderbilt",
       "conference": "SEC",
       "abbreviation": "VAN",
+      "color": "#000000",
+      "alt_color": "#cfae70",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/238.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/238.png",
@@ -3057,6 +3284,8 @@
       "school": "Virginia",
       "conference": "ACC",
       "abbreviation": "UVA",
+      "color": "#232d4b",
+      "alt_color": "#f84c1e",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/258.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/258.png",
@@ -3081,6 +3310,8 @@
       "school": "Virginia Tech",
       "conference": "ACC",
       "abbreviation": "VT",
+      "color": "#861f41",
+      "alt_color": "#e87722",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/259.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/259.png",
@@ -3105,6 +3336,8 @@
       "school": "Wake Forest",
       "conference": "ACC",
       "abbreviation": "WAKE",
+      "color": "#ceb888",
+      "alt_color": "#2c2a29",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/154.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/154.png",
@@ -3129,6 +3362,8 @@
       "school": "Washington",
       "conference": "Big Ten",
       "abbreviation": "WASH",
+      "color": "#33006f",
+      "alt_color": "#e8d3a2",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/264.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/264.png",
@@ -3153,6 +3388,8 @@
       "school": "Washington State",
       "conference": "Pac-12",
       "abbreviation": "WSU",
+      "color": "#a60f2d",
+      "alt_color": "#4d4d4d",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/265.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/265.png",
@@ -3177,6 +3414,8 @@
       "school": "West Virginia",
       "conference": "Big 12",
       "abbreviation": "WVU",
+      "color": "#eaaa00",
+      "alt_color": "#002855",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/277.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/277.png",
@@ -3201,6 +3440,8 @@
       "school": "Western Kentucky",
       "conference": "Conference USA",
       "abbreviation": "WKU",
+      "color": "#c60c30",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/98.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/98.png",
@@ -3225,6 +3466,8 @@
       "school": "Western Michigan",
       "conference": "Mid-American",
       "abbreviation": "WMU",
+      "color": "#532e1f",
+      "alt_color": "#f1c500",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2711.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2711.png",
@@ -3249,6 +3492,8 @@
       "school": "Wisconsin",
       "conference": "Big Ten",
       "abbreviation": "WIS",
+      "color": "#a00000",
+      "alt_color": "#ffffff",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/275.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/275.png",
@@ -3273,6 +3518,8 @@
       "school": "Wyoming",
       "conference": "Mountain West",
       "abbreviation": "WYO",
+      "color": "#492f24",
+      "alt_color": "#ffc425",
       "logos": [
         "https://cdn.collegefootballdata.com/logos/500/2751.png",
         "https://cdn.collegefootballdata.com/logos-dark/500/2751.png",
