@@ -109,13 +109,21 @@ function groupLabel(id) {
 
 // ---------- manager identity (color + initials) ----------------------------
 // Built once per render off whatever manager list standings.json returns.
-function buildManagerIdentity(managers) {
+function buildManagerIdentity(managers, groupId) {
   const ids = managers.map((m) => m.manager_id).slice().sort();
+  const withArt = new Set(PORTRAITS[groupId] || []);
   const map = {};
   managers.forEach((m) => {
+    // Path convention is fixed by scripts/prepare_portraits.py: it writes the
+    // pair <manager_id>.webp (poster) + <manager_id>-face.webp (avatar crop).
+    const base = withArt.has(m.manager_id)
+      ? `assets/portraits/${groupId}/${m.manager_id}` : null;
     map[m.manager_id] = {
       color: MANAGER_PALETTE[ids.indexOf(m.manager_id) % MANAGER_PALETTE.length],
       initials: initialsOf(m.display_name),
+      name: m.display_name,
+      poster: base ? `${base}.webp` : null,
+      face: base ? `${base}-face.webp` : null,
     };
   });
   return map;
@@ -142,6 +150,10 @@ function teamAbbr(name) {
 // when teams_canonical.json is missing — every consumer falls back to a text
 // chip, so this is cosmetic and never blocks a board (same posture as Board 2).
 let TEAM_INFO = {};
+// { group_id: [manager_id, ...] } from assets/portraits/index.json — which
+// managers have approved persona art. Same contract as team logos: we only
+// emit an <img> for art we KNOW exists, so a group with none costs no 404s.
+let PORTRAITS = {};
 
 // CFBD returns SIXTEEN logo URLs per team — 8 sizes x light/dark, interleaved
 // light-then-dark descending 500..16 — so logos[0] is the 500px asset, far too
@@ -188,19 +200,72 @@ function markLogoFailed(img) {
   if (mark) mark.classList.remove('has-logo');
   img.remove();
 }
-function wireLogoFallbacks(root) {
-  root.querySelectorAll('img.team-logo').forEach((img) => {
+// Same third-tier fallback for a portrait: drop the img, restore the initials.
+function markPortraitFailed(img) {
+  const av = img.closest('.avatar');
+  if (av) av.classList.remove('has-portrait');
+  img.remove();
+}
+
+function wireImageFallbacks(root) {
+  if (!root) return;
+  root.querySelectorAll('img.team-logo, img.avatar-img').forEach((img) => {
+    const fail = img.classList.contains('avatar-img')
+      ? markPortraitFailed : markLogoFailed;
     // Catch images that already failed before this ran (cached 404s).
-    if (img.complete && img.naturalWidth === 0) { markLogoFailed(img); return; }
-    img.addEventListener('error', () => markLogoFailed(img), { once: true });
+    if (img.complete && img.naturalWidth === 0) { fail(img); return; }
+    img.addEventListener('error', () => fail(img), { once: true });
   });
 }
 
 // Size comes from a CSS class (avatar-sm/md/lg), not an inline pixel value, so
 // the responsive rules can shrink avatars without fighting inline styles.
 function avatar(ident, sizeClass, cls) {
-  return `<span class="avatar ${sizeClass} ${cls || ''}" style="--mc:${ident.color}">` +
-    `<span>${esc(ident.initials)}</span></span>`;
+  const shell = `class="avatar ${sizeClass} ${cls || ''}`;
+  const initials = `<span>${esc(ident.initials)}</span>`;
+  if (!ident.face) {
+    return `<span ${shell}" style="--mc:${ident.color}">${initials}</span>`;
+  }
+  // Both are emitted; .has-portrait hides the initials until/unless the image
+  // fails (mirrors .has-logo on team marks) so the fallback costs no reflow.
+  // alt is empty on purpose: the manager's name is always adjacent as text.
+  return `<span ${shell} has-portrait" style="--mc:${ident.color}">` +
+    `${initials}<img class="avatar-img" src="${esc(ident.face)}" alt="" ` +
+    `loading="lazy"></span>`;
+}
+
+// ---------- poster lightbox ------------------------------------------------
+// Opened from a manager card's rail. One shared overlay, wired once in main();
+// per-card buttons only carry the src, so re-renders can't leak listeners.
+function openPoster(src, name) {
+  const img = $('lightbox-img');
+  img.src = src;
+  img.alt = `${name} persona art`;
+  show($('lightbox'));
+  $('lightbox-close').focus();
+}
+
+function closePoster() {
+  hide($('lightbox'));
+  $('lightbox-img').removeAttribute('src');
+}
+
+function wirePosters(root) {
+  if (!root) return;
+  root.querySelectorAll('.poster-btn').forEach((btn) => {
+    btn.addEventListener('click', () => openPoster(btn.dataset.poster, btn.dataset.name));
+  });
+}
+
+function wireLightbox() {
+  const lb = $('lightbox');
+  if (!lb) return;
+  $('lightbox-close').addEventListener('click', closePoster);
+  // Backdrop click closes; a click on the image itself must not.
+  lb.addEventListener('click', (e) => { if (e.target === lb) closePoster(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !lb.hidden) closePoster();
+  });
 }
 
 // ---------- masthead / switcher -------------------------------------------
@@ -478,16 +543,32 @@ function identityCell(m, id, picks) {
     </div>`;
 }
 
+// The poster art is the joke — its baked-in lettering is the whole point — so
+// the rail never crops it, and clicking opens it full-size where the text is
+// actually readable. Managers with no art get no rail and no empty gutter.
+function posterRail(id) {
+  if (!id.poster) return '';
+  return `<button type="button" class="poster-btn" data-poster="${esc(id.poster)}"
+      data-name="${esc(id.name)}" aria-label="View ${esc(id.name)} full size">
+    <img class="poster-img" src="${esc(id.poster)}" alt="${esc(id.name)} persona art"
+      loading="lazy">
+  </button>`;
+}
+
 function managerCard(m, ident, gMin, gMax, moves) {
   const picks = m.picks || [];
   const id = ident[m.manager_id];
-  return `<article class="mgr" style="--mc:${id.color}">
-    <div class="mgr-row">
-      ${identityCell(m, id, picks)}
-      ${totalCell(m)}
-      ${moveCell(m.manager_id, moves)}
+  const rail = posterRail(id);
+  return `<article class="mgr${rail ? ' has-poster' : ''}" style="--mc:${id.color}">
+    ${rail}
+    <div class="mgr-main">
+      <div class="mgr-row">
+        ${identityCell(m, id, picks)}
+        ${totalCell(m)}
+        ${moveCell(m.manager_id, moves)}
+      </div>
+      <div class="picks">${picks.map((p) => pickRow(p, gMin, gMax, id.color)).join('')}</div>
     </div>
-    <div class="picks">${picks.map((p) => pickRow(p, gMin, gMax, id.color)).join('')}</div>
   </article>`;
 }
 
@@ -528,7 +609,7 @@ function renderBoard1(standings, ident, moves) {
     <span>${moveHead(moves)}</span><span>Portfolio</span>
   </div>`;
   $('standings').innerHTML = head + mgrs.map((m) => compactCard(m, ident, moves)).join('');
-  wireLogoFallbacks($('standings'));
+  wireImageFallbacks($('standings'));
   show($('board1'));
 }
 
@@ -552,6 +633,8 @@ function renderStandingsDetail(standings, ident, moves) {
   </div>`;
   $('standings-detail-list').innerHTML =
     head + mgrs.map((m) => managerCard(m, ident, gMin, gMax, moves)).join('');
+  wireImageFallbacks($('standings-detail-list'));
+  wirePosters($('standings-detail-list'));
 }
 
 // ---------- Scoreboard — standings.json re-pivoted by team -----------------
@@ -627,7 +710,7 @@ function renderScoreboard(standings, ident) {
   </div>`;
   const col = (list) => `<div class="sb-col">${header}${list.map((r) => teamRowHTML(r, ident)).join('')}</div>`;
   $('sb-cols').innerHTML = col(rows.slice(0, mid)) + col(rows.slice(mid));
-  wireLogoFallbacks($('sb-cols'));
+  wireImageFallbacks($('sb-cols'));
   show($('scoreboard'));
 }
 
@@ -678,6 +761,7 @@ function renderBoard2(projection, standings, ident) {
   $('projection').innerHTML = note + head + mgrs.map((m) => projManager(m, ident)).join('') +
     `<p class="proj-foot">Percent chance to finish with the group&rsquo;s highest total, ` +
     `from the shared-draw simulation.</p>`;
+  wireImageFallbacks($('projection'));
   show($('board2'));
 }
 function renderBoard2Unavailable(reason) {
@@ -700,11 +784,15 @@ async function main() {
 
   // Team identity is shared across groups, so it is fetched alongside (not
   // after) standings — one round trip, and a failure here only costs logos.
-  const [standingsRes, teamsRes] = await Promise.allSettled([
+  const [standingsRes, teamsRes, portraitsRes] = await Promise.allSettled([
     fetchJSON(`data/${groupId}/standings.json`),
     fetchJSON('data/teams_canonical.json'),
+    fetchJSON('assets/portraits/index.json'),
   ]);
   TEAM_INFO = teamsRes.status === 'fulfilled' ? buildTeamIndex(teamsRes.value) : {};
+  // A missing manifest is normal (no group has art yet) and costs only the
+  // portraits — every avatar falls back to initials, nothing else notices.
+  PORTRAITS = portraitsRes.status === 'fulfilled' ? (portraitsRes.value || {}) : {};
 
   let standings;
   try {
@@ -732,7 +820,7 @@ async function main() {
     return;
   }
 
-  const ident = buildManagerIdentity(standings.managers || []);
+  const ident = buildManagerIdentity(standings.managers || [], groupId);
 
   // Week-over-week move is a nice-to-have: a missing timeline.json must not
   // affect anything else on the page.
@@ -743,7 +831,9 @@ async function main() {
     moves = null;
   }
 
+  wireLightbox();
   renderHero(standings, ident);
+  wireImageFallbacks($('hero'));
   renderBoard1(standings, ident, moves);          // Home tab — compact
   renderStandingsDetail(standings, ident, moves); // Standings tab — full detail
   renderScoreboard(standings, ident);

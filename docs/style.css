@@ -201,6 +201,7 @@ a { color: inherit; }
   flex-shrink: 0; border-radius: 50%;
   border: 2px solid var(--mc); padding: 2px;
   display: inline-flex; align-items: center; justify-content: center;
+  position: relative;
 }
 .avatar > span {
   width: 100%; height: 100%; border-radius: 50%;
@@ -213,6 +214,72 @@ a { color: inherit; }
 .avatar-lg { width: 56px; height: 56px; font-size: 20px; }
 .avatar-md { width: 40px; height: 40px; font-size: 14px; }
 .avatar-sm { width: 28px; height: 28px; font-size: 10px; }
+
+/* Persona face crop. Same contract as .has-logo on team marks: the initials
+   stay in the DOM underneath and .has-portrait hides them, so app.js dropping
+   the class on an image error restores them with no reflow. */
+.avatar.has-portrait > span { visibility: hidden; }
+.avatar-img {
+  position: absolute; inset: 2px;
+  width: calc(100% - 4px); height: calc(100% - 4px);
+  border-radius: 50%; object-fit: cover; object-position: center top;
+  display: block;
+}
+
+/* ---------- Manager poster art (Standings detail) ------------------------ */
+/* Rail beside the card, not a crop of it — the art's baked-in lettering is the
+   content. Only cards with approved art get the column, so a group with no
+   portraits keeps the exact single-column layout it had before. */
+.mgr.has-poster {
+  display: grid; grid-template-columns: 190px minmax(0, 1fr);
+  gap: 0 16px; align-items: start; padding: 10px 0 4px 14px;
+}
+.mgr.has-poster .mgr-main { min-width: 0; }
+.mgr.has-poster .mgr-row { padding-left: 0; }
+.mgr.has-poster .mgr-row::before { left: -14px; }
+.poster-btn {
+  padding: 0; margin: 6px 0 0; border: 1px solid var(--border-soft);
+  background: var(--ink-panel); border-radius: 3px; overflow: hidden;
+  cursor: zoom-in; display: block; width: 100%;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.poster-btn:hover, .poster-btn:focus-visible {
+  border-color: var(--mc); transform: translateY(-1px); outline: none;
+}
+.poster-img { display: block; width: 100%; height: auto; }
+
+/* Narrow: the rail would squeeze the picks table, so the poster goes back to
+   a normal block above the card content and caps its own width. */
+@media (max-width: 720px) {
+  .mgr.has-poster { grid-template-columns: minmax(0, 1fr); padding-left: 14px; }
+  .mgr.has-poster .mgr-row::before { left: -14px; }
+  .poster-btn { max-width: 240px; }
+}
+
+/* ---------- Poster lightbox ---------------------------------------------- */
+.lightbox {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(8, 8, 8, .88);
+  display: flex; align-items: center; justify-content: center;
+  padding: 32px 20px;
+}
+.lightbox[hidden] { display: none; }
+.lightbox img {
+  max-width: min(560px, 100%); max-height: 100%;
+  width: auto; height: auto; object-fit: contain;
+  border: 1px solid var(--border-soft); border-radius: 3px;
+}
+.lightbox-close {
+  position: absolute; top: 14px; right: 18px;
+  width: 40px; height: 40px; line-height: 1;
+  font-size: 1.8rem; font-family: var(--body);
+  color: var(--text); background: transparent;
+  border: 1px solid var(--border-soft); border-radius: 3px;
+  cursor: pointer;
+}
+.lightbox-close:hover, .lightbox-close:focus-visible {
+  border-color: var(--accent); color: var(--accent); outline: none;
+}
 
 /* ---------- Hero banner -------------------------------------------------- */
 .hero {
