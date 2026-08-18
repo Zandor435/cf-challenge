@@ -48,7 +48,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import gemini_image  # noqa: E402
 from recolor_personas import color_name, team_colors  # noqa: E402
-from scene_batch import BATCH  # noqa: E402
+from scene_batch import BATCH, FULLCARD, POSTERS, POSTER_NAMES  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 PERSONAS = ROOT / "groups" / "panel" / "personas.json"
@@ -273,6 +273,98 @@ def build_batch_prompt(entry, style, personas, colors, plate):
     return text, refs
 
 
+def build_poster_prompt(entry, style, personas, colors, plate):
+    """A fight-poster prompt. Unlike scenes, lettering here is REQUIRED --
+    surnames, a sanctioning wordmark and a promo line are the furniture. What
+    must NOT appear is numerals of any kind, and anything at all inside the
+    lower band: the site overlays live numbers into that strip in HTML, and
+    baked stats are stale by Saturday."""
+    who = entry["who"]
+    names = [POSTER_NAMES[m] for m in who]
+
+    if entry.get("fullcard"):
+        head = ("A gaudy 1980s closed-circuit boxing FULL CARD bill poster, "
+                + STYLE_SET[style] + ". All FOUR men appear as the fight card: "
+                "the two from reference images #1 and #2 large at the top as "
+                "the main event, squared off in half-profile facing each other "
+                "across the vertical centre; the two from reference images #3 "
+                "and #4 smaller beneath them as the undercard, also facing off. "
+                "Chins raised, hard rim light along every profile edge, deep "
+                "shadow behind. A bold starburst radiates from the centre of "
+                "the main event. Every man is fully lit and fully detailed.")
+        lettering = (" LETTERING: bake in the poster furniture. The names "
+                     + ", ".join(names[:2]) + " in heavy all-capital slab "
+                     "lettering flanking the main event, and " 
+                     + ", ".join(names[2:]) + " in smaller all-capital slab "
+                     "lettering flanking the undercard. A sanctioning-body "
+                     "wordmark across the very top. The promotional line \""
+                     + entry["promo"] + "\" in bold display lettering.")
+    else:
+        head = ("A gaudy 1980s closed-circuit boxing title-fight poster, "
+                + STYLE_SET[style] + ". TWO men in half-profile facing each "
+                "other across the vertical centre of the poster, head and "
+                "shoulders, large, filling the upper two thirds of the frame. "
+                "The man from reference image #1 is on the LEFT and the man "
+                "from reference image #2 is on the RIGHT. Both chins are "
+                "raised. Hard rim light traces the edge of each profile with "
+                "deep shadow behind. A bold starburst radiates from the centre "
+                "point between the two heads. Both men are fully lit and fully "
+                "detailed -- neither is a background figure.")
+        lettering = (" LETTERING: bake in the poster furniture. The name "
+                     + names[0] + " in heavy all-capital slab lettering on the "
+                     "LEFT side and " + names[1] + " in the same treatment on "
+                     "the RIGHT side. A sanctioning-body wordmark across the "
+                     "very top. The promotional line \"" + entry["promo"]
+                     + "\" in bold display lettering.")
+
+    trophy = (" Between the figures at chest height, smaller than any of their "
+              "heads, stands the faceted crystal championship trophy from the "
+              "final reference image -- reproduce its design faithfully.")
+
+    split = ""
+    if entry.get("split_ground"):
+        split = (" These two men wear very similar gold; give each his own "
+                 "distinctly different dark background field on his own half "
+                 "of the poster, so the two figures never merge into one.")
+
+    wardrobe = []
+    for i, mid in enumerate(who, start=1):
+        team = personas[mid]["team"]
+        hexc = colors[team]["color"]
+        wardrobe.append("the man from reference image #" + str(i) + " wears "
+                        + team + " " + color_name(hexc) + " (" + hexc + ")")
+    colors_txt = " Team colors: " + "; ".join(wardrobe) + "."
+
+    likeness = (" Each man must be clearly recognizable as the specific "
+                "individual in his reference image -- same face, same "
+                "features, same hair. Do not blend or merge them together and "
+                "do not substitute generic people.")
+    cues = "; ".join(c for c in
+                     (personas[m].get("silhouette_cue") for m in who) if c)
+    if cues:
+        likeness += " Their distinguishing cues: " + cues + "."
+
+    numbers = (" Bake NO numbers anywhere in the image: no records, no scores, "
+               "no dates, no odds, no numerals of any kind.")
+    band = (" Across the LOWER THIRD of the poster leave a completely clean, "
+            "flat, solid dark horizontal band spanning the full width. That "
+            "band must contain nothing at all -- no lettering, no numbers, no "
+            "ornament, no texture, no pattern, no imagery. It must stay "
+            "entirely empty.")
+
+    text = (head + trophy + split + colors_txt + likeness + BUILD_LOCK
+            + lettering + numbers + band + ILLUSTRATION_LOCK)
+
+    refs = []
+    for mid in who:
+        rp, _slug = resolve_reference(mid)
+        if rp is None:
+            raise SystemExit("ERROR: no kept recolor on disk for " + repr(mid))
+        refs.append(rp)
+    refs.append(plate)
+    return text, refs
+
+
 def load_personas():
     data = json.loads(PERSONAS.read_text(encoding="utf-8"))
     return data["managers"]
@@ -341,7 +433,7 @@ def main() -> int:
     # "trophy_plate" is the Phase 1 OBJECT; "trophy" is the Phase 3 SCENE that
     # uses it. Distinct names -- sharing one would make the scene unreachable.
     ap.add_argument("--phase", required=True,
-                    choices=["trophy_plate", "batch"] + list(SETUPS))
+                    choices=["trophy_plate", "batch", "posters"] + list(SETUPS))
     ap.add_argument("--styles", default="painted",
                     help=f"comma-separated ({', '.join(STYLE_SET)})")
     ap.add_argument("--leads", default="blaine,chris,jonathan,zach")
@@ -370,7 +462,26 @@ def main() -> int:
     colors = team_colors()
 
     jobs = []   # (out_path, prompt, ref_paths, aspect)
-    if args.phase == "batch":
+    if args.phase == "posters":
+        aspect = args.aspect or "3:4"
+        style = styles[0]
+        if not args.trophy_plate:
+            print("ERROR: posters need --trophy-plate PATH.", file=sys.stderr)
+            return 1
+        plate = Path(args.trophy_plate)
+        if not plate.is_absolute():
+            plate = ROOT / args.trophy_plate
+        if not plate.exists():
+            print("ERROR: trophy plate not found: " + str(plate), file=sys.stderr)
+            return 1
+        for e in list(POSTERS) + [FULLCARD]:
+            prompt, refs = build_poster_prompt(e, style, personas, colors, plate)
+            check_prompt(prompt, "posters/" + e["slug"])
+            for i in range(1, n + 1):
+                jobs.append((ROOT / "output" / "posters" / "panel" /
+                             ("panel_" + e["slug"] + "_" + format(i, "02d") + ".png"),
+                             prompt, refs, aspect))
+    elif args.phase == "batch":
         aspect = args.aspect or "16:9"
         style = styles[0]
         plate = None

@@ -185,3 +185,43 @@ BATCH = [
         "only. The surrounding structure, frame, lamps and sky are richly "
         "detailed. No people in the frame.")),
 ]
+
+
+# ---------------------------------------------------------------------------
+# Fight posters. Separate list from BATCH: different output root, different
+# aspect, and lettering is REQUIRED rather than suppressed.
+# ---------------------------------------------------------------------------
+# Names are display names, not surnames. The repo records no surnames anywhere
+# (personas.json and groups/panel/config.json carry display_name only); the one
+# known surname is Chris's. Mixing one surname with three first names would read
+# worse than four first names, so these are uniform. Swap in real surnames here
+# if they are ever recorded.
+POSTER_NAMES = {"blaine": "BLAINE", "chris": "CHRIS",
+                "jonathan": "JONATHAN", "zach": "ZACH"}
+
+# One per unique pairing. Filename order is alphabetical and frame position
+# follows it: first name left, second right, every time.
+POSTERS = [
+    dict(slug="fight_blaine_chris", who=["blaine", "chris"],
+         promo="ONE NIGHT ONLY"),
+    dict(slug="fight_blaine_jonathan", who=["blaine", "jonathan"],
+         promo="TITLE ON THE LINE"),
+    dict(slug="fight_blaine_zach", who=["blaine", "zach"],
+         promo="NO MORE TALK"),
+    dict(slug="fight_chris_jonathan", who=["chris", "jonathan"],
+         promo="SETTLE IT INSIDE"),
+    # Both men wear gold; without split grounds the poster reads as one man
+    # twice. This is the only pairing that needs it.
+    dict(slug="fight_chris_zach", who=["chris", "zach"],
+         promo="WINNER TAKE ALL", split_ground=True),
+    dict(slug="fight_jonathan_zach", who=["jonathan", "zach"],
+         promo="THE RECKONING"),
+]
+
+# ASSUMED SPEC: the brief's BONUS section was truncated mid-sentence ("THE FULL
+# CARD (1"). Built from the intro line "plus one full-card bill" and the rules
+# already established for the six: same era and style, same 3:4, same lettering
+# furniture, same empty lower band, same no-numbers rule. All four men, stacked
+# as a card rather than squared off as a pairing.
+FULLCARD = dict(slug="fight_fullcard", who=ALL, promo="THE FULL CARD",
+                fullcard=True)
