@@ -48,6 +48,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import gemini_image  # noqa: E402
 from recolor_personas import color_name, team_colors  # noqa: E402
+from scene_batch import BATCH  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 PERSONAS = ROOT / "groups" / "panel" / "personas.json"
@@ -96,6 +97,12 @@ BUILD_LOCK = (
     "man's body shape, size and build exactly as it appears in his reference "
     "image. Do NOT slim anyone down, do NOT shrink anyone, do NOT give anyone "
     "an athletic or average build."
+)
+
+STRICT_NO_TEXT = (
+    " CRITICAL: the image must contain ZERO text. No letters, no words, no "
+    "numbers, no symbols, no signage copy and no watermark anywhere in the "
+    "frame. Any lettering at all makes this image unusable."
 )
 
 NO_TEXT = (
@@ -225,6 +232,47 @@ def resolve_reference(mid):
     return None, None
 
 
+def build_batch_prompt(entry, style, personas, colors, plate):
+    """Assemble one named-composition prompt and its ordered reference list."""
+    who = entry.get("who") or []
+    text = entry["text"].rstrip().rstrip(".") + ". " + STYLE_SET[style].capitalize() + "."
+    if who:
+        wardrobe = []
+        for i, mid in enumerate(who, start=1):
+            team = personas[mid]["team"]
+            hexc = colors[team]["color"]
+            wardrobe.append("the man from reference image #" + str(i) + " wears "
+                            + team + " " + color_name(hexc) + " (" + hexc + ")")
+        text += " Team colors: " + "; ".join(wardrobe) + "."
+        text += (" Each man must be clearly recognizable as the specific "
+                 "individual in his reference image -- same face, same "
+                 "features, same hair. Do not blend or merge them together, "
+                 "and do not substitute generic people.")
+        cues = "; ".join(c for c in
+                         (personas[m].get("silhouette_cue") for m in who) if c)
+        if cues:
+            text += " Their distinguishing cues: " + cues + "."
+        text += BUILD_LOCK
+    text += ILLUSTRATION_LOCK
+    # milkcarton needs the single word MISSING; a blanket no-text clause
+    # would fight the composition it is supposed to produce.
+    if entry.get("strict_no_text"):
+        text += STRICT_NO_TEXT
+    elif not entry.get("allow_text"):
+        text += NO_TEXT
+
+    refs = []
+    for mid in who:
+        rp, _slug = resolve_reference(mid)
+        if rp is None:
+            raise SystemExit("ERROR: no kept recolor on disk for " + repr(mid)
+                             + " (needed by " + entry["slug"] + ").")
+        refs.append(rp)
+    if entry.get("trophy"):
+        refs.append(plate)
+    return text, refs
+
+
 def load_personas():
     data = json.loads(PERSONAS.read_text(encoding="utf-8"))
     return data["managers"]
@@ -293,7 +341,7 @@ def main() -> int:
     # "trophy_plate" is the Phase 1 OBJECT; "trophy" is the Phase 3 SCENE that
     # uses it. Distinct names -- sharing one would make the scene unreachable.
     ap.add_argument("--phase", required=True,
-                    choices=["trophy_plate"] + list(SETUPS))
+                    choices=["trophy_plate", "batch"] + list(SETUPS))
     ap.add_argument("--styles", default="painted",
                     help=f"comma-separated ({', '.join(STYLE_SET)})")
     ap.add_argument("--leads", default="blaine,chris,jonathan,zach")
@@ -322,7 +370,39 @@ def main() -> int:
     colors = team_colors()
 
     jobs = []   # (out_path, prompt, ref_paths, aspect)
-    if args.phase == "trophy_plate":
+    if args.phase == "batch":
+        aspect = args.aspect or "16:9"
+        style = styles[0]
+        plate = None
+        if args.trophy_plate:
+            plate = Path(args.trophy_plate)
+            if not plate.is_absolute():
+                plate = ROOT / args.trophy_plate
+            if not plate.exists():
+                print("ERROR: trophy plate not found: " + str(plate), file=sys.stderr)
+                return 1
+        # A rotating entry expands to one composition per lead, the lead first
+        # in the reference order; everything else is a single fixed composition.
+        expanded = []
+        for e in BATCH:
+            if e.get("leads"):
+                for lead in e["leads"]:
+                    expanded.append({**e, "slug": e["slug"] + "_" + lead,
+                                     "who": [lead]})
+            else:
+                expanded.append(e)
+        for e in expanded:
+            if e.get("trophy") and plate is None:
+                print("ERROR: " + e["slug"] + " needs --trophy-plate PATH.",
+                      file=sys.stderr)
+                return 1
+            prompt, refs = build_batch_prompt(e, style, personas, colors, plate)
+            check_prompt(prompt, "batch/" + e["slug"])
+            for i in range(1, n + 1):
+                jobs.append((ROOT / "output" / "scenes" / "panel" /
+                             ("panel_" + e["slug"] + "_" + format(i, "02d") + ".png"),
+                             prompt, refs, aspect))
+    elif args.phase == "trophy_plate":
         aspect = args.aspect or "3:4"
         prompts = build_trophy_prompts(styles)
         for (angle, style), prompt in prompts.items():
