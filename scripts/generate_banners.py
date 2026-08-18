@@ -32,12 +32,10 @@ through scripts/prepare_portraits.py --banner.
 """
 
 import argparse
-import base64
 import json
 import sys
 from pathlib import Path
 
-import requests
 from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -45,10 +43,10 @@ from generate_owner_images import (  # noqa: E402
     _post_with_retries, bump_budget, load_budget,
 )
 from recolor_personas import color_name, team_colors  # noqa: E402
+import gemini_image  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_MODEL = "gemini-3-pro-image"
-GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+DEFAULT_MODEL = gemini_image.DEFAULT_MODEL
 
 # Shared across every style. The group shot has the same non-negotiable as the
 # solo recolors -- these are real people and the joke only works if they are
@@ -106,33 +104,8 @@ STYLES = {
 
 
 def gen_banner(api_key, model, refs, prompt, aspect):
-    """refs: list of (bytes, mime). All are sent as character references."""
-    parts = [{"inline_data": {"mime_type": m,
-                              "data": base64.b64encode(b).decode()}}
-             for b, m in refs]
-    parts.append({"text": prompt})
-    payload = {
-        "contents": [{"parts": parts}],
-        "generationConfig": {
-            "responseModalities": ["TEXT", "IMAGE"],
-            "imageConfig": {"aspectRatio": aspect},
-        },
-    }
-    resp = _post_with_retries(lambda: requests.post(
-        f"{GEMINI_BASE}/{model}:generateContent", json=payload,
-        headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-        timeout=420))
-    data = resp.json()
-    try:
-        rparts = data["candidates"][0]["content"]["parts"]
-    except (KeyError, IndexError):
-        raise RuntimeError(f"No candidate. promptFeedback={data.get('promptFeedback')}")
-    for part in rparts:
-        blob = part.get("inlineData") or part.get("inline_data")
-        if blob and blob.get("data"):
-            return base64.b64decode(blob["data"])
-    texts = " ".join(p.get("text", "") for p in rparts).strip()
-    raise RuntimeError(f"No image in response. Model said: {texts[:400]}")
+    """Thin delegate — the payload/retry path lives in gemini_image.generate()."""
+    return gemini_image.generate(api_key, model, refs, prompt, aspect, timeout=420)
 
 
 def main() -> int:

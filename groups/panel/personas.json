@@ -1,0 +1,32 @@
+{
+  "_note": "Physical traits for persona art prompts. This file did NOT exist before 2026-08-18 and was seeded from the only traits stated explicitly by Z; nothing here is inferred from the artwork, because inventing traits is precisely what it must prevent. Character consistency comes from the REFERENCE IMAGES on each call — these strings are a backstop that keeps a distinguishing cue readable when a figure is small, in silhouette, or at depth, where the reference cannot carry it. `team` matches teams_canonical.json exactly; colors are looked up from it at prompt-build time and never hardcoded here.",
+  "group_id": "panel",
+  "seeded": "2026-08-18",
+  "managers": {
+    "blaine": {
+      "display_name": "Blaine",
+      "team": "Oklahoma State",
+      "traits": ["a distinctive mullet hairstyle"],
+      "silhouette_cue": "the mullet"
+    },
+    "chris": {
+      "display_name": "Chris",
+      "team": "Colorado",
+      "traits": ["dark sunglasses, always worn"],
+      "silhouette_cue": "the sunglasses"
+    },
+    "jonathan": {
+      "display_name": "Jonathan",
+      "team": "Texas Tech",
+      "traits": ["a black eye patch over one eye"],
+      "silhouette_cue": "the eye patch"
+    },
+    "zach": {
+      "display_name": "Zach",
+      "team": "Wake Forest",
+      "traits": [],
+      "silhouette_cue": null,
+      "_todo": "No distinguishing trait was stated for Zach. Left empty rather than invented — fill this in and the scene prompts will pick it up automatically. Until then his background-figure silhouette has no cue to key on."
+    }
+  }
+}
