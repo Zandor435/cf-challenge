@@ -36,3 +36,13 @@ docs/data/test/
 # (data/backtest_cache/{lines,sp,games}.json), regenerable with --refresh. Kept
 # OUT of the repo and OUT of the season-guarded production cache (data/cfbd_cache.json).
 data/backtest_cache/
+
+# Owner-portrait generator (scripts/generate_owner_images.py) — privacy:
+# real photos of friends and un-approved generated art never get committed.
+# A chosen winner is manually copied into docs/assets/portraits/.
+assets/source_photos/
+output/
+
+# Playwright MCP scratch output (screenshots, console logs, a11y snapshots)
+# written into the repo root during browser verification runs. Throwaway.
+.playwright-mcp/
