@@ -232,6 +232,31 @@ def resolve_week(standings, cache, cli_week):
     return eff
 
 
+def season_is_complete(cache):
+    """True when every game the cache holds has been played.
+
+    Derived from the cache the engine already scores off: no clock, no network,
+    no second data source. A wall-clock rule (should_run.py's "last kickoff was
+    over a week ago") would make the packet's answer depend on the DAY it was
+    built rather than on the data in it, so two packets built from one cache
+    could disagree. This cannot.
+
+    Scope, stated plainly: this is "every game in the cache is final", and the
+    cache holds the season_type it was fetched for. That is the same schedule
+    the boards are scored from, so it answers the question the column actually
+    has — is there anything left to play for — rather than making a broader
+    claim about the sport's calendar.
+
+    An empty or unreadable game list returns False. Not knowing must never
+    render as "the season is over": the column prints what it is handed, and
+    that is a sentence it would state as fact.
+    """
+    games = cache.get("games") or []
+    if not games:
+        return False
+    return all(bool(g.get("completed")) for g in games)
+
+
 def prior_snapshot(timeline, week):
     """The most recent snapshot strictly BEFORE the current week, or None."""
     snaps = [s for s in timeline.get("snapshots", [])
@@ -922,6 +947,11 @@ def build_packet(group_id, cli_week=None):
         "week": week,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "season": season,
+        # Whether anything is still to be played. Without this the column has no
+        # way to know the schedule is exhausted, and writes forward-looking prose
+        # into a finished season ("only time and more Saturdays will tell") off a
+        # board where every pick has already resolved.
+        "season_complete": season_is_complete(cache),
         "stakes": config.get("stakes"),
         # The honest basis for every *_this_week field below. weeks_elapsed > 1
         # means "this week" is really "since week <prior_week>" — the column
