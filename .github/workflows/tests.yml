@@ -56,6 +56,18 @@ jobs:
       - name: test_should_run.py
         run: python scripts/test_should_run.py
 
+      # Commentary layer (ARCHITECTURE §8/§12). Both are offline: the packet
+      # test reshapes the committed boards, and the prompt test is dry-run only
+      # — no OPENAI_API_KEY is read and no network call is made, so these are
+      # safe in the read-only, secret-free job above. They are BLOCKING despite
+      # commentary being fail-soft at runtime: fail-soft means a dead API can't
+      # take down the pipeline, not that a broken packet should reach the
+      # pundit. A wrong number here is quoted verbatim into the column as fact.
+      - name: test_week_packet.py
+        run: python scripts/test_week_packet.py
+      - name: test_commentary_prompt.py
+        run: python scripts/test_commentary_prompt.py
+
       # ARCHITECTURE §9: the fetch->score name/conference/draft-rule gate,
       # run here against whatever picks are currently committed (the real
       # groups' dummy picks today; real drafts once they land) so a bad
