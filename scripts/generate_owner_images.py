@@ -205,8 +205,17 @@ def _post_with_retries(do_post):
         if resp.status_code == 429:
             # Quota/billing exhaustion is not a rate limit — waiting won't fix
             # it. Fail fast with the provider's own message.
-            if "insufficient_quota" in resp.text or "credit_balance" in resp.text:
-                raise RuntimeError(f"quota exhausted (not retryable): {resp.text[:200]}")
+            # A spend cap or exhausted quota is NOT a rate limit -- no amount of
+            # waiting clears it. Observed the hard way: a project that hit its
+            # monthly spending cap returned 429, and the rate-limit path below
+            # sat through 3x60s per call for an hour before giving up, once per
+            # image. Match the cap wording too, and fail fast.
+            body = resp.text
+            fatal = ("insufficient_quota", "credit_balance", "spending cap",
+                     "spend cap", "billing", "RESOURCE_EXHAUSTED")
+            if any(t in body for t in fatal):
+                raise RuntimeError(f"quota/billing exhausted (not retryable): "
+                                   f"{body[:220]}")
             if not ratelimit_left:
                 resp.raise_for_status()
             wait = ratelimit_left.pop(0)

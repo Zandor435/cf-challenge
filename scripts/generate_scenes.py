@@ -57,19 +57,38 @@ PERSONAS = ROOT / "groups" / "panel" / "personas.json"
 # Illustrated only. Anything evoking a camera, a film stock or a photograph is
 # banned -- photoreal staging is what breaks likeness once a body is in motion.
 STYLE_SET = {
+    # comic predates the rest and is left as-is: the 50-image scene batch and
+    # both poster sets were generated against this exact string.
     "comic": ("rendered as COMIC BOOK ART: bold black ink linework, heavy "
               "halftone dot shading, saturated flat color fills, strong "
               "graphic blacks"),
-    "painted": ("rendered as a GOUACHE SPORTS ILLUSTRATION: visible brush "
-                "strokes, painterly edges, rich layered pigment, the look of "
-                "a hand-painted sports magazine plate"),
-    "screenprint": ("rendered as a THREE-COLOR SCREENPRINTED POSTER: heavy "
-                    "flat shapes, hard edges, limited ink palette, visible "
-                    "registration, no gradients"),
-    "woodcut": ("rendered as a SCRATCHBOARD WOODCUT ENGRAVING: extreme "
-                "black-and-white contrast, carved directional line texture, "
-                "chiseled shapes, sparse accent color"),
+    # The six below are Z's own definitions, given 2026-08-18 when the style
+    # vocabulary was set. painted/screenprint/woodcut were reworded to match;
+    # the only prior use of "painted" was the trophy plate, already generated.
+    "screenprint": ("rendered as a THREE-COLOR SCREENPRINTED POSTER: hard flat "
+                    "shapes, heavy solid black, visible halftone dots, a "
+                    "strictly limited ink palette, no gradients"),
+    "woodcut": ("rendered as a SCRATCHBOARD ENGRAVING: carved white line on "
+                "black, extreme contrast, no midtones at all, chiselled "
+                "directional texture"),
+    "airbrush": ("rendered as a 1980s VAN-MURAL AIRBRUSH painting: soft "
+                 "glowing edges, gleaming chrome highlights, deeply saturated "
+                 "gradients, that custom-van fantasy-art finish"),
+    "painted": ("rendered as a GOUACHE SPORTS ILLUSTRATION: visible brushwork, "
+                "warm pigment, painterly edges, the look of a hand-painted "
+                "sports magazine plate"),
+    "risograph": ("rendered as a TWO-COLOR RISOGRAPH PRINT: deliberate "
+                  "misregistration between the two ink layers, heavy grain, "
+                  "blotchy offset ink texture, flat spot colors"),
+    "noir": ("rendered as HEAVY CHIAROSCURO INK: most of the face buried in "
+             "solid black shadow, one hard blade of light cutting across the "
+             "eyes, stark and high-contrast"),
 }
+
+# The six that make up a half-card plate set. comic is deliberately absent --
+# it is the scene/poster style, not a plate style.
+HALFCARD_STYLES = ["screenprint", "woodcut", "airbrush", "painted",
+                   "risograph", "noir"]
 
 # Assembled prompts are scanned for these before a single call is made.
 # ILLUSTRATED-ONLY ONLY. This guard is technical, not editorial: photoreal
@@ -390,6 +409,66 @@ def build_poster_prompt(entry, style, personas, colors, plate):
     return text, refs
 
 
+# Half-card plates are composited side by side later, so FRAMING consistency
+# across a style set outranks every other quality here. These clauses are
+# identical on all 48 calls; only the man, the facing and the style change.
+HALF_FRAMING = (
+    " FRAMING, identical on every plate: head and shoulders only, the top of "
+    "his head close to the upper edge of the frame, cropped off at mid-chest "
+    "at the bottom. His head fills roughly the upper half of the frame height. "
+    "His eye line sits a little above the vertical centre of the frame."
+)
+HALF_EMPTY = (
+    " Nothing else appears in the frame at all: no trophy, no starburst, no "
+    "other person, no crowd, no stadium, no field, no ornament, no border, no "
+    "frame, no logos, no props. The background is a completely flat, uniform, "
+    "unlit near-black field -- no gradient, no texture, no pattern, no "
+    "vignette, no detail whatsoever -- so it can be keyed out cleanly."
+)
+HALF_NO_TEXT = (
+    " No text of any kind anywhere: no names, no numbers, no wordmarks, no "
+    "lettering. The ONLY exception is lettering already printed on the man's "
+    "own clothing in the reference image, which is part of the garment."
+)
+FACING = {
+    # facing = the direction he LOOKS. right-facing belongs on the LEFT of a
+    # composite, which is why the lead room goes the same way as the gaze.
+    "right": (" He is turned in half-profile facing and looking toward the "
+              "RIGHT edge of the frame, never at the viewer. Place him "
+              "slightly left of centre so there is lead room ahead of him on "
+              "the right."),
+    "left": (" He is turned in half-profile facing and looking toward the "
+             "LEFT edge of the frame, never at the viewer. Place him slightly "
+             "right of centre so there is lead room ahead of him on the "
+             "left."),
+}
+
+
+def build_halfcard_prompt(mid, facing, style, personas, colors):
+    team = personas[mid]["team"]
+    hexc = colors[team]["color"]
+    cue = personas[mid].get("silhouette_cue")
+    text = ("A single man alone, head and shoulders, in the pose a boxer takes "
+            "for a title-fight promotional plate: chin slightly raised, "
+            "confident, unimpressed, faintly menacing. " + STYLE_SET[style]
+            + ". Hard rim light traces the edge of his profile with deep "
+            "shadow falling on the far side of his face.")
+    text += FACING[facing]
+    text += HALF_FRAMING
+    text += (" He wears " + team + " " + color_name(hexc) + " (" + hexc + ").")
+    text += (" He must be clearly recognizable as the specific individual in "
+             "the reference image -- same face, same features, same hair. Do "
+             "not substitute a generic person.")
+    if cue:
+        text += " He is identifiable by " + cue + "."
+    text += BUILD_LOCK + HALF_EMPTY + HALF_NO_TEXT + ILLUSTRATION_LOCK
+
+    rp, _slug = resolve_reference(mid)
+    if rp is None:
+        raise SystemExit("ERROR: no kept recolor on disk for " + repr(mid))
+    return text, [rp]
+
+
 def load_personas():
     data = json.loads(PERSONAS.read_text(encoding="utf-8"))
     return data["managers"]
@@ -458,9 +537,9 @@ def main() -> int:
     # "trophy_plate" is the Phase 1 OBJECT; "trophy" is the Phase 3 SCENE that
     # uses it. Distinct names -- sharing one would make the scene unreachable.
     ap.add_argument("--phase", required=True,
-                    choices=["trophy_plate", "batch", "posters", "matchups"]
-                            + list(SETUPS))
-    ap.add_argument("--styles", default="painted",
+                    choices=["trophy_plate", "batch", "posters", "matchups",
+                             "halfcards"] + list(SETUPS))
+    ap.add_argument("--styles", default=None,
                     help=f"comma-separated ({', '.join(STYLE_SET)})")
     ap.add_argument("--leads", default="blaine,chris,jonathan,zach")
     ap.add_argument("--n", type=int, default=2, help="variants (minimum 2)")
@@ -476,19 +555,46 @@ def main() -> int:
                     help="assemble and validate prompts, write NOTHING, bill NOTHING")
     args = ap.parse_args()
 
-    styles = [s.strip() for s in args.styles.split(",") if s.strip()]
+    # None means "caller did not choose": scenes fall back to painted,
+    # half-cards fall back to the full six-style plate set.
+    styles = ([s.strip() for s in args.styles.split(",") if s.strip()]
+              if args.styles else ["painted"])
     unknown = [s for s in styles if s not in STYLE_SET]
     if unknown:
         print(f"ERROR: unknown style(s) {unknown}. Available: "
               f"{', '.join(STYLE_SET)}", file=sys.stderr)
         return 1
-    n = max(2, args.n)   # "every generation produces 2 variants minimum"
+    # The 2-variant floor was a rule from the scene-batch brief, not a
+    # property of the generator. Half-card plates are 1 variant each, so
+    # the floor is 1 and the DEFAULT stays 2.
+    n = max(1, args.n)
 
     personas = load_personas()
     colors = team_colors()
 
     jobs = []   # (out_path, prompt, ref_paths, aspect)
-    if args.phase in ("posters", "matchups"):
+    if args.phase == "halfcards":
+        aspect = args.aspect or "3:4"
+        plate_styles = styles if args.styles else HALFCARD_STYLES
+        bad = [s for s in plate_styles if s not in STYLE_SET]
+        if bad:
+            print("ERROR: unknown style(s) " + str(bad), file=sys.stderr)
+            return 1
+        leads = [l.strip() for l in args.leads.split(",") if l.strip()]
+        for style in plate_styles:
+            for mid in leads:
+                for facing in ("right", "left"):
+                    prompt, refs = build_halfcard_prompt(
+                        mid, facing, style, personas, colors)
+                    check_prompt(prompt, "halfcards/" + mid + "/" + facing
+                                 + "/" + style)
+                    for i in range(1, n + 1):
+                        jobs.append((
+                            ROOT / "output" / "halfcards" / "panel" /
+                            ("panel_half_" + mid + "_" + facing + "_" + style
+                             + "_" + format(i, "02d") + ".png"),
+                            prompt, refs, aspect))
+    elif args.phase in ("posters", "matchups"):
         aspect = args.aspect or "3:4"
         style = styles[0]
         if not args.trophy_plate:
