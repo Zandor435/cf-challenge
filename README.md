@@ -124,8 +124,12 @@ python scripts/calibrate.py                   # offseason: backtest SP+/FPI win-
    `min_distinct_conferences` per group.
 4. **Run:** `python scripts/run_groups.py --group all`.
 
-The weekly workflow (`.github/workflows/update-data.yml`) is **disarmed** (cron
-commented out); Zach re-arms it after a green manual `workflow_dispatch` run.
+The weekly workflow (`.github/workflows/update-data.yml`) is **armed**: an active
+daily cron at `0 13 * * *` (13:00 UTC, ~9am ET). It is safe to leave running in
+the off-season because the rule-7 week-window gate (`scripts/should_run.py`)
+skips any day with no games *before* the dependency install or any API call, so
+an off-cycle fire costs one checkout and nothing else. A manual
+`workflow_dispatch` always bypasses that gate.
 
 ## Going live (re-arm checklist)
 
@@ -145,12 +149,22 @@ down so it isn't reconstructed from memory in August. Each step gates the next.
    what the fetch pulls, and the §6 guard (`assert_season_matches_cache`) fails
    loudly if the scored season and the cache's season tag disagree.
 4. **Dispatch manually.** Actions → *Weekly Data Update* → *Run workflow*
-   (`workflow_dispatch`). Leave the cron commented for now.
+   (`workflow_dispatch`) — it bypasses the week-window gate, so it runs even
+   before the first game week. Don't wait on the cron for this check.
 5. **Verify a live fetch + a real archive snapshot.** In the run summary confirm
    **✅ Fetch OK** (not the degraded ⚠️ banner), and that the data commit contains
    a fresh `data/ratings_archive/2026/<YYYY-MM-DD>.json` snapshot with
    `"season": 2026` — proof the live 2026 fetch landed and the vintage archive is
    capturing it. Spot-check the live site shows Season 2026 with **no** replay
    banner.
-6. **Uncomment the cron.** In `update-data.yml` re-enable the `schedule:` block
-   (Sunday 11 PM ET / Monday 03:00 UTC). Commit. The season is now armed.
+6. **Confirm the cron is still live — before kickoff, not after.** There is
+   nothing to re-enable by editing: the `schedule:` block is already armed at
+   `0 13 * * *`. The risk is GitHub's inactivity rule — scheduled workflows are
+   disabled on a repo with no pushes for 60 days, which an off-season repo hits
+   easily. Check it directly: Actions → *Weekly Data Update* shows a disabled
+   state with a re-enable prompt if it has been switched off. Re-enable it there.
+   Any push resets the 60-day clock, so the mitigation is to push something
+   before kickoff, not just to look. A `schedule`-triggered run in the log after
+   the first game week then *confirms* it — that is confirmation, not the check;
+   waiting on it means learning the cron was off by missing a slate. From there
+   the week-window gate opens on its own — the season is armed.
