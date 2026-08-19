@@ -196,7 +196,7 @@ a { color: inherit; }
   color: var(--text-faint); letter-spacing: .08em; text-transform: uppercase;
 }
 
-/* ---------- Avatar (initials only — no photo upload, static host) -------- */
+/* ---------- Avatar (persona portrait, initials as the fallback) ---------- */
 .avatar {
   flex-shrink: 0; border-radius: 50%;
   border: 2px solid var(--mc); padding: 2px;
@@ -221,11 +221,18 @@ a { color: inherit; }
 
 /* Persona face crop. Same contract as .has-logo on team marks: the initials
    stay in the DOM underneath and .has-portrait hides them, so app.js dropping
-   the class on an image error restores them with no reflow. */
+   the class on an image error restores them with no reflow.
+
+   The portrait fills the circle, so the contrast-fitted ring thins from the
+   2px+2px-gap the initials need down to a 1px edge. Because .avatar is
+   border-box and its width/height are set by the size class, the OUTER
+   diameter is byte-identical portrait-vs-initials -- losing the class swaps
+   the ring back to 2px inside the same footprint and shifts no layout. */
+.avatar.has-portrait { border-width: 1px; padding: 0; }
 .avatar.has-portrait > span { visibility: hidden; }
 .avatar-img {
-  position: absolute; inset: 2px;
-  width: calc(100% - 4px); height: calc(100% - 4px);
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
   border-radius: 50%; object-fit: cover; object-position: center top;
   display: block;
 }

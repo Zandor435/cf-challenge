@@ -168,11 +168,19 @@ function buildManagerIdentity(managers, groupId) {
     : (raw || {});
   const map = {};
   managers.forEach((m) => {
-    // Path convention is fixed by scripts/prepare_portraits.py: it writes the
-    // pair <manager_id>.webp (poster) + <manager_id>-face.webp (avatar crop).
+    // Poster path is fixed by scripts/prepare_portraits.py, which writes
+    // <manager_id>.webp per group.
     const entry = Object.prototype.hasOwnProperty.call(art, m.manager_id)
       ? (art[m.manager_id] || {}) : null;
     const base = entry ? `assets/portraits/${groupId}/${m.manager_id}` : null;
+    // Avatar crops come from scripts/build_avatars.py instead:
+    // img/avatars/<manager_id>_{56,112}.webp, cut from the kept persona
+    // recolor and sized to the 56px .avatar-lg rather than the 256px face
+    // crop the poster pipeline emits. The namespace is flat by manager_id --
+    // one portrait per person wherever they play. `entry` is still the gate,
+    // so a group absent from the manifest (family, church) resolves to null
+    // and emits no <img> at all: no request, no 404, no console error.
+    const av = entry ? `img/avatars/${m.manager_id}` : null;
     // Team color when the manager has art, else the derived palette. Still
     // never hardcoded per roster -- the palette remains the fallback path.
     const seed = (entry && entry.color)
@@ -185,7 +193,8 @@ function buildManagerIdentity(managers, groupId) {
       initials: initialsOf(m.display_name),
       name: m.display_name,
       poster: base ? `${base}.webp` : null,
-      face: base ? `${base}-face.webp` : null,
+      face: av ? `${av}_56.webp` : null,
+      face2x: av ? `${av}_112.webp` : null,
     };
   });
   return map;
@@ -292,8 +301,13 @@ function avatar(ident, sizeClass, cls) {
   // Both are emitted; .has-portrait hides the initials until/unless the image
   // fails (mirrors .has-logo on team marks) so the fallback costs no reflow.
   // alt is empty on purpose: the manager's name is always adjacent as text.
+  // The 2x file is only offered when we have one -- an srcset naming a missing
+  // asset would put a 404 back on retina displays, which is the whole thing
+  // the manifest gate exists to avoid.
+  const srcset = ident.face2x
+    ? ` srcset="${esc(ident.face)} 1x, ${esc(ident.face2x)} 2x"` : '';
   return `<span ${shell} has-portrait" style="${vars}">` +
-    `${initials}<img class="avatar-img" src="${esc(ident.face)}" alt="" ` +
+    `${initials}<img class="avatar-img" src="${esc(ident.face)}"${srcset} alt="" ` +
     `loading="lazy"></span>`;
 }
 
