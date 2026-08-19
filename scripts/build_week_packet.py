@@ -521,6 +521,10 @@ def detect_ironies(cur, prior, race_rows, flip):
                 "type": "irony",
                 "narrative_score": _r(score),
                 "managers": [mid],
+                # Load-bearing for dedupe (see moment_key), not decoration: two
+                # picks of the same manager's that moved in OPPOSITE directions
+                # are two different moments.
+                "transition": f"{pp['status']}->{pk['status']}",
                 # Published in GAMES — the same unit as every other packet
                 # number, by plain subtraction of two contract fields. The
                 # share is deliberately NOT published: it is a percentage the
@@ -639,15 +643,84 @@ def detect_heater(cur, prior, race_rows, timeline, week, weeks_elapsed):
     }]
 
 
-def rank_storylines(stories):
-    """Cap each type at MAX_PER_TYPE, then rank by score with the persona's
-    type preference as the tiebreak.
+def moment_key(story):
+    """The underlying EVENT a storyline describes — the dedupe key.
 
-    The cap is load-bearing, not cosmetic: a week where many picks clinch or die
-    at once produces a dozen ironies all sharing the flat IRONY_BASE score, and
-    without a cap they fill every slot and bury the feud the column most wants."""
+    Deliberately NOT the type. A manager whose four picks all clinch in the same
+    week produces four separate storylines describing ONE moment; to the column
+    that is a single sentence ("he ran the table"), not four paragraphs.
+
+    Per type:
+      irony     (manager, transition) — see below, the transition is required
+      feud      (pair, team)          — already one-per-moment by construction
+      collapse  (manager)             — one board eroding over one window, even
+                                        when two of its picks slid
+      heater    (manager)             — only ever one, keyed for uniformity
+
+    THE TRANSITION IS LOAD-BEARING. Keying irony on the manager alone would
+    merge "zach's Miami came home" with "zach's other three died" — opposite
+    stories about the same person in the same week, and exactly the pair a
+    column would contrast rather than combine.
+    """
+    t = story["type"]
+    mids = tuple(sorted(story["managers"]))
+    if t == "feud":
+        return (t, mids, story["picks"][0]["team"] if story["picks"] else None)
+    if t == "irony":
+        return (t, mids, story.get("transition"))
+    return (t, mids)
+
+
+def merge_moment(stories):
+    """Fold every storyline describing one moment into one, losing no numbers.
+
+    The highest-scoring member is the representative and KEEPS ITS OWN SCORE —
+    max, never sum. Summing would re-inflate the exact defect magnitude scoring
+    just fixed: a manager with four clinches would out-total any single-pick
+    story by construction, and volume would beat significance all over again.
+
+    The others' picks are appended to `picks` rather than dropped, so every
+    number the column might want stays in the packet. Silently discarding them
+    is what the MAX_PER_TYPE cap was doing before this function existed.
+    """
+    ordered = sorted(stories, key=lambda s: -s["narrative_score"])
+    rep = dict(ordered[0])
+    rep["moment_size"] = len(ordered)
+    if len(ordered) == 1:
+        return rep
+
+    seen = {(p["manager_id"], p["team"]) for p in rep["picks"]}
+    extra = []
+    for s in ordered[1:]:
+        for pk in s["picks"]:
+            if (pk["manager_id"], pk["team"]) not in seen:
+                seen.add((pk["manager_id"], pk["team"]))
+                extra.append(pk)
+    if extra:
+        rep["picks"] = rep["picks"] + extra
+        rep["evidence"] = rep["evidence"].rstrip() + (
+            f" Same moment: {len(extra)} more pick(s) — "
+            f"{', '.join(pk['team'] for pk in extra)}.")
+    return rep
+
+
+def rank_storylines(stories):
+    """Dedupe to one storyline per moment, cap each type, then rank by score
+    with the persona's type preference as the tiebreak.
+
+    ORDER MATTERS: dedupe runs FIRST, upstream of the cap. The cap used to be
+    the only thing standing between the column and a dozen near-identical
+    storylines — which meant it was discarding real moments to do it, with no
+    record of what was lost. Panel week 16 emitted 18 storylines describing 8
+    moments; the cap silently threw away 16 of them. Deduping first means the
+    cap trims MOMENTS, which is what its docstring always claimed it did."""
+    grouped = defaultdict(list)
+    for s in stories:
+        grouped[moment_key(s)].append(s)
+    moments = [merge_moment(g) for g in grouped.values()]
+
     kept, seen = [], defaultdict(int)
-    for s in sorted(stories, key=lambda s: (-s["narrative_score"],
+    for s in sorted(moments, key=lambda s: (-s["narrative_score"],
                                             TYPE_PRIORITY.get(s["type"], 9))):
         if seen[s["type"]] >= MAX_PER_TYPE:
             continue
