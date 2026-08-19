@@ -10,7 +10,9 @@ break silently:
   2. NO FABRICATED FRAMES. The packet's movement fields are named *_this_week
      but measure the gap to the previous snapshot. When that gap isn't one week
      the prompt must say so, or the pundit compresses a multi-week move into one
-     Saturday: true numbers, false claim.
+     Saturday: true numbers, false claim. The same applies to a finished season:
+     if the prompt doesn't say the schedule is exhausted, the column writes
+     forward-looking prose into a season that already ended.
 
 Everything here is a DRY RUN — no network call is made, and no OPENAI_API_KEY is
 needed or read. Fixtures are written to a temp dir with utils.GROUPS_DIR
@@ -136,6 +138,36 @@ def validate_stakes(base_packet):
           "loser buys dinner" in user_text)
 
 
+def validate_season_complete(base_packet):
+    """A finished season has to be stated, not left implicit in the JSON."""
+    over = json.loads(json.dumps(base_packet))
+    over["season_complete"] = True
+    with sandbox("panel", over):
+        _, user_text, _ = G.build_prompt("panel")
+    check("season over: the prompt says so in plain words",
+          "THE SEASON IS OVER" in user_text)
+    check("season over: forward-looking prose is forbidden",
+          "Do not write forward-looking prose" in user_text)
+
+    live = json.loads(json.dumps(base_packet))
+    live["season_complete"] = False
+    with sandbox("panel", live):
+        _, user_text, _ = G.build_prompt("panel")
+    check("season live: no end-of-season framing is imposed",
+          "THE SEASON IS OVER" not in user_text
+          and "games remain to be played" in user_text)
+
+    # An older packet with no such key must not be guessed either way.
+    unknown = json.loads(json.dumps(base_packet))
+    unknown.pop("season_complete", None)
+    with sandbox("panel", unknown):
+        _, user_text, _ = G.build_prompt("panel")
+    check("season unknown: the prompt refuses to claim either way",
+          "UNKNOWN" in user_text and "Do not claim either" in user_text)
+    check("season unknown: does not fall back to 'over'",
+          "THE SEASON IS OVER" not in user_text)
+
+
 def validate_dry_run(base_packet):
     """--dry-run writes a complete preview and makes no network call."""
     with sandbox("panel", base_packet) as out:
@@ -229,6 +261,9 @@ def main():
 
     print("\nStakes passthrough:")
     validate_stakes(packet)
+
+    print("\nSeason completion in the prompt:")
+    validate_season_complete(packet)
 
     print("\nDry run:")
     validate_dry_run(packet)

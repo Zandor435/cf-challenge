@@ -179,11 +179,34 @@ def build_prompt(group_id):
                    f"their actual terms." if stakes else
                    "This group has no declared stakes. Do not invent any.")
 
+    # The packet publishes season_complete, but a bool buried in 12KB of JSON is
+    # not an instruction — the same reason basis_warning and stakes_line exist as
+    # prose rather than trusting the model to read the field. A finished season
+    # read as a live one produces forward-looking sign-offs ("only time and more
+    # Saturdays will tell") against a board where every pick has already
+    # resolved, which is a false claim assembled out of true numbers.
+    season_over = packet.get("season_complete")
+    if season_over is True:
+        season_line = (
+            "THE SEASON IS OVER — every game on the schedule has been played and "
+            "nothing is left to decide. Do not write forward-looking prose: no "
+            "'more Saturdays to come', no 'time will tell', no looking ahead to "
+            "next week or to a rematch. This is the last word on a finished "
+            "season, so write it in the past tense and settle it.")
+    elif season_over is False:
+        season_line = ("The season is still running — games remain to be played, "
+                       "and picks that are still LIVE can still move.")
+    else:
+        season_line = ("Whether the season is finished is UNKNOWN (this packet "
+                       "predates the season_complete field). Do not claim either "
+                       "way, in either direction.")
+
     parts = [
         f"GROUP: {group_id}    WEEK: {packet.get('week')}    "
         f"SEASON: {packet.get('season')}",
         f"BASIS FOR MOVEMENT: {basis}",
         basis_warning,
+        season_line,
         stakes_line,
         "",
         "=== COLUMN MEMORY (season continuity — established nicknames, feuds, "
