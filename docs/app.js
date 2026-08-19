@@ -95,11 +95,28 @@ async function fetchJSON(path) {
   return res.json();
 }
 
+// ---------- URL state ------------------------------------------------------
+// Two optional params. `group` picks the board; `scoped=1` is group-scoped
+// mode — the per-group entry URLs (/panel/, /family/, /church/) redirect here
+// with it set, which hides the switcher so a shared link opens one league and
+// stays there. The root URL carries neither and is the master view.
+function groupParam() {
+  return new URLSearchParams(location.search).get('group');
+}
+function isScoped() {
+  return new URLSearchParams(location.search).get('scoped') === '1';
+}
+// Canonical group id, or null when a group param was supplied but names no
+// real league. Null is an error the caller must handle: an unknown league used
+// to fall back to GROUPS[0], silently rendering The Panel's board under
+// someone else's URL. Stopping loudly is the lesser evil. An absent (or empty)
+// param still defaults to the first group.
 function currentGroupId() {
-  const q = new URLSearchParams(location.search).get('group');
+  const q = groupParam();
+  if (!q) return GROUPS[0].id;
   if (q === DEMO.id) return DEMO.id;
   if (GROUPS.some((g) => g.id === q)) return q;
-  return GROUPS[0].id;
+  return null;
 }
 function groupLabel(id) {
   if (id === DEMO.id) return DEMO.label;
@@ -374,10 +391,14 @@ function setView(view) {
 // group query param is preserved on links.
 function renderPageNav(groupId) {
   const nav = $('page-nav');
-  const q = `?group=${encodeURIComponent(groupId)}`;
+  // Scoped mode has to survive every internal hop, or the first click lands
+  // back on the master view. `q` goes to setAttribute (raw &); `qAttr` goes
+  // into markup (&amp;) — setAttribute would take the entity literally.
+  const q = `?group=${encodeURIComponent(groupId)}${isScoped() ? '&scoped=1' : ''}`;
+  const qAttr = q.replace(/&/g, '&amp;');
   nav.innerHTML = PAGE_NAV.map((p, i) => {
     if (p.kind === 'link') {
-      return `<a class="nav-btn" href="${esc(p.href)}${q}" data-i="${i}">${esc(p.label)}</a>`;
+      return `<a class="nav-btn" href="${esc(p.href)}${qAttr}" data-i="${i}">${esc(p.label)}</a>`;
     }
     return `<button class="nav-btn" data-i="${i}"` +
       `${p.kind === 'home' && i === 0 ? ' aria-current="true"' : ''}>${esc(p.label)}</button>`;
@@ -880,8 +901,24 @@ function renderBoard2Unavailable(reason) {
 
 // ---------- boot -----------------------------------------------------------
 async function main() {
+  // Scoped mode is chrome-only: hide the switcher so a per-group link stays on
+  // that league. Everything below renders identically either way.
+  if (isScoped()) hide($('group-switch'));
+
   const groupId = currentGroupId();
   $('wordmark-season').textContent = '';
+
+  // Unknown league: name it and stop. No fetch, no board — a wrong ?group=
+  // must not quietly serve the first group's numbers.
+  if (groupId === null) {
+    hide($('loading'));
+    $('load-error').innerHTML =
+      `<h2>Unknown league &quot;${esc(groupParam())}&quot;.</h2>` +
+      `<p>No data was loaded. <a href="index.html">Back to all leagues &rarr;</a></p>`;
+    show($('load-error'));
+    return;
+  }
+
   renderSwitcher(groupId);
   renderPageNav(groupId);
 
