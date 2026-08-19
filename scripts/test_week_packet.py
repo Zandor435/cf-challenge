@@ -12,6 +12,12 @@ asserts:
     bonus, and respects the divergence floor,
   - a same-side duplicate WARNS on stderr but never fails the build,
   - the comparison block never fabricates a 0.0 when prior state is unknown,
+  - leader-flip attribution is EXACT: the pair's per-pick contributions sum to
+    the swing, and bystanders earn none of it,
+  - irony scores on the pick's own magnitude, not a flat constant,
+  - storylines dedupe to one per MOMENT, keeping the max score and losing no
+    picks,
+  - season_complete never reports True from an empty or partial cache,
   - fail-loud: a missing output contract exits non-zero and writes nothing.
 
 Feud fixtures are constructed IN MEMORY — never written into the files
@@ -61,6 +67,9 @@ PROFILE_KEYS = {"over_count", "under_count", "conference_spread", "avg_line",
                 "picks_alive", "picks_clinched", "picks_dead", "best_pick",
                 "worst_pick", "baseline_optimism_vs_field"}
 STORY_TYPES = {"feud", "collapse", "irony", "heater", "quiet_week"}
+# Irony-only fields. Asserted separately from STORY_KEYS rather than folded into
+# it, because only ironies carry them.
+IRONY_KEYS = {"transition", "flip_contribution", "flip_swing_total"}
 
 
 # --- Schema ------------------------------------------------------------------
@@ -99,6 +108,22 @@ def validate_packet(pk, group):
     check(f"[{group}] every storyline names a manager in the race",
           all(m in {r["manager_id"] for r in rows}
               for s in stories for m in s["managers"]))
+
+    check(f"[{group}] season_complete is a bool",
+          isinstance(pk.get("season_complete"), bool),
+          f"got {type(pk.get('season_complete')).__name__}")
+    check(f"[{group}] every storyline carries moment_size >= 1",
+          all(isinstance(s.get("moment_size"), int) and s["moment_size"] >= 1
+              for s in stories))
+    check(f"[{group}] moment_size never undercounts the picks it folded",
+          all(s["moment_size"] <= len(s["picks"]) or s["type"] in ("quiet_week", "heater")
+              for s in stories))
+    ironies = [s for s in stories if s["type"] == "irony"]
+    check(f"[{group}] irony storylines publish transition + flip fields",
+          all(_has_keys(s, IRONY_KEYS) for s in ironies), f"{len(ironies)} irony")
+    check(f"[{group}] flip credit is published with its swing total, or not at all",
+          all((s["flip_contribution"] is None) == (s["flip_swing_total"] is None)
+              for s in ironies))
 
     beats = pk.get("bad_beat_candidates", [])
     check(f"[{group}] bad-beat keys", all(_has_keys(b, BAD_BEAT_KEYS) for b in beats))
@@ -440,6 +465,182 @@ def validate_no_prior():
           B.prior_snapshot(tl, 6) is None)
 
 
+# --- Leader-flip attribution -------------------------------------------------
+# A lead change is a TWO-PARTY event. The old scoring stamped one group-wide
+# `leader_changed` boolean onto every status change in the week, so a bystander's
+# routine clinch was credited with the flip. These pin the replacement.
+
+def validate_flip_attribution():
+    # ann led by 10 at the snapshot; bob leads by 10 now. Swing = 10 + 10 = 20.
+    # cy is a BYSTANDER who moved more than anyone (+4) but was never in it.
+    prior = {"ann": _mgr("ann", 1, {"A": _pick("A", "O", 9.5, 5.0),
+                                    "B": _pick("B", "O", 9.5, 5.0)}),
+             "bob": _mgr("bob", 2, {"C": _pick("C", "O", 9.5, 0.0),
+                                    "D": _pick("D", "O", 9.5, 0.0)}),
+             "cy":  _mgr("cy", 3, {"E": _pick("E", "O", 9.5, 0.0)})}
+    cur = {"bob": _mgr("bob", 1, {"C": _pick("C", "O", 9.5, 5.0),
+                                  "D": _pick("D", "O", 9.5, 5.0)}),
+           "ann": _mgr("ann", 2, {"A": _pick("A", "O", 9.5, 0.0),
+                                  "B": _pick("B", "O", 9.5, 0.0)}),
+           "cy":  _mgr("cy", 3, {"E": _pick("E", "O", 9.5, 4.0)})}
+
+    flip = B.flip_attribution(cur, prior, "ann", "bob")
+    check("flip: a lead change is detected",
+          flip is not None and flip["old"] == "ann" and flip["new"] == "bob")
+    check("flip: swing = prior gap + current gap",
+          flip and flip["swing"] == 20.0, f"swing={flip['swing'] if flip else 'n/a'}")
+
+    contributions = [c for c, _ in flip["shares"].values()]
+    check("flip: per-pick contributions sum EXACTLY to the swing",
+          sum(contributions) == flip["swing"],
+          f"{sum(contributions)} vs {flip['swing']}")
+    check("flip: shares therefore sum to 1.0",
+          abs(sum(sh for _, sh in flip["shares"].values()) - 1.0) < 1e-9)
+    check("flip: only the two parties are attributed — 4 picks, not 5",
+          len(flip["shares"]) == 4, f"{len(flip['shares'])} attributed")
+    check("flip: the bystander earns no attribution however far it moved",
+          not any(mid == "cy" for mid, _ in flip["shares"]))
+    check("flip: no attribution when the leader did not change",
+          B.flip_attribution(cur, prior, "bob", "bob") is None)
+    check("flip: no prior state -> no attribution",
+          B.flip_attribution(cur, None, "ann", "bob") is None)
+
+
+# --- Irony scoring -----------------------------------------------------------
+
+def validate_irony_scoring():
+    """Score must track the pick's OWN resolved magnitude, and flip credit must
+    reach only the picks that actually moved the lead."""
+    # ann led by 10 and collapsed to -10; bob climbed 0 -> +10 and took it.
+    # Swing = (10 - 0) + (10 - -10) = 30. cy is a bystander whose pick also died.
+    prior = {"ann": _mgr("ann", 1, {"A": _pick("A", "O", 9.5, 10.0)}),
+             "bob": _mgr("bob", 2, {"C": _pick("C", "O", 9.5, 0.0)}),
+             "cy":  _mgr("cy", 3, {"E": _pick("E", "O", 9.5, 0.0)})}
+    cur = {"bob": _mgr("bob", 1, {"C": _pick("C", "O", 9.5, 10.0)}),
+           "ann": _mgr("ann", 2, {"A": _pick("A", "O", 9.5, -10.0)}),
+           "cy":  _mgr("cy", 3, {"E": _pick("E", "O", 9.5, -2.5)})}
+    rows = _rows("bob", "ann", "cy")
+
+    plain = {s["managers"][0]: s for s in B.detect_ironies(cur, prior, rows, None)}
+    check("irony: every resolved status change is detected", len(plain) == 3,
+          f"{len(plain)} found")
+    check("irony: score = IRONY_BASE + IRONY_DELTA_WEIGHT * |banked_delta|",
+          plain["cy"]["narrative_score"]
+          == B.IRONY_BASE + B.IRONY_DELTA_WEIGHT * 2.5,
+          f"score={plain['cy']['narrative_score']}")
+    check("irony: a bigger resolved delta scores higher than a smaller one",
+          plain["ann"]["narrative_score"] > plain["cy"]["narrative_score"])
+    check("irony: no flip -> no flip credit is published",
+          all(s["flip_contribution"] is None for s in plain.values()))
+    check("irony: the transition is published for dedupe and the column",
+          plain["ann"]["transition"] == "CLINCHED->DEAD"
+          and plain["bob"]["transition"] == "LIVE->CLINCHED",
+          f"ann={plain['ann']['transition']} bob={plain['bob']['transition']}")
+
+    flip = B.flip_attribution(cur, prior, "ann", "bob")
+    scored = {s["managers"][0]: s for s in B.detect_ironies(cur, prior, rows, flip)}
+    check("irony: a flip contributor scores above its magnitude alone",
+          scored["bob"]["narrative_score"] > plain["bob"]["narrative_score"])
+    check("irony: the bigger contributor earns the bigger share of the bonus",
+          scored["ann"]["narrative_score"] - plain["ann"]["narrative_score"]
+          > scored["bob"]["narrative_score"] - plain["bob"]["narrative_score"])
+    check("irony: a BYSTANDER's score is untouched by someone else's flip",
+          scored["cy"]["narrative_score"] == plain["cy"]["narrative_score"],
+          f"{scored['cy']['narrative_score']} vs {plain['cy']['narrative_score']}")
+    check("irony: contribution is published in games, with its swing total",
+          scored["bob"]["flip_contribution"] == 10.0
+          and scored["bob"]["flip_swing_total"] == 30.0,
+          f"{scored['bob']['flip_contribution']} of {scored['bob']['flip_swing_total']}")
+    check("irony: the bystander is told nothing about the flip",
+          scored["cy"]["flip_contribution"] is None
+          and scored["cy"]["flip_swing_total"] is None)
+
+
+# --- Moment dedupe -----------------------------------------------------------
+# Four picks clinching for one manager in one week is ONE moment. Before dedupe
+# existed it was four storylines, and MAX_PER_TYPE discarded the surplus with no
+# record of what was lost.
+
+def _spick(mid, team, banked=1.0):
+    return {"manager_id": mid, "team": team, "line": 9.5, "direction": "O",
+            "banked_delta": banked, "floor": banked, "ceiling": banked,
+            "status": B.status_of(banked, banked), "floor_change_this_week": None,
+            "ceiling_change_this_week": None, "p_beat_line": None}
+
+
+def _story(stype, score, mids, picks, **extra):
+    st = {"type": stype, "narrative_score": score, "managers": list(mids),
+          "picks": picks, "race_position": {}, "evidence": "fixture."}
+    st.update(extra)
+    return st
+
+
+def validate_dedupe():
+    clinches = [_story("irony", sc, ["ann"], [_spick("ann", team)],
+                       transition="LIVE->CLINCHED")
+                for team, sc in (("A", 3.0), ("B", 4.0), ("C", 2.0), ("D", 1.0))]
+
+    merged = B.merge_moment(clinches)
+    check("dedupe: one manager's four clinches merge into one storyline",
+          merged["moment_size"] == 4, f"moment_size={merged['moment_size']}")
+    check("dedupe: the merged score is the MAX, never the sum",
+          merged["narrative_score"] == 4.0, f"score={merged['narrative_score']}")
+    check("dedupe: no pick is discarded by the merge",
+          {p["team"] for p in merged["picks"]} == {"A", "B", "C", "D"},
+          f"{len(merged['picks'])} pick(s) kept")
+    check("dedupe: evidence says the moment was bigger than its representative",
+          "Same moment" in merged["evidence"] and "3 more" in merged["evidence"])
+
+    # Opposite transitions are two moments, not one — the case that forces the
+    # transition into the key.
+    split = [_story("irony", 3.0, ["ann"], [_spick("ann", "A", 2.5)],
+                    transition="LIVE->CLINCHED"),
+             _story("irony", 3.0, ["ann"], [_spick("ann", "B", -2.5)],
+                    transition="LIVE->DEAD")]
+    check("dedupe: one manager's clinch and death stay TWO moments",
+          len({B.moment_key(s) for s in split}) == 2)
+
+    # A collapse is one board eroding, even across two of its picks.
+    slides = [_story("collapse", 4.5, ["ann"], [_spick("ann", "A")]),
+              _story("collapse", 3.75, ["ann"], [_spick("ann", "B")])]
+    check("dedupe: two slides by one manager are one collapse",
+          len({B.moment_key(s) for s in slides}) == 1)
+
+    # Different pairs/teams are genuinely different feuds.
+    feuds = [_story("feud", 5.0, ["ann", "bob"], [_spick("ann", "A")]),
+             _story("feud", 5.0, ["ann", "bob"], [_spick("ann", "B")])]
+    check("dedupe: feuds over different teams stay separate",
+          len({B.moment_key(s) for s in feuds}) == 2)
+
+    check("dedupe: a lone storyline reports moment_size 1",
+          B.merge_moment([clinches[0]])["moment_size"] == 1)
+
+    # The whole point: the feud is no longer buried by duplicate ironies.
+    ranked = B.rank_storylines(clinches + [_story("feud", 5.0, ["ann", "bob"],
+                                                  [_spick("ann", "Z")])])
+    check("dedupe: four ironies and a feud rank as TWO storylines",
+          len(ranked) == 2, f"{len(ranked)} ranked")
+    check("dedupe: the feud leads once its duplicates are collapsed",
+          ranked[0]["type"] == "feud", f"leader={ranked[0]['type']}")
+
+
+# --- Season completion -------------------------------------------------------
+
+def validate_season_complete():
+    check("season_complete: every game final -> True",
+          B.season_is_complete({"games": [{"completed": True},
+                                          {"completed": True}]}) is True)
+    check("season_complete: one game unplayed -> False",
+          B.season_is_complete({"games": [{"completed": True},
+                                          {"completed": False}]}) is False)
+    check("season_complete: an empty cache is NOT a finished season",
+          B.season_is_complete({"games": []}) is False)
+    check("season_complete: a cache with no games key -> False",
+          B.season_is_complete({}) is False)
+    check("season_complete: a missing completed flag is not treated as played",
+          B.season_is_complete({"games": [{"week": 1}]}) is False)
+
+
 # --- Fail-loud ---------------------------------------------------------------
 
 def validate_fail_loud():
@@ -479,6 +680,18 @@ def main():
 
     print("\nUnknown prior state:")
     validate_no_prior()
+
+    print("\nLeader-flip attribution:")
+    validate_flip_attribution()
+
+    print("\nIrony scoring:")
+    validate_irony_scoring()
+
+    print("\nMoment dedupe:")
+    validate_dedupe()
+
+    print("\nSeason completion:")
+    validate_season_complete()
 
     print("\nFail-loud:")
     validate_fail_loud()

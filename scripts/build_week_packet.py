@@ -761,6 +761,10 @@ def quiet_week_story(race_rows):
         "type": "quiet_week",
         "narrative_score": 0.0,
         "managers": [lead["manager_id"]] if lead else [],
+        # A quiet week bypasses rank_storylines (it is the fallback used when
+        # ranking produced nothing worth telling), so it has to set this itself
+        # or it would be the one storyline shape missing the field.
+        "moment_size": 1,
         "picks": [],
         "race_position": race_position(race_rows, [lead["manager_id"]]) if lead else {},
         "evidence": ("No storyline cleared the minimum thresholds: no opposite-side "
