@@ -46,3 +46,12 @@ output/
 # Playwright MCP scratch output (screenshots, console logs, a11y snapshots)
 # written into the repo root during browser verification runs. Throwaway.
 .playwright-mcp/
+
+# Figma export of the site design — a large binary design INPUT, not source.
+# Kept local; the built site it informed lives in docs/.
+assets/Figma site code/
+
+# Per-run API request tally (CLAUDE.md rule 6): cumulative daily count that
+# resets on the UTC date rollover. Runtime state, rewritten by every
+# generation run — it persists on disk, which is all the budget guard needs.
+data/gemini_budget.json
