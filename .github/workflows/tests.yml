@@ -49,6 +49,12 @@ jobs:
         run: python scripts/test_projector_correlation.py
       - name: test_fetch_integrity.py
         run: python scripts/test_fetch_integrity.py
+      # The scheduled pipeline's run gate. Both directions are silent when
+      # wrong — stuck open burns the free-tier budget, stuck closed freezes the
+      # site while every run still shows green — so it is tested here rather
+      # than discovered in production.
+      - name: test_should_run.py
+        run: python scripts/test_should_run.py
 
       # ARCHITECTURE §9: the fetch->score name/conference/draft-rule gate,
       # run here against whatever picks are currently committed (the real

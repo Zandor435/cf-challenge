@@ -1,7 +1,17 @@
 name: Weekly Data Update
 
 on:
-  workflow_dispatch: {}  # Manual trigger for testing
+  # Daily at 13:00 UTC (~9am ET) — the morning after each game day. Most days
+  # have no football, and the rule-7 gate below skips those BEFORE the
+  # dependency install or any API call, so an off-cycle run costs nothing. A
+  # daily fire with a tight window beats a weekly one: Thursday and Friday
+  # night games reach the board the next morning instead of waiting for Sunday.
+  #
+  # GitHub disables cron on a repo with no pushes for 60 days — if the boards
+  # ever go quiet in the off-season, re-enable it before kickoff.
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch: {}  # manual trigger — always bypasses the gate
 
 # This pipeline has NO `on: push` trigger, so nothing it commits can re-trigger
 # it. See the recursion note on the commit step.
@@ -43,7 +53,27 @@ jobs:
         with:
           python-version: "3.12"
 
+      # ====== GATE: does this run have any work to do? (playbook rule 7) ======
+      # Decides off committed files only — the cache's own schedule plus
+      # season.json — so it makes ZERO network calls and runs BEFORE the
+      # dependency install. A quiet Tuesday therefore costs one checkout and
+      # nothing else: no pip, no CFBD request against the free tier (rule 6),
+      # no commit, no deploy.
+      #
+      # It fails OPEN: an unreadable cache emits run=true plus a ::warning::,
+      # never a skip. A gate stuck closed takes the site dark silently, which
+      # is precisely what rule 3 exists to prevent.
+      #
+      # Manual dispatch always forces through, so this can never wedge the
+      # pipeline shut.
+      - name: Week-window gate
+        id: gate
+        env:
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && '--force' || '' }}
+        run: python scripts/should_run.py $FORCE
+
       - name: Install dependencies
+        if: steps.gate.outputs.run == 'true'
         run: pip install numpy
 
       # ====== SHARED: fetch results + SP+ into the one cache (needs-new-data) ======
@@ -60,6 +90,7 @@ jobs:
       # (assert_season_matches_cache). Flip season.json only; the fetch follows.
       - name: Fetch game results + SP+
         id: fetch
+        if: steps.gate.outputs.run == 'true'
         run: python scripts/fetch_results.py
         continue-on-error: true
 
@@ -67,7 +98,9 @@ jobs:
       # continue-on-error hides the red X, so a degraded run could read as clean.
       # Make it loud: a ::warning:: annotation + a banner in the run Summary.
       - name: Report fetch outcome
-        if: always()
+        # always() so continue-on-error can't hide a degraded fetch — but
+        # still gated, or a skipped day would report a fetch that never ran.
+        if: always() && steps.gate.outputs.run == 'true'
         run: |
           if [ "${{ steps.fetch.outcome }}" = "success" ]; then
             echo "### ✅ Fetch OK — scored off a fresh CFBD pull" >> "$GITHUB_STEP_SUMMARY"
@@ -92,12 +125,14 @@ jobs:
       # shared cache (degrades gracefully rather than freezing). Board 1 is
       # fatal; the projector degrades. Writes docs/data/<group_id>/.
       - name: Score + project all groups
+        if: steps.gate.outputs.run == 'true'
         run: python scripts/run_groups.py --group all
 
       # ====== COMMIT the fresh boards to the repo (history + raw files) ======
       # No [skip ci]: a commit pushed with GITHUB_TOKEN can't trigger a workflow
       # anyway (rule 9), so [skip ci] would buy nothing and only obscure intent.
       - name: Commit and push
+        if: steps.gate.outputs.run == 'true'
         run: |
           git config user.name "CFB Fantasy Bot"
           git config user.email "bot@cfb-fantasy.local"
@@ -119,11 +154,14 @@ jobs:
       # reaching here means Board 1 wrote). Shares the `pages` concurrency group
       # with pages.yml (which handles human docs/ pushes) so the two never race.
       - name: Configure Pages
+        if: steps.gate.outputs.run == 'true'
         uses: actions/configure-pages@v5
       - name: Upload docs/ artifact
+        if: steps.gate.outputs.run == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs
       - name: Deploy to GitHub Pages
         id: deployment
+        if: steps.gate.outputs.run == 'true'
         uses: actions/deploy-pages@v4
