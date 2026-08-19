@@ -449,6 +449,35 @@ def _game_played(g, as_of_week):
     return wk is not None and wk <= as_of_week
 
 
+FIXTURES_DIR = DATA_DIR / "fixtures"
+CONTRACT_FIXTURE = FIXTURES_DIR / "contract_cache.json"
+
+
+def pin_contract_fixture():
+    """Redirect this PROCESS's cache reads to the frozen contract fixture.
+
+    Sanctioned here rather than in the test because cache I/O ownership lives
+    in utils.py (test_cache_access.py GUARD 1) — a test reaching in to set
+    CACHE_PATH itself is exactly the bypass that guard exists to catch.
+
+    Overrides all three things that would otherwise drag in the live season:
+    the cache path, season.json's season (or load_cache's own guard rejects
+    the fixture's tag), and the memoized parse. TEST-ONLY: it writes nothing,
+    and no production entry point calls it.
+    """
+    if not CONTRACT_FIXTURE.exists():
+        raise FileNotFoundError(
+            f"missing contract fixture {CONTRACT_FIXTURE} — it is a committed, "
+            f"frozen artifact; restore it from git rather than regenerating it "
+            f"from the live cache (which is a different season by now).")
+    global CACHE_PATH, _SEASON_CONF, _SEASON_CACHE
+    season = load_json(CONTRACT_FIXTURE)["season"]
+    CACHE_PATH = CONTRACT_FIXTURE
+    _SEASON_CONF = {"season": season, "cfbd_default_season": season}
+    _SEASON_CACHE = {}
+    return season
+
+
 def count_played_games(season, as_of_week=None):
     """How many games in the season-guarded cache count as PLAYED.
 

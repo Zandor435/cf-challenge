@@ -12,7 +12,16 @@ timeline for the test fixture (mid-season week 6 and final week 14) and asserts:
   - timeline is append-only + idempotent on the effective week.
 
 No cache writes for the boards (pure builders); timeline idempotency uses a temp
-file. Needs the cached completed season present.
+file.
+
+SOURCE OF TRUTH: data/fixtures/contract_cache.json, NOT the live cache. This
+test used to score off data/cfbd_cache.json, which silently made its
+final-state checks depend on the live cache holding a COMPLETED season. The
+moment season.json flips, the new season has zero played games, and
+"[wk14] every pick has games_remaining==0" fails on every push until December
+— reading like a scoring regression when nothing regressed. Pinning a frozen
+fixture is what CLAUDE.md P0 #2 asks for: a fixed fixture set must produce the
+same scoring output regardless of what the live source is doing.
 
 Usage:
     python scripts/test_output_shape.py
@@ -102,6 +111,8 @@ def validate_timeline_snapshot(snap, label):
 
 
 def main():
+    season = utils.pin_contract_fixture()
+    print(f"  (scoring off the frozen contract fixture, season {season})")
     config, picks = utils.load_group(utils.TEST_GROUP_ID)
 
     # --- Mid-season (week 6): LIVE picks present ---

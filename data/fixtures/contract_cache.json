@@ -1,0 +1,4014 @@
+{
+ "_note": "FROZEN CONTRACT FIXTURE for scripts/test_output_shape.py \u2014 do not regenerate, and do not point production at it. A completed-season slice (season 2025) covering the 12 teams in data/test_picks.json plus every opponent on their slates. It exists because the contract test used to score off data/cfbd_cache.json, so its final-state checks silently depended on the live cache holding a COMPLETED season: the moment season.json flipped, '[wk14] every pick has games_remaining==0' failed on every push until December. Frozen here, the test asserts the same invariants forever, in any season (CLAUDE.md P0 #2). Built from the 2025 cache; that input is gone once the season flips, which is precisely why this is committed rather than rebuilt.",
+ "season": 2025,
+ "season_type": "regular",
+ "week": 16,
+ "fetched_at": "2026-07-22T16:00:49.785463+00:00",
+ "source": "CFBD",
+ "games": [
+  {
+   "id": 401756846,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-23T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Kansas State",
+   "home_points": 21,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Iowa State",
+   "away_points": 24,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": true,
+   "conference_game": true,
+   "notes": "Aer Lingus College Football Classic",
+   "conference_championship": false
+  },
+  {
+   "id": 401756876,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-28T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Oklahoma State",
+   "home_points": 27,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "UT Martin",
+   "away_points": 7,
+   "away_conference": "Big South-OVC",
+   "away_classification": "fcs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752677,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-30T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Ohio State",
+   "home_points": 14,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Texas",
+   "away_points": 7,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752807,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-30T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Penn State",
+   "home_points": 46,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Nevada",
+   "away_points": 11,
+   "away_conference": "Mountain West",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752669,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-30T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Georgia",
+   "home_points": 45,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Marshall",
+   "away_points": 7,
+   "away_conference": "Sun Belt",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752665,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-30T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Florida State",
+   "home_points": 31,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Alabama",
+   "away_points": 17,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756855,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-30T23:00:00.000Z",
+   "completed": true,
+   "home_team": "Kansas State",
+   "home_points": 38,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "North Dakota",
+   "away_points": 35,
+   "away_conference": "MVFC",
+   "away_classification": "fcs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752671,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-30T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Clemson",
+   "home_points": 10,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "LSU",
+   "away_points": 17,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752808,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-30T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Michigan",
+   "home_points": 34,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "New Mexico",
+   "away_points": 17,
+   "away_conference": "Mountain West",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752800,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-31T03:00:00.000Z",
+   "completed": true,
+   "home_team": "UCLA",
+   "home_points": 10,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Utah",
+   "away_points": 43,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754522,
+   "week": 1,
+   "season_type": "regular",
+   "start_date": "2025-08-31T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Miami",
+   "home_points": 27,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Notre Dame",
+   "away_points": 24,
+   "away_conference": "FBS Independents",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752811,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Penn State",
+   "home_points": 34,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Florida International",
+   "away_points": 0,
+   "away_conference": "Conference USA",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752693,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Texas",
+   "home_points": 38,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "San Jos\u00e9 State",
+   "away_points": 7,
+   "away_conference": "Mountain West",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754621,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Florida State",
+   "home_points": 77,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "East Texas A&M",
+   "away_points": 3,
+   "away_conference": "Southland",
+   "away_classification": "fcs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752685,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Georgia",
+   "home_points": 28,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Austin Peay",
+   "away_points": 6,
+   "away_conference": "UAC",
+   "away_classification": "fcs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752815,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Ohio State",
+   "home_points": 70,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Grambling",
+   "away_points": 0,
+   "away_conference": "SWAC",
+   "away_classification": "fcs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754637,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Clemson",
+   "home_points": 27,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Troy",
+   "away_points": 16,
+   "away_conference": "Sun Belt",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752824,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Oregon",
+   "home_points": 69,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Oklahoma State",
+   "away_points": 3,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756887,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T22:00:00.000Z",
+   "completed": true,
+   "home_team": "Utah",
+   "home_points": 63,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Cal Poly",
+   "away_points": 9,
+   "away_conference": "Big Sky",
+   "away_classification": "fcs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754641,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T23:00:00.000Z",
+   "completed": true,
+   "home_team": "Miami",
+   "home_points": 45,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Bethune-Cookman",
+   "away_points": 3,
+   "away_conference": "SWAC",
+   "away_classification": "fcs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756882,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T23:00:00.000Z",
+   "completed": true,
+   "home_team": "Kansas State",
+   "home_points": 21,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Army",
+   "away_points": 24,
+   "away_conference": "American Athletic",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752690,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Oklahoma",
+   "home_points": 24,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Michigan",
+   "away_points": 13,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752681,
+   "week": 2,
+   "season_type": "regular",
+   "start_date": "2025-09-06T23:45:00.000Z",
+   "completed": true,
+   "home_team": "Alabama",
+   "home_points": 73,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "UL Monroe",
+   "away_points": 0,
+   "away_conference": "Sun Belt",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756888,
+   "week": 3,
+   "season_type": "regular",
+   "start_date": "2025-09-13T01:00:00.000Z",
+   "completed": true,
+   "home_team": "Arizona",
+   "home_points": 23,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Kansas State",
+   "away_points": 17,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754623,
+   "week": 3,
+   "season_type": "regular",
+   "start_date": "2025-09-13T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Georgia Tech",
+   "home_points": 24,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Clemson",
+   "away_points": 21,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752696,
+   "week": 3,
+   "season_type": "regular",
+   "start_date": "2025-09-13T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Alabama",
+   "home_points": 38,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Wisconsin",
+   "away_points": 14,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752839,
+   "week": 3,
+   "season_type": "regular",
+   "start_date": "2025-09-13T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Michigan",
+   "home_points": 63,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Central Michigan",
+   "away_points": 3,
+   "away_conference": "Mid-American",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752835,
+   "week": 3,
+   "season_type": "regular",
+   "start_date": "2025-09-13T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Penn State",
+   "home_points": 52,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Villanova",
+   "away_points": 6,
+   "away_conference": "CAA",
+   "away_classification": "fcs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752705,
+   "week": 3,
+   "season_type": "regular",
+   "start_date": "2025-09-13T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Tennessee",
+   "home_points": 41,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Georgia",
+   "away_points": 44,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752706,
+   "week": 3,
+   "season_type": "regular",
+   "start_date": "2025-09-13T20:15:00.000Z",
+   "completed": true,
+   "home_team": "Texas",
+   "home_points": 27,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "UTEP",
+   "away_points": 10,
+   "away_conference": "Conference USA",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754535,
+   "week": 3,
+   "season_type": "regular",
+   "start_date": "2025-09-13T20:30:00.000Z",
+   "completed": true,
+   "home_team": "Miami",
+   "home_points": 49,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "South Florida",
+   "away_points": 12,
+   "away_conference": "American Athletic",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752827,
+   "week": 3,
+   "season_type": "regular",
+   "start_date": "2025-09-13T23:00:00.000Z",
+   "completed": true,
+   "home_team": "Ohio State",
+   "home_points": 37,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Ohio",
+   "away_points": 9,
+   "away_conference": "Mid-American",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756895,
+   "week": 3,
+   "season_type": "regular",
+   "start_date": "2025-09-14T00:00:00.000Z",
+   "completed": true,
+   "home_team": "Wyoming",
+   "home_points": 6,
+   "home_conference": "Mountain West",
+   "home_classification": "fbs",
+   "away_team": "Utah",
+   "away_points": 31,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756900,
+   "week": 4,
+   "season_type": "regular",
+   "start_date": "2025-09-19T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Oklahoma State",
+   "home_points": 12,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Tulsa",
+   "away_points": 19,
+   "away_conference": "American Athletic",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756901,
+   "week": 4,
+   "season_type": "regular",
+   "start_date": "2025-09-20T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Utah",
+   "home_points": 10,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Texas Tech",
+   "away_points": 34,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754537,
+   "week": 4,
+   "season_type": "regular",
+   "start_date": "2025-09-20T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Clemson",
+   "home_points": 21,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Syracuse",
+   "away_points": 34,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752846,
+   "week": 4,
+   "season_type": "regular",
+   "start_date": "2025-09-20T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Nebraska",
+   "home_points": 27,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Michigan",
+   "away_points": 30,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754541,
+   "week": 4,
+   "season_type": "regular",
+   "start_date": "2025-09-20T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Florida State",
+   "home_points": 66,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Kent State",
+   "away_points": 10,
+   "away_conference": "Mid-American",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752709,
+   "week": 4,
+   "season_type": "regular",
+   "start_date": "2025-09-20T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Miami",
+   "home_points": 26,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Florida",
+   "away_points": 7,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752723,
+   "week": 4,
+   "season_type": "regular",
+   "start_date": "2025-09-21T00:00:00.000Z",
+   "completed": true,
+   "home_team": "Texas",
+   "home_points": 55,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Sam Houston",
+   "away_points": 0,
+   "away_conference": "Conference USA",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754543,
+   "week": 5,
+   "season_type": "regular",
+   "start_date": "2025-09-26T23:00:00.000Z",
+   "completed": true,
+   "home_team": "Virginia",
+   "home_points": 46,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Florida State",
+   "away_points": 38,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756906,
+   "week": 5,
+   "season_type": "regular",
+   "start_date": "2025-09-27T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Kansas State",
+   "home_points": 34,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "UCF",
+   "away_points": 20,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756908,
+   "week": 5,
+   "season_type": "regular",
+   "start_date": "2025-09-27T19:30:00.000Z",
+   "completed": true,
+   "home_team": "West Virginia",
+   "home_points": 14,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Utah",
+   "away_points": 48,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752852,
+   "week": 5,
+   "season_type": "regular",
+   "start_date": "2025-09-27T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Washington",
+   "home_points": 6,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Ohio State",
+   "away_points": 24,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756907,
+   "week": 5,
+   "season_type": "regular",
+   "start_date": "2025-09-27T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Oklahoma State",
+   "home_points": 27,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Baylor",
+   "away_points": 45,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752718,
+   "week": 5,
+   "season_type": "regular",
+   "start_date": "2025-09-27T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Georgia",
+   "home_points": 21,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Alabama",
+   "away_points": 24,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752854,
+   "week": 5,
+   "season_type": "regular",
+   "start_date": "2025-09-27T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Penn State",
+   "home_points": 24,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Oregon",
+   "away_points": 30,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756911,
+   "week": 6,
+   "season_type": "regular",
+   "start_date": "2025-10-04T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Baylor",
+   "home_points": 35,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Kansas State",
+   "away_points": 34,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752856,
+   "week": 6,
+   "season_type": "regular",
+   "start_date": "2025-10-04T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Michigan",
+   "home_points": 24,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Wisconsin",
+   "away_points": 10,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752728,
+   "week": 6,
+   "season_type": "regular",
+   "start_date": "2025-10-04T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Georgia",
+   "home_points": 35,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Kentucky",
+   "away_points": 14,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754552,
+   "week": 6,
+   "season_type": "regular",
+   "start_date": "2025-10-04T16:00:00.000Z",
+   "completed": true,
+   "home_team": "North Carolina",
+   "home_points": 10,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Clemson",
+   "away_points": 38,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756910,
+   "week": 6,
+   "season_type": "regular",
+   "start_date": "2025-10-04T19:00:00.000Z",
+   "completed": true,
+   "home_team": "Arizona",
+   "home_points": 41,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Oklahoma State",
+   "away_points": 13,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752855,
+   "week": 6,
+   "season_type": "regular",
+   "start_date": "2025-10-04T19:30:00.000Z",
+   "completed": true,
+   "home_team": "UCLA",
+   "home_points": 42,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Penn State",
+   "away_points": 37,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752726,
+   "week": 6,
+   "season_type": "regular",
+   "start_date": "2025-10-04T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Alabama",
+   "home_points": 30,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Vanderbilt",
+   "away_points": 14,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752727,
+   "week": 6,
+   "season_type": "regular",
+   "start_date": "2025-10-04T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Florida",
+   "home_points": 29,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Texas",
+   "away_points": 21,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752859,
+   "week": 6,
+   "season_type": "regular",
+   "start_date": "2025-10-04T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Ohio State",
+   "home_points": 42,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Minnesota",
+   "away_points": 3,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754553,
+   "week": 6,
+   "season_type": "regular",
+   "start_date": "2025-10-04T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Florida State",
+   "home_points": 22,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Miami",
+   "away_points": 28,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752865,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-11T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Illinois",
+   "home_points": 16,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Ohio State",
+   "away_points": 34,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756920,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-11T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Oklahoma State",
+   "home_points": 17,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Houston",
+   "away_points": 39,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752734,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-11T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Missouri",
+   "home_points": 24,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Alabama",
+   "away_points": 27,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754559,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-11T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Florida State",
+   "home_points": 31,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Pittsburgh",
+   "away_points": 34,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752736,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-11T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Texas",
+   "home_points": 23,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Oklahoma",
+   "away_points": 6,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": true,
+   "conference_game": true,
+   "notes": "Allstate Red River Rivalry",
+   "conference_championship": false
+  },
+  {
+   "id": 401756919,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-11T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Kansas State",
+   "home_points": 41,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "TCU",
+   "away_points": 28,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752866,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-11T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Penn State",
+   "home_points": 21,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Northwestern",
+   "away_points": 22,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754558,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-11T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Boston College",
+   "home_points": 10,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Clemson",
+   "away_points": 41,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752731,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-11T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Auburn",
+   "home_points": 10,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Georgia",
+   "away_points": 20,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752868,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-11T23:30:00.000Z",
+   "completed": true,
+   "home_team": "USC",
+   "home_points": 31,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Michigan",
+   "away_points": 13,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756922,
+   "week": 7,
+   "season_type": "regular",
+   "start_date": "2025-10-12T02:15:00.000Z",
+   "completed": true,
+   "home_team": "Utah",
+   "home_points": 42,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Arizona State",
+   "away_points": 10,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754564,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-17T23:00:00.000Z",
+   "completed": true,
+   "home_team": "Miami",
+   "home_points": 21,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Louisville",
+   "away_points": 24,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752873,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-18T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Michigan",
+   "home_points": 24,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Washington",
+   "away_points": 7,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752742,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-18T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Georgia",
+   "home_points": 43,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Ole Miss",
+   "away_points": 35,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754565,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-18T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Clemson",
+   "home_points": 24,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "SMU",
+   "away_points": 35,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752877,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-18T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Wisconsin",
+   "home_points": 0,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Ohio State",
+   "away_points": 34,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752743,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-18T23:00:00.000Z",
+   "completed": true,
+   "home_team": "Kentucky",
+   "home_points": 13,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Texas",
+   "away_points": 16,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752875,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-18T23:00:00.000Z",
+   "completed": true,
+   "home_team": "Iowa",
+   "home_points": 25,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Penn State",
+   "away_points": 24,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752738,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-18T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Alabama",
+   "home_points": 37,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Tennessee",
+   "away_points": 20,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756924,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-19T00:00:00.000Z",
+   "completed": true,
+   "home_team": "BYU",
+   "home_points": 24,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Utah",
+   "away_points": 21,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756926,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-19T00:00:00.000Z",
+   "completed": true,
+   "home_team": "Oklahoma State",
+   "home_points": 17,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Cincinnati",
+   "away_points": 49,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754567,
+   "week": 8,
+   "season_type": "regular",
+   "start_date": "2025-10-19T02:30:00.000Z",
+   "completed": true,
+   "home_team": "Stanford",
+   "home_points": 20,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Florida State",
+   "away_points": 13,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756932,
+   "week": 9,
+   "season_type": "regular",
+   "start_date": "2025-10-25T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Kansas",
+   "home_points": 17,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Kansas State",
+   "away_points": 42,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752751,
+   "week": 9,
+   "season_type": "regular",
+   "start_date": "2025-10-25T19:30:00.000Z",
+   "completed": true,
+   "home_team": "South Carolina",
+   "home_points": 22,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Alabama",
+   "away_points": 29,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756933,
+   "week": 9,
+   "season_type": "regular",
+   "start_date": "2025-10-25T20:00:00.000Z",
+   "completed": true,
+   "home_team": "Texas Tech",
+   "home_points": 42,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Oklahoma State",
+   "away_points": 0,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752749,
+   "week": 9,
+   "season_type": "regular",
+   "start_date": "2025-10-25T20:15:00.000Z",
+   "completed": true,
+   "home_team": "Mississippi State",
+   "home_points": 38,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Texas",
+   "away_points": 45,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754572,
+   "week": 9,
+   "season_type": "regular",
+   "start_date": "2025-10-25T23:00:00.000Z",
+   "completed": true,
+   "home_team": "Miami",
+   "home_points": 42,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Stanford",
+   "away_points": 7,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752881,
+   "week": 9,
+   "season_type": "regular",
+   "start_date": "2025-10-25T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Michigan State",
+   "home_points": 20,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Michigan",
+   "away_points": 31,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756934,
+   "week": 9,
+   "season_type": "regular",
+   "start_date": "2025-10-26T02:15:00.000Z",
+   "completed": true,
+   "home_team": "Utah",
+   "home_points": 53,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Colorado",
+   "away_points": 7,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754577,
+   "week": 10,
+   "season_type": "regular",
+   "start_date": "2025-11-01T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Clemson",
+   "home_points": 45,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Duke",
+   "away_points": 46,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754581,
+   "week": 10,
+   "season_type": "regular",
+   "start_date": "2025-11-01T16:00:00.000Z",
+   "completed": true,
+   "home_team": "SMU",
+   "home_points": 26,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Miami",
+   "away_points": 20,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752889,
+   "week": 10,
+   "season_type": "regular",
+   "start_date": "2025-11-01T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Ohio State",
+   "home_points": 38,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Penn State",
+   "away_points": 14,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752758,
+   "week": 10,
+   "season_type": "regular",
+   "start_date": "2025-11-01T16:00:00.000Z",
+   "completed": true,
+   "home_team": "Texas",
+   "home_points": 34,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Vanderbilt",
+   "away_points": 31,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752755,
+   "week": 10,
+   "season_type": "regular",
+   "start_date": "2025-11-01T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Florida",
+   "home_points": 20,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Georgia",
+   "away_points": 24,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": true,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756941,
+   "week": 10,
+   "season_type": "regular",
+   "start_date": "2025-11-01T19:30:00.000Z",
+   "completed": true,
+   "home_team": "Kansas State",
+   "home_points": 20,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Texas Tech",
+   "away_points": 43,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756940,
+   "week": 10,
+   "season_type": "regular",
+   "start_date": "2025-11-01T20:00:00.000Z",
+   "completed": true,
+   "home_team": "Kansas",
+   "home_points": 38,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Oklahoma State",
+   "away_points": 21,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752890,
+   "week": 10,
+   "season_type": "regular",
+   "start_date": "2025-11-01T23:00:00.000Z",
+   "completed": true,
+   "home_team": "Michigan",
+   "home_points": 21,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Purdue",
+   "away_points": 16,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754578,
+   "week": 10,
+   "season_type": "regular",
+   "start_date": "2025-11-01T23:30:00.000Z",
+   "completed": true,
+   "home_team": "Florida State",
+   "home_points": 42,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Wake Forest",
+   "away_points": 7,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756942,
+   "week": 10,
+   "season_type": "regular",
+   "start_date": "2025-11-02T02:15:00.000Z",
+   "completed": true,
+   "home_team": "Utah",
+   "home_points": 45,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Cincinnati",
+   "away_points": 14,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752762,
+   "week": 11,
+   "season_type": "regular",
+   "start_date": "2025-11-08T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Mississippi State",
+   "home_points": 21,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Georgia",
+   "away_points": 41,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752893,
+   "week": 11,
+   "season_type": "regular",
+   "start_date": "2025-11-08T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Penn State",
+   "home_points": 24,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Indiana",
+   "away_points": 27,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752897,
+   "week": 11,
+   "season_type": "regular",
+   "start_date": "2025-11-08T18:00:00.000Z",
+   "completed": true,
+   "home_team": "Purdue",
+   "home_points": 10,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Ohio State",
+   "away_points": 34,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754587,
+   "week": 11,
+   "season_type": "regular",
+   "start_date": "2025-11-08T20:30:00.000Z",
+   "completed": true,
+   "home_team": "Miami",
+   "home_points": 38,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Syracuse",
+   "away_points": 10,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754586,
+   "week": 11,
+   "season_type": "regular",
+   "start_date": "2025-11-09T00:00:00.000Z",
+   "completed": true,
+   "home_team": "Clemson",
+   "home_points": 24,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Florida State",
+   "away_points": 10,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752759,
+   "week": 11,
+   "season_type": "regular",
+   "start_date": "2025-11-09T00:30:00.000Z",
+   "completed": true,
+   "home_team": "Alabama",
+   "home_points": 20,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "LSU",
+   "away_points": 9,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754591,
+   "week": 12,
+   "season_type": "regular",
+   "start_date": "2025-11-15T00:30:00.000Z",
+   "completed": true,
+   "home_team": "Louisville",
+   "home_points": 19,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Clemson",
+   "away_points": 20,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752905,
+   "week": 12,
+   "season_type": "regular",
+   "start_date": "2025-11-15T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Northwestern",
+   "home_points": 22,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Michigan",
+   "away_points": 24,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": true,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756952,
+   "week": 12,
+   "season_type": "regular",
+   "start_date": "2025-11-15T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Oklahoma State",
+   "home_points": 6,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Kansas State",
+   "away_points": 14,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752903,
+   "week": 12,
+   "season_type": "regular",
+   "start_date": "2025-11-15T20:30:00.000Z",
+   "completed": true,
+   "home_team": "Michigan State",
+   "home_points": 10,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Penn State",
+   "away_points": 28,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754595,
+   "week": 12,
+   "season_type": "regular",
+   "start_date": "2025-11-15T20:30:00.000Z",
+   "completed": true,
+   "home_team": "Miami",
+   "home_points": 41,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "NC State",
+   "away_points": 7,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752765,
+   "week": 12,
+   "season_type": "regular",
+   "start_date": "2025-11-15T20:30:00.000Z",
+   "completed": true,
+   "home_team": "Alabama",
+   "home_points": 21,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Oklahoma",
+   "away_points": 23,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756949,
+   "week": 12,
+   "season_type": "regular",
+   "start_date": "2025-11-16T00:00:00.000Z",
+   "completed": true,
+   "home_team": "Baylor",
+   "home_points": 28,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Utah",
+   "away_points": 55,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752900,
+   "week": 12,
+   "season_type": "regular",
+   "start_date": "2025-11-16T00:30:00.000Z",
+   "completed": true,
+   "home_team": "Ohio State",
+   "home_points": 48,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "UCLA",
+   "away_points": 10,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752766,
+   "week": 12,
+   "season_type": "regular",
+   "start_date": "2025-11-16T00:30:00.000Z",
+   "completed": true,
+   "home_team": "Georgia",
+   "home_points": 35,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Texas",
+   "away_points": 10,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754594,
+   "week": 12,
+   "season_type": "regular",
+   "start_date": "2025-11-16T00:30:00.000Z",
+   "completed": true,
+   "home_team": "Florida State",
+   "home_points": 34,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Virginia Tech",
+   "away_points": 14,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754598,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-22T01:00:00.000Z",
+   "completed": true,
+   "home_team": "NC State",
+   "home_points": 21,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Florida State",
+   "away_points": 11,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754603,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-22T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Virginia Tech",
+   "home_points": 17,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Miami",
+   "away_points": 34,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752912,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-22T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Ohio State",
+   "home_points": 42,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Rutgers",
+   "away_points": 9,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752776,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-22T17:45:00.000Z",
+   "completed": true,
+   "home_team": "Georgia",
+   "home_points": 35,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Charlotte",
+   "away_points": 3,
+   "away_conference": "American Athletic",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752773,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-22T19:00:00.000Z",
+   "completed": true,
+   "home_team": "Alabama",
+   "home_points": 56,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Eastern Illinois",
+   "away_points": 0,
+   "away_conference": "Big South-OVC",
+   "away_classification": "fcs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752780,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-22T20:30:00.000Z",
+   "completed": true,
+   "home_team": "Texas",
+   "home_points": 52,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Arkansas",
+   "away_points": 37,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752914,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-22T21:00:00.000Z",
+   "completed": true,
+   "home_team": "Maryland",
+   "home_points": 20,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Michigan",
+   "away_points": 45,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756959,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-22T21:00:00.000Z",
+   "completed": true,
+   "home_team": "UCF",
+   "home_points": 17,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Oklahoma State",
+   "away_points": 14,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756960,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-22T21:00:00.000Z",
+   "completed": true,
+   "home_team": "Utah",
+   "home_points": 51,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Kansas State",
+   "away_points": 47,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754605,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-22T21:30:00.000Z",
+   "completed": true,
+   "home_team": "Clemson",
+   "home_points": 45,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Furman",
+   "away_points": 10,
+   "away_conference": "Southern",
+   "away_classification": "fcs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752908,
+   "week": 13,
+   "season_type": "regular",
+   "start_date": "2025-11-23T00:00:00.000Z",
+   "completed": true,
+   "home_team": "Penn State",
+   "home_points": 37,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Nebraska",
+   "away_points": 10,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756964,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-28T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Kansas",
+   "home_points": 21,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Utah",
+   "away_points": 31,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752786,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-28T20:30:00.000Z",
+   "completed": true,
+   "home_team": "Georgia Tech",
+   "home_points": 9,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Georgia",
+   "away_points": 16,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": true,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752792,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-29T00:30:00.000Z",
+   "completed": true,
+   "home_team": "Texas",
+   "home_points": 27,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Texas A&M",
+   "away_points": 17,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752921,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-29T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Michigan",
+   "home_points": 9,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Ohio State",
+   "away_points": 27,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756966,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-29T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Oklahoma State",
+   "home_points": 13,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Iowa State",
+   "away_points": 20,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401756965,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-29T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Kansas State",
+   "home_points": 24,
+   "home_conference": "Big 12",
+   "home_classification": "fbs",
+   "away_team": "Colorado",
+   "away_points": 14,
+   "away_conference": "Big 12",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401754611,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-29T17:00:00.000Z",
+   "completed": true,
+   "home_team": "Pittsburgh",
+   "home_points": 7,
+   "home_conference": "ACC",
+   "home_classification": "fbs",
+   "away_team": "Miami",
+   "away_points": 38,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752790,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-29T17:00:00.000Z",
+   "completed": true,
+   "home_team": "South Carolina",
+   "home_points": 14,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Clemson",
+   "away_points": 28,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752920,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-29T20:30:00.000Z",
+   "completed": true,
+   "home_team": "Rutgers",
+   "home_points": 36,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Penn State",
+   "away_points": 40,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752785,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-29T21:30:00.000Z",
+   "completed": true,
+   "home_team": "Florida",
+   "home_points": 40,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Florida State",
+   "away_points": 21,
+   "away_conference": "ACC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": false,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401752784,
+   "week": 14,
+   "season_type": "regular",
+   "start_date": "2025-11-30T00:30:00.000Z",
+   "completed": true,
+   "home_team": "Auburn",
+   "home_points": 20,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Alabama",
+   "away_points": 27,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": false,
+   "conference_game": true,
+   "notes": null,
+   "conference_championship": false
+  },
+  {
+   "id": 401777351,
+   "week": 15,
+   "season_type": "regular",
+   "start_date": "2025-12-06T21:00:00.000Z",
+   "completed": true,
+   "home_team": "Alabama",
+   "home_points": 7,
+   "home_conference": "SEC",
+   "home_classification": "fbs",
+   "away_team": "Georgia",
+   "away_points": 28,
+   "away_conference": "SEC",
+   "away_classification": "fbs",
+   "neutral_site": true,
+   "conference_game": false,
+   "notes": "SEC Championship",
+   "conference_championship": true
+  },
+  {
+   "id": 401777353,
+   "week": 15,
+   "season_type": "regular",
+   "start_date": "2025-12-07T01:00:00.000Z",
+   "completed": true,
+   "home_team": "Ohio State",
+   "home_points": 10,
+   "home_conference": "Big Ten",
+   "home_classification": "fbs",
+   "away_team": "Indiana",
+   "away_points": 13,
+   "away_conference": "Big Ten",
+   "away_classification": "fbs",
+   "neutral_site": true,
+   "conference_game": false,
+   "notes": "Big Ten Championship",
+   "conference_championship": true
+  }
+ ],
+ "teams": {
+  "Kansas State": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 6,
+   "losses": 6
+  },
+  "Iowa State": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Kansas": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 5,
+   "losses": 7
+  },
+  "Sam Houston": {
+   "conference": "Conference USA",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 2,
+   "losses": 10
+  },
+  "Stanford": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "South Florida": {
+   "conference": "American Athletic",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 9,
+   "losses": 3
+  },
+  "Rutgers": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 5,
+   "losses": 7
+  },
+  "Ohio": {
+   "conference": "Mid-American",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Wyoming": {
+   "conference": "Mountain West",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "UCF": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 5,
+   "losses": 7
+  },
+  "Eastern Illinois": {
+   "conference": "Big South-OVC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 3,
+   "losses": 9
+  },
+  "NC State": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 7,
+   "losses": 5
+  },
+  "UL Monroe": {
+   "conference": "Sun Belt",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 3,
+   "losses": 9
+  },
+  "Oklahoma State": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 1,
+   "losses": 11
+  },
+  "UT Martin": {
+   "conference": "Big South-OVC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 6,
+   "losses": 6
+  },
+  "Missouri": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Duke": {
+   "conference": "ACC",
+   "scheduled_games": 13,
+   "games_played": 13,
+   "wins": 8,
+   "losses": 5
+  },
+  "Houston": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 9,
+   "losses": 3
+  },
+  "Minnesota": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 7,
+   "losses": 5
+  },
+  "Wisconsin": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "Cincinnati": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 7,
+   "losses": 5
+  },
+  "Nebraska": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 7,
+   "losses": 5
+  },
+  "Army": {
+   "conference": "American Athletic",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 6,
+   "losses": 6
+  },
+  "Florida International": {
+   "conference": "Conference USA",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 7,
+   "losses": 5
+  },
+  "Bethune-Cookman": {
+   "conference": "SWAC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 6,
+   "losses": 6
+  },
+  "Charlotte": {
+   "conference": "American Athletic",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 1,
+   "losses": 11
+  },
+  "Wake Forest": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Michigan State": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "Illinois": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Baylor": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 5,
+   "losses": 7
+  },
+  "Auburn": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 5,
+   "losses": 7
+  },
+  "Colorado": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 3,
+   "losses": 9
+  },
+  "Georgia Tech": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 9,
+   "losses": 3
+  },
+  "San Jos\u00e9 State": {
+   "conference": "Mountain West",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 3,
+   "losses": 9
+  },
+  "Central Michigan": {
+   "conference": "Mid-American",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 7,
+   "losses": 5
+  },
+  "Northwestern": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 6,
+   "losses": 6
+  },
+  "Mississippi State": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 5,
+   "losses": 7
+  },
+  "Maryland": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "Ohio State": {
+   "conference": "Big Ten",
+   "scheduled_games": 13,
+   "games_played": 13,
+   "wins": 12,
+   "losses": 1
+  },
+  "Texas": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 9,
+   "losses": 3
+  },
+  "Tennessee": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Syracuse": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 3,
+   "losses": 9
+  },
+  "Purdue": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 2,
+   "losses": 10
+  },
+  "Kent State": {
+   "conference": "Mid-American",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 5,
+   "losses": 7
+  },
+  "Pittsburgh": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Kentucky": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 5,
+   "losses": 7
+  },
+  "West Virginia": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "Boston College": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 2,
+   "losses": 10
+  },
+  "Furman": {
+   "conference": "Southern",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 6,
+   "losses": 6
+  },
+  "Indiana": {
+   "conference": "Big Ten",
+   "scheduled_games": 13,
+   "games_played": 13,
+   "wins": 13,
+   "losses": 0
+  },
+  "Louisville": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Penn State": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 6,
+   "losses": 6
+  },
+  "Nevada": {
+   "conference": "Mountain West",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 3,
+   "losses": 9
+  },
+  "Georgia": {
+   "conference": "SEC",
+   "scheduled_games": 13,
+   "games_played": 13,
+   "wins": 12,
+   "losses": 1
+  },
+  "Marshall": {
+   "conference": "Sun Belt",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 5,
+   "losses": 7
+  },
+  "Florida State": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 5,
+   "losses": 7
+  },
+  "Alabama": {
+   "conference": "SEC",
+   "scheduled_games": 13,
+   "games_played": 13,
+   "wins": 10,
+   "losses": 3
+  },
+  "Oregon": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 11,
+   "losses": 1
+  },
+  "Arkansas": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 2,
+   "losses": 10
+  },
+  "Oklahoma": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 10,
+   "losses": 2
+  },
+  "Virginia": {
+   "conference": "ACC",
+   "scheduled_games": 13,
+   "games_played": 13,
+   "wins": 10,
+   "losses": 3
+  },
+  "Iowa": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Florida": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "Vanderbilt": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 10,
+   "losses": 2
+  },
+  "Austin Peay": {
+   "conference": "UAC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 7,
+   "losses": 5
+  },
+  "Troy": {
+   "conference": "Sun Belt",
+   "scheduled_games": 13,
+   "games_played": 13,
+   "wins": 8,
+   "losses": 5
+  },
+  "Texas A&M": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 11,
+   "losses": 1
+  },
+  "Grambling": {
+   "conference": "SWAC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 7,
+   "losses": 5
+  },
+  "North Dakota": {
+   "conference": "MVFC",
+   "scheduled_games": 14,
+   "games_played": 14,
+   "wins": 8,
+   "losses": 6
+  },
+  "Texas Tech": {
+   "conference": "Big 12",
+   "scheduled_games": 13,
+   "games_played": 13,
+   "wins": 12,
+   "losses": 1
+  },
+  "Clemson": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 7,
+   "losses": 5
+  },
+  "LSU": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 7,
+   "losses": 5
+  },
+  "Michigan": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 9,
+   "losses": 3
+  },
+  "New Mexico": {
+   "conference": "Mountain West",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 9,
+   "losses": 3
+  },
+  "UTEP": {
+   "conference": "Conference USA",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 2,
+   "losses": 10
+  },
+  "USC": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 9,
+   "losses": 3
+  },
+  "Ole Miss": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 11,
+   "losses": 1
+  },
+  "Cal Poly": {
+   "conference": "Big Sky",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "BYU": {
+   "conference": "Big 12",
+   "scheduled_games": 13,
+   "games_played": 13,
+   "wins": 11,
+   "losses": 2
+  },
+  "Tulsa": {
+   "conference": "American Athletic",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "SMU": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "East Texas A&M": {
+   "conference": "Southland",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 3,
+   "losses": 9
+  },
+  "Arizona State": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Arizona": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 9,
+   "losses": 3
+  },
+  "Washington": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "UCLA": {
+   "conference": "Big Ten",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 3,
+   "losses": 9
+  },
+  "Utah": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 10,
+   "losses": 2
+  },
+  "South Carolina": {
+   "conference": "SEC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "Virginia Tech": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 3,
+   "losses": 9
+  },
+  "Miami": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 10,
+   "losses": 2
+  },
+  "Notre Dame": {
+   "conference": "FBS Independents",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 10,
+   "losses": 2
+  },
+  "North Carolina": {
+   "conference": "ACC",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 4,
+   "losses": 8
+  },
+  "TCU": {
+   "conference": "Big 12",
+   "scheduled_games": 12,
+   "games_played": 12,
+   "wins": 8,
+   "losses": 4
+  },
+  "Villanova": {
+   "conference": "CAA",
+   "scheduled_games": 14,
+   "games_played": 14,
+   "wins": 12,
+   "losses": 2
+  }
+ },
+ "sp_ratings": {
+  "Indiana": {
+   "rating": 32.4,
+   "ranking": 1,
+   "offense": 40.8,
+   "defense": 9.9
+  },
+  "Ohio State": {
+   "rating": 30.1,
+   "ranking": 2,
+   "offense": 37.6,
+   "defense": 7.7
+  },
+  "Texas Tech": {
+   "rating": 27.6,
+   "ranking": 3,
+   "offense": 39.3,
+   "defense": 12.3
+  },
+  "Oregon": {
+   "rating": 25.9,
+   "ranking": 4,
+   "offense": 38.7,
+   "defense": 13.5
+  },
+  "Notre Dame": {
+   "rating": 24.4,
+   "ranking": 5,
+   "offense": 40.0,
+   "defense": 16.3
+  },
+  "Georgia": {
+   "rating": 24.1,
+   "ranking": 6,
+   "offense": 37.0,
+   "defense": 14.8
+  },
+  "Ole Miss": {
+   "rating": 24.0,
+   "ranking": 7,
+   "offense": 40.4,
+   "defense": 18.3
+  },
+  "Utah": {
+   "rating": 22.2,
+   "ranking": 8,
+   "offense": 39.7,
+   "defense": 17.5
+  },
+  "Miami": {
+   "rating": 20.7,
+   "ranking": 9,
+   "offense": 34.2,
+   "defense": 14.3
+  },
+  "Texas A&M": {
+   "rating": 20.7,
+   "ranking": 9,
+   "offense": 38.0,
+   "defense": 16.4
+  },
+  "Vanderbilt": {
+   "rating": 20.3,
+   "ranking": 11,
+   "offense": 39.9,
+   "defense": 21.4
+  },
+  "Iowa": {
+   "rating": 19.7,
+   "ranking": 12,
+   "offense": 32.1,
+   "defense": 14.2
+  },
+  "Washington": {
+   "rating": 18.4,
+   "ranking": 13,
+   "offense": 34.5,
+   "defense": 15.3
+  },
+  "Oklahoma": {
+   "rating": 18.3,
+   "ranking": 14,
+   "offense": 30.1,
+   "defense": 12.9
+  },
+  "Penn State": {
+   "rating": 18.1,
+   "ranking": 15,
+   "offense": 35.1,
+   "defense": 18.8
+  },
+  "USC": {
+   "rating": 16.9,
+   "ranking": 16,
+   "offense": 38.9,
+   "defense": 21.0
+  },
+  "Texas": {
+   "rating": 16.2,
+   "ranking": 17,
+   "offense": 32.9,
+   "defense": 17.9
+  },
+  "BYU": {
+   "rating": 15.9,
+   "ranking": 18,
+   "offense": 33.9,
+   "defense": 18.8
+  },
+  "Tennessee": {
+   "rating": 15.0,
+   "ranking": 19,
+   "offense": 39.3,
+   "defense": 25.4
+  },
+  "Alabama": {
+   "rating": 14.8,
+   "ranking": 20,
+   "offense": 32.2,
+   "defense": 16.1
+  },
+  "Missouri": {
+   "rating": 14.4,
+   "ranking": 21,
+   "offense": 31.2,
+   "defense": 15.4
+  },
+  "SMU": {
+   "rating": 13.4,
+   "ranking": 23,
+   "offense": 34.2,
+   "defense": 19.5
+  },
+  "Illinois": {
+   "rating": 12.9,
+   "ranking": 24,
+   "offense": 33.3,
+   "defense": 21.7
+  },
+  "Michigan": {
+   "rating": 12.4,
+   "ranking": 25,
+   "offense": 30.9,
+   "defense": 17.0
+  },
+  "Louisville": {
+   "rating": 12.4,
+   "ranking": 25,
+   "offense": 31.6,
+   "defense": 19.8
+  },
+  "Arizona": {
+   "rating": 12.0,
+   "ranking": 28,
+   "offense": 33.0,
+   "defense": 19.5
+  },
+  "Auburn": {
+   "rating": 11.6,
+   "ranking": 29,
+   "offense": 28.3,
+   "defense": 17.4
+  },
+  "South Florida": {
+   "rating": 11.6,
+   "ranking": 29,
+   "offense": 37.7,
+   "defense": 25.3
+  },
+  "Virginia": {
+   "rating": 11.1,
+   "ranking": 31,
+   "offense": 28.8,
+   "defense": 18.1
+  },
+  "LSU": {
+   "rating": 10.3,
+   "ranking": 32,
+   "offense": 25.8,
+   "defense": 16.1
+  },
+  "Iowa State": {
+   "rating": 9.9,
+   "ranking": 33,
+   "offense": 28.1,
+   "defense": 19.5
+  },
+  "Clemson": {
+   "rating": 9.5,
+   "ranking": 34,
+   "offense": 27.5,
+   "defense": 18.9
+  },
+  "Georgia Tech": {
+   "rating": 9.3,
+   "ranking": 35,
+   "offense": 32.5,
+   "defense": 24.9
+  },
+  "Pittsburgh": {
+   "rating": 8.4,
+   "ranking": 36,
+   "offense": 31.6,
+   "defense": 23.5
+  },
+  "TCU": {
+   "rating": 8.3,
+   "ranking": 37,
+   "offense": 32.9,
+   "defense": 23.9
+  },
+  "Houston": {
+   "rating": 7.4,
+   "ranking": 40,
+   "offense": 31.5,
+   "defense": 23.0
+  },
+  "Florida State": {
+   "rating": 7.2,
+   "ranking": 41,
+   "offense": 29.3,
+   "defense": 21.2
+  },
+  "Kansas State": {
+   "rating": 7.0,
+   "ranking": 42,
+   "offense": 31.3,
+   "defense": 25.0
+  },
+  "Duke": {
+   "rating": 6.6,
+   "ranking": 44,
+   "offense": 34.8,
+   "defense": 29.2
+  },
+  "Nebraska": {
+   "rating": 6.2,
+   "ranking": 46,
+   "offense": 28.8,
+   "defense": 22.7
+  },
+  "South Carolina": {
+   "rating": 5.9,
+   "ranking": 49,
+   "offense": 24.6,
+   "defense": 20.2
+  },
+  "Northwestern": {
+   "rating": 5.8,
+   "ranking": 51,
+   "offense": 24.4,
+   "defense": 20.0
+  },
+  "Wake Forest": {
+   "rating": 5.7,
+   "ranking": 52,
+   "offense": 26.6,
+   "defense": 20.9
+  },
+  "Arkansas": {
+   "rating": 5.1,
+   "ranking": 53,
+   "offense": 35.8,
+   "defense": 31.4
+  },
+  "NC State": {
+   "rating": 4.8,
+   "ranking": 55,
+   "offense": 31.4,
+   "defense": 25.5
+  },
+  "Cincinnati": {
+   "rating": 4.5,
+   "ranking": 56,
+   "offense": 30.2,
+   "defense": 26.4
+  },
+  "Kansas": {
+   "rating": 4.1,
+   "ranking": 58,
+   "offense": 30.9,
+   "defense": 28.5
+  },
+  "Mississippi State": {
+   "rating": 4.1,
+   "ranking": 58,
+   "offense": 31.6,
+   "defense": 29.0
+  },
+  "Arizona State": {
+   "rating": 3.9,
+   "ranking": 60,
+   "offense": 28.3,
+   "defense": 22.7
+  },
+  "Florida": {
+   "rating": 3.5,
+   "ranking": 63,
+   "offense": 24.5,
+   "defense": 22.6
+  },
+  "Kentucky": {
+   "rating": 1.8,
+   "ranking": 66,
+   "offense": 25.5,
+   "defense": 23.7
+  },
+  "Minnesota": {
+   "rating": 1.5,
+   "ranking": 70,
+   "offense": 23.8,
+   "defense": 20.8
+  },
+  "Baylor": {
+   "rating": 1.4,
+   "ranking": 71,
+   "offense": 32.8,
+   "defense": 33.3
+  },
+  "Rutgers": {
+   "rating": 1.0,
+   "ranking": 72,
+   "offense": 31.6,
+   "defense": 30.7
+  },
+  "New Mexico": {
+   "rating": 0.9,
+   "ranking": 73,
+   "offense": 25.4,
+   "defense": 26.1
+  },
+  "Army": {
+   "rating": 0.8,
+   "ranking": 74,
+   "offense": 24.7,
+   "defense": 24.1
+  },
+  "Maryland": {
+   "rating": 0.6,
+   "ranking": 75,
+   "offense": 24.4,
+   "defense": 24.7
+  },
+  "UCF": {
+   "rating": -1.2,
+   "ranking": 76,
+   "offense": 23.2,
+   "defense": 24.0
+  },
+  "Michigan State": {
+   "rating": -3.4,
+   "ranking": 82,
+   "offense": 26.6,
+   "defense": 28.7
+  },
+  "Ohio": {
+   "rating": -4.0,
+   "ranking": 84,
+   "offense": 23.2,
+   "defense": 25.2
+  },
+  "Wisconsin": {
+   "rating": -4.4,
+   "ranking": 85,
+   "offense": 17.4,
+   "defense": 20.9
+  },
+  "Marshall": {
+   "rating": -4.5,
+   "ranking": 86,
+   "offense": 29.6,
+   "defense": 34.8
+  },
+  "Troy": {
+   "rating": -4.8,
+   "ranking": 87,
+   "offense": 23.6,
+   "defense": 29.0
+  },
+  "Purdue": {
+   "rating": -6.1,
+   "ranking": 90,
+   "offense": 21.9,
+   "defense": 29.9
+  },
+  "North Carolina": {
+   "rating": -6.6,
+   "ranking": 91,
+   "offense": 17.2,
+   "defense": 25.0
+  },
+  "West Virginia": {
+   "rating": -6.8,
+   "ranking": 93,
+   "offense": 22.8,
+   "defense": 30.0
+  },
+  "Colorado": {
+   "rating": -8.3,
+   "ranking": 96,
+   "offense": 22.6,
+   "defense": 29.5
+  },
+  "Boston College": {
+   "rating": -8.5,
+   "ranking": 97,
+   "offense": 23.3,
+   "defense": 33.1
+  },
+  "UCLA": {
+   "rating": -8.7,
+   "ranking": 98,
+   "offense": 21.7,
+   "defense": 30.4
+  },
+  "Central Michigan": {
+   "rating": -8.8,
+   "ranking": 100,
+   "offense": 17.6,
+   "defense": 25.7
+  },
+  "Tulsa": {
+   "rating": -10.0,
+   "ranking": 104,
+   "offense": 21.7,
+   "defense": 33.1
+  },
+  "Virginia Tech": {
+   "rating": -10.1,
+   "ranking": 105,
+   "offense": 21.4,
+   "defense": 30.8
+  },
+  "Florida International": {
+   "rating": -10.5,
+   "ranking": 107,
+   "offense": 26.1,
+   "defense": 35.8
+  },
+  "Wyoming": {
+   "rating": -11.3,
+   "ranking": 110,
+   "offense": 15.3,
+   "defense": 24.7
+  },
+  "Stanford": {
+   "rating": -11.8,
+   "ranking": 112,
+   "offense": 18.4,
+   "defense": 28.6
+  },
+  "Syracuse": {
+   "rating": -13.1,
+   "ranking": 115,
+   "offense": 18.8,
+   "defense": 33.0
+  },
+  "Nevada": {
+   "rating": -13.4,
+   "ranking": 116,
+   "offense": 14.2,
+   "defense": 28.7
+  },
+  "San Jos\u00e9 State": {
+   "rating": -14.3,
+   "ranking": 118,
+   "offense": 21.6,
+   "defense": 34.4
+  },
+  "Oklahoma State": {
+   "rating": -15.1,
+   "ranking": 121,
+   "offense": 15.2,
+   "defense": 31.6
+  },
+  "UTEP": {
+   "rating": -17.5,
+   "ranking": 129,
+   "offense": 20.2,
+   "defense": 36.3
+  },
+  "Kent State": {
+   "rating": -19.3,
+   "ranking": 130,
+   "offense": 17.0,
+   "defense": 34.9
+  },
+  "UL Monroe": {
+   "rating": -21.6,
+   "ranking": 131,
+   "offense": 16.1,
+   "defense": 35.7
+  },
+  "Charlotte": {
+   "rating": -26.7,
+   "ranking": 134,
+   "offense": 14.5,
+   "defense": 39.8
+  },
+  "Sam Houston": {
+   "rating": -27.8,
+   "ranking": 135,
+   "offense": 15.3,
+   "defense": 41.8
+  }
+ },
+ "fpi_ratings": {
+  "Notre Dame": {
+   "fpi": 25.279
+  },
+  "Oklahoma State": {
+   "fpi": -12.121
+  },
+  "Kansas State": {
+   "fpi": 7.784
+  },
+  "Baylor": {
+   "fpi": 2.973
+  },
+  "Iowa State": {
+   "fpi": 8.627
+  },
+  "Texas Tech": {
+   "fpi": 21.536
+  },
+  "Kansas": {
+   "fpi": 4.37
+  },
+  "TCU": {
+   "fpi": 9.43
+  },
+  "West Virginia": {
+   "fpi": -4.064
+  },
+  "South Florida": {
+   "fpi": 11.054
+  },
+  "Tulsa": {
+   "fpi": -13.969
+  },
+  "UTEP": {
+   "fpi": -16.554
+  },
+  "Florida International": {
+   "fpi": -11.215
+  },
+  "Marshall": {
+   "fpi": -5.808
+  },
+  "UL Monroe": {
+   "fpi": -19.167
+  },
+  "Troy": {
+   "fpi": -6.76
+  },
+  "BYU": {
+   "fpi": 15.333
+  },
+  "Cincinnati": {
+   "fpi": 3.683
+  },
+  "Houston": {
+   "fpi": 4.408
+  },
+  "UCF": {
+   "fpi": -0.768
+  },
+  "Charlotte": {
+   "fpi": -21.25
+  },
+  "Sam Houston": {
+   "fpi": -24.254
+  },
+  "Army": {
+   "fpi": -2.677
+  },
+  "Stanford": {
+   "fpi": -3.652
+  },
+  "Florida State": {
+   "fpi": 9.396
+  },
+  "Georgia Tech": {
+   "fpi": 7.622
+  },
+  "Louisville": {
+   "fpi": 10.15
+  },
+  "Boston College": {
+   "fpi": -5.231
+  },
+  "Duke": {
+   "fpi": 6.398
+  },
+  "NC State": {
+   "fpi": 5.215
+  },
+  "North Carolina": {
+   "fpi": -5.878
+  },
+  "Wake Forest": {
+   "fpi": 2.069
+  },
+  "Syracuse": {
+   "fpi": -9.277
+  },
+  "Pittsburgh": {
+   "fpi": 7.657
+  },
+  "Clemson": {
+   "fpi": 9.454
+  },
+  "Virginia": {
+   "fpi": 8.247
+  },
+  "Virginia Tech": {
+   "fpi": -1.216
+  },
+  "Miami": {
+   "fpi": 22.396
+  },
+  "SMU": {
+   "fpi": 12.495
+  },
+  "Arizona State": {
+   "fpi": 6.294
+  },
+  "Arizona": {
+   "fpi": 10.097
+  },
+  "Colorado": {
+   "fpi": -2.678
+  },
+  "Utah": {
+   "fpi": 20.065
+  },
+  "UCLA": {
+   "fpi": -2.444
+  },
+  "USC": {
+   "fpi": 17.962
+  },
+  "Northwestern": {
+   "fpi": 3.514
+  },
+  "Indiana": {
+   "fpi": 31.487
+  },
+  "Maryland": {
+   "fpi": -1.746
+  },
+  "Michigan State": {
+   "fpi": 0.838
+  },
+  "Michigan": {
+   "fpi": 14.243
+  },
+  "Minnesota": {
+   "fpi": 1.067
+  },
+  "Nebraska": {
+   "fpi": 5.45
+  },
+  "Rutgers": {
+   "fpi": 1.453
+  },
+  "Ohio State": {
+   "fpi": 27.617
+  },
+  "Penn State": {
+   "fpi": 15.929
+  },
+  "Washington": {
+   "fpi": 14.005
+  },
+  "Wisconsin": {
+   "fpi": 2.537
+  },
+  "Illinois": {
+   "fpi": 10.0
+  },
+  "Iowa": {
+   "fpi": 15.306
+  },
+  "Oregon": {
+   "fpi": 23.872
+  },
+  "Purdue": {
+   "fpi": -4.748
+  },
+  "Ohio": {
+   "fpi": -2.426
+  },
+  "Central Michigan": {
+   "fpi": -11.242
+  },
+  "Kent State": {
+   "fpi": -19.579
+  },
+  "San Jos\u00e9 State": {
+   "fpi": -13.662
+  },
+  "New Mexico": {
+   "fpi": -2.688
+  },
+  "Nevada": {
+   "fpi": -14.332
+  },
+  "Wyoming": {
+   "fpi": -11.537
+  },
+  "Auburn": {
+   "fpi": 11.083
+  },
+  "Arkansas": {
+   "fpi": 6.597
+  },
+  "Florida": {
+   "fpi": 8.194
+  },
+  "Georgia": {
+   "fpi": 21.443
+  },
+  "Kentucky": {
+   "fpi": 5.127
+  },
+  "LSU": {
+   "fpi": 10.712
+  },
+  "Missouri": {
+   "fpi": 13.078
+  },
+  "Ole Miss": {
+   "fpi": 19.342
+  },
+  "Oklahoma": {
+   "fpi": 15.944
+  },
+  "Vanderbilt": {
+   "fpi": 17.048
+  },
+  "Texas A&M": {
+   "fpi": 18.374
+  },
+  "Texas": {
+   "fpi": 18.576
+  },
+  "Alabama": {
+   "fpi": 19.012
+  },
+  "Mississippi State": {
+   "fpi": 3.389
+  },
+  "South Carolina": {
+   "fpi": 8.965
+  },
+  "Tennessee": {
+   "fpi": 14.31
+  }
+ }
+}
