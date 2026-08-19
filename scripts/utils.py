@@ -449,6 +449,19 @@ def _game_played(g, as_of_week):
     return wk is not None and wk <= as_of_week
 
 
+def count_played_games(season, as_of_week=None):
+    """How many games in the season-guarded cache count as PLAYED.
+
+    The rule-5 clobber guard reads this before any board is regenerated: a
+    fetch that returned nothing (pre-season, or a feed that answered with an
+    empty slate) must never overwrite a good board with zeros. Deliberately
+    reuses _game_played, so "played" means exactly what it means to scoring —
+    including the --as-of-week replay horizon. A second, subtly-different
+    count here is how a guard ends up disagreeing with the thing it guards.
+    """
+    return sum(1 for g in _season_games(season) if _game_played(g, as_of_week))
+
+
 def team_state(team, group_config, as_of_week=None):
     """THE flag-aware single source for a team's banked side + schedule side
     (ARCHITECTURE §1/§5, §7). Honors count_conference_championship (conf-title

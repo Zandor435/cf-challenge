@@ -18,8 +18,8 @@ failure we fall back to the last good cache and exit non-fatally (commentary-
 bypass) — we NEVER overwrite a good cache with a partial/failed pull. Regular
 season only; conference championships/bowls/playoff excluded.
 
-BUILD 3: prints exact API calls per pass and the projected monthly total at
-twice-weekly cadence against the 1,000/month ceiling.
+BUILD 3: prints exact API calls per pass and the projected monthly total
+against the 1,000/month ceiling.
 
 Usage:
     python scripts/fetch_results.py                    # season from season.json
@@ -35,7 +35,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
 from cfbd_client import CFBDClient, CFBDError
 
-PASSES_PER_MONTH = 2 * 52 / 12  # twice-weekly cadence ≈ 8.67 passes/month
+# The pipeline fires DAILY, but scripts/should_run.py gates it to the morning
+# after a game day, so real passes track the schedule rather than the cron.
+# Budget against a conservative in-season worst case of ~5 game-days/week;
+# out of season the gate skips every day and this drops to zero.
+PASSES_PER_MONTH = 5 * 52 / 12  # ≈ 21.7 gated passes/month at peak
 MONTHLY_CEILING = 1000
 STALE_DAYS = 10  # fallback cache older than this = pipeline broken for cycles, not a blip
 
@@ -214,7 +218,8 @@ def report_budget(calls):
     print("API CALL BUDGET (BUILD 3)")
     print("-" * 60)
     print(f"  calls this pass:            {calls}")
-    print(f"  cadence:                    twice weekly (~{PASSES_PER_MONTH:.2f} passes/mo)")
+    print(f"  cadence:                    daily cron, rule-7 gated "
+          f"(~{PASSES_PER_MONTH:.1f} passes/mo at peak season)")
     print(f"  projected monthly total:    {monthly:.0f} calls")
     print(f"  free-tier ceiling:          {MONTHLY_CEILING} calls/mo")
     print(f"  headroom:                   {MONTHLY_CEILING - monthly:.0f} "

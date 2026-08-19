@@ -14,6 +14,9 @@ Resilience (ARCHITECTURE §4, CLAUDE.md playbook rules 3/5):
     ::warning:: and continues — standings.json is still written, the run stays
     green-but-degraded rather than dark.
   - timeline.json is append-only + idempotent on the effective week.
+  - ZERO played games writes NOTHING (rule 5). Every board stays as it was,
+    because a zero-state board is not empty-looking — it ranks managers purely
+    by which side of the line they took. --allow-empty overrides.
 
 Fetch is a separately-gated step (needs-new-data vs reshapes-existing, playbook
 rule 3): by default run_groups reshapes the existing cache; pass --fetch to run
@@ -25,6 +28,7 @@ Usage:
     python scripts/run_groups.py --as-of-week 6        # replay week 6
     python scripts/run_groups.py --group all --fetch   # fetch first, then reshape
     python scripts/run_groups.py --test --as-of-week 6 # the test fixture
+    python scripts/run_groups.py --allow-empty         # force a zero-state board
 """
 
 import argparse
@@ -154,6 +158,9 @@ def main():
     ap.add_argument("--as-of-week", type=int, default=None,
                     help="replay: treat games after week N as unplayed (§7)")
     ap.add_argument("--fetch", action="store_true", help="run fetch_results.py first (default: off)")
+    ap.add_argument("--allow-empty", action="store_true",
+                    help="write boards even with 0 played games (rule-5 guard "
+                         "override; for a deliberate pre-season baseline)")
     args = ap.parse_args()
 
     season = utils.get_season()                    # single source (season.json)
@@ -169,6 +176,36 @@ def main():
         utils.get_all_group_ids() if args.group == "all" else [args.group])
 
     utils.assert_season_matches_cache()            # §6 season single-source guard
+
+    # ---- rule-5 clobber guard: never regenerate a board off an empty slate --
+    # With zero played games every board is still WRITABLE — the arithmetic is
+    # defined — but it is meaningless, and worse, it is meaningless in a
+    # direction that looks like a result: banked_delta collapses to -line for
+    # every OVER pick and +line for every UNDER pick, so the standings rank
+    # purely by which side a manager took and the site names a "current leader"
+    # before kickoff. Publishing that would overwrite a good board with an
+    # artifact of the draft.
+    #
+    # This is separate from the workflow's week-window gate. That gate stops
+    # SCHEDULED runs pre-season; a manual dispatch forces past it, and running
+    # one right after the season flip — to populate the new cache — is exactly
+    # the sequence that would otherwise deploy this board.
+    #
+    # Not fatal: pre-season and a dead feed are both normal, and rule 3 says a
+    # dead step must not take the pipeline dark. Warn loudly, write nothing,
+    # leave every existing board exactly as it was.
+    played = utils.count_played_games(season, args.as_of_week)
+    if played == 0 and not args.allow_empty:
+        horizon = f" through week {args.as_of_week}" if args.as_of_week is not None else ""
+        print(f"::warning title=Empty slate — boards left untouched::season {season} "
+              f"has 0 played games{horizon}. Skipped scoring for "
+              f"{len(slugs)} group(s) rather than overwrite good boards with a "
+              f"pre-season artifact (playbook rule 5). Pass --allow-empty to "
+              f"force a zero-state board.")
+        print(f"\nSKIPPED: 0 played games{horizon} — "
+              f"docs/data/<group_id>/ left untouched. Nothing was overwritten.")
+        return
+    print(f"  slate: {played} played game(s){' (--allow-empty)' if args.allow_empty else ''}")
 
     for slug in slugs:
         print(f"\n[{slug}]")
