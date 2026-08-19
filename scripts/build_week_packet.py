@@ -63,8 +63,10 @@ FEUD_ADJACENCY_BONUS = 2.0       # bonus when the two are adjacent in the table
 COLLAPSE_LOOKBACK_WEEKS = 3      # a collapse is a SLIDE, measured over a window
 COLLAPSE_MIN_CEILING_DROP = 2.0  # min ceiling loss (games) across that window
 COLLAPSE_TOP_HALF_ONLY = True    # a collapse only reads as one from up high
-IRONY_BASE = 3.0                 # flat score for a newly clinched/dead pick
-IRONY_LEADER_FLIP_BONUS = 4.0    # bonus when the week changed the leader
+IRONY_BASE = 0.5                 # floor, so any resolved pick registers at all
+IRONY_DELTA_WEIGHT = 1.0         # + this per game of the pick's OWN |banked_delta|
+IRONY_LEADER_FLIP_BONUS = 4.0    # MAX flip credit, scaled by share of the swing
+IRONY_FLIP_MIN_SHARE = 0.1       # min share of the swing to claim any flip credit
 HEATER_MIN_DELTA = 1.5           # min banked gain PER WEEK to count as a heater
 HEATER_STREAK_WEIGHT = 1.0       # per consecutive positive week
 BAD_BEAT_MAX_MARGIN = 8          # points; wider than this isn't a bad beat
@@ -422,8 +424,71 @@ def detect_collapses(cur, prior, race_rows, timeline, week):
     return stories
 
 
-def detect_ironies(cur, prior, race_rows, leader_changed):
-    """Picks that newly clinched or newly died since the prior snapshot."""
+def flip_attribution(cur, prior, prior_leader, leader):
+    """Who actually moved the lead, and by how much each pick moved it.
+
+    A lead change is a TWO-PARTY event between the manager who held the lead at
+    the prior snapshot (old) and the one holding it now (new). Every other
+    manager's picks are bystanders to it, however dramatic they were on their
+    own terms.
+
+    The swing is how far the pair travelled relative to each other:
+
+        swing = (old - new, at the prior snapshot) + (new - old, now)
+
+    and each of the pair's picks contributed whatever it moved in the flip's
+    favour: the new leader gaining, or the old leader shedding. That
+    decomposition is EXACT, not a heuristic — a manager's banked_total is by
+    contract just the sum of that manager's picks' banked_delta, so the pair's
+    per-pick contributions necessarily sum to the swing. `share` is therefore a
+    real fraction of a real quantity, which is what makes it safe to scale a
+    score by.
+
+    Returns None when nothing flipped, or when the swing is degenerate (<= 0,
+    which a consistent pair of snapshots cannot produce, but a hand-edited
+    timeline could).
+    """
+    if not prior or not prior_leader or prior_leader == leader:
+        return None
+    old, new = prior_leader, leader
+    if not all(m in cur and m in prior for m in (old, new)):
+        return None
+    swing = ((prior[old]["banked_total"] - prior[new]["banked_total"])
+             + (cur[new]["banked_total"] - cur[old]["banked_total"]))
+    if swing is None or swing <= 0:
+        return None
+
+    shares = {}
+    for mid, sign in ((new, 1.0), (old, -1.0)):
+        for team, pk in cur[mid]["picks"].items():
+            pp = _prior_pick(prior, mid, team)
+            if not pp or pp["banked_delta"] is None or pk["banked_delta"] is None:
+                continue
+            # Signed so "helped the flip happen" is positive on both sides: the
+            # new leader gaining ground, or the old leader shedding it.
+            contribution = sign * (pk["banked_delta"] - pp["banked_delta"])
+            if contribution <= 0:
+                continue                   # moved against the flip, or not at all
+            shares[(mid, team)] = (_r(contribution), contribution / swing)
+    return {"old": old, "new": new, "swing": _r(swing), "shares": shares}
+
+
+def detect_ironies(cur, prior, race_rows, flip):
+    """Picks that newly clinched or newly died since the prior snapshot.
+
+    Scored on the pick's OWN resolved magnitude, plus flip credit only for the
+    picks that measurably moved the lead (see flip_attribution).
+
+    This replaces a flat IRONY_BASE plus a group-wide leader-flip bonus. That
+    version had two defects. It was constant + constant, so a pick resolving at
+    +/-0.5 scored identically to one resolving at +/-5.5 and every irony in the
+    week tied. And `leader_changed` was a single boolean for the whole group, so
+    a bystander's routine clinch was stamped with the same flip bonus as the
+    pick that actually took the lead. Together they put ordinary status changes
+    above a maximally-diverged feud, contradicting the preference order that
+    TYPE_PRIORITY and the persona template both state — and TYPE_PRIORITY could
+    not correct it, because it only breaks ties between EQUAL scores.
+    """
     if not prior:
         return []
     stories = []
@@ -436,19 +501,42 @@ def detect_ironies(cur, prior, race_rows, leader_changed):
                 continue
             if pk["status"] not in ("CLINCHED", "DEAD"):
                 continue
-            score = IRONY_BASE + (IRONY_LEADER_FLIP_BONUS if leader_changed else 0.0)
+
+            score = IRONY_BASE + IRONY_DELTA_WEIGHT * abs(pk["banked_delta"] or 0.0)
+
+            # Flip credit is proportional to the share of the swing this pick
+            # actually accounts for, so a pick that single-handedly moved the
+            # lead earns the full bonus and a marginal one earns a marginal
+            # slice. Below IRONY_FLIP_MIN_SHARE it earns nothing AND is told
+            # nothing, rather than handing the column a rounding error to
+            # narrate as causation.
+            contribution = None
+            if flip:
+                got = flip["shares"].get((mid, team))
+                if got and got[1] >= IRONY_FLIP_MIN_SHARE:
+                    contribution, share = got
+                    score += IRONY_LEADER_FLIP_BONUS * share
+
             stories.append({
                 "type": "irony",
                 "narrative_score": _r(score),
                 "managers": [mid],
+                # Published in GAMES — the same unit as every other packet
+                # number, by plain subtraction of two contract fields. The
+                # share is deliberately NOT published: it is a percentage the
+                # output contract never defines, and the column prints what it
+                # is given (sacred rule 1).
+                "flip_contribution": contribution,
+                "flip_swing_total": flip["swing"] if contribution is not None else None,
                 "picks": [pick_payload(mid, pk, pp)],
                 "race_position": race_position(race_rows, [mid]),
                 "evidence": (
                     f"{mid}'s {team} {pk['direction']} {pk['line']} went "
                     f"{pp['status']} -> {pk['status']} (floor {pk['floor']:+g}, "
                     f"ceiling {pk['ceiling']:+g})"
-                    + ("; the lead changed hands the same week."
-                       if leader_changed else ".")),
+                    + (f"; it moved {contribution:+g} of the {flip['swing']:g} "
+                       f"game(s) by which the lead passed from {flip['old']} to "
+                       f"{flip['new']}." if contribution is not None else ".")),
             })
     return stories
 
@@ -743,11 +831,11 @@ def build_packet(group_id, cli_week=None):
     prior_leader = None
     if prior:
         prior_leader = min(prior.items(), key=lambda kv: kv[1]["rank"])[0]
-    leader_changed = bool(prior_leader and prior_leader != race["leader"])
+    flip = flip_attribution(cur, prior, prior_leader, race["leader"])
 
     stories = (detect_feuds(cur, prior, picks, rows)
                + detect_collapses(cur, prior, rows, timeline, week)
-               + detect_ironies(cur, prior, rows, leader_changed)
+               + detect_ironies(cur, prior, rows, flip)
                + detect_heater(cur, prior, rows, timeline, week, weeks_elapsed))
     stories = rank_storylines(stories)
     if not stories or stories[0]["narrative_score"] < QUIET_WEEK_FLOOR:
