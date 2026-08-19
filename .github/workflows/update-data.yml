@@ -137,8 +137,15 @@ jobs:
           git config user.name "CFB Fantasy Bot"
           git config user.email "bot@cfb-fantasy.local"
           # Scope is deliberate — the bot commits only pipeline outputs, never untracked working files.
-          # ratings_archive is added here when SP+ archiving lands.
+          # SP+ archiving HAS landed: fetch_results.py writes an append-only vintage
+          # snapshot to data/ratings_archive/<season>/<date>.json every good pull.
+          # It is staged here because anything left unstaged dies with the runner.
           git add data/cfbd_cache.json docs/data
+          # Guarded: a degraded run writes no snapshot, and an unmatched pathspec
+          # is fatal — that would take the cache and boards down with it (rule 3).
+          if [ -d data/ratings_archive ]; then
+            git add data/ratings_archive/
+          fi
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
