@@ -22,6 +22,13 @@
   "TOKENS: {group} always expands; per-subject slots also expand {id}.",
   "Substitution runs AFTER selection so rotation never depends on the subject.",
   "",
+  "by_id (OPTIONAL, per-subject slots only): { <id>: { mode, candidates } }.",
+  "Because selection runs before {id} is substituted, ONE group-level list has",
+  "to fit every subject in the group -- so a three-variant list written for the",
+  "one manager who has three hands the manager who has one a _03 that is a 404.",
+  "A subject listed in by_id uses their own spec instead; anyone absent falls",
+  "through to the group's. Rotation still happens within the chosen spec only.",
+  "",
   "CANDIDATE STRINGS are docs-relative image paths, EXCEPT manager_avatar,",
   "whose candidates are size-suffix BASES -- app.js appends _56.webp / _112.webp",
   "to build the 1x/2x srcset pair, exactly as it did before slots existed.",
@@ -99,7 +106,33 @@
    "manager_avatar": { "mode": "fixed",  "candidates": [] },
    "editorial_hero": { "mode": "fixed",  "candidates": [] },
    "svp_column_art": { "mode": "weekly", "candidates": [] },
-   "profile_hero":   { "mode": "fixed",  "candidates": [] }
+   "profile_hero":   {
+    "$why": [
+     "Uneven variant counts, which is what by_id is for: bryan has three",
+     "images and todd two, so both rotate; hauck, matt_m and zach have one",
+     "each and take the group default below. Every path here was checked",
+     "against disk before it was declared."
+    ],
+    "mode": "fixed",
+    "candidates": ["assets/profiles/{group}/{id}.webp"],
+    "by_id": {
+     "bryan": {
+      "mode": "random",
+      "candidates": [
+       "assets/profiles/browns/bryan_01.webp",
+       "assets/profiles/browns/bryan_02.webp",
+       "assets/profiles/browns/bryan_03.webp"
+      ]
+     },
+     "todd": {
+      "mode": "random",
+      "candidates": [
+       "assets/profiles/browns/todd_01.webp",
+       "assets/profiles/browns/todd_02.webp"
+      ]
+     }
+    }
+   }
   }
  }
 }

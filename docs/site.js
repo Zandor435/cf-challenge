@@ -126,10 +126,27 @@ function expandArt(path, groupId, tokens) {
 // NaN and non-integers all collapse to candidates[0] -- identical to `fixed`.
 // A `weekly` slot therefore renders correctly on day one instead of asking for
 // candidates[NaN] and blanking the surface it was supposed to fill.
+//
+// PER-SUBJECT OVERRIDE (`by_id`), and the exact bug it exists to prevent:
+// selection runs BEFORE {id} is substituted, which is what keeps rotation from
+// depending on who is being rendered. The consequence is that one group-level
+// candidate list has to fit every manager in the group -- so a list of three
+// {id}_NN variants, written for the one manager who has three, hands the
+// manager who has one a _03 that does not exist. Browns is exactly that shape:
+// bryan has three images, todd two, everyone else one. `by_id` lets a single
+// subject carry their own {mode, candidates} spec; anyone not listed falls
+// through to the group's. Rotation still happens strictly within whichever
+// spec was chosen, so the ordering rule above is unchanged.
 function resolveArt(groupId, slot, week, tokens) {
   const groups = (ART_SLOTS && ART_SLOTS.groups) || {};
-  const spec = (groups[groupId] || {})[slot];
+  let spec = (groups[groupId] || {})[slot];
   if (!spec) return null;
+  const subject = tokens && tokens.id;
+  if (subject && spec.by_id &&
+      Object.prototype.hasOwnProperty.call(spec.by_id, subject)) {
+    spec = spec.by_id[subject];
+    if (!spec) return null;
+  }
   const list = (Array.isArray(spec.candidates) ? spec.candidates : [])
     .filter((s) => typeof s === 'string' && s);
   // Declared-but-empty is deliberately the same answer as never declared.
