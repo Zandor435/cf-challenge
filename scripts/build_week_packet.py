@@ -555,6 +555,15 @@ def detect_ironies(cur, prior, race_rows, flip):
                 # share is deliberately NOT published: it is a percentage the
                 # output contract never defines, and the column prints what it
                 # is given (sacred rule 1).
+                #
+                # flip_swing_total is the pair's total RELATIVE TRAVEL -- the
+                # old leader's prior lead plus the new leader's current one --
+                # so it is deliberately NOT a margin and matches no gap on the
+                # board. Panel wk16: chris led by 38, blaine now leads by 17,
+                # swing 55. The evidence string said "the games by which the
+                # lead passed", which reads as exactly the margin it isn't, and
+                # a pundit quoting it verbatim would have printed a number the
+                # boards contradict. Name it as ground that changed hands.
                 "flip_contribution": contribution,
                 "flip_swing_total": flip["swing"] if contribution is not None else None,
                 "picks": [pick_payload(mid, pk, pp)],
@@ -564,8 +573,9 @@ def detect_ironies(cur, prior, race_rows, flip):
                     f"{pp['status']} -> {pk['status']} (floor {pk['floor']:+g}, "
                     f"ceiling {pk['ceiling']:+g})"
                     + (f"; it moved {contribution:+g} of the {flip['swing']:g} "
-                       f"game(s) by which the lead passed from {flip['old']} to "
-                       f"{flip['new']}." if contribution is not None else ".")),
+                       f"game(s) of ground that changed hands between "
+                       f"{flip['old']} and {flip['new']} as the lead passed."
+                       if contribution is not None else ".")),
             })
     return stories
 
