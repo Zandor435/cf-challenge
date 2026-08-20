@@ -1,7 +1,7 @@
 # Output Contract — the engine's write surface (LOCKED)
 
 Every downstream consumer (site, email, pundit) reads **only** what this file
-defines. The engine writes exactly three files per group to the single write
+defines. The engine writes exactly four files per group to the single write
 target `docs/data/<group_id>/` (GitHub Pages serves from `docs/` on main):
 
 | file | board | overwrite vs accumulate |
@@ -9,6 +9,7 @@ target `docs/data/<group_id>/` (GitHub Pages serves from `docs/` on main):
 | `standings.json`  | Board 1 — exact arithmetic | **overwrite** (regenerated each run) |
 | `projection.json` | Board 2 — labeled projection | **overwrite** (regenerated each run) |
 | `timeline.json`   | history | **append-only** (one snapshot per scored week; idempotent) |
+| `analytics.json`  | Board 3 — reshape of the three above | **overwrite** (regenerated each run) |
 
 `scripts/test_output_shape.py` validates every emitted file against this
 contract; it is part of the suite. Consumers may rely on every key below being
@@ -22,7 +23,7 @@ run (real current week). All timestamps are ISO-8601 UTC.
 
 ---
 
-## `meta` block (shared by standings.json + projection.json)
+## `meta` block (shared by standings.json + projection.json + analytics.json)
 
 ```json
 {
@@ -203,3 +204,240 @@ negative correlation.
   row per pull. A pick's line never moves (§1), and banked results only ever
   firm up within a week, so the latest snapshot is always the most correct one.
   Consumers that want intra-week deltas should diff across weeks, not runs.
+
+---
+
+## `analytics.json` — Board 3 (reshape; the analytics page is a pure renderer)
+
+The analytics page **computes nothing**. Every number it shows is computed in
+`scripts/analytics.py` and shipped as a key — including ratios and sort order.
+If the page needs a number, it gets a key. This is the same rule the rest of the
+site follows, stated once more because this file is where it is easiest to break.
+
+`analytics.json` re-derives nothing another board owns: `p_win_pool` is plumbed
+straight from `projection.json`, ranks/floors/ceilings from `standings.json`,
+week-over-week movement from `timeline.json`. It reads no cache and runs no
+model, so it cannot disagree with the boards next to it.
+
+### Board separation is part of the contract
+
+Every module carries an explicit `board` field:
+
+| value | meaning | renderer obligation |
+|-------|---------|---------------------|
+| `"exact"` | derived from banked results and the floor/ceiling envelope; reproducible by hand off `standings.json` | none — present as fact |
+| `"projection"` | derived from the Poisson-binomial / shared-draw model | **must** carry a projection label |
+
+No module ships without a `board`, and no module mixes both kinds of number
+inside itself without per-field marking. Today exactly one module
+(`championship_odds`) is `"projection"`; every other module is `"exact"`.
+`scripts/test_output_shape.py` asserts both the presence and the validity of
+every `board` field.
+
+### Top level
+
+```json
+{
+  "meta": { "...": "meta block (no draft_status, no ratings keys)" },
+  "race":               { "board": "exact",      "...": "" },
+  "championship_odds":  { "board": "projection", "...": "" },
+  "best_worst":         { "board": "exact",      "...": "" },
+  "paths":              { "board": "exact",      "...": "" },
+  "portfolio":          { "board": "exact",      "...": "" },
+  "leverage": null
+}
+```
+
+`leverage` ("games that matter") is **reserved and pinned to `null`**. It is the
+only genuinely new arithmetic on this page and it lands in its own commit against
+this contract. The key exists now so the shape is stable: the renderer branches
+on `leverage === null`, never on whether the key is present.
+
+### `race` — board: exact
+
+```json
+{
+  "board": "exact",
+  "prior_week": 6,
+  "leader_id": "blaine",
+  "managers": [
+    {
+      "manager_id": "blaine", "display_name": "Blaine",
+      "rank": 1, "banked_total": 9.0, "floor": 9.0, "ceiling": 9.0,
+      "gap_to_leader": 0.0, "ceiling_remaining": 0.0, "week_move": 3
+    }
+  ]
+}
+```
+- Ordered by `rank` (standings order).
+- `gap_to_leader` = leader's `banked_total` minus mine. Always `>= 0`; `0` for
+  the leader.
+- `ceiling_remaining` = `ceiling` minus `banked_total` — the points still
+  physically on the table. `0.0` once every pick is settled.
+- `week_move` = **signed places gained** (`prior_rank - rank`): `+2` climbed two
+  spots, `-1` slipped one, `0` held. `null` — never `0` — when there is no prior
+  snapshot or the manager did not appear in it.
+- `prior_week` = the `as_of_week` of the snapshot `week_move` was measured
+  against, or `null`. That comparison snapshot is the most recent one **strictly
+  before** the effective week being scored: `run_groups.py` appends the current
+  week's snapshot before analytics runs, so "the latest snapshot" would be this
+  week and every move would read `0`.
+- Prior ranks are recomputed from that snapshot's per-pick `banked_delta` /
+  `floor` using **exactly** `standings.json`'s ordering (`banked_total` desc,
+  `floor` desc, `manager_id` asc) — the snapshot carries no `rank` of its own.
+
+### `championship_odds` — board: **projection**
+
+```json
+{
+  "board": "projection",
+  "prior_week": 6,
+  "available": true,
+  "managers": [
+    { "manager_id": "blaine", "display_name": "Blaine",
+      "p_win_pool": 1.0, "week_move": 0.267733 }
+  ]
+}
+```
+- **Sorted by `p_win_pool` desc** (nulls last, then `manager_id`) — its own
+  ranking, not standings order. Sorting in JS would be computation.
+- `p_win_pool` is **plumbed verbatim** from `projection.json`, never recomputed.
+  The pool sim uses shared per-team draws (ARCHITECTURE §3); recomputing it off
+  the per-pick distributions would drop that anti-correlation and print a
+  different, wronger number under the same label.
+- `week_move` here is a **change in probability** (`p_win_pool` minus the prior
+  snapshot's), signed, 6 decimals — *not* a change in places. `race` owns places.
+  `null` when the projector degraded, when there is no prior snapshot, or when
+  either side's `p_win_pool` is missing.
+- `available` is `false` when the projector degraded this run: every
+  `p_win_pool` is `null`, and the page should say the projection is unavailable
+  rather than render a column of blanks.
+
+### `best_worst` — board: exact
+
+```json
+{
+  "board": "exact",
+  "steal": [ { "manager_id": "blaine", "display_name": "Blaine",
+               "team": "Ohio State", "conference": "Big Ten",
+               "line": 9.5, "direction": "O", "delta": 2.5 } ],
+  "bust":  [ { "...": "same shape" } ],
+  "managers": [
+    { "manager_id": "blaine", "display_name": "Blaine",
+      "mvp": [ { "...": "same shape" } ],
+      "anchor": [ { "...": "same shape" } ] }
+  ]
+}
+```
+- `steal` = the group-wide largest **positive** `banked_delta`; `bust` = the
+  largest **negative**. Sign-gated: a group where nobody is above their line has
+  no steal and emits `[]`.
+- `mvp` / `anchor` = that manager's own best and worst pick. **Relative, not
+  sign-gated** — a manager's best pick is still their best pick when it is under
+  water. A one-pick manager is their own mvp *and* anchor.
+- **Ties emit every tied entry.** All four fields are arrays, always, even for a
+  single winner. The renderer must handle `length > 1` and `length == 0`.
+- `delta` is the pick's `banked_delta` from `standings.json`, unchanged.
+
+### `paths` — board: exact
+
+```json
+{
+  "board": "exact",
+  "leader_id": "blaine",
+  "managers": [
+    {
+      "manager_id": "chris", "display_name": "Chris",
+      "state": "eliminated",
+      "comparison": {
+        "basis": "ceiling_vs_highest_floor",
+        "my_field": "ceiling", "my_value": -8.0,
+        "operator": "<",
+        "other_manager_id": "blaine", "other_display_name": "Blaine",
+        "other_field": "floor", "other_value": 9.0
+      }
+    }
+  ]
+}
+```
+Derived **entirely** from the floor/ceiling envelope already in
+`standings.json` — no new math, nothing the reader cannot check by eye.
+Evaluated in this order, and **the order is part of the contract**:
+
+| # | `state` | rule | `basis` |
+|---|---------|------|---------|
+| 1 | `eliminated` | my `ceiling` < some manager's `floor` (binding = the highest such floor) | `ceiling_vs_highest_floor` |
+| 2 | `clinched` | my `floor` > every other manager's `ceiling` | `floor_vs_highest_ceiling` |
+| 3 | `controls_destiny` | my `ceiling` > every other `floor` **and** I currently lead | `ceiling_vs_highest_floor` |
+| 4 | `needs_help` | otherwise — my `ceiling` can still reach the leader's `floor`, but I cannot get there alone | `ceiling_vs_leader_floor` |
+
+- `eliminated` is tested **first** because it is the only strictly-dominating
+  fact: if someone's guaranteed minimum already exceeds my maximum, no later rule
+  should be able to paint that as alive.
+- `needs_help` is the closed-set fallback and reports `>=` where the four literal
+  rules use `>`. That `>=` is what keeps the state set closed: at
+  `ceiling == leader_floor` I am not eliminated (a tie is still reachable) but I
+  cannot win outright alone. Without it, a group tied at zero (pre-draft, dummy
+  picks, a group with no scored weeks) would fall through all four rules into no
+  state at all.
+- A sole manager is `clinched` with `basis: "sole_manager"` and every `other_*`
+  field `null` — vacuously true, said explicitly rather than compared against
+  nobody.
+- **Week 1 puts everyone in `controls_destiny` / `needs_help`. That is correct**
+  and the page says so; it is not special-cased.
+- `comparison` is emitted as **operands, not prose**, so the renderer shows the
+  reasoning ("your ceiling 4.5 is below Blaine's floor 9.0") rather than an
+  unexplained label.
+
+### `portfolio` — board: exact
+
+```json
+{
+  "board": "exact",
+  "managers": [
+    {
+      "manager_id": "blaine", "display_name": "Blaine",
+      "banked_total": 9.0, "absolute_total": 9.0,
+      "picks": [
+        {
+          "team": "Ohio State", "conference": "Big Ten",
+          "line": 9.5, "direction": "O",
+          "banked_delta": 2.5, "floor": 2.5, "ceiling": 2.5,
+          "status": "CLINCHED", "games_remaining": 0,
+          "share_of_delta": 0.277778
+        }
+      ]
+    }
+  ]
+}
+```
+- Every pick the manager holds, in `standings.json` order; the per-pick fields
+  are the Board-1 values unchanged.
+- `absolute_total` = the sum of `|banked_delta|` over the manager's picks — the
+  total swing their portfolio has actually produced, regardless of direction.
+- `share_of_delta` = `|banked_delta| / absolute_total` — the **concentration
+  number**: how much of everything that has happened to this manager is this one
+  team. Absolute on both sides on purpose, so a `-6.0` anchor is 60% of a
+  portfolio that also holds `+4.0`, and a manager's shares sum to `1.0`. A signed
+  numerator over a signed total would blow up near a net-zero manager and print
+  shares above 100%.
+- `share_of_delta` is **`null`** — never `0`, never a divide error — when
+  `absolute_total == 0`. That is exactly the pre-draft / dummy / nothing-played
+  case, where the honest answer is "unknown", not "0% of nothing".
+
+### `meta`
+
+The shared meta block (`group_id`, `season`, `as_of_week`, `generated_at`,
+`cache_fetched_at`) with **no** extra keys — no `draft_status` (that stays on
+`standings.json`, the board the banner reads) and no `ratings_*` (analytics runs
+no model of its own, so the model's provenance stays on `projection.json`).
+The §6 season single-source guard applies: if `season.json` disagrees with the
+cache's season tag, the run fails loud and no file is emitted.
+
+### Degrade behavior
+
+Board 3 is a pure reshape, so a failure here means a bug in the reshaping, never
+bad data. Like the projector it logs a `::warning::` and continues —
+`standings.json` still ships and the run stays green-but-degraded rather than
+dark (CLAUDE.md rule 3). A group with `draft_status: "dummy"`, no scored weeks,
+or no timeline at all emits every module with honest nulls rather than crashing.
