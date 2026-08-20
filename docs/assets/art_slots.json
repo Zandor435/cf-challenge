@@ -51,8 +51,19 @@
     "candidates": []
    },
    "profile_hero": {
+    "$why": [
+     "REPOINTED from assets/portraits/{group}/{id}.webp. Three directories,",
+     "three consumers, one source image each -- they are NOT interchangeable:",
+     "  assets/profiles/  full-bleed page hero, long edge 1200 (managers.html)",
+     "  assets/portraits/ 256px poster + face crop for the lightbox rail",
+     "  img/avatars/      56/112 square crops for the standings rows",
+     "Pointing the hero at the 256px poster would upscale it four times over.",
+     "mode is `fixed` because panel has exactly one image per manager today.",
+     "The day a manager gets a second, this becomes `random` and lists every",
+     "variant -- the slot already supports it, no page change required."
+    ],
     "mode": "fixed",
-    "candidates": ["assets/portraits/{group}/{id}.webp"]
+    "candidates": ["assets/profiles/{group}/{id}.webp"]
    }
   },
   "family": {
