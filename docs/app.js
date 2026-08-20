@@ -175,7 +175,7 @@ function fitContrast(hex, groundHex, target) {
   return rgbToHex(out);
 }
 
-function buildManagerIdentity(managers, groupId) {
+function buildManagerIdentity(managers, groupId, week) {
   const ids = managers.map((m) => m.manager_id).slice().sort();
   // Manifest is {manager_id: {team, color}}; tolerate the earlier
   // {group: [id, ...]} array shape so a stale file still renders.
@@ -197,7 +197,16 @@ function buildManagerIdentity(managers, groupId) {
     // one portrait per person wherever they play. `entry` is still the gate,
     // so a group absent from the manifest (family, church) resolves to null
     // and emits no <img> at all: no request, no 404, no console error.
-    const av = entry ? `img/avatars/${m.manager_id}` : null;
+    // The manager_avatar slot picks WHICH base, `entry` still decides WHETHER
+    // there is one. Keeping the gate ahead of the slot is the whole reason a
+    // group with no art still costs zero requests: a declared candidate here
+    // would otherwise emit an <img> for every manager on every board.
+    // Slot candidates are size-suffix bases, not full paths, so the 1x/2x
+    // srcset pair below is built the same way it always was.
+    const av = entry
+      ? (resolveArt(groupId, 'manager_avatar', week, { id: m.manager_id })
+        || `img/avatars/${m.manager_id}`)
+      : null;
     // Team color when the manager has art, else the derived palette. Still
     // never hardcoded per roster -- the palette remains the fallback path.
     const seed = (entry && entry.color)
@@ -588,7 +597,11 @@ function computeMoves(standings, timeline) {
 // so it can never collide with a group slug (slugs are path/URL segments).
 const BANNER_KEY = '$banners';
 
-function bannerFor(groupId) {
+// Slot first, $banners second. The manifest list stays as the fallback so a
+// missing or 404ing art_slots.json leaves banner selection exactly as it was.
+function bannerFor(groupId, week) {
+  const slot = resolveArt(groupId, 'hero_banner', week);
+  if (slot) return slot;
   const list = (PORTRAITS && PORTRAITS[BANNER_KEY]) || [];
   return list.indexOf(groupId) >= 0 ? `assets/banners/${groupId}.webp` : null;
 }
@@ -614,7 +627,7 @@ function renderHero(standings, ident) {
     sub = `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span>.`;
   }
 
-  const banner = bannerFor(meta.group_id || currentGroupId());
+  const banner = bannerFor(meta.group_id || currentGroupId(), meta.as_of_week);
   // Decorative: the headline below carries the same information as text, so the
   // banner is alt="" rather than duplicating it for a screen reader.
   const bannerHTML = banner
@@ -1016,7 +1029,7 @@ async function main() {
     return;
   }
 
-  const ident = buildManagerIdentity(standings.managers || [], groupId);
+  const ident = buildManagerIdentity(standings.managers || [], groupId, meta.as_of_week);
 
   // Week-over-week move is a nice-to-have: a missing timeline.json must not
   // affect anything else on the page.
