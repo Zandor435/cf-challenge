@@ -52,6 +52,13 @@ jobs:
         run: python scripts/test_output_shape.py
       - name: test_projector_correlation.py
         run: python scripts/test_projector_correlation.py
+      # Head-to-head coupling (ARCHITECTURE §3). Silent when wrong in the worst
+      # way: an uncoupled pair produces trials where BOTH teams won the same
+      # game, which no assertion elsewhere would catch and which leaks straight
+      # into p_win_pool. The four real groups carry 5/10/17/28 such games, so
+      # this runs against committed picks, not only a synthetic fixture.
+      - name: test_projector_h2h.py
+        run: python scripts/test_projector_h2h.py
       - name: test_fetch_integrity.py
         run: python scripts/test_fetch_integrity.py
       # The scheduled pipeline's run gate. Both directions are silent when
