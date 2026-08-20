@@ -243,6 +243,58 @@ let TEAM_INFO = {};
 // emit an <img> for art we KNOW exists, so a group with none costs no 404s.
 let PORTRAITS = {};
 
+// ---------- art slots ------------------------------------------------------
+// One indirection between "this surface wants a picture" and "here is the
+// file", loaded from assets/art_slots.json (schema documented in that file's
+// $note). Same posture as the portraits manifest: a 404 leaves this {} and
+// every caller falls through to exactly what it did before slots existed.
+let ART_SLOTS = {};
+
+// {group} always expands; per-subject slots also pass {id}. Substitution runs
+// AFTER selection so which candidate rotates in never depends on the subject.
+// An unknown token is left verbatim rather than blanked -- a visibly wrong
+// path fails loudly at the img.onerror tier instead of silently resolving to
+// some shorter path that happens to exist.
+function expandArt(path, groupId, tokens) {
+  const t = Object.assign({ group: groupId }, tokens || {});
+  return String(path).replace(/\{(\w+)\}/g, (m, k) => (
+    Object.prototype.hasOwnProperty.call(t, k) ? String(t[k]) : m));
+}
+
+// Resolve ONE slot to ONE path, or null when the group declares no art for it.
+// null is the normal case -- family and church have none -- and is what pushes
+// the caller onto its existing fallback tiers. This never invents a path and
+// never returns a placeholder, so the fallback logic stays in one place
+// (avatar()/renderHero) rather than being duplicated here.
+//
+// THE WEEK RULE, which is the whole reason this takes `week` at all: it is
+// standings meta.as_of_week, which is null before the season's first scored
+// week. That is TODAY for all three groups, and it is true again at the start
+// of every future season. Only an integer can index the list; null, undefined,
+// NaN and non-integers all collapse to candidates[0] -- identical to `fixed`.
+// A `weekly` slot therefore renders correctly on day one instead of asking for
+// candidates[NaN] and blanking the surface it was supposed to fill.
+function resolveArt(groupId, slot, week, tokens) {
+  const groups = (ART_SLOTS && ART_SLOTS.groups) || {};
+  const spec = (groups[groupId] || {})[slot];
+  if (!spec) return null;
+  const list = (Array.isArray(spec.candidates) ? spec.candidates : [])
+    .filter((s) => typeof s === 'string' && s);
+  // Declared-but-empty is deliberately the same answer as never declared.
+  if (!list.length) return null;
+  const n = Number(week);
+  let pick = list[0];
+  if (spec.mode === 'weekly' && Number.isInteger(n)) {
+    // Modulo twice: a negative week (replay, backfill) must still land in range
+    // -- JS % keeps the sign, and list[-1] is undefined, not the last element.
+    pick = list[((n % list.length) + list.length) % list.length];
+  } else if (spec.mode === 'random') {
+    // Independent of week by definition, so no null-week branch is needed here.
+    pick = list[Math.floor(Math.random() * list.length)];
+  }
+  return expandArt(pick, groupId, tokens);
+}
+
 // CFBD returns SIXTEEN logo URLs per team — 8 sizes x light/dark, interleaved
 // light-then-dark descending 500..16 — so logos[0] is the 500px asset, far too
 // big for a 24px chip. Take a small LIGHT variant: 64px covers 2x displays.
@@ -924,15 +976,19 @@ async function main() {
 
   // Team identity is shared across groups, so it is fetched alongside (not
   // after) standings — one round trip, and a failure here only costs logos.
-  const [standingsRes, teamsRes, portraitsRes] = await Promise.allSettled([
+  const [standingsRes, teamsRes, portraitsRes, slotsRes] = await Promise.allSettled([
     fetchJSON(`data/${groupId}/standings.json`),
     fetchJSON('data/teams_canonical.json'),
     fetchJSON('assets/portraits/index.json'),
+    fetchJSON('assets/art_slots.json'),
   ]);
   TEAM_INFO = teamsRes.status === 'fulfilled' ? buildTeamIndex(teamsRes.value) : {};
   // A missing manifest is normal (no group has art yet) and costs only the
   // portraits — every avatar falls back to initials, nothing else notices.
   PORTRAITS = portraitsRes.status === 'fulfilled' ? (portraitsRes.value || {}) : {};
+  // Likewise for art slots: absent means every slot resolves to null, which is
+  // the pre-slots behavior verbatim. Nothing on the page requires this file.
+  ART_SLOTS = slotsRes.status === 'fulfilled' ? (slotsRes.value || {}) : {};
 
   let standings;
   try {
