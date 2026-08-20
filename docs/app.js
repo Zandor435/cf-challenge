@@ -174,6 +174,12 @@ function buildManagerIdentity(managers, groupId, week) {
       poster: base ? `${base}.webp` : null,
       face: av ? `${av}_56.webp` : null,
       face2x: av ? `${av}_112.webp` : null,
+      // Deep link into the profile page. Built here, once, so both board
+      // densities link the same place and the scoped-mode query survives the
+      // hop. Every manager gets one -- managers.html renders a real card off
+      // standings/projection even for someone with no persona content at all,
+      // so there is no such thing as a manager not worth linking to.
+      profile: `managers.html${navQuery(groupId).attr}#${encodeURIComponent(m.manager_id)}`,
     };
   });
   return map;
@@ -630,10 +636,12 @@ function totalCell(m) {
   </div>`;
 }
 function identityCell(m, id, picks) {
+  // The name is the link to the profile page — the row's own affordance, so
+  // no extra chevron or "view" column is needed on either board density.
   return `<div class="rank">${m.rank}</div>
     ${avatar(id, 'avatar-md')}
     <div class="mgr-id">
-      <div class="mgr-name">${esc(m.display_name)}</div>
+      <div class="mgr-name"><a class="mgr-profile-link" href="${id.profile}">${esc(m.display_name)}</a></div>
       <div class="mgr-sub">${picks.length} team${picks.length === 1 ? '' : 's'}</div>
     </div>`;
 }

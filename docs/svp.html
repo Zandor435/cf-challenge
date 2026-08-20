@@ -23,13 +23,14 @@
 <header class="svp-masthead">
   <div class="svp-masthead-inner">
     <a class="svp-wordmark" href="index.html">CF <span>Challenge</span></a>
-    <!-- The three built tabs only. PROFILES / ANALYTICS are unbuilt and their
-         COMING SOON placeholder lives on the home page, so they are not
-         linked from here rather than pointing at nothing. -->
+    <!-- The built tabs only. ANALYTICS is still unbuilt and its COMING SOON
+         placeholder lives on the home page, so it is not linked from here
+         rather than pointing at nothing. PROFILES is a real page now. -->
     <nav class="svp-nav" aria-label="Site sections">
       <a class="nav-btn" href="index.html">Home</a>
       <a class="nav-btn" href="index.html">Standings</a>
       <span class="nav-btn" aria-current="true">Weekly recap</span>
+      <a class="nav-btn" href="managers.html">Profiles</a>
     </nav>
     <span class="svp-week">Week 01</span>
   </div>
@@ -58,13 +59,17 @@
 </main>
 
 <script>
-  // Presentation only: carry ?group= back to the board so the league selection
-  // survives the round trip. No data is read here.
+  // Presentation only: carry ?group= (and ?scoped=1 with it) onto every
+  // internal link so the league selection survives the round trip. Selecting
+  // by the bare filename rather than one hardcoded href means a tab added to
+  // the nav above is covered without touching this. No data is read here.
   (function () {
     var q = location.search;
     if (!q) return;
-    document.querySelectorAll('a[href="index.html"]').forEach(function (a) {
-      a.setAttribute('href', 'index.html' + q);
+    ['index.html', 'managers.html'].forEach(function (page) {
+      document.querySelectorAll('a[href="' + page + '"]').forEach(function (a) {
+        a.setAttribute('href', page + q);
+      });
     });
   })();
 </script>

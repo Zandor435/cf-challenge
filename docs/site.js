@@ -36,7 +36,7 @@ const PAGE_NAV = [
   { label: 'HOME',         kind: 'home',   href: 'index.html' },
   { label: 'STANDINGS',    kind: 'detail', href: 'index.html' },
   { label: 'WEEKLY RECAP', kind: 'link',   href: 'svp.html' },
-  { label: 'PROFILES',     kind: 'soon' },
+  { label: 'PROFILES',     kind: 'link',   href: 'managers.html' },
   { label: 'ANALYTICS',    kind: 'soon' },
 ];
 
