@@ -779,3 +779,225 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ==========================================================================
+   MANAGER PROFILES (managers.html) — all new classes are mgr- prefixed.
+   NOTE the existing .mgr-row / .mgr-name / .mgr-head / .mgr-total / .mgr-id /
+   .mgr-sub / .mgr-main / .mgr-move / .mgr-c above belong to the STANDINGS
+   boards. Nothing here reuses those names; every selector below uses a second
+   segment those boards never use.
+
+   No new design language: the type scale, the rules, the tags and the status
+   colors are the ones already defined in this file. --mc is the manager team
+   color and is used for RULES AND FILLS ONLY, never for type — Colorado gold
+   sits at 1.94:1 on white, and keeping it out of text is why this page needs
+   no contrast-fitting pass. Where no color is known (a league with no persona
+   and no portrait manifest) it falls back to the site border color and the
+   layout is unchanged.
+   ========================================================================== */
+
+.mgr-masthead .svp-masthead-inner { max-width: 1080px; }
+
+.mgr-page { max-width: 1080px; margin: 0 auto; padding: 24px 20px 60px; }
+
+/* ---- page intro ---- */
+.mgr-intro { border-bottom: 3px solid var(--text); padding-bottom: 14px; margin-bottom: 8px; }
+.mgr-intro-kicker {
+  font-family: var(--mono); font-size: .62rem; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.mgr-intro-title {
+  font-family: var(--display); font-weight: 900; font-size: 2.4rem;
+  line-height: 1; letter-spacing: -.02em; margin-top: 6px;
+}
+.mgr-intro-sub {
+  font-family: var(--mono); font-size: .66rem; color: var(--text-faint);
+  margin-top: 8px; text-transform: uppercase; letter-spacing: .08em;
+}
+
+/* ---- one profile ---- */
+/* Single column by default; the art panel becomes a second column at 900px.
+   scroll-margin-top buys clearance for a #manager_id deep link. The masthead
+   is not sticky today — this is here so that making it sticky later cannot
+   silently start hiding the name of the person the reader followed a link to. */
+.mgr-profile {
+  --mc: var(--border);
+  display: grid; grid-template-columns: minmax(0, 1fr);
+  gap: 20px; align-items: start;
+  padding: 34px 0; border-bottom: 1px solid var(--border-soft);
+  scroll-margin-top: 16px;
+}
+.mgr-profile:last-child { border-bottom: 0; }
+
+/* ---- 1. art panel ---- */
+/* Emitted only when resolveArt() returned a path. With no art the element is
+   absent entirely — no grey box, no placeholder, no alt stub — and .mgr-copy
+   is the only child, so the single-column grid above already IS the full-width
+   layout. .has-no-art therefore carries no rules at this width; it exists so
+   the state is inspectable, so the wide-screen rule below can opt out of the
+   two-column split, and so the img.onerror handler can put a card into it
+   after render. */
+.mgr-art {
+  margin: 0; border: 1px solid var(--border);
+  border-top: 4px solid var(--mc); background: var(--bg);
+  /* Space reserved while the image is still in flight, so the figure does not
+     start life collapsed to its own 4px top border and then shove the whole
+     card down when the art lands. Released to the image's real proportions by
+     .is-loaded, so nothing is ever cropped or letterboxed to fit this number
+     -- it only has to be close enough to avoid a jump. The ground stays the
+     page background on purpose: a reserved frame is not the grey placeholder
+     box the no-art state forbids, and it must not look like one. */
+  aspect-ratio: 4 / 5;
+}
+.mgr-art.is-loaded { aspect-ratio: auto; }
+.mgr-art-img { display: block; width: 100%; height: auto; }
+
+/* ---- 2/3. identity ---- */
+.mgr-kicker {
+  font-family: var(--mono); font-size: .64rem; font-weight: 500;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted);
+  padding-left: 10px; border-left: 4px solid var(--mc);
+}
+.mgr-display {
+  font-family: var(--display); font-weight: 900; font-size: 2.6rem;
+  line-height: 1; letter-spacing: -.02em; margin-top: 8px;
+}
+/* No epithet: the name carries the block on its own, larger. */
+.mgr-display.is-solo { font-size: 3.2rem; margin-top: 0; }
+.mgr-realname { color: var(--text-muted); font-size: .9rem; margin-top: 8px; max-width: 52ch; }
+
+/* ---- 4. stat strip ---- */
+.mgr-stats {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px; margin-top: 18px;
+  background: var(--border-soft); border: 1px solid var(--border-soft);
+}
+.mgr-stat { background: var(--bg); padding: 10px 12px; }
+.mgr-stat-val { font-size: 1.24rem; font-weight: 600; line-height: 1.1; }
+.mgr-stat-val.pos { color: var(--positive); }
+.mgr-stat-val.neg { color: var(--negative); }
+.mgr-stat-lbl {
+  font-family: var(--mono); font-size: .56rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-faint); margin-top: 5px;
+}
+/* The model tile is visibly a different KIND of number from the three exact
+   ones beside it — the same tag treatment Board 2 carries on the home page. */
+.mgr-stat.is-proj { border-top: 2px solid var(--text-faint); }
+.mgr-stat.is-proj .mgr-stat-val { color: var(--text-muted); }
+.mgr-stat-lbl .card-tag { font-size: .5rem; margin-left: 4px; }
+.mgr-proj-note { margin-top: 8px; font-size: .72rem; }
+
+/* ---- 5. picks ---- */
+.mgr-picks {
+  --mgr-pick-grid: minmax(0, 1fr) 70px 46px 66px 52px 74px;
+  margin-top: 18px; border-top: 2px solid var(--text);
+}
+.mgr-pick-row {
+  display: grid; grid-template-columns: var(--mgr-pick-grid);
+  gap: 8px; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid var(--border-soft);
+  font-size: .8rem;
+}
+.mgr-pick-row.is-head {
+  font-family: var(--mono); font-size: .54rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-faint);
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+}
+.mgr-pick-row.is-dead { opacity: .55; }
+.mgr-pick-team { font-weight: 600; }
+.mgr-pick-conf { color: var(--text-faint); font-size: .68rem; }
+.mgr-pick-line, .mgr-pick-delta { text-align: right; }
+.mgr-pick-delta { font-weight: 600; }
+.mgr-pick-status {
+  font-family: var(--display); font-weight: 700; font-size: .62rem; letter-spacing: .06em;
+}
+.mgr-pick-status.st-live { color: var(--text); }
+.mgr-pick-status.st-clinched { color: var(--positive); }
+.mgr-pick-status.st-dead { color: var(--text-faint); }
+.mgr-picks-empty {
+  color: var(--text-faint); font-size: .8rem; padding: 20px 0; text-align: center;
+}
+
+/* ---- 6. backstory ---- */
+.mgr-prose { margin-top: 22px; max-width: 66ch; }
+.mgr-prose p { font-size: .94rem; line-height: 1.66; }
+.mgr-prose p + p { margin-top: 12px; }
+
+/* ---- 7. tendency / flaw ---- */
+.mgr-traits {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px; margin-top: 22px;
+}
+/* Straight tone leaves one item: it takes the full width rather than sitting
+   beside an empty column. */
+.mgr-traits.is-solo { grid-template-columns: minmax(0, 1fr); }
+.mgr-trait { border-top: 3px solid var(--mc); padding-top: 8px; }
+.mgr-trait-lbl {
+  font-family: var(--mono); font-size: .56rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+.mgr-trait-txt { font-size: .86rem; line-height: 1.55; margin-top: 6px; }
+
+/* ---- 8. running gag / 9. rival ---- */
+.mgr-gag, .mgr-rival {
+  margin-top: 16px; font-size: .86rem; line-height: 1.55;
+  padding-left: 12px; border-left: 3px solid var(--mc);
+}
+.mgr-gag-lbl, .mgr-rival-lbl {
+  display: block; font-family: var(--mono); font-size: .56rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint);
+  margin-bottom: 4px;
+}
+.mgr-rival a { color: var(--text); text-underline-offset: 3px; }
+
+/* ---- 10. back to top ---- */
+.mgr-top { margin-top: 22px; }
+.mgr-top a {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-faint); text-decoration: none;
+}
+.mgr-top a:hover, .mgr-top a:focus-visible { color: var(--text); text-decoration: underline; }
+
+/* ---- standings board -> profile deep link ---- */
+.mgr-profile-link { color: inherit; text-decoration: none; }
+.mgr-profile-link:hover, .mgr-profile-link:focus-visible {
+  text-decoration: underline; text-underline-offset: 2px;
+}
+
+@media (max-width: 620px) {
+  /* The pick table folds to two lines: the team and its status on top, the
+     numbers beneath. Six fixed columns at 360px would set a team name one word
+     per line. Each cell is placed BY NAME, so the header — which carries the
+     same classes — folds identically instead of drifting out of register with
+     the rows it labels. The header keeps only TEAM and STATUS: on two lines,
+     labelling the second one costs more room than it explains. */
+  .mgr-picks { --mgr-pick-grid: minmax(0, 1fr) auto auto auto; }
+  .mgr-pick-row { row-gap: 3px; column-gap: 10px; }
+  .mgr-pick-team   { grid-column: 1 / 4; grid-row: 1; }
+  .mgr-pick-status { grid-column: 4;     grid-row: 1; text-align: right; }
+  .mgr-pick-conf   { grid-column: 1;     grid-row: 2; }
+  .mgr-pick-line   { grid-column: 2;     grid-row: 2; text-align: right; }
+  .mgr-pick-ou     { grid-column: 3;     grid-row: 2; }
+  .mgr-pick-delta  { grid-column: 4;     grid-row: 2; text-align: right; }
+  .mgr-pick-row.is-head .mgr-pick-conf,
+  .mgr-pick-row.is-head .mgr-pick-line,
+  .mgr-pick-row.is-head .mgr-pick-ou,
+  .mgr-pick-row.is-head .mgr-pick-delta { display: none; }
+  .mgr-display { font-size: 2rem; }
+  .mgr-display.is-solo { font-size: 2.4rem; }
+  .mgr-intro-title { font-size: 1.9rem; }
+  .mgr-traits { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+}
+
+@media (min-width: 900px) {
+  /* The art panel becomes a real column and alternates sides down the page.
+     A card with no art opts back out to one column and simply runs full
+     width — that is the whole mechanism, no placeholder involved. */
+  .mgr-profile { grid-template-columns: 340px minmax(0, 1fr); gap: 34px; padding: 46px 0; }
+  .mgr-profile.is-flipped { grid-template-columns: minmax(0, 1fr) 340px; }
+  .mgr-profile.is-flipped .mgr-art { grid-column: 2; grid-row: 1; }
+  .mgr-profile.is-flipped .mgr-copy { grid-column: 1; grid-row: 1; }
+  .mgr-profile.has-no-art { grid-template-columns: minmax(0, 1fr); }
+  .mgr-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .mgr-intro-title { font-size: 3.2rem; }
+}

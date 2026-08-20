@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manager Profiles — CF Challenge</title>
+<meta name="description" content="Every manager in the league: persona, picks, and live standing.">
+<!-- Icon: the masthead shield, adapted for a tab bar. The SVG is the real
+     asset; favicon.ico is declared after it purely so the browsers that ignore
+     an SVG icon request a file that exists instead of 404ing on /favicon.ico. -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body id="top">
+
+<!-- GROUP-GENERIC. Nothing on this page knows about panel, or about four
+     managers. It renders whatever standings.json returns for ?group=, and
+     every persona field is optional — 18 of the 22 managers across the other
+     leagues launch with no persona content at all and still get a real card
+     off their picks and their standing. -->
+
+<header class="svp-masthead mgr-masthead">
+  <div class="svp-masthead-inner">
+    <a class="svp-wordmark" href="index.html" id="brand-link">CF <span>Challenge</span></a>
+    <!-- Built from PAGE_NAV in site.js so this strip cannot drift from the
+         home page's. Unbuilt (kind: 'soon') tabs are omitted here rather than
+         linked at nothing — this page has no COMING SOON panel to swap in. -->
+    <nav class="svp-nav" id="page-nav" aria-label="Site sections"></nav>
+    <span class="svp-week" id="group-label"></span>
+  </div>
+</header>
+
+<main class="mgr-page">
+  <div class="loading" id="loading">Loading&hellip;</div>
+
+  <!-- Fatal load error: an unknown ?group=, or a missing standings.json. Same
+       posture as app.js — name it and stop, never quietly serve another
+       league's numbers under this URL. -->
+  <section class="load-error" id="load-error" hidden></section>
+
+  <section class="mgr-intro" id="mgr-intro" hidden></section>
+
+  <div id="mgr-list"></div>
+</main>
+
+<footer class="site-foot">
+  <p>Standings are exact arithmetic off committed game results. The projection is a
+     model estimate from SP+ ratings and updates weekly. Data via collegefootballdata.com.</p>
+</footer>
+
+<!-- site.js first: it defines the shared group list, URL rules and
+     resolveArt() that managers.js reads by name. Order is load-bearing. -->
+<script src="site.js"></script>
+<script src="managers.js"></script>
+</body>
+</html>
