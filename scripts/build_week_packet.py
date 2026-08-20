@@ -910,6 +910,43 @@ def build_profiles(cur, picks):
     return profiles
 
 
+def uniform_profile_fields(profiles):
+    """The scalar manager_profiles fields that hold the SAME value for every
+    manager, mapped to that shared value.
+
+    A value the whole room shares distinguishes nobody, but read one profile at
+    a time it looks exactly like a personal stat. Week 16 the column filed "he
+    was the only manager with no live picks" off a finished board where
+    picks_alive was 0 for all four -- true number, fabricated exclusivity
+    (persona sacred rule 7). This names those fields in ONE place so the prompt
+    can say plainly which ones set nobody apart.
+
+    Deliberately GENERIC rather than a season-complete picks_alive special
+    case. Panel wk16 has two such fields, not one: picks_alive (0 everywhere,
+    because the season ended) and conference_spread (4 everywhere, because the
+    format mandates four distinct conferences). Fixing only the first would
+    leave "the only manager who spread across four conferences" armed and
+    sitting next to it. It also self-maintains: while the season runs and
+    picks_alive genuinely varies, it simply is not listed.
+
+    Scalars only -- best_pick/worst_pick are dicts and "identical" is not a
+    thing worth claiming about them. Needs >= 2 managers, since with one
+    manager every field is trivially uniform and the concept is empty. Returns
+    {} rather than being omitted, so the key is never conditional.
+    """
+    if len(profiles) < 2:
+        return {}
+    rows = list(profiles.values())
+    first = rows[0]
+    out = {}
+    for key, val in first.items():
+        if not isinstance(val, (int, float, bool)):
+            continue           # best_pick / worst_pick / a null avg_line
+        if all(r.get(key) == val for r in rows[1:]):
+            out[key] = val
+    return out
+
+
 # --- Build -------------------------------------------------------------------
 
 def build_packet(group_id, cli_week=None):
@@ -955,6 +992,7 @@ def build_packet(group_id, cli_week=None):
 
     lo = prior_week if prior_week is not None else 0
     bad_beats = build_bad_beats(cur, cache, lo, week)
+    profiles = build_profiles(cur, picks)
 
     return {
         "group_id": group_id,
@@ -979,7 +1017,9 @@ def build_packet(group_id, cli_week=None):
         "race": race,
         "storylines": stories,
         "bad_beat_candidates": bad_beats,
-        "manager_profiles": build_profiles(cur, picks),
+        "manager_profiles": profiles,
+        # Which of the above distinguish NOBODY this week (persona rule 7).
+        "uniform_profile_fields": uniform_profile_fields(profiles),
     }
 
 

@@ -51,7 +51,7 @@ def _has_keys(d, keys):
 
 PACKET_KEYS = {"group_id", "week", "generated_at", "season", "stakes",
                "comparison", "race", "storylines", "bad_beat_candidates",
-               "manager_profiles"}
+               "manager_profiles", "uniform_profile_fields"}
 COMPARISON_KEYS = {"prior_week", "weeks_elapsed", "basis"}
 RACE_ROW_KEYS = {"manager_id", "name", "total_delta", "gap_to_leader",
                  "delta_this_week", "rank", "rank_change"}
@@ -138,6 +138,18 @@ def validate_packet(pk, group):
           f"{len(profiles)} profile(s) vs {len(rows)} manager(s)")
     check(f"[{group}] profile keys", all(_has_keys(p, PROFILE_KEYS)
                                          for p in profiles.values()))
+    uni = pk.get("uniform_profile_fields")
+    check(f"[{group}] uniform_profile_fields is a dict",
+          isinstance(uni, dict), f"got {type(uni).__name__}")
+    provs = list(profiles.values())
+    check(f"[{group}] every field it claims as uniform really is uniform",
+          all(all(pr.get(k) == v for pr in provs) for k, v in (uni or {}).items()),
+          f"claimed {sorted(uni or {})}")
+    check(f"[{group}] no field that is uniform is left unclaimed",
+          all(k in (uni or {}) for k, v in (provs[0] if provs else {}).items()
+              if isinstance(v, (int, float))
+              and all(pr.get(k) == v for pr in provs[1:])),
+          f"claimed {sorted(uni or {})}")
     check(f"[{group}] over_count + under_count == picks held",
           all(p["over_count"] + p["under_count"] > 0 for p in profiles.values()))
 
@@ -641,6 +653,48 @@ def validate_season_complete():
           B.season_is_complete({"games": [{"week": 1}]}) is False)
 
 
+# --- Uniform profile fields --------------------------------------------------
+
+def validate_uniform_profile_fields():
+    """A value the whole room shares must be named as such, not left looking
+    like a personal stat (persona sacred rule 7)."""
+    U = B.uniform_profile_fields
+    shared = {
+        "ann": {"picks_alive": 0, "conference_spread": 4, "picks_dead": 3,
+                "best_pick": {"team": "Utah"}, "avg_line": 8.5},
+        "bob": {"picks_alive": 0, "conference_spread": 4, "picks_dead": 1,
+                "best_pick": {"team": "Rice"}, "avg_line": 7.5},
+        "cy":  {"picks_alive": 0, "conference_spread": 4, "picks_dead": 2,
+                "best_pick": None, "avg_line": 8.5},
+    }
+    got = U(shared)
+    check("uniform: a field every manager shares is reported",
+          got.get("picks_alive") == 0, f"got {got}")
+    check("uniform: catches EVERY shared field, not just picks_alive",
+          got.get("conference_spread") == 4, f"got {got}")
+    check("uniform: a field that varies is not reported",
+          "picks_dead" not in got, f"got {got}")
+    check("uniform: a varying field that collides on two managers is not reported",
+          "avg_line" not in got, f"got {got}")
+    check("uniform: dict-valued fields are skipped, never compared",
+          "best_pick" not in got, f"got {got}")
+
+    live = {"ann": {"picks_alive": 2}, "bob": {"picks_alive": 0}}
+    check("uniform: while the season runs, picks_alive varies and is not listed",
+          "picks_alive" not in U(live), f"got {U(live)}")
+    check("uniform: nothing shared -> empty dict, not a missing key",
+          U(live) == {}, f"got {U(live)}")
+    check("uniform: a single manager distinguishes nothing, so nothing is claimed",
+          U({"ann": {"picks_alive": 0}}) == {})
+    check("uniform: no managers at all -> empty dict", U({}) == {})
+
+    # A bool is not a count. Comparing on truthiness would match 0 against
+    # False, so the scalar guard has to keep them distinct.
+    mixed = {"ann": {"flag": False, "n": 0}, "bob": {"flag": False, "n": 0}}
+    check("uniform: booleans stay booleans, never coerced to 0",
+          U(mixed)["flag"] is False and U(mixed)["n"] == 0, f"got {U(mixed)}")
+
+
 # --- Fail-loud ---------------------------------------------------------------
 
 def validate_fail_loud():
@@ -692,6 +746,9 @@ def main():
 
     print("\nSeason completion:")
     validate_season_complete()
+
+    print("\nUniform profile fields:")
+    validate_uniform_profile_fields()
 
     print("\nFail-loud:")
     validate_fail_loud()

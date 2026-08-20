@@ -168,6 +168,41 @@ def validate_season_complete(base_packet):
           "THE SEASON IS OVER" not in user_text)
 
 
+def validate_uniform_fields(base_packet):
+    """A value the whole room shares must be stated as sharing, or the column
+    reads one profile and writes exclusivity (persona sacred rule 7)."""
+    shared = json.loads(json.dumps(base_packet))
+    shared["uniform_profile_fields"] = {"picks_alive": 0, "conference_spread": 4}
+    with sandbox("panel", shared):
+        _, user_text, _ = G.build_prompt("panel")
+    check("uniform: the prompt names the fields that distinguish nobody",
+          "DISTINGUISH NOBODY" in user_text)
+    check("uniform: it lists them with their shared value",
+          "picks_alive (0)" in user_text and "conference_spread (4)" in user_text)
+    check("uniform: the banned constructions are spelled out",
+          "the only one who" in user_text and "nobody else" in user_text)
+    check("uniform: a group-wide statement is still permitted",
+          "fact about the whole group" in user_text)
+
+    varied = json.loads(json.dumps(base_packet))
+    varied["uniform_profile_fields"] = {}
+    with sandbox("panel", varied):
+        _, user_text, _ = G.build_prompt("panel")
+    check("uniform: nothing shared -> no prohibition is imposed",
+          "DISTINGUISH NOBODY" not in user_text
+          and "Every manager_profiles field varies" in user_text)
+
+    # An older packet predating the field must not be told either way.
+    absent = json.loads(json.dumps(base_packet))
+    absent.pop("uniform_profile_fields", None)
+    with sandbox("panel", absent):
+        _, user_text, _ = G.build_prompt("panel")
+    check("uniform: a packet without the field does not crash the prompt",
+          isinstance(user_text, str) and len(user_text) > 0)
+    check("uniform: and claims no fields are shared",
+          "DISTINGUISH NOBODY" not in user_text)
+
+
 def validate_dry_run(base_packet):
     """--dry-run writes a complete preview and makes no network call."""
     with sandbox("panel", base_packet) as out:
@@ -264,6 +299,9 @@ def main():
 
     print("\nSeason completion in the prompt:")
     validate_season_complete(packet)
+
+    print("\nUniform profile fields in the prompt:")
+    validate_uniform_fields(packet)
 
     print("\nDry run:")
     validate_dry_run(packet)

@@ -201,12 +201,33 @@ def build_prompt(group_id):
                        "predates the season_complete field). Do not claim either "
                        "way, in either direction.")
 
+    # Same reasoning as season_line: a dict buried in 12KB of JSON is not an
+    # instruction. Week 16 the column read picks_alive: 0 off ONE profile and
+    # filed "the only manager with no live picks" -- true number, fabricated
+    # exclusivity, on a board where all four were zero (persona sacred rule 7).
+    uniform = packet.get("uniform_profile_fields") or {}
+    if uniform:
+        listed = ", ".join(f"{k} ({v:g})" if isinstance(v, (int, float))
+                           and not isinstance(v, bool) else f"{k} ({v})"
+                           for k, v in sorted(uniform.items()))
+        uniform_line = (
+            f"THESE manager_profiles FIELDS DISTINGUISH NOBODY this week — every "
+            f"manager shares the same value: {listed}. Do not write any of them "
+            f"as a trait that sets someone apart: no 'the only one who', 'nobody "
+            f"else', 'more than anyone', 'the first to'. You may still state such "
+            f"a value as a fact about the whole group.")
+    else:
+        uniform_line = ("Every manager_profiles field varies across the group "
+                        "this week, so any of them may support a comparison — "
+                        "provided the numbers actually back it.")
+
     parts = [
         f"GROUP: {group_id}    WEEK: {packet.get('week')}    "
         f"SEASON: {packet.get('season')}",
         f"BASIS FOR MOVEMENT: {basis}",
         basis_warning,
         season_line,
+        uniform_line,
         stakes_line,
         "",
         "=== COLUMN MEMORY (season continuity — established nicknames, feuds, "
