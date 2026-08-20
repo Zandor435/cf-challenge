@@ -43,6 +43,11 @@ jobs:
         run: python scripts/test_cache_access.py
       - name: test_pick_rules.py
         run: python scripts/test_pick_rules.py
+      # Draft entry (scripts/enter_draft.py). Hand-rolled like its neighbours,
+      # so the supplementary pytest step below collects ZERO items from it --
+      # it was passing locally and running nowhere until this line existed.
+      - name: test_enter_draft.py
+        run: python scripts/test_enter_draft.py
       - name: test_output_shape.py
         run: python scripts/test_output_shape.py
       - name: test_projector_correlation.py
