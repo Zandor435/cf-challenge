@@ -19,7 +19,7 @@
    the normal state for a league with no art and no prose, and the page must
    degrade to "picks and numbers" without a placeholder anywhere.
 
-   THE TONE GATE is the one rule in here that is not cosmetic. See isRoast().
+   THE TONE GATE is the one rule in here that is not cosmetic. See TONE_BLOCKS.
    ========================================================================== */
 'use strict';
 
@@ -31,22 +31,36 @@ const pct = (p) => (Number(p) * 100).toFixed(0) + '%';
 
 // ---------- the tone gate --------------------------------------------------
 // tone decides whether a person gets a "fatal flaw", a running gag, and a
-// named rival printed under their name.
+// named rival printed under their name. Three registers:
 //
-//   roast     everything present renders.
-//   straight  blocks 1-6 + draft_tendency + back-to-top ONLY. fatal_flaw,
-//             running_gag and rival are not rendered, not hidden with CSS —
-//             they never enter the markup.
+//   roast     everything present renders. Panel, Browns.
+//   warm      running gag and rival render; a fatal flaw NEVER does. CEC —
+//             the jokes aim at picks, not people, but the affectionate gag
+//             each manager has and the one real rivalry in the group are the
+//             point of the page and are not "flaws".
+//   straight  blocks 1-6 + draft_tendency + back-to-top ONLY. Family's John,
+//             Rachel and Vic.
 //
-// ANYTHING that is not exactly "roast" is treated as straight. That direction
-// is deliberate: a typo, a missing field, or a persona file written before
-// tone existed must fail toward the quiet version, because the failure mode in
-// the other direction is somebody's father captioned with a fatal flaw on a
-// page his family reads. scripts/sync_personas.py already nulls those three
-// fields for straight tone before publishing, so this is the second of two
-// independent gates, not the only one.
-function isRoast(p) {
-  return !!p && p.tone === 'roast';
+// Withheld blocks are not rendered, not hidden with CSS — they never enter
+// the markup.
+//
+// ANY tone that is not one of the three keys below is treated as `straight`,
+// the most restrictive. That direction is deliberate: a typo, a missing
+// field, or a persona file written before tone existed must fail toward the
+// quiet version, because the failure mode in the other direction is somebody's
+// father captioned with a fatal flaw on a page his family reads.
+// scripts/sync_personas.py already nulls each register's withheld fields
+// before publishing, so this is the second of two independent gates.
+const TONE_BLOCKS = {
+  roast:    { fatal_flaw: true,  running_gag: true,  rival: true },
+  warm:     { fatal_flaw: false, running_gag: true,  rival: true },
+  straight: { fatal_flaw: false, running_gag: false, rival: false },
+};
+
+function toneOf(p) {
+  const t = p && p.tone;
+  return Object.prototype.hasOwnProperty.call(TONE_BLOCKS, t)
+    ? TONE_BLOCKS[t] : TONE_BLOCKS.straight;
 }
 
 // ---------- empty states ---------------------------------------------------
@@ -176,15 +190,15 @@ function prose(p) {
   return `<div class="mgr-prose">${paras.map((t) => `<p>${esc(t)}</p>`).join('')}</div>`;
 }
 
-// 7 — draft tendency and fatal flaw, side by side. Under straight tone only
-// the tendency exists, and it takes the full width rather than sitting next to
-// an empty column.
-function traits(p, roast) {
+// 7 — draft tendency and fatal flaw, side by side. Draft tendency renders in
+// every register. Where the fatal flaw is withheld only the tendency remains,
+// and it takes the full width rather than sitting next to an empty column.
+function traits(p, allow) {
   const items = [];
   if (p && has(p.draft_tendency)) {
     items.push({ lbl: 'Draft tendency', txt: p.draft_tendency });
   }
-  if (roast && p && has(p.fatal_flaw)) {
+  if (allow.fatal_flaw && p && has(p.fatal_flaw)) {
     items.push({ lbl: 'Fatal flaw', txt: p.fatal_flaw });
   }
   if (!items.length) return '';
@@ -196,19 +210,19 @@ function traits(p, roast) {
   </div>`;
 }
 
-// 8 — running gag. Roast only.
-function gag(p, roast) {
-  if (!roast || !p || !has(p.running_gag)) return '';
+// 8 — running gag. Roast and warm; never straight.
+function gag(p, allow) {
+  if (!allow.running_gag || !p || !has(p.running_gag)) return '';
   return `<p class="mgr-gag"><span class="mgr-gag-lbl">Running gag</span>${esc(p.running_gag)}</p>`;
 }
 
-// 9 — rival. Roast only, and only when the rival is someone actually on this
-// page: the link is a same-page anchor, so an id that never rendered would be
-// a dead jump. sync_personas.py already rejects a rival that is not a
-// manager_id in the group; this second check catches the narrower case where
-// the roster and this render disagree.
-function rivalLine(p, roast, names) {
-  if (!roast || !p || !has(p.rival)) return '';
+// 9 — rival. Roast and warm; never straight. And only when the rival is
+// someone actually on this page: the link is a same-page anchor, so an id that
+// never rendered would be a dead jump. sync_personas.py already rejects a
+// rival that is not a manager_id in the group; this second check catches the
+// narrower case where the roster and this render disagree.
+function rivalLine(p, allow, names) {
+  if (!allow.rival || !p || !has(p.rival)) return '';
   const rid = String(p.rival);
   if (!Object.prototype.hasOwnProperty.call(names, rid)) return '';
   return `<p class="mgr-rival"><span class="mgr-rival-lbl">Rival</span>` +
@@ -218,7 +232,7 @@ function rivalLine(p, roast, names) {
 // ---------- one profile ----------------------------------------------------
 function profile(m, persona, proj, ctx, index) {
   const p = persona || null;
-  const roast = isRoast(p);
+  const allow = toneOf(p);
   const art = artPanel(ctx.groupId, m.manager_id, m.display_name, ctx.week);
   // Art alternates sides down the page; with no art the row collapses to one
   // full-width column and the alternation is moot.
@@ -237,9 +251,9 @@ function profile(m, persona, proj, ctx, index) {
       ${statStrip(m, proj, ctx.projNote)}
       ${pickTable(m)}
       ${prose(p)}
-      ${traits(p, roast)}
-      ${gag(p, roast)}
-      ${rivalLine(p, roast, ctx.names)}
+      ${traits(p, allow)}
+      ${gag(p, allow)}
+      ${rivalLine(p, allow, ctx.names)}
       <p class="mgr-top"><a href="#top">&uarr; Back to top</a></p>
     </div>
   </article>`;
@@ -271,6 +285,15 @@ function fail(title, body) {
 // The browser tries its hash scroll before this page has any content, so the
 // jump has to be redone once the profiles exist. Without this, every
 // managers.html?group=X#someone link lands at the top of the page.
+//
+// It then has to be redone a SECOND time: each art panel starts at a reserved
+// placeholder ratio and takes its real height on load, so every card above the
+// target grows or shrinks underneath the scroll we just performed and the
+// reader lands somewhere in the middle of the person they followed a link to.
+// The re-jump is skipped if the reader has scrolled in the meantime — landing
+// imperfectly is a smaller sin than yanking the page out from under someone.
+let jumpedAt = null;
+
 function jumpToHash() {
   if (!location.hash || location.hash.length < 2) return;
   let el = null;
@@ -279,8 +302,14 @@ function jumpToHash() {
   } catch (e) {
     el = null;                       // malformed percent-encoding: no jump
   }
-  if (el) el.scrollIntoView({ block: 'start' });
+  if (!el) return;
+  el.scrollIntoView({ block: 'start' });
+  jumpedAt = Math.round(window.scrollY);
 }
+
+window.addEventListener('load', () => {
+  if (jumpedAt !== null && Math.abs(window.scrollY - jumpedAt) <= 2) jumpToHash();
+}, { once: true });
 
 // ---------- boot -----------------------------------------------------------
 async function main() {
