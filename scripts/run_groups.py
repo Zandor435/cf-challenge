@@ -3,7 +3,7 @@
 run_groups.py — Multi-tenant pipeline loop (ARCHITECTURE §5, build order §10.4).
 
 Reshapes the ONE shared data/cfbd_cache.json into every group's boards:
-    (fetch) -> validate -> score -> project -> timeline
+    (fetch) -> validate -> score -> project -> timeline -> analytics
 looping over all groups off the single cache (four groups cost the same CFBD
 calls as one). Everything keyed by group_id; the only write target is
 docs/data/<group_id>/ (docs/output-contract.md).
@@ -13,6 +13,8 @@ Resilience (ARCHITECTURE §4, CLAUDE.md playbook rules 3/5):
   - Board 2 (projection) is a labeled best-guess: a projector failure LOGS a
     ::warning:: and continues — standings.json is still written, the run stays
     green-but-degraded rather than dark.
+  - Board 3 (analytics) is a pure reshape of boards 1/2 + the timeline; like the
+    projector it LOGS a ::warning:: and continues rather than taking Board 1 down.
   - timeline.json is append-only + idempotent on the effective week.
   - ZERO played games writes NOTHING (rule 5). Every board stays as it was,
     because a zero-state board is not empty-looking — it ranks managers purely
@@ -41,6 +43,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
 import scoring
 import projector
+import analytics
 from validate_team_names import validate_group
 
 SCRIPTS = Path(__file__).resolve().parent
@@ -146,8 +149,27 @@ def run_group(slug, as_of_week):
               f"standings.json still written, running degraded (§4).")
 
     eff = effective_week(as_of_week)
-    append_timeline(config, build_snapshot(standings, projection, eff))
+    timeline = append_timeline(config, build_snapshot(standings, projection, eff))
     print(f"  [{slug}] timeline.json (week {eff})")
+
+    # Board 3 — degrade, don't die (same contract as Board 2). Analytics is a
+    # pure RESHAPE of boards 1/2 + the timeline: it computes no probability and
+    # reads no cache, so a failure here means a bug in the reshaping, never bad
+    # data. Standings must still ship.
+    #
+    # Runs AFTER append_timeline on purpose, and is handed the freshly-appended
+    # timeline object rather than re-reading it: week_move compares against the
+    # last snapshot STRICTLY BEFORE this effective week, so appending first is
+    # harmless, and passing the object keeps the two from disagreeing if a
+    # concurrent run rewrites the file mid-loop.
+    try:
+        analytics.write_analytics(config, standings, projection, timeline,
+                                  as_of_week, eff_week=eff)
+        print(f"  [{slug}] analytics.json")
+    except Exception as e:  # noqa: BLE001 — analytics must never take down Board 1
+        print(f"::warning:: [{slug}] analytics FAILED ({type(e).__name__}: {e}); "
+              f"standings.json still written, running degraded (§4).")
+
     return standings, projection
 
 
