@@ -1,0 +1,110 @@
+{
+ "_note": [
+  "GENERATED -- do not edit. Written by scripts/sync_personas.py from",
+  "groups/family/personas.json (source) + groups/family/config.json.",
+  "Edit the source and re-run the script; --check runs in CI and fails on drift.",
+  "Art-pipeline fields (traits, silhouette_cue/s) are deliberately NOT published.",
+  "tone withholds fields per register: straight nulls fatal_flaw,",
+  "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing."
+ ],
+ "$version": 1,
+ "group_id": "family",
+ "managers": {
+  "rachel": {
+   "tone": "straight",
+   "display_name": "Rachel",
+   "epithet": "The Real Fan",
+   "tagline": null,
+   "backstory": "Baton Rouge raised, one of a big family, Ole Miss undergrad and LSU Law — the same track as John, which tells you something about how this household ended up. A genuine college football fan in her own right, not a spouse-adjacent one, a distinction she has never once had to make because everybody in this family already knows it.",
+   "running_gag": null,
+   "draft_tendency": "Sneaky-good. Doesn’t announce anything.",
+   "fatal_flaw": null,
+   "rival": null,
+   "color": null
+  },
+  "john": {
+   "tone": "straight",
+   "display_name": "John",
+   "epithet": "The Counselor",
+   "tagline": "Ole Miss first, LSU second, and he’d like the record to reflect that.",
+   "backstory": "McComb, Mississippi, and still the best football conversation in the family. He was a high school star in McComb before most of this roster’s parents were born, went to Ole Miss undergrad, then LSU Law, then spent years in the Attorney General’s office building arguments for a living. He is an Ole Miss man first and an LSU man immediately after, and he will explain the ordering with the patience of someone who has explained harder things to worse audiences. Every college football take Zach has ever had was pressure-tested against this man first.",
+   "running_gag": null,
+   "draft_tendency": "Builds a case. Won’t take a pick he can’t defend out loud.",
+   "fatal_flaw": null,
+   "rival": null,
+   "color": null
+  },
+  "vic": {
+   "tone": "straight",
+   "display_name": "Vic",
+   "epithet": "Abita Springs",
+   "tagline": null,
+   "backstory": "John’s brother and Zach’s uncle. McComb-born, spent years in Diamondhead, and recently moved to Abita Springs, Louisiana — a decision he is delighted with. He is here because he likes being in it with everybody, which is a better reason than most people in this pool have.",
+   "running_gag": null,
+   "draft_tendency": "Unbothered. Picks, commits, moves on.",
+   "fatal_flaw": null,
+   "rival": null,
+   "color": null
+  },
+  "gayden": {
+   "tone": "roast",
+   "display_name": "Gayden",
+   "epithet": "Blue Belt",
+   "tagline": null,
+   "backstory": "Seven years older than Zach and running at a completely different RPM. Medical device rep in Denver, obsessive about jiu-jitsu — picked it up only a couple of years ago and is already a blue belt, training with his son, which is exactly the level of intensity you’d expect from a man who does not have a casual setting. He is not a died-in-the-wool college football guy. He is a died-in-the-wool competition guy, and this happens to be the competition available. He will take a joke. He will also take your arm.",
+   "running_gag": "Intensity. Applied to a $10 bet.",
+   "draft_tendency": "Aggressive. Will take a side hard and stay there.",
+   "fatal_flaw": "No casual setting. Anywhere. Ever.",
+   "rival": null,
+   "color": null
+  },
+  "devin": {
+   "tone": "roast",
+   "display_name": "Devin",
+   "epithet": "The Defending Champ",
+   "tagline": null,
+   "backstory": "Auburn undergrad, dad played receiver at LSU, so he’s an Auburn man with an LSU fallback and a lifelong inability to pick a side cleanly. Originally Birmingham, now outside Tampa, sales rep for a company that builds power line trucks. He is also the reigning World Cup champion, a title he holds legitimately, permanently, and — depending on which cousin you ask — through the exploitation of a scoring bug. He has never once acknowledged the asterisk. Excellent sport, terrible about this.",
+   "running_gag": "The title, and the manner of its acquisition.",
+   "draft_tendency": "Confident. Trusts the pick, waits it out.",
+   "fatal_flaw": null,
+   "rival": "gunner",
+   "color": null
+  },
+  "holly": {
+   "tone": "roast",
+   "display_name": "Holly",
+   "epithet": "Rocky Top in Enemy Territory",
+   "tagline": null,
+   "backstory": "Cousin to Zach and Gayden, niece to John and Rachel, and functionally a sister — she lived with them for a year in high school. Baton Rouge raised, Tennessee educated, currently residing in Chelsea, Alabama, surrounded on all sides by Alabama and Auburn fans, a situation she describes with the weariness of a hostage. She is a Vol first and an LSU fan underneath, and her actual position is less pro-Tennessee than anti-obnoxious. Bikes, walks, dogs. The dogs are non-negotiable.",
+   "running_gag": "Living in Alabama and refusing to convert.",
+   "draft_tendency": "Picks against the teams whose fans have annoyed her most. Historically not a bad system.",
+   "fatal_flaw": null,
+   "rival": null,
+   "color": null
+  },
+  "zach": {
+   "tone": "roast",
+   "display_name": "Zach",
+   "epithet": "The Commissioner",
+   "tagline": null,
+   "backstory": "The one who started this, and — because he wrote the scoring engine — the one whose scoring is now a family legal matter. Wake Forest, Baton Rouge raised, LSU heart, and enough of a college football obsessive that this pool exists mainly so he has more games to care about. He built the site, the pipeline, and the projection model for a bet you could settle with a handshake. He also built the last one, which is how his cousin ended up with a trophy and his other cousin ended up with a grievance.",
+   "running_gag": "Every scoring dispute goes to the man who wrote the scoring.",
+   "draft_tendency": "Overthinks it, then takes the model’s number anyway.",
+   "fatal_flaw": null,
+   "rival": "gunner",
+   "color": null
+  },
+  "gunner": {
+   "tone": "roast",
+   "display_name": "Gunner",
+   "epithet": "Robbed",
+   "tagline": null,
+   "backstory": "Holly’s son. Played college soccer at North Alabama, now a physical therapist in South Florida, likes fishing, doesn’t especially follow college football, and is going to be a problem anyway — because last time out he had the World Cup pool won on merit and lost it to a scoring system his cousin wrote. Devin’s final-match blowout swallowed a season of better picks. Ten dollars. He was a good sport about it, which is somehow worse. He is the quietest manager in the family and the one with the most outstanding balance.",
+   "running_gag": "The asterisk. He didn’t lose, he was scored out of it.",
+   "draft_tendency": "Says nothing, walks out with the best board.",
+   "fatal_flaw": null,
+   "rival": "devin",
+   "color": null
+  }
+ }
+}
