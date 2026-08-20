@@ -78,7 +78,35 @@
    "manager_avatar": { "mode": "fixed",  "candidates": [] },
    "editorial_hero": { "mode": "fixed",  "candidates": [] },
    "svp_column_art": { "mode": "weekly", "candidates": [] },
-   "profile_hero":   { "mode": "fixed",  "candidates": [] }
+   "profile_hero":   {
+    "$why": [
+     "Real family photographs and period gag artifacts rather than the",
+     "AI coach-card treatment the other three groups use -- a deliberate",
+     "difference in kind, and the warmer register suits the group that",
+     "carries the straight-tone profiles.",
+     "gayden and holly each have two and rotate; the other six take the",
+     "group default. Every path was checked against disk before it was",
+     "declared."
+    ],
+    "mode": "fixed",
+    "candidates": ["assets/profiles/{group}/{id}.webp"],
+    "by_id": {
+     "gayden": {
+      "mode": "random",
+      "candidates": [
+       "assets/profiles/family/gayden_01.webp",
+       "assets/profiles/family/gayden_02.webp"
+      ]
+     },
+     "holly": {
+      "mode": "random",
+      "candidates": [
+       "assets/profiles/family/holly_01.webp",
+       "assets/profiles/family/holly_02.webp"
+      ]
+     }
+    }
+   }
   },
   "church": {
    "hero_banner":    { "mode": "fixed",  "candidates": [] },
