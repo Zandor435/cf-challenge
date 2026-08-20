@@ -108,22 +108,16 @@
    "svp_column_art": { "mode": "weekly", "candidates": [] },
    "profile_hero":   {
     "$why": [
-     "Uneven variant counts, which is what by_id is for: bryan has three",
-     "images and todd two, so both rotate; hauck, matt_m and zach have one",
-     "each and take the group default below. Every path here was checked",
-     "against disk before it was declared."
+     "Uneven variant counts, which is what by_id is for: todd has two images",
+     "and rotates; everyone else has one and takes the group default below.",
+     "bryan was briefly a three-way rotation and is now a single portrait --",
+     "the two dropped variants were landscape shots that also included",
+     "someone who is not in this pool. Every path here was checked against",
+     "disk before it was declared."
     ],
     "mode": "fixed",
     "candidates": ["assets/profiles/{group}/{id}.webp"],
     "by_id": {
-     "bryan": {
-      "mode": "random",
-      "candidates": [
-       "assets/profiles/browns/bryan_01.webp",
-       "assets/profiles/browns/bryan_02.webp",
-       "assets/profiles/browns/bryan_03.webp"
-      ]
-     },
      "todd": {
       "mode": "random",
       "candidates": [
