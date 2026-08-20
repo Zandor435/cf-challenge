@@ -60,6 +60,35 @@ def sandbox(group, packet):
             utils.GROUPS_DIR = orig
 
 
+@contextlib.contextmanager
+def no_api_key():
+    """A machine with NO key from ANY source -- not the environment, not a .env.
+
+    Popping os.environ alone is NOT enough, and that was the bug. run_live
+    calls utils.load_env_file(), which reads ROOT/.env and setdefault()s the
+    key straight back in before the key check ever runs. On any machine with a
+    real .env -- which is most of them, and every developer machine that has
+    ever generated a column -- the no-key branch was unreachable, so the two
+    checks below passed or failed on whether a gitignored file happened to
+    exist. A test whose verdict depends on the machine is worse than one that
+    simply fails.
+
+    Stubbing the loader models the absent .env, which IS the condition under
+    test: the code path being asserted is "no key was found anywhere", not
+    "the loader was never called".
+    """
+    key = os.environ.pop("OPENAI_API_KEY", None)
+    orig_loader = utils.load_env_file
+    utils.load_env_file = lambda *a, **kw: None
+    try:
+        yield
+    finally:
+        utils.load_env_file = orig_loader
+        os.environ.pop("OPENAI_API_KEY", None)
+        if key is not None:
+            os.environ["OPENAI_API_KEY"] = key
+
+
 def validate_prompt_shape(packet):
     with sandbox("panel", packet):
         system_text, user_text, pk = G.build_prompt("panel")
@@ -229,13 +258,24 @@ def validate_fail_soft(base_packet):
     """Live mode must exit 0 on every failure path — including SystemExit."""
     argv, key = sys.argv, os.environ.pop("OPENAI_API_KEY", None)
     try:
-        # No key: the earliest live failure.
-        sys.argv = ["generate_commentary.py", "--group", "panel"]
-        err = io.StringIO()
-        with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
-            code = G.main()
+        # No key from ANY source: the earliest live failure. Must run inside
+        # no_api_key() -- see there; popping the env var alone leaves .env
+        # free to put the key straight back before run_live checks it.
+        with no_api_key():
+            # Guard the guard: prove the stub actually holds against a real
+            # .env, or this whole block silently goes back to testing nothing.
+            utils.load_env_file()
+            check("no key: a .env on disk cannot put the key back",
+                  not os.environ.get("OPENAI_API_KEY"))
+
+            sys.argv = ["generate_commentary.py", "--group", "panel"]
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                code = G.main()
         check("live without a key: exits 0", code == 0, f"returned {code}")
         check("live without a key: warns loudly", "::warning::" in err.getvalue())
+        check("live without a key: names the missing key",
+              "OPENAI_API_KEY" in err.getvalue())
         check("live without a key: says the pipeline is unaffected",
               "unaffected" in err.getvalue())
 
