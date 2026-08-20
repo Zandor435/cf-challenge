@@ -52,8 +52,16 @@ data/backtest_cache/
 # Owner-portrait generator (scripts/generate_owner_images.py) — privacy:
 # real photos of friends and un-approved generated art never get committed.
 # A chosen winner is manually copied into docs/assets/portraits/.
+#
+# ANCHORED to the repo root on purpose. A bare `output/` matches a directory of
+# that name at ANY depth, which silently swallowed groups/<group>/output/ — so
+# the filed columns and column_memory.json the block above declares "stay
+# tracked" were in fact unstageable, and every generated column would have died
+# with the CI runner. generate_owner_images.py writes to ROOT/output/personas
+# (its --out default) and repo-root output/ is the only such directory, so the
+# leading slash costs nothing and restores the intended scope.
 assets/source_photos/
-output/
+/output/
 
 # Playwright MCP scratch output (screenshots, console logs, a11y snapshots)
 # written into the repo root during browser verification runs. Throwaway.

@@ -43,6 +43,13 @@ jobs:
       # The scripts read the env var CFB_API_KEY. Source it from a repo secret of
       # EITHER name so a secret saved as CFBD_API_KEY also works (|| = first non-empty).
       CFB_API_KEY: ${{ secrets.CFB_API_KEY || secrets.CFBD_API_KEY }}
+      # generate_commentary.py resolves the key via utils.load_env_file() then
+      # os.environ. load_env_file() uses setdefault (existing env wins) and there
+      # is no .env on a runner, so this job-level var is the ONLY channel that
+      # reaches it. Job-level rather than step-level to match CFB_API_KEY above.
+      # Absent/empty, the generator raises and its own fail-soft guard warns and
+      # exits 0 — a missing secret degrades the column, never the standings.
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     steps:
       - name: Checkout
@@ -128,6 +135,59 @@ jobs:
         if: steps.gate.outputs.run == 'true'
         run: python scripts/run_groups.py --group all
 
+      # ====== COMMENTARY: the one pundit (ARCHITECTURE §8, §12) ======
+      # Reshapes-existing-data, the same class as scoring above: the packet is
+      # built from the boards run_groups.py just wrote, NOT from the fetch. So
+      # these gate on steps.gate.outputs.run ALONE and deliberately not on
+      # steps.fetch.outcome — a degraded fetch still scored off the last good
+      # cache, the column still has real numbers to write about, and freezing the
+      # narrative because CFBD blinked is the exact failure rule 3 forbids.
+      #
+      # The group list comes from utils.get_all_group_ids() rather than a literal,
+      # so adding a group under groups/ needs no edit here (same single-source
+      # reasoning as season.json on the fetch step).
+      - name: Build week packets
+        id: packet
+        if: steps.gate.outputs.run == 'true'
+        # build_week_packet.py is NOT fail-soft — it exits non-zero on missing or
+        # malformed input. continue-on-error keeps that off the critical path.
+        # The per-group loop then keeps ONE bad group from silencing the other
+        # three: a failure is warned about and skipped, and `built` carries only
+        # the groups that actually produced a packet.
+        continue-on-error: true
+        run: |
+          groups=$(python -c "import sys; sys.path.insert(0, 'scripts'); import utils; print(' '.join(utils.get_all_group_ids()))")
+          built=""
+          for g in $groups; do
+            if python scripts/build_week_packet.py --group "$g"; then
+              built="$built $g"
+            else
+              echo "::warning title=Week packet failed::[$g] build_week_packet.py exited non-zero; this group gets no column this run. Standings are unaffected (rule 3)."
+            fi
+          done
+          echo "built=$(echo $built | xargs)" >> "$GITHUB_OUTPUT"
+
+      - name: Write the SVP column
+        # Conditioned on the packet step's OWN output, so the generator can never
+        # run against a packet that was never built: `built` lists only the groups
+        # whose build exited 0, and an empty string skips the step outright —
+        # including the case where the packet step died before writing the output
+        # at all. week_packet.json is gitignored, so it never arrives via
+        # checkout: a packet on the runner was built by THIS run, never a stale
+        # one left behind.
+        #
+        # No continue-on-error, deliberately. generate_commentary.py is already
+        # internally fail-soft in live mode — any failure (no key, dead API,
+        # malformed response) logs a ::warning:: and returns 0, writing nothing
+        # and leaving the prior column and column_memory.json intact.
+        if: steps.gate.outputs.run == 'true' && steps.packet.outputs.built != ''
+        env:
+          BUILT: ${{ steps.packet.outputs.built }}
+        run: |
+          for g in $BUILT; do
+            python scripts/generate_commentary.py --group "$g"
+          done
+
       # ====== COMMIT the fresh boards to the repo (history + raw files) ======
       # No [skip ci]: a commit pushed with GITHUB_TOKEN can't trigger a workflow
       # anyway (rule 9), so [skip ci] would buy nothing and only obscure intent.
@@ -146,6 +206,21 @@ jobs:
           if [ -d data/ratings_archive ]; then
             git add data/ratings_archive/
           fi
+          # Commentary, accumulate side of rule 5: the filed columns and
+          # column_memory.json are season-long continuity the pundit reads back
+          # next week — the memory file is what stops the column repeating
+          # itself. They are written on the runner and die with it unless staged
+          # here. week_packet.json and the prompt preview are the regenerate side
+          # and stay ignored (.gitignore lines 44-45), so this stages the columns
+          # and the memory only.
+          #
+          # Looped, not globbed: an unexpanded `groups/*/output/` would reach git
+          # as a literal pathspec and abort the whole commit, taking the cache and
+          # the boards down with it — the same trap the guard above exists for.
+          for d in groups/*/output/; do
+            [ -d "$d" ] || continue
+            git add "$d"
+          done
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
