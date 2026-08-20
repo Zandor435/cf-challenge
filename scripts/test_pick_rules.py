@@ -138,6 +138,44 @@ def main():
     p = problems_for(opposite)
     check("same team on OPPOSITE sides passes clean", p == [], f"problems={p}")
 
+    # ---- direction domain + case hardening -------------------------------------
+    # The engine is uniformly `direction == "O"` else-under (scoring.signed_delta,
+    # projector.signed_delta, build_week_packet), so a lowercase "o" costs twice:
+    # it scores the pick as an UNDER, and (before this hardening) it split the
+    # same-side buckets so two managers on the same real side passed the gate.
+
+    for bad in ("o", "u", "over", "", None):
+        roster = sided("a", [(OHIO_STATE, bad), (ALABAMA, "O"),
+                             (CLEMSON, "O"), (UTAH, "O")])
+        p = problems_for(roster, "a")
+        check(f"direction {bad!r} fails direction-invalid",
+              "direction-invalid" in p, f"problems={p}")
+
+    # the same-side check must survive a case difference on the two picks
+    mixed_case = (
+        sided("a", [(OHIO_STATE, "O"), (ALABAMA, "O"), (CLEMSON, "O"), (UTAH, "O")]) +
+        sided("b", [(OHIO_STATE, "o"), (GEORGIA, "O"), (MIAMI, "O"), (BAYLOR, "O")])
+    )
+    p = problems_for(mixed_case)
+    check("'O' vs 'o' on the same team still fails same-team-same-side",
+          "same-team-same-side" in p, f"problems={p}")
+    check("...and the invalid direction is reported in the same run",
+          "direction-invalid" in p, f"problems={p}")
+    _, errs = validate_group_data("rulestest", RULES, mixed_case)
+    ssd = [e for e in errs if e["problem"] == "same-team-same-side"]
+    check("the normalized bucket still labels the side correctly",
+          bool(ssd) and "over" in ssd[0]["detail"],
+          f"error={ssd[0] if ssd else None}")
+
+    # a legal opposite-side share must NOT be broken by normalization
+    opposite_mixed = (
+        sided("a", [(OHIO_STATE, "O"), (ALABAMA, "O"), (CLEMSON, "O"), (UTAH, "O")]) +
+        sided("b", [(OHIO_STATE, "U"), (GEORGIA, "O"), (MIAMI, "O"), (BAYLOR, "O")])
+    )
+    p = problems_for(opposite_mixed)
+    check("normalization does not break a legal opposite-side share",
+          "same-team-same-side" not in p, f"problems={p}")
+
     passed, total = sum(_res), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
     sys.exit(0 if passed == total else 1)

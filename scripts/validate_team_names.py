@@ -27,6 +27,9 @@ only — resolve_canonical still runs against it. Per real pick, three checks:
   - the pick's `line` equals the reference's `win_total` — a pick scored against
     a line the league never agreed to is a silently wrong result, the same bug
     class as a mis-resolved name.
+  - the pick's `direction` is exactly "O" or "U" — the engine tests
+    `direction == "O"` and scores everything else as an under, so a stray "o"
+    inverts the pick silently, with no error anywhere.
 Every failure names the group, the manager, the team, and which field disagreed.
 
 Draft rules (§5) are ALWAYS enforced per group — no unenforced path:
@@ -36,7 +39,9 @@ Draft rules (§5) are ALWAYS enforced per group — no unenforced path:
     Same team + same side across two managers scores BOTH as "winning" the same
     bet — the worst bug class in the project — so it is exit 1, naming both
     managers, the team, and the side. A single manager holding the same team
-    twice (any side) is likewise a failure.
+    twice (any side) is likewise a failure. The side buckets are keyed on the
+    NORMALIZED direction, so a case difference cannot split one real side into
+    two buckets and slip past the check.
 A manager with no real picks yet (all TODO placeholders) is SKIPPED, not failed,
 so undrafted rosters pass. A config missing either rule key is itself a failure.
 
@@ -121,6 +126,22 @@ def validate_group_data(group_id, config, picks):
     for idx, pick in enumerate(real):
         team = pick.get("team")
         manager = pick.get("manager", "?")
+
+        # direction domain — checked FIRST, and independently of whether the
+        # name resolves, so a pick with both faults reports both. The engine
+        # tests `direction == "O"` and scores EVERYTHING else as an under
+        # (scoring.signed_delta, projector.signed_delta, build_week_packet), so
+        # a stray "o" does not error anywhere — it silently inverts the pick and
+        # produces a clean, plausible, wrong board. Same bug class as an
+        # unmapped name, which is why it is fatal here.
+        direction_ok = pick.get("direction") in _SIDE_LABEL
+        if not direction_ok:
+            err(manager, team, "direction-invalid",
+                f"direction {pick.get('direction')!r} is not \"O\" or \"U\" — "
+                f"the engine tests `direction == \"O\"` and scores anything "
+                f"else as an UNDER, so this pick would be scored on the wrong "
+                f"side with no error anywhere")
+
         try:
             canonical = resolve_canonical(team)
         except UnknownTeamError as e:
@@ -136,7 +157,7 @@ def validate_group_data(group_id, config, picks):
             continue
         ref_conf[idx] = entry.get("conference")
 
-        pick_ok = True
+        pick_ok = direction_ok
 
         # conference — the reference is the authority, NOT teams_canonical.json
         declared = pick.get("conference")
@@ -204,10 +225,17 @@ def validate_group_data(group_id, config, picks):
                 err(mgr, canonical, "duplicate-team",
                     f"holds '{canonical}' {cnt} times; a manager may not hold the "
                     f"same team twice")
-        # (b) two+ DISTINCT managers on the SAME side — the silent double-win bug
-        by_side = {}  # direction -> ordered distinct managers
+        # (b) two+ DISTINCT managers on the SAME side — the silent double-win bug.
+        #     The bucket key is NORMALIZED (strip + upper). This is the second
+        #     line of defense behind the direction-invalid check above: keying on
+        #     the raw value put "O" and "o" in different buckets, each of length
+        #     1, so two managers on the same real side slipped through the gate
+        #     entirely. Every other comparison in this function already
+        #     normalizes (conference via normalize_team_name, team via
+        #     resolve_canonical, line via float) — this was the one outlier.
+        by_side = {}  # normalized direction -> ordered distinct managers
         for mgr, direction in entries:
-            lst = by_side.setdefault(direction, [])
+            lst = by_side.setdefault(str(direction).strip().upper(), [])
             if mgr not in lst:
                 lst.append(mgr)
         for direction, mgrs in by_side.items():
