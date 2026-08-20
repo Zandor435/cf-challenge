@@ -1,0 +1,73 @@
+{
+ "$note": [
+  "One indirection between 'this surface wants a picture' and 'here is the file'.",
+  "Consumed by resolveArt() in docs/app.js. A 404 on this file is not an error:",
+  "every caller falls through to the behavior it had before this file existed.",
+  "",
+  "SHAPE: groups.<group_id>.<slot_name> = { mode, candidates }.",
+  "Slots are scoped by group -- a group that declares nothing (or declares an",
+  "empty candidate list) resolves to null, which is what pushes its callers onto",
+  "the existing fallback tiers. Empty is the normal state, not a broken one.",
+  "",
+  "MODES:",
+  "  fixed   always candidates[0].",
+  "  weekly  candidates[week % candidates.length], where week is standings",
+  "          meta.as_of_week. week is null before the season's first scored",
+  "          week -- today, for all three groups, and again every rollover --",
+  "          and a null/non-integer week resolves to candidates[0], i.e.",
+  "          identical to fixed. Rotation is an addition to day-one behavior,",
+  "          never a precondition for it.",
+  "  random  a uniform pick, independent of week.",
+  "",
+  "TOKENS: {group} always expands; per-subject slots also expand {id}.",
+  "Substitution runs AFTER selection so rotation never depends on the subject.",
+  "",
+  "CANDIDATE STRINGS are docs-relative image paths, EXCEPT manager_avatar,",
+  "whose candidates are size-suffix BASES -- app.js appends _56.webp / _112.webp",
+  "to build the 1x/2x srcset pair, exactly as it did before slots existed.",
+  "",
+  "manager_avatar is still gated by assets/portraits/index.json. This file",
+  "chooses WHICH avatar a manager gets, never WHETHER they have one; without",
+  "that gate a declared candidate would emit an <img> for every manager and put",
+  "the 404s the manifest exists to prevent right back."
+ ],
+ "$version": 1,
+ "groups": {
+  "panel": {
+   "hero_banner": {
+    "mode": "fixed",
+    "candidates": ["assets/banners/{group}.webp"]
+   },
+   "manager_avatar": {
+    "mode": "fixed",
+    "candidates": ["img/avatars/{id}"]
+   },
+   "editorial_hero": {
+    "mode": "fixed",
+    "candidates": []
+   },
+   "svp_column_art": {
+    "mode": "weekly",
+    "candidates": []
+   },
+   "profile_hero": {
+    "mode": "fixed",
+    "candidates": ["assets/portraits/{group}/{id}.webp"]
+   }
+  },
+  "family": {
+   "hero_banner":    { "mode": "fixed",  "candidates": [] },
+   "manager_avatar": { "mode": "fixed",  "candidates": [] },
+   "editorial_hero": { "mode": "fixed",  "candidates": [] },
+   "svp_column_art": { "mode": "weekly", "candidates": [] },
+   "profile_hero":   { "mode": "fixed",  "candidates": [] }
+  },
+  "church": {
+   "hero_banner":    { "mode": "fixed",  "candidates": [] },
+   "manager_avatar": { "mode": "fixed",  "candidates": [] },
+   "editorial_hero": { "mode": "fixed",  "candidates": [] },
+   "svp_column_art": { "mode": "weekly", "candidates": [] },
+   "profile_hero":   { "mode": "fixed",  "candidates": [] }
+  }
+ }
+}
