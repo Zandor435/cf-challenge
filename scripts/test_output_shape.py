@@ -4,12 +4,20 @@ test_output_shape.py — Validates emitted files against docs/output-contract.md
 
 The contract is the whole point of the keystone commit: every downstream
 consumer reads exactly these shapes. This test builds standings / projection /
-timeline for the test fixture (mid-season week 6 and final week 14) and asserts:
+timeline / analytics for the test fixture (mid-season week 6 and final week 14)
+and asserts:
   - every required key is present with the right type,
   - Board-1 arithmetic invariant: games_remaining == 0 -> floor == ceiling == banked_delta,
   - Board-2 invariants: win_distribution sums to 1; at final, p_beat_line in {0,1}
     and expected_delta == the Board-1 banked_delta (the two boards agree),
-  - timeline is append-only + idempotent on the effective week.
+  - timeline is append-only + idempotent on the effective week,
+  - Board-3 (analytics) SHAPE — the keys, the reserved null `leverage`, and the
+    board-separation rule: every module carries a "board" of "exact" or
+    "projection". Deliberately shape, not values: the values are standings
+    arithmetic that Board-1's own checks already pin, and re-asserting them here
+    would just duplicate the thing being tested. Plus a degenerate pass (no
+    managers / all-zero picks) so the pre-draft + dummy-data path is pinned as
+    honest nulls rather than a crash.
 
 No cache writes for the boards (pure builders); timeline idempotency uses a temp
 file.
@@ -36,6 +44,7 @@ import utils
 import scoring
 import projector
 import run_groups
+import analytics
 
 _res = []
 
@@ -57,6 +66,26 @@ PROJ_MGR = {"manager_id", "display_name", "expected_total", "p05", "p50", "p95",
 PROJ_PICK = {"team", "conference", "line", "direction", "p_beat_line", "expected_delta",
              "expected_final_wins", "win_distribution"}
 TL_PICK = {"team", "banked_delta", "floor", "ceiling", "expected_delta", "p_beat_line"}
+
+# --- Board 3 (analytics.json) ------------------------------------------------
+ANALYTICS_TOP = {"meta", "race", "championship_odds", "best_worst", "paths",
+                 "portfolio", "leverage"}
+# Modules that must carry a "board" field. `leverage` is excluded on purpose:
+# it is the reserved null this run, not a module yet.
+ANALYTICS_MODULES = ("race", "championship_odds", "best_worst", "paths", "portfolio")
+IDENT = {"manager_id", "display_name"}
+RACE_MGR = IDENT | {"rank", "banked_total", "floor", "ceiling", "gap_to_leader",
+                    "ceiling_remaining", "week_move"}
+ODDS_MGR = IDENT | {"p_win_pool", "week_move"}
+BW_ENTRY = IDENT | {"team", "conference", "line", "direction", "delta"}
+BW_MGR = IDENT | {"mvp", "anchor"}
+PATH_MGR = IDENT | {"state", "comparison"}
+PATH_CMP = {"basis", "my_field", "my_value", "operator", "other_manager_id",
+            "other_display_name", "other_field", "other_value"}
+PATH_STATES = ("clinched", "controls_destiny", "needs_help", "eliminated")
+PORT_MGR = IDENT | {"banked_total", "absolute_total", "picks"}
+PORT_PICK = {"team", "conference", "line", "direction", "banked_delta", "floor",
+             "ceiling", "status", "games_remaining", "share_of_delta"}
 
 
 def validate_standings(st, label):
@@ -101,6 +130,108 @@ def validate_projection(pr, label, final=False, banked_by=None):
         check(f"[{label}] final: p_beat_line in {{0,1}} AND expected_delta==banked_delta", ok_final)
 
 
+def validate_analytics_boards(an, label):
+    """BOARD SEPARATION IS PART OF THE CONTRACT (docs/output-contract.md).
+
+    Its own check, separate from the shape walk, because it is the field the
+    renderer keys off to decide whether a projection LABEL is required. A module
+    that silently loses its board, or gains a third value nobody handles, would
+    otherwise ship model output dressed as banked fact — the one failure this
+    file exists to make impossible."""
+    ok_present = ok_valid = True
+    for key in ANALYTICS_MODULES:
+        mod = an.get(key)
+        ok_present &= isinstance(mod, dict) and "board" in mod
+        ok_valid &= isinstance(mod, dict) and mod.get("board") in analytics.VALID_BOARDS
+    check(f"[{label}] every analytics module carries a 'board' field", ok_present,
+          f"{len(ANALYTICS_MODULES)} modules")
+    check(f"[{label}] every 'board' is 'exact' or 'projection'", ok_valid)
+    # The one module that is model output, pinned by name: if the projection
+    # board ever silently flips to "exact" the page stops labeling it.
+    check(f"[{label}] championship_odds is board='projection'",
+          an["championship_odds"]["board"] == "projection")
+    check(f"[{label}] every other module is board='exact'",
+          all(an[k]["board"] == "exact" for k in ANALYTICS_MODULES
+              if k != "championship_odds"))
+
+
+def validate_analytics(an, label, expect_odds=True):
+    """SHAPE, not values. The numbers are standings arithmetic already pinned by
+    validate_standings; what can silently rot here is the shape the renderer
+    walks."""
+    check(f"[{label}] analytics top-level keys", set(an.keys()) == ANALYTICS_TOP,
+          f"got {sorted(an.keys())}")
+    check(f"[{label}] analytics.meta keys (no draft_status / ratings_*)",
+          _has_keys(an.get("meta", {}), META_KEYS) and set(an["meta"]) == META_KEYS)
+    check(f"[{label}] leverage reserved null (this run)", an["leverage"] is None)
+
+    validate_analytics_boards(an, label)
+
+    # race
+    race = an["race"]
+    ok = _has_keys(race, {"board", "prior_week", "leader_id", "managers"})
+    for m in race["managers"]:
+        ok &= _has_keys(m, RACE_MGR)
+        ok &= m["gap_to_leader"] >= 0                       # leader-relative, never negative
+        ok &= m["ceiling_remaining"] >= 0                   # ceiling can't sit below banked
+        ok &= m["week_move"] is None or isinstance(m["week_move"], int)
+    check(f"[{label}] race shape + gap/ceiling_remaining non-negative", ok)
+
+    # championship_odds (projection board)
+    odds = an["championship_odds"]
+    ok = _has_keys(odds, {"board", "prior_week", "available", "managers"})
+    ok &= odds["available"] is expect_odds
+    probs = []
+    for m in odds["managers"]:
+        ok &= _has_keys(m, ODDS_MGR)
+        p = m["p_win_pool"]
+        ok &= p is None or 0.0 <= p <= 1.0
+        # week_move is a probability DELTA here, not a rank move (contract).
+        ok &= m["week_move"] is None or -1.0 <= m["week_move"] <= 1.0
+        probs.append(-1.0 if p is None else p)
+    # emitted pre-sorted by p_win_pool desc — the renderer iterates, it never sorts
+    ok &= probs == sorted(probs, reverse=True)
+    check(f"[{label}] championship_odds shape + pre-sorted by p_win_pool desc", ok)
+
+    # best_worst — every field an array, always, so ties render as ties
+    bw = an["best_worst"]
+    ok = _has_keys(bw, {"board", "steal", "bust", "managers"})
+    ok &= isinstance(bw["steal"], list) and isinstance(bw["bust"], list)
+    ok &= all(_has_keys(e, BW_ENTRY) for e in bw["steal"] + bw["bust"])
+    ok &= all(e["delta"] > 0 for e in bw["steal"])          # steal is sign-gated
+    ok &= all(e["delta"] < 0 for e in bw["bust"])           # bust is sign-gated
+    for m in bw["managers"]:
+        ok &= _has_keys(m, BW_MGR)
+        ok &= isinstance(m["mvp"], list) and isinstance(m["anchor"], list)
+        ok &= all(_has_keys(e, BW_ENTRY) for e in m["mvp"] + m["anchor"])
+    check(f"[{label}] best_worst shape, arrays-always, steal/bust sign-gated", ok)
+
+    # paths — closed state set, and a comparison for every state
+    paths = an["paths"]
+    ok = _has_keys(paths, {"board", "leader_id", "managers"})
+    for m in paths["managers"]:
+        ok &= _has_keys(m, PATH_MGR)
+        ok &= m["state"] in PATH_STATES                     # closed set — no fallthrough
+        ok &= _has_keys(m["comparison"], PATH_CMP)          # never an unexplained label
+    check(f"[{label}] paths shape, closed state set, comparison always present", ok)
+
+    # portfolio — the concentration number, null-safe
+    port = an["portfolio"]
+    ok = _has_keys(port, {"board", "managers"})
+    for m in port["managers"]:
+        ok &= _has_keys(m, PORT_MGR)
+        shares = []
+        for p in m["picks"]:
+            ok &= _has_keys(p, PORT_PICK)
+            s = p["share_of_delta"]
+            # null (not 0, not a divide error) exactly when there is no swing yet
+            ok &= (s is None) if m["absolute_total"] == 0 else (0.0 <= s <= 1.0)
+            if s is not None:
+                shares.append(s)
+        ok &= (not shares) or abs(sum(shares) - 1.0) < 1e-4  # shares partition the swing
+    check(f"[{label}] portfolio shape, share_of_delta null-safe + sums to 1", ok)
+
+
 def validate_timeline_snapshot(snap, label):
     ok = isinstance(snap.get("as_of_week"), int) and "generated_at" in snap
     for m in snap["managers"]:
@@ -132,6 +263,76 @@ def main():
     check("[wk14] every pick has games_remaining==0 (season complete for the slate)", zero_width)
     validate_standings(st14, "wk14")
     validate_projection(pr14, "wk14", final=True, banked_by=banked_by)
+
+    # --- Board 3: analytics (shape only — the values are Board-1 arithmetic) ---
+    # No timeline at week 6: week_move must be null everywhere, NOT zero.
+    an6 = analytics.build_analytics(config, st6, pr6, timeline=None, as_of_week=6)
+    validate_analytics(an6, "wk6-analytics")
+    check("[wk6-analytics] no timeline => week_move null (never 0)",
+          all(m["week_move"] is None for m in an6["race"]["managers"])
+          and an6["race"]["prior_week"] is None)
+
+    # With a week-6 snapshot in hand, week 14's moves become real ints measured
+    # against prior_week 6 — the only place week_move is exercised end to end.
+    tl14 = {"group_id": config["group_id"], "season": season,
+            "snapshots": [run_groups.build_snapshot(st6, pr6, 6)]}
+    an14 = analytics.build_analytics(config, st14, pr14, timeline=tl14, as_of_week=14)
+    validate_analytics(an14, "wk14-analytics")
+    check("[wk14-analytics] prior snapshot => week_move is an int, prior_week=6",
+          an14["race"]["prior_week"] == 6
+          and all(isinstance(m["week_move"], int) for m in an14["race"]["managers"]))
+    # Ranks are a permutation, so the places gained across the group must net to 0.
+    check("[wk14-analytics] week_move sums to 0 across the group (ranks permute)",
+          sum(m["week_move"] for m in an14["race"]["managers"]) == 0)
+    # The current week's own snapshot must NOT be the comparison point — that is
+    # what would turn every move into a confident, wrong 0.
+    tl14_self = {"group_id": config["group_id"], "season": season,
+                 "snapshots": tl14["snapshots"] + [run_groups.build_snapshot(st14, pr14, 14)]}
+    an14b = analytics.build_analytics(config, st14, pr14, timeline=tl14_self, as_of_week=14)
+    check("[wk14-analytics] current week's own snapshot is not the baseline",
+          an14b["race"]["prior_week"] == 6
+          and [m["week_move"] for m in an14b["race"]["managers"]]
+              == [m["week_move"] for m in an14["race"]["managers"]])
+
+    # Degraded projector: championship_odds must go null + available=false, and
+    # every OTHER module must still be fully populated (Board 3 degrades the way
+    # Board 2 does — it does not take the page down).
+    an_nop = analytics.build_analytics(config, st14, None, timeline=tl14, as_of_week=14)
+    validate_analytics(an_nop, "wk14-analytics-degraded", expect_odds=False)
+    check("[wk14-analytics-degraded] projector down => p_win_pool/week_move all null",
+          all(m["p_win_pool"] is None and m["week_move"] is None
+              for m in an_nop["championship_odds"]["managers"]))
+    check("[wk14-analytics-degraded] exact modules still populated",
+          len(an_nop["race"]["managers"]) == len(st14["managers"])
+          and len(an_nop["portfolio"]["managers"]) == len(st14["managers"]))
+
+    # Pre-draft / dummy-data / no-scored-weeks: honest nulls, never a crash.
+    # Two managers tied at zero with an unplayed pick each — the literal shape of
+    # a group whose draft is in but whose season has not started.
+    def _zero_mgr(mid, rank):
+        return {"manager_id": mid, "display_name": mid.title(), "banked_total": 0.0,
+                "floor": 0.0, "ceiling": 0.0, "rank": rank,
+                "picks": [{"team": "Ohio State", "conference": "Big Ten", "line": 9.5,
+                           "direction": "O", "banked_wins": 0, "banked_losses": 0,
+                           "games_remaining": 12, "banked_delta": 0.0, "floor": 0.0,
+                           "ceiling": 0.0, "status": "LIVE"}]}
+    st_zero = {"meta": st14["meta"], "managers": [_zero_mgr("a", 1), _zero_mgr("b", 2)]}
+    an_zero = analytics.build_analytics(config, st_zero, None, timeline=None, as_of_week=1)
+    validate_analytics(an_zero, "predraft-analytics", expect_odds=False)
+    check("[predraft-analytics] share_of_delta is null, not a divide error",
+          all(p["share_of_delta"] is None
+              for m in an_zero["portfolio"]["managers"] for p in m["picks"]))
+    check("[predraft-analytics] steal/bust empty when nothing has swung",
+          an_zero["best_worst"]["steal"] == [] and an_zero["best_worst"]["bust"] == [])
+    check("[predraft-analytics] every manager still lands in a valid path state",
+          all(m["state"] in PATH_STATES for m in an_zero["paths"]["managers"]))
+
+    # A group with no managers at all (a config entered before its draft).
+    an_empty = analytics.build_analytics(config, {"managers": []}, None, None, as_of_week=1)
+    validate_analytics(an_empty, "empty-analytics", expect_odds=False)
+    check("[empty-analytics] no managers => empty modules, no leader",
+          an_empty["race"]["managers"] == [] and an_empty["race"]["leader_id"] is None
+          and an_empty["paths"]["managers"] == [])
 
     # --- Timeline: append-only + idempotent on the effective week ---
     with tempfile.TemporaryDirectory() as td:
