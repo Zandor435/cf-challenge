@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 50" width="44" height="50" role="img" aria-label="O/U">
+  <!-- The masthead brand shield from index.html, same path and same #FFB000
+       O/U. Two deliberate differences, both forced by the tab bar: the shield
+       carries a gold stroke, because a #111 fill on a dark browser chrome is
+       an invisible mark; and the lettering is set larger against a generic
+       bold stack, since a favicon renders with no webfont and Roboto
+       Condensed is not there to load. -->
+  <path d="M22 2L4 9v14c0 12 8 22 18 26 10-4 18-14 18-26V9L22 2z"
+        fill="#111" stroke="#FFB000" stroke-width="3" stroke-linejoin="round"/>
+  <text x="22" y="32" text-anchor="middle"
+        font-family="Arial Black, Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="15" font-weight="900" fill="#FFB000" letter-spacing="-1.2">O/U</text>
+</svg>
