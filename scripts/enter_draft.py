@@ -125,10 +125,11 @@ STAGE_OF = {
 }
 STAGE_ORDER = ["PREFLIGHT", "PARSE", "RESOLVE", "REFERENCE", "ROSTER", "WRITE"]
 
-# validate_group_data's err() slugs -> this taxonomy. The five mapped to
+# validate_group_data's err() slugs -> this taxonomy. The six mapped to
 # E-GATE-INTERNAL are structurally unreachable in a file this script writes
-# (conference and line are DERIVED from the reference, never accepted from
-# input), so a hit there is a bug in this script, not bad input.
+# (conference and line are DERIVED from the reference, and direction is emitted
+# uppercase from the pivot map — none are accepted from input), so a hit there
+# is a bug in this script, not bad input.
 SLUG_TO_CODE = {
     "not-canonical": "E-UNKNOWN-TEAM",
     "not-in-reference": "E-NOT-IN-REFERENCE",
@@ -142,6 +143,7 @@ SLUG_TO_CODE = {
     "missing-line": "E-GATE-INTERNAL",
     "line-not-numeric": "E-GATE-INTERNAL",
     "reference-line-not-numeric": "E-GATE-INTERNAL",
+    "direction-invalid": "E-GATE-INTERNAL",
 }
 
 EXIT_OK, EXIT_INVALID, EXIT_PREFLIGHT = 0, 1, 2
