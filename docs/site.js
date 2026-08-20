@@ -19,10 +19,13 @@
 
 // Frontend presentation config (labels only — NOT a JSON field). The three real
 // groups; `test` is the demo fixture, reachable via ?group=test.
+// `church` keeps its group_id -- it is the URL and the output path, and those
+// are permanent -- but the label everyone actually uses is CEC.
 const GROUPS = [
   { id: 'panel',  label: 'The Panel' },
   { id: 'family', label: 'Family League' },
-  { id: 'church', label: 'Church League' },
+  { id: 'church', label: 'CEC' },
+  { id: 'browns', label: 'The Browns' },
 ];
 const DEMO = { id: 'test', label: 'Demo Fixture' };
 

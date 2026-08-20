@@ -1,7 +1,7 @@
 {
   "_note": "One config per group (ARCHITECTURE §5). Slug `group_id` is load-bearing — it is the output path site/data/<group_id>/ and the URL. `display_name` is cosmetic.",
   "group_id": "church",
-  "display_name": "Church League",
+  "display_name": "CEC",
 
   "_count_conference_championship_note": "Per-group rule (ARCHITECTURE §1/§5): do conference-championship wins settle into a team's season win total? Sportsbooks differ, so it is per-group config, not a code constant. CFBD returns conf-title games as seasonType=regular; the shared cache tags them but excludes nothing — this flag decides. Default false.",
   "count_conference_championship": false,
@@ -16,7 +16,7 @@
     { "manager_id": "brian",      "display_name": "Brian",          "email": "TODO" },
     { "manager_id": "david",      "display_name": "David",          "email": "TODO" },
     { "manager_id": "john_wells", "display_name": "John Wells",     "email": "TODO" },
-    { "manager_id": "john_tamu",  "display_name": "Texas A&M John", "email": "TODO" }
+    { "manager_id": "john_tamu",  "display_name": "John K",         "email": "TODO" }
   ],
 
   "email_enabled": false
