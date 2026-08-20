@@ -157,6 +157,42 @@ sides of one team get anti-correlated totals; independent draws mis-state
 `p_win_pool` by 5–7 points. `test_projector_correlation.py` asserts the
 negative correlation.
 
+### Head-to-head games are ONE draw, not two (ARCHITECTURE §3)
+The rule above shares a draw per **team**. That is not sufficient on its own:
+when two *picked* teams play **each other**, the same physical game sits on both
+teams' remaining slates, and drawing each team's schedule independently lets a
+trial contain both teams winning it — an outcome that does not exist. It is not
+a corner case; at week 6 the four groups carry 5 / 10 / 17 / 28 such games.
+
+So the sim draws **one uniform per game**, not per `(team, game)`:
+
+- Games are paired by `(week, {team_a, team_b})` — identical from either side,
+  and week-qualified because a conference-championship rematch is a real second
+  game between the same two teams.
+- The **reference side** is the home team; at a neutral site, the
+  alphabetically-first canonical name. The reference wins iff `u < p_reference`;
+  the other side wins iff the reference lost. Exactly one side wins, always.
+- The two sides' win probabilities are **already exact complements** — home-field
+  is applied antisymmetrically (`+HFA` / `−HFA`, `0` at a neutral site) and the
+  logistic satisfies `logistic(−x) = 1 − logistic(x)` — so nothing is
+  reconciled. `p_A + p_B == 1` is *asserted*, not assumed; a violation means the
+  win-probability model changed and the coupling would be arbitrating a
+  contradiction.
+- A slate **asymmetry** (A lists B in week N, B does not list A) fails loud and
+  names both teams. The two teams disagreeing about the slate is exactly what
+  `utils.team_state` is supposed to make impossible.
+
+**Coupling changes the joint distribution only.** Every per-pick field
+(`win_distribution`, `p_beat_line`, `expected_delta`, `expected_final_wins`,
+`expected_total`) is a marginal computed from that pick's own Poisson-binomial
+and is **arithmetically unchanged** — verified as a zero-diff across all four
+groups. Only `p05/p50/p95` and `p_win_pool` move, and in practice by less than
+half a percentage point; no group's ordering changed.
+
+`test_projector_h2h.py` asserts coherence (no trial has both sides winning, or
+both losing), complementarity, marginal preservation, the untouched unpaired
+path, and the loud failure on asymmetry.
+
 ---
 
 ## `timeline.json` — append-only history
