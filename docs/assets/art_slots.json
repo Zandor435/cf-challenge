@@ -78,6 +78,27 @@
    "manager_avatar": { "mode": "fixed",  "candidates": [] },
    "editorial_hero": { "mode": "fixed",  "candidates": [] },
    "svp_column_art": { "mode": "weekly", "candidates": [] },
+   "profile_hero":   {
+    "$why": [
+     "One image per manager, so `fixed`, same as panel. manager_avatar and",
+     "hero_banner stay empty: CEC has profile art and nothing else yet, and a",
+     "declared-but-missing candidate is a 404 on the live page."
+    ],
+    "mode": "fixed",
+    "candidates": ["assets/profiles/{group}/{id}.webp"]
+   }
+  },
+  "browns": {
+   "$why": [
+    "Scaffolded with the group. Every slot is declared and every candidate list",
+    "is empty, which resolves to null and pushes each caller onto the fallback",
+    "it had before slots existed -- initials instead of avatars, no banner, no",
+    "profile art. Empty is the normal state for a new group, not a broken one."
+   ],
+   "hero_banner":    { "mode": "fixed",  "candidates": [] },
+   "manager_avatar": { "mode": "fixed",  "candidates": [] },
+   "editorial_hero": { "mode": "fixed",  "candidates": [] },
+   "svp_column_art": { "mode": "weekly", "candidates": [] },
    "profile_hero":   { "mode": "fixed",  "candidates": [] }
   }
  }

@@ -1,0 +1,25 @@
+{
+  "_note": "One config per group (ARCHITECTURE §5). Slug `group_id` is load-bearing — it is the output path site/data/<group_id>/ and the URL. `display_name` is cosmetic.",
+  "group_id": "browns",
+  "display_name": "The Browns",
+
+  "_group_id_note": "`browns` was chosen over `poker` and is PERMANENT — changing it moves the URL and the output path. `browns` reads better publicly; the group is Zach's poker table, and everyone at it is a Cleveland Browns fan except Zach, which is the joke.",
+
+  "_count_conference_championship_note": "Per-group rule (ARCHITECTURE §1/§5): do conference-championship wins settle into a team's season win total? Sportsbooks differ, so it is per-group config, not a code constant. CFBD returns conf-title games as seasonType=regular; the shared cache tags them but excludes nothing — this flag decides. Default false.",
+  "count_conference_championship": false,
+
+  "_pick_rules_note": "Settled format (LOCKED), enforced by validate_team_names.py per group: EXACTLY 4 picks per manager, spanning 4 distinct conferences. Always enforced — no unenforced path.",
+  "picks_per_manager": 4,
+  "min_distinct_conferences": 4,
+
+  "_managers_note": "Roster is NOT final — more managers are expected before the draft, and adding one is a config.json + picks.json + personas.json edit, never a rebuild. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. Browns has two Matts disambiguated by manager_id the same way CEC's two Johns are: matt_m vs hauck.",
+  "managers": [
+    { "manager_id": "matt_m", "display_name": "Matt Merlene", "email": "TODO" },
+    { "manager_id": "hauck",  "display_name": "Matt Hauck",   "email": "TODO" },
+    { "manager_id": "bryan",  "display_name": "Bryan",        "email": "TODO" },
+    { "manager_id": "todd",   "display_name": "Todd",         "email": "TODO" },
+    { "manager_id": "zach",   "display_name": "Zach",         "email": "TODO" }
+  ],
+
+  "email_enabled": false
+}

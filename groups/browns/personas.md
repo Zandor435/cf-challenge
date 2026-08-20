@@ -1,0 +1,145 @@
+# Browns — Persona Content
+
+**Group:** `browns` (PROPOSED — see open items) · display_name TBD
+**Tone:** roast (full panel register — loosest group in the pool)
+**Managers:** 5 so far, more expected
+
+Source of truth for prose. Fields here map 1:1 to `groups/browns/personas.json`.
+
+**⚠️ THIS GROUP DOES NOT EXIST IN THE REPO YET.** Everything below is content
+ahead of scaffolding. See "Scaffolding required" at the bottom.
+
+**Shared context:** Zach's poker group. Young guys, existing WhatsApp thread
+where everyone already makes fun of everyone. Cleveland Browns fans first, Ohio
+State second, Cleveland pro sports generally after that — with one notable
+exception who opted in voluntarily. Full aggression permitted here; this group is
+looser than panel.
+
+---
+
+## matt_m — "The Realtor"
+
+- **tone:** roast
+- **display_name:** Matt Merlene
+
+**backstory:**
+
+Newly minted real estate agent, which means he is currently in the drumming-up-
+business phase and everyone in the WhatsApp knows it. Comes to it honestly —
+Airbnb operator, commercial brokering, a real track record — but there is no
+version of this where the group lets a fresh license go unremarked. Ohio born,
+Browns first, Buckeyes second, Cleveland everything after that. Trades movie and
+comedy recommendations with Zach at a volume that suggests neither of them has
+other hobbies, and their taste is bad in exactly the same way, which is why it
+works.
+
+- **running_gag:** The hustle. Every conversation eventually becomes a listing.
+- **draft_tendency:** Sells you on his picks. Hard.
+
+---
+
+## hauck — "The Host"
+
+- **tone:** roast
+- **display_name:** Matt Hauck
+
+**backstory:**
+
+Hosts the game, which grants him diplomatic immunity roughly none of the time.
+Works in alcohol, tastes wine seriously, lifts, and walks his lab nearly every
+day — a man with a genuinely well-rounded life who has chosen to spend part of it
+on the Cleveland Browns despite having no Ohio claim whatsoever. That's the thing
+about Hauck: he opted in. Nobody made him do this. He married a veterinarian,
+which given the dog situation reads less like romance and more like vertical
+integration.
+
+- **running_gag:** Adopted fandom. He chose this. Voluntarily.
+- **draft_tendency:** Curated. Treats a draft board like a tasting flight.
+
+---
+
+## bryan — "Private Equity"
+
+- **tone:** roast
+- **display_name:** Bryan
+
+**backstory:**
+
+The youngest at the table and the best player at it, which is an annoying
+combination to sit across from. Runs his own PE group, engaged to Samantha,
+neighbor to Zach, owner of a brown lab named Tater, and — the detail that undoes
+all of the above — an enthusiastic decorator of his home with ferns. The man has
+a green thumb. He is also a deeply serious Ohio State and Browns fan and takes an
+enormous amount of incoming for it. Takes it well. Then takes Zach's money.
+
+- **running_gag:** The ferns. Also: he wins.
+- **draft_tendency:** Ruthless. Reads the board and doesn't blink.
+- **rival:** `zach`
+
+---
+
+## todd — "Atlas"
+
+- **tone:** roast
+- **display_name:** Todd
+
+**backstory:**
+
+The most relaxed man in the group by a wide margin. Works support at Autodesk,
+drives a Rivian, and owns an enormous black lab mix named Atlas who is, by
+consensus, the largest dog anyone here has met. Die-hard Browns, which for a
+laid-back guy means he has developed a serenity the rest of the group has not —
+decades of practice at accepting outcomes. Jokes constantly, never escalates.
+
+- **running_gag:** The dog. The Rivian. The unbotherable calm.
+- **draft_tendency:** Doesn't overthink. Picks and moves on.
+
+---
+
+## zach — "The Commissioner"
+
+- **tone:** roast
+- **display_name:** Zach
+
+**backstory:**
+
+Wake Forest, LSU, and the only man at this table who does not care about the
+Cleveland Browns, which is its own kind of standing. Built the entire scoring
+engine, projection model, and website for a pool that could have run on a napkin.
+Contributes reliably at poker in the sense that his money reliably ends up
+elsewhere, mostly Bryan's. Has decided that the correct response to being bad at
+one game is to build a second game and administer it.
+
+- **running_gag:** Loses at poker, writes the scoring for everything else.
+- **draft_tendency:** Overthinks it, then takes the model's number anyway.
+- **rival:** `bryan`
+
+**NOTE:** Zach's Browns backstory differs deliberately from his panel, family,
+and CEC versions. Four rooms, four jokes. Keep all four distinct.
+
+---
+
+## Scaffolding required (none of this exists yet)
+
+1. `groups/browns/config.json` — `group_id`, `display_name`, `picks_per_manager: 4`,
+   `min_distinct_conferences: 4`, `count_conference_championship: false`,
+   `managers[]`, `email_enabled: false`
+2. `groups/browns/picks.json` — `draft_status: "dummy"` until the real draft
+3. `groups/browns/personas.json` — from this file
+4. `docs/assets/art_slots.json` — add a `browns` block (five slots, empty candidates)
+5. Group switcher entry in `docs/app.js`
+6. `docs/data/browns/` — written by `run_groups.py` once config + picks exist
+
+---
+
+## Open items
+
+- **`group_id`** — `browns` or `poker`? PERMANENT once set (it's the URL and the
+  output path). `browns` reads better publicly; `poker` describes the actual group.
+- **`display_name`** — what shows on the site.
+- **Manager ids** — proposed `matt_m`, `hauck`, `bryan`, `todd`, `zach`. Two Matts
+  need disambiguating the same way CEC's two Johns did.
+- **More managers expected** — roster is not final. Adding one later is a
+  `config.json` + `picks.json` + `personas.json` edit, never a rebuild.
+- **Rating bars** — this group and panel are the two where they fit. Not authored.
+- **pick_note** per team — pending draft.
