@@ -81,6 +81,19 @@ jobs:
       - name: validate_team_names.py (§9 gate)
         run: python scripts/validate_team_names.py
 
+      # docs/ is the Pages web root and groups/ is NOT served, so the persona
+      # prose the profile page renders exists as a DERIVED copy under
+      # docs/data/<group>/personas.json (same pattern build_canonical.py uses
+      # for teams_canonical.json). A copy is only safe if staleness is loud:
+      # --check regenerates the payload from groups/<group>/personas.json in
+      # memory and diffs it against what is committed, so editing the source
+      # without re-running the script fails CI instead of silently shipping
+      # yesterday's prose. It also runs the config<->personas reconciliation
+      # (§9-style gate): a manager_id present on one side and missing on the
+      # other fails here and NAMES the offender.
+      - name: sync_personas.py --check (docs/ copy is current)
+        run: python scripts/sync_personas.py --check
+
       # Supplementary, not a replacement for the explicit runs above: catches
       # the two genuinely pytest-style tests inside test_projector_correlation.py
       # (test_realistic_partial_overlap, test_degenerate_opposite_single_team)
