@@ -34,18 +34,18 @@ READS   groups/<group>/config.json      -- the manager roster (join key)
 WRITES  docs/data/<group>/personas.json -- OVERWRITE (fully regenerated every
                                            run; never accumulates)
 
-Groups with no personas.json are skipped, not failed: family and church launch
-with no persona content at all, the page 404s cleanly on the fetch, and every
-manager still gets a real card off standings/projection. Empty is the normal
-state (18 of 22 managers today), not a broken one.
+Groups with no personas.json are skipped, not failed. The page 404s cleanly on
+the fetch and every manager still gets a real card off standings/projection, so
+a league can launch with no prose at all and look finished. Empty is a normal
+state here, not a broken one.
 
 TONE, and why it is stripped here as well as gated in the page:
-  tone is REQUIRED on every manager. "roast" publishes everything. "straight"
-  publishes NO fatal_flaw, NO running_gag, NO rival -- they are nulled in the
-  payload before it ever leaves the repo. docs/managers.html gates on tone
-  independently. Two gates, because straight-tone groups are people's parents
-  and a single CSS or JS regression must not be able to print a "fatal flaw"
-  under someone's father's name.
+  tone is REQUIRED on every manager and has three registers -- see TONE_POLICY
+  below for what each one withholds. Whatever a register withholds is nulled in
+  the payload before it ever leaves the repo, and docs/managers.html gates on
+  tone independently. Two gates, because the strict register is somebody's
+  parents and a single CSS or JS regression must not be able to print a "fatal
+  flaw" under someone's father's name.
 
 Playbook compliance (CLAUDE.md):
   - rule 4: an unmapped manager_id -- in EITHER direction -- fails loud and
@@ -71,7 +71,27 @@ GROUPS_DIR = ROOT / "groups"
 WEB_DATA_DIR = ROOT / "docs" / "data"
 CANONICAL = ROOT / "data" / "teams_canonical.json"
 
-VALID_TONES = ("roast", "straight")
+# TONE, and what each register withholds. The value is the tuple of fields that
+# are nulled before publishing.
+#
+#   roast     nothing withheld. Panel and Browns: rooms where everyone has
+#             agreed, over decades, to be a target.
+#   warm      a fatal flaw is withheld, a running gag and a rival are not.
+#             CEC is the case this exists for: it is warm-register -- jokes aim
+#             at picks, not people -- yet every manager has an affectionate
+#             gag authored and there is one real rivalry in the group. Under a
+#             two-value gate that content had to be either published with a
+#             "fatal flaw" beside it or thrown away, and neither is right.
+#   straight  everything personal withheld. Family's John, Rachel and Vic --
+#             somebody's parents, somebody's uncle. The strict register stays
+#             strict; `warm` exists so that nothing needs to be loosened here
+#             to make another group render.
+TONE_POLICY = {
+    "roast":    (),
+    "warm":     ("fatal_flaw",),
+    "straight": ("fatal_flaw", "running_gag", "rival"),
+}
+VALID_TONES = tuple(TONE_POLICY)
 
 # The site contract. Every one of these keys is present on every published
 # manager -- null when unauthored, NEVER absent and NEVER a "TODO" string, so
@@ -88,8 +108,6 @@ SITE_FIELDS = (
     "rival",
     "color",
 )
-# Hidden when tone == "straight". See the module docstring.
-ROAST_ONLY = ("fatal_flaw", "running_gag", "rival")
 # Deliberately NOT published: traits, silhouette_cue, silhouette_cues,
 # _phase2_finding. Those are Gemini prompt inputs -- internal art direction
 # with no surface on the page. Keeping them out of docs/ is the whole reason
@@ -163,9 +181,8 @@ def build_payload(group_id, config, personas, colors):
             )
 
         rec = {k: src.get(k, None) for k in SITE_FIELDS}
-        if tone == "straight":
-            for k in ROAST_ONLY:
-                rec[k] = None
+        for k in TONE_POLICY[tone]:
+            rec[k] = None
 
         rival = rec.get("rival")
         if rival is not None and rival not in cfg_ids:
@@ -183,7 +200,8 @@ def build_payload(group_id, config, personas, colors):
             "groups/{g}/personas.json (source) + groups/{g}/config.json.".format(g=group_id),
             "Edit the source and re-run the script; --check runs in CI and fails on drift.",
             "Art-pipeline fields (traits, silhouette_cue/s) are deliberately NOT published.",
-            "tone == 'straight' publishes fatal_flaw / running_gag / rival as null.",
+            "tone withholds fields per register: straight nulls fatal_flaw,",
+            "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing.",
         ],
         "$version": 1,
         "group_id": group_id,
