@@ -93,17 +93,114 @@ def build_snapshot(standings, projection, eff_week):
     }
 
 
-def append_timeline(config, snapshot):
-    """Append `snapshot`, replacing any existing snapshot for the same effective
-    week (idempotent), keeping snapshots sorted. Never rewrites earlier weeks."""
-    path = utils.WEB_DATA_DIR / config["group_id"] / "timeline.json"
-    if path.exists():
-        tl = utils.load_json(path)
+def timeline_path(group_id, season=None):
+    """The LIVE timeline for a group, or a finished season's archive.
+
+    ONE FILE PER SEASON, and the live file is always the current one. Everything
+    downstream reads `timeline.json` by that exact name — analytics.select_prior,
+    build_week_packet, and app.js's computeMoves — and none of them can tell one
+    season's week 6 from another's, because a snapshot is keyed by week ALONE.
+    Making the FILE single-season is what makes that safe, without asking three
+    separate readers to each learn a season rule."""
+    d = utils.WEB_DATA_DIR / group_id
+    return d / ("timeline.json" if season is None else f"timeline-{season}.json")
+
+
+def _week_sort_key(s):
+    """Weeks ascending, the unresolvable-week row last.
+
+    Total on purpose: the tuple's first element separates them, but a list with
+    two null-week rows would fall through to comparing None with None, which
+    raises. Dedupe means that cannot happen today — a latent crash is still a
+    crash, and this costs one expression."""
+    wk = s.get("as_of_week")
+    return (wk is None, wk if wk is not None else -1)
+
+
+def archive_season(group_id, tl):
+    """Move a finished season's timeline aside to timeline-<season>.json.
+
+    ADDITIVE, NEVER DESTRUCTIVE. season.json gets flipped for replays, so the
+    same season can be rolled more than once (2025 -> 2026 -> 2025 -> 2026). When
+    an archive already exists, an already-archived week is scored history and is
+    left exactly as it is; only weeks the archive does not already hold are added.
+    Nothing is ever overwritten, which is the same promise the live file makes
+    about earlier weeks."""
+    old = int(tl["season"])
+    dest = timeline_path(group_id, old)
+    incoming = tl.get("snapshots", [])
+    if dest.exists():
+        archived = utils.load_json(dest)
+        have = {s.get("as_of_week") for s in archived.get("snapshots", [])}
+        added = [s for s in incoming if s.get("as_of_week") not in have]
+        archived["snapshots"] = sorted(archived.get("snapshots", []) + added,
+                                       key=_week_sort_key)
+        kept = len(incoming) - len(added)
+        print(f"  [{group_id}] season {old} archive already exists; merged "
+              f"{len(added)} new snapshot(s), left {kept} already-archived "
+              f"week(s) untouched.")
+        out = archived
     else:
-        tl = {"group_id": config["group_id"], "season": utils.get_season(), "snapshots": []}
+        out = {"group_id": group_id, "season": old,
+               "snapshots": sorted(incoming, key=_week_sort_key)}
+        print(f"  [{group_id}] season {old} rolled over -> {dest.name} "
+              f"({len(incoming)} snapshot(s) preserved).")
+    utils.save_json_atomic(dest, out)
+    return out
+
+
+def append_timeline(config, snapshot, season=None):
+    """Append `snapshot` to the CURRENT season's timeline, replacing any existing
+    snapshot for the same effective week (idempotent), keeping snapshots sorted.
+    Never rewrites earlier weeks.
+
+    THE FILE IS SCOPED TO ONE SEASON, and this is where that is enforced. Two
+    faults lived here before, and they were the same fault seen from two sides:
+
+      1. `season` was stamped only when the file was CREATED, so a timeline that
+         survived a rollover kept the previous season's tag forever. All four
+         groups declared 2025 while holding a snapshot written by a 2026 run.
+         analytics.select_prior refuses a timeline whose declared season is not
+         the one being scored — correct against a stale tag, but it meant
+         week_move would have stayed null right through the season.
+      2. Snapshots deduped on `as_of_week` ALONE, so 2026's week 6 would have
+         silently overwritten 2025's week-6 row — scored history destroyed with
+         no error, and the last state anyone could compare against replaced by a
+         board from a different season.
+
+    Rolling the file fixes both at once and leaves the snapshot SHAPE alone: a
+    per-snapshot season tag would also have been correct, but it pushes the
+    filtering into every reader, and two of the three readers (build_week_packet,
+    app.js) are outside this change. A single-season file is a rule the data
+    itself carries, so a reader that knows nothing about seasons still cannot
+    reach across one."""
+    season = utils.get_season() if season is None else int(season)
+    gid = config["group_id"]
+    path = timeline_path(gid)
+    tl = utils.load_json(path) if path.exists() else None
+
+    if tl is not None:
+        declared = tl.get("season")
+        if declared is None:
+            # Pre-dates the tag, or was hand-edited. Adopt the run's season
+            # rather than guess, but say so — an untagged file is exactly the
+            # state that let the stale tag go unnoticed for a season.
+            print(f"::warning:: [{gid}] timeline.json carries no `season`; "
+                  f"adopting {season}. It cannot be verified to hold only that "
+                  f"season's weeks.")
+        elif int(declared) != season:
+            archive_season(gid, tl)
+            tl = None                       # the live file starts fresh below
+
+    if tl is None:
+        tl = {"group_id": gid, "season": season, "snapshots": []}
+    # Re-stamped every run, not only at creation. That single missing line is
+    # fault 1 above.
+    tl["season"] = season
+
     snaps = [s for s in tl.get("snapshots", []) if s.get("as_of_week") != snapshot["as_of_week"]]
     snaps.append(snapshot)
-    snaps.sort(key=lambda s: (s["as_of_week"] is None, s["as_of_week"]))
+    snaps.sort(key=_week_sort_key)
     tl["snapshots"] = snaps
     utils.save_json_atomic(path, tl)
     return tl

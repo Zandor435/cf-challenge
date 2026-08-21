@@ -59,6 +59,15 @@ jobs:
       # always passes an explicit --as-of-week, so eff_week is never null there.
       - name: test_analytics_week_move.py
         run: python scripts/test_analytics_week_move.py
+      # The other half of the same fault: a timeline snapshot is keyed by WEEK
+      # ALONE, so nothing in the file distinguishes one season's week 6 from
+      # another's. append_timeline stamped `season` only at file creation (all
+      # four groups declared 2025 while holding a 2026 row) and deduped on week
+      # alone (2026's week 6 would have overwritten 2025's, destroying scored
+      # history with no error). Both are silent failures in committed data, so
+      # the season scoping is pinned here rather than trusted.
+      - name: test_timeline_seasons.py
+        run: python scripts/test_timeline_seasons.py
       - name: test_projector_correlation.py
         run: python scripts/test_projector_correlation.py
       # Head-to-head coupling (ARCHITECTURE §3). Silent when wrong in the worst
