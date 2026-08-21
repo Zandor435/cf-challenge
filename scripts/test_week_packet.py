@@ -27,7 +27,12 @@ Feud fixtures are constructed IN MEMORY — never written into the files
 production reads (playbook rule 14). Schema checks run against whatever picks
 are currently committed, so a dummy-data swap is covered automatically.
 
+Runs both ways, and they are equivalent: pytest collects one test per section
+and conftest.py raises on any check() the section recorded as FAIL; the
+standalone runner sums the same ledger and exits 0/1.
+
 Usage:
+    python -m pytest scripts/test_week_packet.py
     python scripts/test_week_packet.py
 """
 
@@ -40,11 +45,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
 import build_week_packet as B
 
+# The check ledger. Each entry is (label, ok, detail) — the LABEL is carried so a
+# failure is diagnosable from the pytest report alone, not only from the printed
+# transcript above it. conftest.py clears this before every pytest test and raises
+# on any recorded FAIL; main() sums it for the standalone `python scripts/...` run.
 _res = []
 
 
 def check(name, ok, detail=""):
-    _res.append(bool(ok))
+    _res.append((name, bool(ok), detail))
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}" + (f" — {detail}" if detail else ""))
 
 
@@ -159,7 +168,8 @@ def validate_packet(pk, group):
 
 # --- Contract-derived helpers ------------------------------------------------
 
-def validate_helpers():
+def test_helpers():
+    print("\nContract-derived helpers:")
     # Contract: CLINCHED if floor > 0; DEAD if ceiling < 0; else LIVE.
     check("status_of: floor > 0 -> CLINCHED", B.status_of(0.5, 3.5) == "CLINCHED")
     check("status_of: ceiling < 0 -> DEAD", B.status_of(-3.5, -0.5) == "DEAD")
@@ -199,7 +209,8 @@ def _rows(*mids):
              "rank_change": None} for m in mids]
 
 
-def validate_feuds():
+def test_feuds():
+    print("\nFeud detection (in-memory fixtures):")
     # KNOWN opposite-side pair: same team, opposite directions, adjacent ranks.
     cur = {"ann": _mgr("ann", 1, {"Ohio State": _pick("Ohio State", "O", 9.5, 2.5)}),
            "bob": _mgr("bob", 2, {"Ohio State": _pick("Ohio State", "U", 9.5, -2.5)})}
@@ -267,12 +278,13 @@ def _snap(week, mid, team, ceiling):
              "ceiling": ceiling, "expected_delta": None, "p_beat_line": None}]}]}
 
 
-def validate_collapse():
+def test_collapse():
     """A collapse is a SLIDE across a window, not a single loss.
 
     Week over week exactly one game is played, so a pick's ceiling can only fall
     by exactly 1.0 — a 1-week threshold makes 'collapse' a binary 'did this team
     lose' that fires constantly. These pin the window instead."""
+    print("\nCollapse window:")
     prior = {"ann": {"banked_total": 0.0, "floor": 0.0, "ceiling": 0.0,
                      "rank": 1, "picks": {}}}
     rows = _rows("ann", "bob")
@@ -321,9 +333,10 @@ def validate_collapse():
 
 # --- Heater normalization ----------------------------------------------------
 
-def validate_heater():
+def test_heater():
     """The heater is scored per WEEK, so a long snapshot gap can't hand it the
     top slot for free. At the intended cadence the normalization is a no-op."""
+    print("\nHeater normalization:")
     cur = {"ann": _mgr("ann", 1, {"Ohio State": _pick("Ohio State", "O", 9.5, 28.0)})}
     prior = {"ann": {"banked_total": 0.0, "floor": 0.0, "ceiling": 0.0,
                      "rank": 1, "picks": {}}}
@@ -381,7 +394,8 @@ def _mgr_snap(week, mid, total, ceiling=0.0):
              "ceiling": ceiling, "expected_delta": None, "p_beat_line": None}]}]}
 
 
-def validate_byes():
+def test_byes():
+    print("\nBye weeks:")
     # --- streak: bye in the middle of a run --------------------------------
     # wk10 -> 11 banked +1; wk11 -> 12 BYE (flat); wk12 -> 13 banked +1.
     bye_run = {"snapshots": [_mgr_snap(10, "ann", 0.0), _mgr_snap(11, "ann", 1.0),
@@ -456,9 +470,10 @@ def validate_byes():
 
 # --- Unknown prior state -----------------------------------------------------
 
-def validate_no_prior():
+def test_no_prior():
     """With no prior snapshot the movement fields must be null, NOT 0.0 — a
     fabricated zero is a number the column would print as fact."""
+    print("\nUnknown prior state:")
     cur = {"ann": _mgr("ann", 1, {"Ohio State": _pick("Ohio State", "O", 9.5, 2.5)})}
     race = B.build_race(cur, None, {"managers": [{"manager_id": "ann",
                                                   "display_name": "Ann"}]})
@@ -485,7 +500,8 @@ def validate_no_prior():
 # `leader_changed` boolean onto every status change in the week, so a bystander's
 # routine clinch was credited with the flip. These pin the replacement.
 
-def validate_flip_attribution():
+def test_flip_attribution():
+    print("\nLeader-flip attribution:")
     # ann led by 10 at the snapshot; bob leads by 10 now. Swing = 10 + 10 = 20.
     # cy is a BYSTANDER who moved more than anyone (+4) but was never in it.
     prior = {"ann": _mgr("ann", 1, {"A": _pick("A", "O", 9.5, 5.0),
@@ -523,9 +539,10 @@ def validate_flip_attribution():
 
 # --- Irony scoring -----------------------------------------------------------
 
-def validate_irony_scoring():
+def test_irony_scoring():
     """Score must track the pick's OWN resolved magnitude, and flip credit must
     reach only the picks that actually moved the lead."""
+    print("\nIrony scoring:")
     # ann led by 10 and collapsed to -10; bob climbed 0 -> +10 and took it.
     # Swing = (10 - 0) + (10 - -10) = 30. cy is a bystander whose pick also died.
     prior = {"ann": _mgr("ann", 1, {"A": _pick("A", "O", 9.5, 10.0)}),
@@ -590,7 +607,8 @@ def _story(stype, score, mids, picks, **extra):
     return st
 
 
-def validate_dedupe():
+def test_dedupe():
+    print("\nMoment dedupe:")
     clinches = [_story("irony", sc, ["ann"], [_spick("ann", team)],
                        transition="LIVE->CLINCHED")
                 for team, sc in (("A", 3.0), ("B", 4.0), ("C", 2.0), ("D", 1.0))]
@@ -641,7 +659,8 @@ def validate_dedupe():
 
 # --- Season completion -------------------------------------------------------
 
-def validate_season_complete():
+def test_season_complete():
+    print("\nSeason completion:")
     check("season_complete: every game final -> True",
           B.season_is_complete({"games": [{"completed": True},
                                           {"completed": True}]}) is True)
@@ -658,9 +677,10 @@ def validate_season_complete():
 
 # --- Uniform profile fields --------------------------------------------------
 
-def validate_uniform_profile_fields():
+def test_uniform_profile_fields():
     """A value the whole room shares must be named as such, not left looking
     like a personal stat (persona sacred rule 7)."""
+    print("\nUniform profile fields:")
     U = B.uniform_profile_fields
     shared = {
         "ann": {"picks_alive": 0, "conference_spread": 4, "picks_dead": 3,
@@ -734,7 +754,7 @@ def _packet_state(path):
     return (path.exists(), path.stat().st_mtime if path.exists() else None)
 
 
-def validate_preseason():
+def test_preseason():
     """Zero played games is a clean no-op; a played game with an unresolvable
     week is still fatal.
 
@@ -742,6 +762,7 @@ def validate_preseason():
     from widening into a swallow-everything catch that hides a real cache/board
     disagreement behind a friendly message.
     """
+    print("\nPreseason (and the fail-loud path it must not weaken):")
     group = utils.get_all_group_ids()[0]
     path = B.packet_path(group)
     before = _packet_state(path)
@@ -796,8 +817,9 @@ def validate_preseason():
 
 # --- Fail-loud ---------------------------------------------------------------
 
-def validate_fail_loud():
+def test_fail_loud():
     """A missing output contract must exit non-zero and write nothing."""
+    print("\nFail-loud:")
     bogus = "definitely_not_a_group"
     code = None
     err = io.StringIO()
@@ -813,55 +835,14 @@ def validate_fail_loud():
           not B.packet_path(bogus).exists())
 
 
-def main():
-    print("build_week_packet.py — packet contract, feud detection, fail-loud\n")
-
-    print("Contract-derived helpers:")
-    validate_helpers()
-
-    print("\nFeud detection (in-memory fixtures):")
-    validate_feuds()
-
-    print("\nCollapse window:")
-    validate_collapse()
-
-    print("\nHeater normalization:")
-    validate_heater()
-
-    print("\nBye weeks:")
-    validate_byes()
-
-    print("\nUnknown prior state:")
-    validate_no_prior()
-
-    print("\nLeader-flip attribution:")
-    validate_flip_attribution()
-
-    print("\nIrony scoring:")
-    validate_irony_scoring()
-
-    print("\nMoment dedupe:")
-    validate_dedupe()
-
-    print("\nSeason completion:")
-    validate_season_complete()
-
-    print("\nUniform profile fields:")
-    validate_uniform_profile_fields()
-
-    print("\nPreseason (and the fail-loud path it must not weaken):")
-    validate_preseason()
-
-    print("\nFail-loud:")
-    validate_fail_loud()
-
+def test_packet_schema():
     # Schema checks run against the LIVE cache. Before the first kickoff there
     # is no packet to check - build_packet returns None by contract - so assert
     # that contract instead of pretending to validate a schema. This re-arms by
     # itself the moment one game is final; it is not a permanent opt-out.
     live_played = B.completed_game_count(utils.load_cache(utils.get_season()))
     for group in utils.get_all_group_ids():
-        print(f"\nPacket schema — {group}:")
+        print(f"\nPacket schema \u2014 {group}:")
         if live_played == 0:
             packet = B.build_packet(group)
             check(f"[{group}] preseason: no packet to validate yet "
@@ -870,7 +851,25 @@ def main():
         else:
             validate_packet(B.build_packet(group), group)
 
-    passed, total = sum(_res), len(_res)
+
+def main():
+    print("build_week_packet.py \u2014 packet contract, feud detection, fail-loud")
+    test_helpers()
+    test_feuds()
+    test_collapse()
+    test_heater()
+    test_byes()
+    test_no_prior()
+    test_flip_attribution()
+    test_irony_scoring()
+    test_dedupe()
+    test_season_complete()
+    test_uniform_profile_fields()
+    test_preseason()
+    test_fail_loud()
+    test_packet_schema()
+
+    passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
     sys.exit(0 if passed == total else 1)
 
