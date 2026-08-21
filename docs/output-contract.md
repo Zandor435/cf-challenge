@@ -318,6 +318,22 @@ on `leverage === null`, never on whether the key is present.
   before** the effective week being scored: `run_groups.py` appends the current
   week's snapshot before analytics runs, so "the latest snapshot" would be this
   week and every move would read `0`.
+
+  **`null` has three distinct causes, and they are not interchangeable.**
+  `analytics.select_prior` returns a reason with every refusal so the run log
+  can say which one it was; the emitted JSON carries only the `null`, so a
+  consumer cannot tell them apart and must not try:
+
+  | cause | reason token | ordinary or fault |
+  |-------|--------------|-------------------|
+  | **No prior snapshot.** Either the group has no `timeline.json` at all, or it has one but holds no snapshot strictly before the effective week (this is the season's first scored week). | `no_timeline` / `no_earlier_week` | ordinary |
+  | **Unresolvable week.** Neither `--as-of-week` nor the cache supplies an effective week, so there is no "now" and therefore no "before". Refusing is deliberate: treating `None` as a wildcard made every snapshot eligible and `max()` handed back the highest week on file — for the 2026 preseason, a week-16 snapshot left by the 2025 replay. | `week_unresolved` | ordinary **in preseason**, a real fault mid-season — `any_games_banked()` on the standings is the discriminator, and the fault case logs a `::warning::` |
+  | **Declared-season mismatch.** `timeline.json` declares a `season` and it is not the one being scored. The file is append-only across seasons and its snapshots are keyed by week **alone**, so last season's week 6 sits in the same list as this season's; without this check a plain strictly-before test would reach back across the rollover once this season passes that week. A timeline that declares **no** season does not trip this — the week test then stands alone, because inventing a season here would be a guarantee the data does not make. | `season_mismatch` | ordinary after a rollover, and logs a `::warning::` naming both seasons |
+
+  The rule underneath all three is the same one that rejects a confident `0`:
+  an honest `null` beats a confidently wrong number. `championship_odds`
+  carries its own `prior_week` under the same rules (plus its own two extra
+  null cases for `week_move` — see below).
 - Prior ranks are recomputed from that snapshot's per-pick `banked_delta` /
   `floor` using **exactly** `standings.json`'s ordering (`banked_total` desc,
   `floor` desc, `manager_id` asc) — the snapshot carries no `rank` of its own.
