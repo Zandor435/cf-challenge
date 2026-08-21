@@ -30,91 +30,35 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
-      # Each script below is a hand-rolled runner (check()/main() + an
-      # explicit sys.exit(0/1)), NOT a pytest test_*() module — bare
-      # `pytest scripts/` would import these files but collect ZERO test
-      # items from six of the seven, silently skipping almost the whole
-      # suite while still exiting 0. Run each directly so every check in
-      # every file actually executes and a real failure actually fails this
-      # job (a silent miss is worse than a loud stop).
-      - name: test_resolver.py
-        run: python scripts/test_resolver.py
-      - name: test_cache_access.py
-        run: python scripts/test_cache_access.py
-      - name: test_pick_rules.py
-        run: python scripts/test_pick_rules.py
-      # Draft entry (scripts/enter_draft.py). Hand-rolled like its neighbours,
-      # so the supplementary pytest step below collects ZERO items from it --
-      # it was passing locally and running nowhere until this line existed.
-      - name: test_enter_draft.py
-        run: python scripts/test_enter_draft.py
-      - name: test_output_shape.py
-        run: python scripts/test_output_shape.py
-      # Board-3 prior-snapshot selection. Silent when wrong in the worst way:
-      # picking the wrong snapshot does not crash and does not look wrong -- it
-      # publishes correct arithmetic against the wrong board. The 2026 preseason
-      # shipped week_move measured against a week-16 snapshot from the 2025
-      # replay because an unresolvable week short-circuited the strictly-before
-      # test. Nothing else in the suite would have caught it: test_output_shape
-      # always passes an explicit --as-of-week, so eff_week is never null there.
-      - name: test_analytics_week_move.py
-        run: python scripts/test_analytics_week_move.py
-      # The other half of the same fault: a timeline snapshot is keyed by WEEK
-      # ALONE, so nothing in the file distinguishes one season's week 6 from
-      # another's. append_timeline stamped `season` only at file creation (all
-      # four groups declared 2025 while holding a 2026 row) and deduped on week
-      # alone (2026's week 6 would have overwritten 2025's, destroying scored
-      # history with no error). Both are silent failures in committed data, so
-      # the season scoping is pinned here rather than trusted.
-      - name: test_timeline_seasons.py
-        run: python scripts/test_timeline_seasons.py
-      - name: test_projector_correlation.py
-        run: python scripts/test_projector_correlation.py
-      # Head-to-head coupling (ARCHITECTURE §3). Silent when wrong in the worst
-      # way: an uncoupled pair produces trials where BOTH teams won the same
-      # game, which no assertion elsewhere would catch and which leaks straight
-      # into p_win_pool. The four real groups carry 5/10/17/28 such games, so
-      # this runs against committed picks, not only a synthetic fixture.
-      - name: test_projector_h2h.py
-        run: python scripts/test_projector_h2h.py
-      - name: test_fetch_integrity.py
-        run: python scripts/test_fetch_integrity.py
-
-      # The frozen preseason baseline (ARCHITECTURE section 7). Write-once and
-      # UNREPEATABLE: preseason SP+ vanished the moment the first 2026 game went
-      # final, because CFBD's /ratings/sp only ever returns the CURRENT rating
-      # for a season. So the guards that stop it being written wrong are the only
-      # protection there is, and they are tested here rather than trusted. The
-      # checks are deliberately durable past kickoff -- guards and projector
-      # reuse run on in-memory fixtures, schedule length uses games_scheduled
-      # (which counts played and unplayed alike), and the sane-range checks read
-      # the committed artifact instead of recomputing it.
-      - name: test_preseason_baseline.py
-        run: python scripts/test_preseason_baseline.py
-      # The scheduled pipeline's run gate. Both directions are silent when
-      # wrong — stuck open burns the free-tier budget, stuck closed freezes the
-      # site while every run still shows green — so it is tested here rather
-      # than discovered in production.
-      - name: test_should_run.py
-        run: python scripts/test_should_run.py
-
-      # Commentary layer (ARCHITECTURE §8/§12). Both are offline: the packet
-      # test reshapes the committed boards, and the prompt test is dry-run only
-      # — no OPENAI_API_KEY is read and no network call is made, so these are
-      # safe in the read-only, secret-free job above. They are BLOCKING despite
-      # commentary being fail-soft at runtime: fail-soft means a dead API can't
-      # take down the pipeline, not that a broken packet should reach the
-      # pundit. A wrong number here is quoted verbatim into the column as fact.
-      - name: test_week_packet.py
-        run: python scripts/test_week_packet.py
-      - name: test_commentary_prompt.py
-        run: python scripts/test_commentary_prompt.py
+      # THE suite. This used to be a "supplementary discovery" step behind
+      # fifteen explicit `python scripts/test_x.py` runs, because every one of
+      # those files was a hand-rolled runner (check()/main() + sys.exit) and
+      # bare `pytest scripts/` collected ZERO items from twelve of the fourteen
+      # — and the eight items it DID collect could not fail, because check()
+      # records a result, it does not raise. Naming each file was the only way
+      # to be sure it ran.
+      #
+      # Both halves of that are fixed. Every file now exposes its sections as
+      # test_* functions, and conftest.py gates each one on the module's check
+      # ledger, so a recorded FAIL is a pytest failure naming the check. 91
+      # items, ~600 checks, one step.
+      #
+      # The explicit steps are gone because they are now strictly redundant, and
+      # they failed silently in the one direction that actually happens: a new
+      # test file added without someone remembering to add a step here never ran
+      # and nothing said so. scripts/test_suite_collection.py is the replacement
+      # guard — it fails if any scripts/test_*.py stops contributing collectable,
+      # non-vacuous tests, which is the invariant the wall of steps was
+      # approximating by hand.
+      - name: pytest (whole suite)
+        run: python -m pytest -v
 
       # ARCHITECTURE §9: the fetch->score name/conference/draft-rule gate,
       # run here against whatever picks are currently committed (the real
       # groups' dummy picks today; real drafts once they land) so a bad
       # picks.json fails CI loudly instead of only failing at the next live
-      # pipeline run.
+      # pipeline run. NOT a pytest module — it is the production gate script
+      # itself, so it keeps its own step.
       - name: validate_team_names.py (§9 gate)
         run: python scripts/validate_team_names.py
 
@@ -127,16 +71,10 @@ jobs:
       # without re-running the script fails CI instead of silently shipping
       # yesterday's prose. It also runs the config<->personas reconciliation
       # (§9-style gate): a manager_id present on one side and missing on the
-      # other fails here and NAMES the offender.
+      # other fails here and NAMES the offender. Also a production script, not
+      # a test module, so it also keeps its own step.
       - name: sync_personas.py --check (docs/ copy is current)
         run: python scripts/sync_personas.py --check
-
-      # Supplementary, not a replacement for the explicit runs above: catches
-      # the two genuinely pytest-style tests inside test_projector_correlation.py
-      # (test_realistic_partial_overlap, test_degenerate_opposite_single_team)
-      # plus anything pytest-style added going forward.
-      - name: pytest (supplementary discovery)
-        run: python -m pytest scripts/ -v
 
       # LAST, and the ONLY non-blocking step. selftest_10_1 exercises the
       # commentary-bypass path via `fetch_results.py --simulate-failure`, which
@@ -147,10 +85,18 @@ jobs:
       # the run before the §9 gate above ever executed — the check that actually
       # protects pick data got zero coverage on every push. Ordered last so a
       # stale cache can no longer mask a genuine failure, and continue-on-error
-      # so its known failure doesn't redden an otherwise-green suite. NOTE: the
-      # step is still reported in the run summary — read it, don't ignore it;
-      # the other 22 checks in this file are real and a NEW failure here is a
-      # real regression.
+      # so its known failure doesn't redden an otherwise-green suite.
+      #
+      # DELIBERATELY NOT CONVERTED, and deliberately not collected. Its inner
+      # functions are already named test_cache / test_resolver / test_failure_path
+      # / test_season_guard, so the only thing keeping it out of `pytest` is that
+      # the FILE is not named test_*.py — conftest.py collect_ignores it too, and
+      # test_suite_collection.py pins the filename so a rename cannot quietly
+      # move this known failure inside the blocking step above.
+      #
+      # NOTE: the step is still reported in the run summary — read it, don't
+      # ignore it; everything above is real and a NEW failure here is a real
+      # regression.
       - name: selftest_10_1.py (non-blocking — see comment)
         continue-on-error: true
         run: python scripts/selftest_10_1.py
