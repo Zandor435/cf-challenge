@@ -37,17 +37,21 @@ Playbook compliance (CLAUDE.md):
 """
 
 import argparse
+import base64
 import json
 import re
 import os
 import sys
 from pathlib import Path
 
+import requests
+
 from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import gemini_image  # noqa: E402
 from recolor_personas import color_name, team_colors  # noqa: E402
+from generate_owner_images import _post_with_retries  # noqa: E402
 from scene_batch import (BATCH, FULLCARD, MATCHUP_FULLCARD, MATCHUPS,  # noqa: E402
                          POSTERS, POSTER_NAMES)
 
@@ -444,6 +448,40 @@ FACING = {
 }
 
 
+OPENAI_URL = "https://api.openai.com/v1/images/edits"
+
+# gpt-image only accepts this fixed size set, so an aspect string is mapped to
+# the nearest one it will actually take. 3:4 lands on the portrait size -- the
+# plates are eye-line normalised by the compositor afterwards, so an exact
+# ratio matters far less than every plate in a set sharing ONE size.
+OPENAI_SIZES = {"1:1": "1024x1024", "3:4": "1024x1536", "2:3": "1024x1536",
+                "4:5": "1024x1536", "9:16": "1024x1536", "4:3": "1536x1024",
+                "3:2": "1536x1024", "16:9": "1536x1024", "21:9": "1536x1024"}
+
+
+def gen_openai(api_key, model, refs, prompt, aspect, quality="high"):
+    """Return PNG bytes for one image from /v1/images/edits.
+
+    Mirrors gemini_image.generate()'s contract -- same argument order, same
+    return -- so the job loop can pick a provider and change nothing else.
+    refs is the SAME ordered (bytes, mime) list; every entry is sent as a
+    repeated image[] part, which keeps "reference image #N" pointing at the
+    same picture it points at on the Gemini path.
+    """
+    files = [("image[]", (f"ref{i}.png", blob, mime))
+             for i, (blob, mime) in enumerate(refs, start=1)]
+    form = {"model": model, "prompt": prompt, "n": "1",
+            "size": OPENAI_SIZES.get(aspect, "1024x1536"), "quality": quality}
+    resp = _post_with_retries(lambda: requests.post(
+        OPENAI_URL, data=form, files=files,
+        headers={"Authorization": f"Bearer {api_key}"}, timeout=420))
+    data = resp.json()
+    try:
+        return base64.b64decode(data["data"][0]["b64_json"])
+    except (KeyError, IndexError):
+        raise RuntimeError(f"No image in response: {json.dumps(data)[:400]}")
+
+
 def build_halfcard_prompt(mid, facing, style, personas, colors):
     team = personas[mid]["team"]
     hexc = colors[team]["color"]
@@ -545,7 +583,14 @@ def main() -> int:
     ap.add_argument("--n", type=int, default=2, help="variants (minimum 2)")
     ap.add_argument("--aspect", default=None,
                     help="default 3:4 for trophy, 16:9 for scenes")
-    ap.add_argument("--model", default=gemini_image.DEFAULT_MODEL)
+    ap.add_argument("--model", default=None,
+                    help=f"default {gemini_image.DEFAULT_MODEL} (gemini) "
+                         f"/ gpt-image-2 (openai)")
+    ap.add_argument("--provider", default="gemini", choices=["gemini", "openai"],
+                    help="image backend. openai is the failover when the "
+                         "Gemini spend cap is hit.")
+    ap.add_argument("--quality", default="high",
+                    choices=["low", "medium", "high"], help="openai only")
     ap.add_argument("--trophy-plate", default=None,
                     help="path to the canonical trophy plate (trophy setup only)")
     ap.add_argument("--huddle-angle", default="up", choices=list(HUDDLE_ANGLES))
@@ -554,6 +599,9 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true",
                     help="assemble and validate prompts, write NOTHING, bill NOTHING")
     args = ap.parse_args()
+    if not args.model:
+        args.model = (gemini_image.DEFAULT_MODEL if args.provider == "gemini"
+                      else "gpt-image-2")
 
     # None means "caller did not choose": scenes fall back to painted,
     # half-cards fall back to the full six-style plate set.
@@ -699,15 +747,17 @@ def main() -> int:
                                  f"panel_{args.phase}_{lead}_{style}_{i:02d}.png",
                                  prompt, refs, aspect))
 
-    limit = gemini_image.ref_limit(args.model)
+    # gpt-image takes an unbounded image[] list, so the slot ceiling is a
+    # Gemini-model property and is only enforced on that path.
+    limit = gemini_image.ref_limit(args.model) if args.provider == "gemini" else 99
     over = [j for j in jobs if len(j[2]) > limit]
     if over:
         print(f"ERROR: {len(over)} job(s) exceed the {limit} reference slots on "
               f"{args.model}.", file=sys.stderr)
         return 1
 
-    print(f"phase={args.phase} model={args.model} aspect={aspect} "
-          f"styles={','.join(styles)} variants={n}")
+    print(f"phase={args.phase} provider={args.provider} model={args.model} "
+          f"aspect={aspect} styles={','.join(styles)} variants={n}")
     print(f"planned paid calls: {len(jobs)}")
     if args.dry_run:
         first = jobs[0]
@@ -718,9 +768,10 @@ def main() -> int:
         return 0
 
     load_dotenv(ROOT / ".env")
-    key = os.environ.get("GEMINI_API_KEY", "").strip()
+    env_name = "GEMINI_API_KEY" if args.provider == "gemini" else "OPENAI_API_KEY"
+    key = os.environ.get(env_name, "").strip()
     if not key:
-        print("ERROR: GEMINI_API_KEY missing from .env", file=sys.stderr)
+        print(f"ERROR: {env_name} missing from .env", file=sys.stderr)
         return 1
 
     budget = gemini_image.load_budget()
@@ -740,12 +791,16 @@ def main() -> int:
             continue
         refs = [(p.read_bytes(), "image/png") for p in ref_paths]
         print(f"  {out_path.name} ...")
-        total = gemini_image.bump_budget(budget, "gemini")
+        total = gemini_image.bump_budget(budget, args.provider)
         if total > args.daily_warn:
             print(f"  ::warning:: image-API daily tally {total} -- past the "
                   f"{args.daily_warn} threshold.")
         try:
-            img = gemini_image.generate(key, args.model, refs, prompt, asp)
+            if args.provider == "openai":
+                img = gen_openai(key, args.model, refs, prompt, asp,
+                                 args.quality)
+            else:
+                img = gemini_image.generate(key, args.model, refs, prompt, asp)
         except Exception as e:
             print(f"  FAILED {out_path.name}: {type(e).__name__}: {e}",
                   file=sys.stderr)
