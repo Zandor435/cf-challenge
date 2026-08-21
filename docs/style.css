@@ -925,20 +925,23 @@ a { color: inherit; }
 .mgr-pick-team { font-weight: 600; }
 .mgr-pick-conf { color: var(--text-faint); font-size: .68rem; }
 .mgr-pick-delta { text-align: right; font-weight: 600; }
-/* The merged cell. The number is right-aligned against the pill so the lines
-   form a column of digits rather than drifting with each team's name length. */
+/* The merged cell: number, then pill, packed from the LEFT of a fixed track.
+   The number gets a 4ch box (wide enough for 10.5) and is right-aligned inside
+   it, which buys both readings at once — the digits line up as a column, and
+   every pill starts at the same x instead of stepping in and out with the line
+   length. Packing from the left is also what keeps the head label over the
+   NUMBER: right-packed, "Line" landed above the pill and read as labelling the
+   direction. */
 .mgr-pick-lineou {
-  display: flex; align-items: center; gap: 7px; justify-content: flex-end;
+  display: flex; align-items: center; gap: 8px; justify-content: flex-start;
 }
-.mgr-pick-num { font-weight: 600; min-width: 3ch; text-align: right; }
+.mgr-pick-num { font-weight: 600; min-width: 4ch; text-align: right; }
 /* Direction as colour, on the number only. .pos / .neg are the site's existing
    --positive / --negative; no new colour enters here. This is a SECOND reading
    of the pill beside it, never the only one — the word Over or Under is always
    present, so nothing depends on telling green from red. */
 .mgr-pick-lineou .dir-badge { flex: 0 0 auto; }
-/* The head has no pill to align against, so its label sits where the numbers
-   do rather than where the pills do. */
-.mgr-pick-row.is-head .mgr-pick-lineou { justify-content: flex-end; }
+/* The head carries the same class, so it packs left with the numbers. */
 .mgr-picks-empty {
   color: var(--text-faint); font-size: .8rem; padding: 20px 0; text-align: center;
 }
@@ -959,18 +962,17 @@ a { color: inherit; }
    that many empty cells — which is exactly the bug the old `.is-solo` special
    case existed to patch, and why it is gone rather than renamed.
 
-   The gap is a 1px hairline over a --border-soft ground: the same seam the
-   stat strip used, so a card grid still reads as one object rather than as
-   loose tiles. */
+   NO GROUND BEHIND THE GRID, and that is the counterpart to auto-fit. A filled
+   ground with hairline gaps -- the treatment the stat strip used -- needs every
+   cell covered, and this grid is by design not full: three cards in two columns
+   leaves the fourth cell showing, and a grey rectangle where a card would go is
+   precisely the empty-cell artifact auto-fit exists to avoid. Each card carries
+   its own accent rule instead, so an odd count ends in paper. */
 .mgr-meta {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1px; margin-top: 22px;
-  background: var(--border-soft); border: 1px solid var(--border-soft);
+  gap: 18px 20px; margin-top: 22px;
 }
-.mgr-metacard {
-  background: var(--bg); padding: 13px 15px 15px;
-  border-top: 3px solid var(--mc);
-}
+.mgr-metacard { border-top: 3px solid var(--mc); padding-top: 9px; }
 .mgr-metacard-head {
   display: flex; align-items: center; gap: 9px; margin-bottom: 7px;
 }
