@@ -62,6 +62,9 @@
 // every family card for a cut that does not exist. The treatment belongs to a
 // DISTINCT cut, so that is exactly what is tested. A group whose two slots
 // name one file renders precisely as it did before this change.
+//
+// RETURNS { html, isCut }, not a string, because isCut decides more than the
+// frame: see profile() for why a torn row cannot be flipped.
 function artPanel(groupId, managerId, name, week) {
   const cut = resolveArt(groupId, 'profile_page_hero', week, { id: managerId });
   const card = resolveArt(groupId, 'profile_hero', week, { id: managerId });
@@ -71,7 +74,7 @@ function artPanel(groupId, managerId, name, week) {
   // cut is genuinely distinct the frame comes off and the art sits on the
   // page, which is the treatment the cut was made for.
   const isCut = !!(cut && cut !== card);
-  if (!src) return '';
+  if (!src) return { html: '', isCut: false };
   // NOT lazy. The hero is this page's primary content, not a below-fold
   // decoration, and there is one per manager -- four today, and the only
   // league that declares any. Lazy-loading them meant every card below the
@@ -79,9 +82,12 @@ function artPanel(groupId, managerId, name, week) {
   // capture or on a slow connection, which reads as the no-art empty state
   // when it is nothing of the kind. Revisit if a league ever ships enough
   // profile art for the page weight to matter.
-  return `<figure class="mgr-art${isCut ? ' is-bleed' : ''}">
+  return {
+    html: `<figure class="mgr-art${isCut ? ' is-bleed' : ''}">
     <img class="mgr-art-img" src="${esc(src)}" alt="${esc(name)}" decoding="async">
-  </figure>`;
+  </figure>`,
+    isCut,
+  };
 }
 
 // 2 + 3 — epithet kicker, display name, and the name line beneath it.
@@ -232,9 +238,34 @@ function profile(m, persona, ctx, index) {
   const p = persona || null;
   const allow = toneOf(p);
   const art = artPanel(ctx.groupId, m.manager_id, m.display_name, ctx.week);
-  // Art alternates sides down the page; with no art the row collapses to one
-  // full-width column and the alternation is moot.
-  const side = art ? (index % 2 === 1 ? ' is-flipped' : '') : ' has-no-art';
+  // THE TEAR DECIDES THE SIDE, AND THE TEAR IS ON THE RIGHT.
+  //
+  // Art alternates sides down the page, and the torn cut has to face the copy:
+  // the ragged edge is meant to read as the page tearing away, which only works
+  // where it dissolves into the words rather than into the margin. On a flipped
+  // row the art sits right, so a right-hand tear points at the page edge and
+  // the straight machine-cut left edge butts against the copy -- exactly
+  // backwards, and visible today on every odd-indexed manager.
+  //
+  // MIRRORING THE ART IS THE OBVIOUS FIX AND IT IS NOT AVAILABLE. All fifteen
+  // -ripped assets across panel, church and browns are cut with the tear on the
+  // RIGHT (measured: left edge inset 0.0px at sd 0.0, right edge 18-52px at sd
+  // 12-29 -- a straight cut against a ragged one), so a scaleX(-1) on the
+  // flipped rows would put every tear where it belongs. But this art carries
+  // baked-in lettering: "I'M A MAN, I'M 40!" across Blaine, "AIN'T JUST FAST.
+  // IT'S FAT PRIME" and a Colorado scoreboard across Chris, BULLDOGS across
+  // David. A mirror renders all of it backwards. The tear is fixed in the
+  // pixels and cannot move, so the LAYOUT yields instead: a torn row is never
+  // flipped, and its art stays left where the tear faces the copy.
+  //
+  // Only torn rows give up the alternation. A group whose page slot names the
+  // same file as the card slot -- family, whose art is photographs deliberately
+  // never given a ragged edge -- has no tear to point anywhere and keeps
+  // alternating exactly as before. If a future set of assets is cut with the
+  // tear on the left, this is the line that has to learn about it; the frame
+  // treatment in artPanel() does not.
+  const side = !art.html ? ' has-no-art'
+    : (art.isCut || index % 2 === 0) ? '' : ' is-flipped';
   // --mc is used for RULES AND FILLS ONLY, never for text. Team colors are
   // picked for helmets: Colorado #cfb87c sits at 1.94:1 on white. Keeping it
   // out of type is why this page needs no contrast-fitting pass.
@@ -243,7 +274,7 @@ function profile(m, persona, ctx, index) {
   const style = mc ? ` style="--mc:${esc(mc)}"` : '';
 
   return `<article class="mgr-profile${side}" id="${esc(m.manager_id)}"${style}>
-    ${art}
+    ${art.html}
     <div class="mgr-copy">
       ${nameBlock(m, p)}
       ${pickTable(m)}

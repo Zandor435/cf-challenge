@@ -1048,7 +1048,13 @@ a { color: inherit; }
 @media (min-width: 900px) {
   /* The art panel becomes a real column and alternates sides down the page.
      A card with no art opts back out to one column and simply runs full
-     width — that is the whole mechanism, no placeholder involved. */
+     width — that is the whole mechanism, no placeholder involved.
+
+     WHICH rows alternate is decided in managers.js, not here, and it is not
+     simply index parity: a row whose art is a torn cut is never flipped,
+     because every -ripped asset is cut with its tear on the right and that
+     tear has to face the copy. The reasoning, and why mirroring the art is
+     not an option, is at profile()'s `side`. */
   .mgr-profile { grid-template-columns: 340px minmax(0, 1fr); gap: 34px; padding: 46px 0; }
   .mgr-profile.is-flipped { grid-template-columns: minmax(0, 1fr) 340px; }
   .mgr-profile.is-flipped .mgr-art { grid-column: 2; grid-row: 1; }
