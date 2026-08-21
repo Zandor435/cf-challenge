@@ -67,6 +67,37 @@ assets/source_photos/
 # written into the repo root during browser verification runs. Throwaway.
 .playwright-mcp/
 
+# Screenshot-gate captures. The visual verification pass every front-end thread
+# runs shoots each page at a desktop and a mobile width via Playwright MCP's
+# browser_take_screenshot, and a call that passes an explicit `filename` writes
+# it to the CWD -- which is the repo root, NOT .playwright-mcp/ above. That is
+# where an-panel-1440.png, index-390.png and managers-1440.png keep coming
+# from. They are regenerable by re-running the gate, are an input to nothing,
+# and sit right where a careless `git add .` will take them.
+#
+# Two shapes, because the gate produces two:
+#   <page>-<width>.<ext>   the convention the gate uses when it names a file;
+#                          3+ digits, so a WxH suffix (390x844) matches too and
+#                          an ordinary name like logo-v2.png does not.
+#   page-<timestamp>.<ext> the tool's OWN default, used by any call that passes
+#                          no filename at all.
+#
+# ANCHORED for the reason spelled out at the /output/ block above: unanchored,
+# these would match at any depth and could swallow a real asset that happens to
+# carry a width suffix -- docs/assets/ is full of generated art and nothing
+# stops a future one being named that way. The repo root is the only scratch
+# level here; every directory below it holds files somebody meant to keep. If a
+# genuine root-level image ever needs committing, `git add -f` is the escape
+# hatch and is the right amount of friction.
+/*-[0-9][0-9][0-9]*.png
+/*-[0-9][0-9][0-9]*.jpg
+/*-[0-9][0-9][0-9]*.jpeg
+/*-[0-9][0-9][0-9]*.webp
+/page-*.png
+/page-*.jpg
+/page-*.jpeg
+/page-*.webp
+
 # Figma export of the site design — a large binary design INPUT, not source.
 # Kept local; the built site it informed lives in docs/.
 assets/Figma site code/
