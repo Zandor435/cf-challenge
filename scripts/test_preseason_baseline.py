@@ -27,7 +27,12 @@ played and unplayed alike), and the sane-range check reads the COMMITTED frozen
 artifact rather than recomputing it. Nothing here depends on the season not
 having started.
 
+Runs both ways, and they are equivalent: pytest collects one test per section
+and conftest.py raises on any check() the section recorded as FAIL; the
+standalone runner sums the same ledger and exits 0/1.
+
 Usage:
+    python -m pytest scripts/test_preseason_baseline.py
     python scripts/test_preseason_baseline.py
 """
 
@@ -43,11 +48,15 @@ import utils
 import projector
 import preseason_baseline as PB
 
+# The check ledger. Each entry is (label, ok, detail) — the LABEL is carried so a
+# failure is diagnosable from the pytest report alone, not only from the printed
+# transcript above it. conftest.py clears this before every pytest test and raises
+# on any recorded FAIL; main() sums it for the standalone `python scripts/...` run.
 _res = []
 
 
 def check(name, ok, detail=""):
-    _res.append(bool(ok))
+    _res.append((name, bool(ok), detail))
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}" + (f" — {detail}" if detail else ""))
 
 
@@ -71,7 +80,8 @@ def _game(completed):
 
 # --- Guard 1: the season has started -----------------------------------------
 
-def validate_season_started_guard():
+def test_season_started_guard():
+    print("\nFreeze guard 1 (the season has started):")
     code, msg = _exit_code(lambda: PB.assert_preseason(
         {"games": [_game(False) for _ in range(5)]}))
     check("preseason cache passes the guard", code is None, f"exit={code}")
@@ -106,7 +116,8 @@ def validate_season_started_guard():
 
 # --- Guard 2: already frozen --------------------------------------------------
 
-def validate_already_frozen_guard():
+def test_already_frozen_guard():
+    print("\nFreeze guard 2 (already frozen):")
     with tempfile.TemporaryDirectory() as td:
         missing = Path(td) / "preseason_baseline_2026.json"
         code, _ = _exit_code(lambda: PB.assert_not_frozen(missing, False))
@@ -147,7 +158,8 @@ ELEVEN_GAME_TEAMS = ["Boise State", "Colorado State", "Fresno State",
 THIRTEEN_GAME_TEAM = "San José State"
 
 
-def validate_schedule_lengths():
+def test_schedule_lengths():
+    print("\nSchedule length is read off the slate, never assumed:")
     ref = utils.load_json(PB.REFERENCE_PATH)["teams"]
     sp = utils.season_sp_ratings(utils.get_season())
 
@@ -177,10 +189,11 @@ def validate_schedule_lengths():
 
 # --- The number IS the projector's ------------------------------------------
 
-def validate_projector_reuse():
+def test_projector_reuse():
     """Substitute the projector's win-prob function and watch expected_wins
     follow. If this file ever grows its own probability model, the substitution
     stops moving the answer and this fails."""
+    print("\nThe expected-win number is the projector's:")
     fake_state = {
         "team": "Fixture U",
         "games_scheduled": 10,
@@ -218,9 +231,10 @@ def validate_projector_reuse():
 
 # --- The frozen artifact ------------------------------------------------------
 
-def validate_frozen_artifact():
+def test_frozen_artifact():
     """Reads what is COMMITTED. Durable: it never recomputes, so it keeps
     passing after the cache stops being preseason."""
+    print("\nThe frozen artifact:")
     if not PB.OUTPUT_PATH.exists():
         check("the frozen baseline is committed", False,
               f"{PB.OUTPUT_PATH.name} not found — run preseason_baseline.py")
@@ -283,24 +297,14 @@ def validate_frozen_artifact():
 
 
 def main():
-    print("preseason_baseline.py — freeze guards, schedule truth, projector reuse\n")
+    print("preseason_baseline.py \u2014 freeze guards, schedule truth, projector reuse")
+    test_season_started_guard()
+    test_already_frozen_guard()
+    test_schedule_lengths()
+    test_projector_reuse()
+    test_frozen_artifact()
 
-    print("Freeze guard 1 (the season has started):")
-    validate_season_started_guard()
-
-    print("\nFreeze guard 2 (already frozen):")
-    validate_already_frozen_guard()
-
-    print("\nSchedule length is read off the slate, never assumed:")
-    validate_schedule_lengths()
-
-    print("\nThe expected-win number is the projector's:")
-    validate_projector_reuse()
-
-    print("\nThe frozen artifact:")
-    validate_frozen_artifact()
-
-    passed, total = sum(_res), len(_res)
+    passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
     sys.exit(0 if passed == total else 1)
 
