@@ -190,6 +190,19 @@ a { color: inherit; }
 .tag-proj  { color: var(--text-faint); }
 .card-sub { color: var(--text-muted); font-size: .78rem; margin-top: 5px; }
 
+/* Preseason honesty line — index.html's sibling of analytics.css's
+   .an-degenerate, matched rule for rule on purpose: the two pages state the
+   same fact about the same data and must not state it in two different visual
+   voices. It sits BELOW .card-sub and is darker than it, so it reads as a
+   correction to the card rather than more of the card's description, and it
+   cannot be skimmed as part of it. Duplicated rather than shared because
+   index.html does not load analytics.css; if the two ever drift, analytics.css
+   is the original. */
+.preseason-note {
+  margin-top: 7px; font-size: .74rem; color: var(--text);
+  border-left: 3px solid var(--accent); padding-left: 9px;
+}
+
 /* Column labels shared by every table head. */
 .mgr-head span, .sb-head span, .proj-head-row span {
   font-family: var(--mono); font-size: .58rem; font-weight: 500;
@@ -310,6 +323,10 @@ a { color: inherit; }
 }
 .hero-title span { color: var(--accent); }
 .hero-sub { font-size: .86rem; color: var(--text-faint); line-height: 1.5; }
+/* The preseason sub-line is the headline's own correction, not a footnote about
+   it, so it comes off --text-faint. Measure is capped because it is a sentence
+   rather than the usual half-line of stats. */
+.hero-sub.is-pre { color: #d9d9d9; max-width: 62ch; }
 .hero-sub b { color: #fff; font-weight: 600; }
 .hero-sub .mono { font-weight: 600; color: #fff; }
 .hero-sub .hero-pos { color: var(--accent); }

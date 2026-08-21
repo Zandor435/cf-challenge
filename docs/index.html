@@ -50,7 +50,11 @@
   </div>
 
   <!-- Sample-data banner keeps a visible band: dummy picks must never read as a
-       real draft (STEP 4). -->
+       real draft (STEP 4). This band answers "are these picks real?" and clears
+       when the draft is entered. It is NOT the preseason band and must never be
+       merged with one: "nothing has been played yet" is a separate fact that
+       clears on a separate event (week 1 scoring), and it is stated per card in
+       the .preseason-note slots below, the way analytics.html states it. -->
   <div class="sample-banner" id="sample-banner" role="alert" hidden></div>
 </header>
 
@@ -72,6 +76,7 @@
       </div>
       <p class="card-sub">Every pick with its floor&ndash;ceiling range. Banked results
         only — pure arithmetic, reproducible by hand. No estimates.</p>
+      <p class="preseason-note" id="detail-preseason" hidden></p>
       <div class="standings" id="standings-detail-list"></div>
     </section>
   </section>
@@ -95,6 +100,7 @@
         </div>
         <p class="card-sub">Banked results only — pure arithmetic, reproducible by hand.
           Open the Standings tab for every pick&rsquo;s range.</p>
+        <p class="preseason-note" id="board1-preseason" hidden></p>
         <div class="standings" id="standings"></div>
       </section>
 
@@ -120,6 +126,7 @@
           <h2 class="card-title">Scoreboard: selected teams</h2>
         </div>
         <p class="card-sub">Every drafted team, once. Teams taken on both sides show both owners.</p>
+        <p class="preseason-note" id="sb-preseason" hidden></p>
         <div class="sb-cols" id="sb-cols"></div>
       </section>
 

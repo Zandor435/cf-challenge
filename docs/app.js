@@ -467,6 +467,54 @@ function renderPreDraft(groupId, meta) {
   show(el);
 }
 
+// ---------- preseason posture ----------------------------------------------
+// WHY THIS EXISTS. With zero games played, scoring.py's signed_delta collapses
+// to +line for every Under and -line for every Over, so a manager's banked
+// total is nothing but their lines added up in their picks' directions. Board 1
+// then ranks the group by how many Unders someone drafted; the hero names that
+// manager the leader and prints a gap to second; every range marker is pinned at
+// one end of its own range (the ceiling for an Under, the floor for an Over), so
+// an all-Under manager has zero ceiling left; and the scoreboard's delta column
+// is every team's line restated. All of it is arithmetically correct and none of
+// it means anything. A reader arriving before kickoff and told none of this
+// concludes the engine is broken -- or, worse, believes the ordering.
+//
+// SAME PATTERN AS analytics.js's isPreseason(), WITH ONE DELIBERATE DIFFERENCE.
+// That function's first signal is `meta.as_of_week === null`, which is sound
+// there because analytics.json carries the EFFECTIVE week. standings.json does
+// not: its meta.as_of_week is the --as-of-week argument verbatim (scoring.py
+// writes it straight through), so it is null on EVERY live run, week 9 included.
+// Carrying that signal over would stamp a mid-season board "preseason". Only
+// analytics.js's second signal survives the port -- nothing banked anywhere --
+// and expressed against the fields standings.json actually carries that is
+// banked_wins == banked_losses == 0 on every pick. It is the same predicate
+// scoring.py's _any_played() uses, and exactly what analytics.js's
+// |banked_delta| == |line| test is a proxy for.
+//
+// DETECTED FROM THE DATA, NEVER FROM A DATE, so it clears itself the moment the
+// first game is banked -- no edit here, no kickoff constant to keep in sync.
+function isPreseason(standings) {
+  const mgrs = standings.managers || [];
+  let seen = 0;
+  const untouched = mgrs.every((m) => (m.picks || []).every((p) => {
+    seen += 1;
+    return !Number(p.banked_wins) && !Number(p.banked_losses);
+  }));
+  return seen > 0 && untouched;
+}
+
+// The honesty line under a degenerate card's .card-sub. A distinct element with
+// its own rule rather than text appended to the sub, so it cannot be skimmed as
+// part of the card's ordinary description -- the same treatment, and the same
+// reasoning, as analytics.css's .an-degenerate.
+function preseasonNote(id, on, html) {
+  const el = $(id);
+  if (!el) return;
+  if (!on) { hide(el); return; }
+  el.innerHTML = html;
+  show(el);
+}
+
 // ---------- week-over-week move (timeline.json) ----------------------------
 // The contract has no "this week" delta on standings.json, so the move is
 // derived from timeline.json — the append-only per-week history — by summing
@@ -539,18 +587,31 @@ function bannerFor(groupId, week) {
   return list.indexOf(groupId) >= 0 ? `assets/banners/${groupId}.webp` : null;
 }
 
-function renderHero(standings, ident) {
+// `pre` reframes the headline, and only the headline. The manager strip below
+// it keeps every number the engine emitted, in the order the engine ranked
+// them: re-sorting a preseason board would be this page inventing an ordering
+// to replace the one it was given, which is a worse lie than the one being
+// fixed. What changes is the CLAIM -- a card-sub note cannot defuse an h1 that
+// reads "Current leader", so before kickoff the h1 stops saying it.
+function renderHero(standings, ident, pre) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   if (!mgrs.length) return;
   const meta = standings.meta || {};
   const leader = mgrs[0];
-  const wk = (meta.as_of_week === null || meta.as_of_week === undefined)
-    ? 'Live' : `Week ${meta.as_of_week}`;
+  const wk = pre ? 'Preseason'
+    : (meta.as_of_week === null || meta.as_of_week === undefined)
+      ? 'Live' : `Week ${meta.as_of_week}`;
   const season = Number.isFinite(Number(meta.season)) ? String(meta.season) : '';
 
   // The sub-line is derived, never invented: the gap to second place, or a tie.
   let sub;
-  if (mgrs.length > 1) {
+  if (pre) {
+    // No leader, no gap, no tie -- with nothing played, all three describe the
+    // draft rather than the season. Say what the totals below actually are.
+    sub = 'Every total below is that manager&rsquo;s lines added up in their picks&rsquo; ' +
+      'directions &mdash; a restatement of the draft, not a result. It becomes a ' +
+      'standing when week 1 is scored.';
+  } else if (mgrs.length > 1) {
     const gap = round1(leader.banked_total - mgrs[1].banked_total);
     sub = gap === 0
       ? `Tied with <b>${esc(mgrs[1].display_name)}</b> at <span class="mono">${fmtSigned(leader.banked_total)}</span> banked.`
@@ -571,8 +632,10 @@ function renderHero(standings, ident) {
     `<div class="hero-main">
       <div class="hero-kicker">${esc(season)} CFB Over/Under Challenge &middot; ` +
         `${esc(groupLabel(meta.group_id || currentGroupId()))} &middot; ${esc(wk)}</div>
-      <h1 class="hero-title">Current leader: <span>${esc(leader.display_name)}</span></h1>
-      <p class="hero-sub">${sub}</p>
+      <h1 class="hero-title">${pre
+        ? 'Drafted &mdash; <span>no games played</span>'
+        : `Current leader: <span>${esc(leader.display_name)}</span>`}</h1>
+      <p class="hero-sub${pre ? ' is-pre' : ''}">${sub}</p>
     </div>
     <div class="hero-mgrs">` +
       mgrs.map((m) => {
@@ -721,12 +784,17 @@ function compactCard(m, ident, moves) {
   </article>`;
 }
 
-function renderBoard1(standings, ident, moves) {
+function renderBoard1(standings, ident, moves, pre) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   const meta = standings.meta || {};
-  const wk = (meta.as_of_week === null || meta.as_of_week === undefined)
-    ? 'Live' : `Week ${meta.as_of_week}`;
+  const wk = pre ? 'Preseason'
+    : (meta.as_of_week === null || meta.as_of_week === undefined)
+      ? 'Live' : `Week ${meta.as_of_week}`;
   $('board1-week').textContent = wk;
+  preseasonNote('board1-preseason', pre,
+    'Preseason &mdash; nothing has been played, so every banked total is just that ' +
+    'manager&rsquo;s lines added up in their picks&rsquo; directions. This orders the ' +
+    'league by how many Unders someone drafted, not by how anyone is doing.');
 
   const head = `<div class="mgr-head mgr-head-c">
     <span>Rank</span><span></span><span>Manager</span><span>Banked</span>
@@ -740,11 +808,18 @@ function renderBoard1(standings, ident, moves) {
 // ---------- Board 1, detailed (STANDINGS tab) ------------------------------
 // Rendered once from the same standings.json main() already fetched; the nav
 // only toggles its visibility.
-function renderStandingsDetail(standings, ident, moves) {
+function renderStandingsDetail(standings, ident, moves, pre) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   const meta = standings.meta || {};
-  $('detail-week').textContent = (meta.as_of_week === null || meta.as_of_week === undefined)
-    ? 'Live' : `Week ${meta.as_of_week}`;
+  $('detail-week').textContent = pre ? 'Preseason'
+    : (meta.as_of_week === null || meta.as_of_week === undefined)
+      ? 'Live' : `Week ${meta.as_of_week}`;
+  preseasonNote('detail-preseason', pre,
+    'Preseason &mdash; nothing has been played, so each pick&rsquo;s banked figure is ' +
+    'its line restated in the direction it was taken, and every marker sits pinned at ' +
+    'one end of its own range: the ceiling for an Under, the floor for an Over. An ' +
+    'all-Under manager therefore shows no ceiling left. The ranking is the draft, ' +
+    'read back.');
 
   // Shared scale across every pick in the group so bars are comparable.
   const allPicks = mgrs.flatMap((m) => m.picks || []);
@@ -823,9 +898,13 @@ function teamRowHTML(r, ident) {
   </div>`;
 }
 
-function renderScoreboard(standings, ident) {
+function renderScoreboard(standings, ident, pre) {
   const rows = buildTeamRows(standings);
   if (!rows.length) return;
+  preseasonNote('sb-preseason', pre,
+    'Preseason &mdash; every record below is 0&ndash;0, so the &Delta; column is each ' +
+    'team&rsquo;s line restated in its owner&rsquo;s direction rather than anything that ' +
+    'has happened.');
   const mid = Math.ceil(rows.length / 2);
   const header = `<div class="sb-row sb-head">
     <span></span><span>Team</span>
@@ -859,12 +938,20 @@ function projManager(m, ident) {
     <div class="proj-bar"><div class="proj-bar-fill" style="width:${(p * 100).toFixed(1)}%"></div></div>
   </div>`;
 }
-function renderBoard2(projection, standings, ident) {
+// Board 2 gets NO .preseason-note. It is the one board on this page that is not
+// degenerate before kickoff -- a forward simulation off SP+ ratings says the
+// same kind of thing in August as it does in November, and here it already
+// disagrees with Board 1's ordering. Hanging the same accent bar on it that the
+// broken boards carry would read as a warning about the projection, which would
+// be false. It gets one extra sentence in its own muted disclaimer instead.
+function renderBoard2(projection, standings, ident, pre) {
   const disc = $('proj-disclaimer');
   const src = (projection.meta && projection.meta.ratings_source) || 'SP+';
   disc.textContent =
     `Model estimate from ${src} ratings — it updates weekly and can be wrong. ` +
-    `Board 1 is exact arithmetic.`;
+    `Board 1 is exact arithmetic.` +
+    (pre ? ` With nothing played yet, this is the one board here carrying something `
+      + `the draft did not already contain.` : '');
 
   const mgrs = (projection.managers || []).slice();
   // Order to mirror Board 1 where possible (p_win_pool desc as the contract sorts).
@@ -975,18 +1062,23 @@ async function main() {
     moves = null;
   }
 
+  // Preseason is a posture, not a filter: nothing below is recomputed, re-ranked
+  // or suppressed because of it. What changes is what the page CLAIMS about the
+  // numbers it was handed.
+  const pre = isPreseason(standings);
+
   wireLightbox();
-  renderHero(standings, ident);
+  renderHero(standings, ident, pre);
   wireImageFallbacks($('hero'));
-  renderBoard1(standings, ident, moves);          // Home tab — compact
-  renderStandingsDetail(standings, ident, moves); // Standings tab — full detail
-  renderScoreboard(standings, ident);
+  renderBoard1(standings, ident, moves, pre);          // Home tab — compact
+  renderStandingsDetail(standings, ident, moves, pre); // Standings tab — full detail
+  renderScoreboard(standings, ident, pre);
   show($('editorial'));
 
   // Board 2 degrades independently of Board 1 (STEP 4).
   try {
     const projection = await fetchJSON(`data/${groupId}/projection.json`);
-    renderBoard2(projection, standings, ident);
+    renderBoard2(projection, standings, ident, pre);
   } catch (e) {
     renderBoard2Unavailable(`It was not found for this group (${esc(e.message)}).`);
   }
