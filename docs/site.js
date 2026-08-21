@@ -35,12 +35,17 @@ const DEMO = { id: 'test', label: 'Demo Fixture' };
 //   link           a real page — rendered as an <a> everywhere
 //   soon           unbuilt; index.html swaps in its COMING SOON panel, and
 //                  pages that have no such panel omit the entry entirely.
+//
+// No entry is `soon` any more — ANALYTICS was the last one and analytics.html
+// is built. The kind is kept in the model rather than deleted with its last
+// user: the next unbuilt tab reuses it, and index.html's COMING SOON swap is
+// the only behavior that depends on it.
 const PAGE_NAV = [
   { label: 'HOME',         kind: 'home',   href: 'index.html' },
   { label: 'STANDINGS',    kind: 'detail', href: 'index.html' },
   { label: 'WEEKLY RECAP', kind: 'link',   href: 'svp.html' },
   { label: 'PROFILES',     kind: 'link',   href: 'managers.html' },
-  { label: 'ANALYTICS',    kind: 'soon' },
+  { label: 'ANALYTICS',    kind: 'link',   href: 'analytics.html' },
 ];
 
 // ---------- helpers --------------------------------------------------------
@@ -68,6 +73,21 @@ async function fetchJSON(path) {
 const fmtSigned = (n) => (n > 0 ? '+' : n < 0 ? '' : '') + Number(n).toFixed(1);
 const fmtLine = (n) => Number(n).toFixed(1);
 const pct = (p) => (Number(p) * 100).toFixed(0) + '%';
+
+// A signed percentage, for a CHANGE in probability rather than a level.
+// analytics.json's championship_odds[].week_move is the only one on the site
+// today: it is p_win_pool minus the prior snapshot's, and a change without its
+// sign is unreadable. pct() above is a level, so it carries none.
+//
+// One decimal, not pct()'s zero: these moves are fractions of a point and
+// rounding them to whole percent would print "0%" for most real weeks.
+// The sign is decided AFTER rounding — otherwise a move of -0.0004 formats as
+// "-0.0%", which claims a direction the rounded number no longer shows.
+const fmtSignedPct = (n) => {
+  const s = (Number(n) * 100).toFixed(1);
+  const v = Number(s);
+  return (v > 0 ? '+' : v < 0 ? '' : '') + (v === 0 ? '0.0' : s) + '%';
+};
 
 // THE TONE GATE. tone decides whether a person gets a "fatal flaw", a running
 // gag, and a named rival printed under their name. Three registers:

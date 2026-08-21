@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — CF Challenge</title>
+<meta name="description" content="Board 3: the race, best and worst picks, paths to the title, portfolio concentration, and championship odds.">
+<!-- Icon: the masthead shield, adapted for a tab bar. The SVG is the real
+     asset; favicon.ico is declared after it purely so the browsers that ignore
+     an SVG icon request a file that exists instead of 404ing on /favicon.ico. -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<!-- No new design language: analytics.css adds the per-cell class names this
+     page's three column sets need for the narrow fold, and reads style.css's
+     tokens for every value. See the note at the top of that file. -->
+<link rel="stylesheet" href="analytics.css">
+</head>
+<body id="top">
+
+<!-- GROUP-GENERIC. Nothing on this page knows about panel, or about four
+     managers. It renders whatever analytics.json returns for ?group=.
+
+     THE PAGE COMPUTES NOTHING (output-contract.md, Board 3). Every number
+     below — every ratio, every delta, every sort order — arrives already
+     computed from scripts/analytics.py. The only arithmetic in analytics.js is
+     the clamped percentage that sets a bar's CSS width, which is geometry, not
+     a fact about the league. -->
+
+<header class="svp-masthead mgr-masthead">
+  <div class="svp-masthead-inner">
+    <a class="svp-wordmark" href="index.html" id="brand-link">CF <span>Challenge</span></a>
+    <!-- Built from PAGE_NAV in site.js so this strip cannot drift from the
+         other pages'. ANALYTICS is this page and is marked current, not
+         linked. -->
+    <nav class="svp-nav" id="page-nav" aria-label="Site sections"></nav>
+    <span class="svp-week" id="group-label"></span>
+  </div>
+</header>
+
+<!-- Sample-data banner — the same band index.html shows, read off
+     standings.json's meta.draft_status. analytics.json deliberately carries no
+     draft_status (it stays on the board the banner reads), so this page fetches
+     standings.json for that one field. Dummy picks must never read as a real
+     draft, least of all under a page titled Analytics. -->
+<div class="sample-banner" id="sample-banner" role="alert" hidden></div>
+
+<main class="an-page">
+  <div class="loading" id="loading">Loading&hellip;</div>
+
+  <!-- Fatal load error: an unknown ?group=, or a missing analytics.json. Same
+       posture as app.js and managers.js — name it and stop, never quietly
+       serve another league's numbers under this URL. -->
+  <section class="load-error" id="load-error" hidden></section>
+
+  <section class="an-intro" id="an-intro" hidden></section>
+
+  <!-- BOARD SEPARATION IS STRUCTURAL, not a class on a card. The exact modules
+       and the one projection module live in two sibling sections that never
+       interleave, each behind its own labelled band. -->
+  <section class="an-board" id="an-exact" hidden>
+    <div class="an-board-head">
+      <span class="an-board-lbl">Board 3 &middot; Exact</span>
+      <p class="an-board-note">Everything in this band is arithmetic off banked
+        results and the floor&ndash;ceiling envelope &mdash; reproducible by hand from
+        the standings. No model, no estimate.</p>
+    </div>
+    <div id="an-race"></div>
+    <div class="grid-top" id="an-grid-a"></div>
+    <div class="grid-bottom" id="an-grid-b"></div>
+  </section>
+
+  <section class="an-board is-proj" id="an-projection" hidden>
+    <div class="an-board-head">
+      <span class="an-board-lbl">Board 2 &middot; Projection</span>
+      <p class="an-board-note proj-disclaimer" id="an-proj-note"></p>
+    </div>
+    <div id="an-odds"></div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <p>Standings are exact arithmetic off committed game results. The projection is a
+     model estimate from SP+ ratings and updates weekly. Data via collegefootballdata.com.</p>
+</footer>
+
+<!-- site.js first: it defines GROUPS, PAGE_NAV, the URL rules and the number
+     formatters that analytics.js reads by name. Order is load-bearing. -->
+<script src="site.js"></script>
+<script src="analytics.js"></script>
+</body>
+</html>
