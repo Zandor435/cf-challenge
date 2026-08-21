@@ -65,15 +65,31 @@ const signCls = (n) => (Number(n) > 0 ? ' pos' : Number(n) < 0 ? ' neg' : '');
 // of the draft as a result.
 //
 // DETECTED FROM THE DATA, NEVER FROM A DATE, so it clears itself the moment
-// week 1 is scored with no edit here. Two independent signals, either of which
-// is sufficient:
-//   1. meta.as_of_week is null — no week has been scored at all.
-//   2. every pick in every portfolio still shows |banked_delta| == |line|,
-//      which is exactly banked_wins == 0 everywhere. This is the fallback for
-//      a run that carries a week but has not yet banked a game inside it.
+// week 1 is scored with no edit here.
+//
+// THERE USED TO BE A SECOND SIGNAL AND IT WAS WRONG. This function led with
+// `meta.as_of_week === null → preseason`, on the belief that analytics.json
+// carries the EFFECTIVE scored week. It does not. output-contract.md §meta is
+// explicit that the shared meta block — "shared by standings.json +
+// projection.json + analytics.json" — has an as_of_week that "mirrors the
+// --as-of-week N flag and is null on a live run", and analytics.py:490 writes
+// exactly that argument through. The effective week is computed at
+// analytics.py:473 and spent on select_prior; it never reaches meta. Only the
+// TIMELINE SNAPSHOT's as_of_week is the effective one (contract §timeline).
+//
+// So that signal was true on EVERY live run, week 9 included: a mid-season
+// Board 3 would have stamped itself "preseason" and hung the degeneracy note
+// on four of five modules over real results. It is the same trap app.js
+// documented refusing when it ported this predicate, and the comment there
+// naming analytics.json as the file that "carries the EFFECTIVE week" was
+// repeating the same mistake.
+//
+// What is left is the signal that was always sound: every pick in every
+// portfolio still showing |banked_delta| == |line|, which is exactly
+// banked_wins == banked_losses == 0 everywhere — the predicate
+// scoring.py's _any_played() uses, expressed against the fields analytics.json
+// happens to carry.
 function isPreseason(a) {
-  const meta = a.meta || {};
-  if (meta.as_of_week === null || meta.as_of_week === undefined) return true;
   const mgrs = (a.portfolio && a.portfolio.managers) || [];
   if (!mgrs.length) return false;
   let seen = 0;
