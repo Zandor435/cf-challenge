@@ -895,26 +895,12 @@ a { color: inherit; }
 .mgr-display.is-solo { font-size: 3.2rem; margin-top: 0; }
 .mgr-realname { color: var(--text-muted); font-size: .9rem; margin-top: 8px; max-width: 52ch; }
 
-/* ---- 4. stat strip ---- */
-.mgr-stats {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px; margin-top: 18px;
-  background: var(--border-soft); border: 1px solid var(--border-soft);
-}
-.mgr-stat { background: var(--bg); padding: 10px 12px; }
-.mgr-stat-val { font-size: 1.24rem; font-weight: 600; line-height: 1.1; }
-.mgr-stat-val.pos { color: var(--positive); }
-.mgr-stat-val.neg { color: var(--negative); }
-.mgr-stat-lbl {
-  font-family: var(--mono); font-size: .56rem; letter-spacing: .12em;
-  text-transform: uppercase; color: var(--text-faint); margin-top: 5px;
-}
-/* The model tile is visibly a different KIND of number from the three exact
-   ones beside it — the same tag treatment Board 2 carries on the home page. */
-.mgr-stat.is-proj { border-top: 2px solid var(--text-faint); }
-.mgr-stat.is-proj .mgr-stat-val { color: var(--text-muted); }
-.mgr-stat-lbl .card-tag { font-size: .5rem; margin-left: 4px; }
-.mgr-proj-note { margin-top: 8px; font-size: .72rem; }
+/* ---- 4. no stat strip ---- */
+/* .mgr-stats / .mgr-stat / .mgr-proj-note are gone. Banked, floor–ceiling and
+   rank are the standings board's columns and analytics' race module; P(win
+   pool) is Board 2 and championship_odds. The projection disclaimer went with
+   the number it disclaimed — it was the only model value on this page, and a
+   disclaimer with nothing to disclaim is worse than none. */
 
 /* ---- 5. picks ---- */
 .mgr-picks {
@@ -1058,6 +1044,5 @@ a { color: inherit; }
   .mgr-profile.is-flipped .mgr-art { grid-column: 2; grid-row: 1; }
   .mgr-profile.is-flipped .mgr-copy { grid-column: 1; grid-row: 1; }
   .mgr-profile.has-no-art { grid-template-columns: minmax(0, 1fr); }
-  .mgr-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .mgr-intro-title { font-size: 3.2rem; }
 }
