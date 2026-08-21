@@ -1,0 +1,51 @@
+{
+ "_note": "Eye line and head-size metric per half-card plate, in plate pixels. 'scale' is the eye-line-to-mouth-line vertical distance and is what sets relative size when present, because it does not foreshorten when a head turns the way inter-eye distance does; eye_dx is kept as the measured record and is used only when scale is absent. A non-null entry here ALWAYS wins over automatic detection, so a bad detection is fixed by editing numbers, never by touching code. A null entry means detection failed: fill in eye_y (height of the eye line from the top of the plate) and eye_dx (horizontal distance between the two pupils) by eye, and that pairing starts compositing. source=detected was found automatically; source=manual is yours.",
+ "panel_half_blaine_left_screenprint_01": {
+  "eye_y": 355.0,
+  "eye_dx": 97.5,
+  "scale": 145.4,
+  "source": "yunet"
+ },
+ "panel_half_blaine_right_screenprint_01": {
+  "eye_y": 336.8,
+  "eye_dx": 110.8,
+  "scale": 160.8,
+  "source": "yunet"
+ },
+ "panel_half_chris_left_screenprint_01": {
+  "eye_y": 314.3,
+  "eye_dx": 90.3,
+  "scale": 168.8,
+  "source": "yunet"
+ },
+ "panel_half_chris_right_screenprint_01": {
+  "eye_y": 284.0,
+  "eye_dx": 167.7,
+  "scale": 193.4,
+  "source": "yunet"
+ },
+ "panel_half_jonathan_left_screenprint_01": {
+  "eye_y": 378.3,
+  "eye_dx": 107.5,
+  "scale": 162.4,
+  "source": "yunet"
+ },
+ "panel_half_jonathan_right_screenprint_01": {
+  "eye_y": 383.1,
+  "eye_dx": 84.4,
+  "scale": 137.5,
+  "source": "yunet"
+ },
+ "panel_half_zach_left_screenprint_01": {
+  "eye_y": 395.5,
+  "eye_dx": 136.4,
+  "scale": 194.5,
+  "source": "yunet"
+ },
+ "panel_half_zach_right_screenprint_01": {
+  "eye_y": 418.1,
+  "eye_dx": 101.1,
+  "scale": 139.0,
+  "source": "yunet"
+ }
+}

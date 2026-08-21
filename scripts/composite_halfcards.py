@@ -154,7 +154,11 @@ def load_eyelines():
 def save_eyelines(data):
     EYELINES.parent.mkdir(parents=True, exist_ok=True)
     payload = {"_note": (
-        "Eye line and inter-eye distance per half-card plate, in plate pixels. "
+        "Eye line and head-size metric per half-card plate, in plate pixels. "
+        "'scale' is the eye-line-to-mouth-line vertical distance and is what "
+        "sets relative size when present, because it does not foreshorten when "
+        "a head turns the way inter-eye distance does; eye_dx is kept as the "
+        "measured record and is used only when scale is absent. "
         "A non-null entry here ALWAYS wins over automatic detection, so a bad "
         "detection is fixed by editing numbers, never by touching code. A null "
         "entry means detection failed: fill in eye_y (height of the eye line "
@@ -176,13 +180,46 @@ def eyeline_for(path: Path, cache: dict, redetect: bool):
 
 
 # ---------- geometry --------------------------------------------------------
+def scale_metric(eye: dict) -> float:
+    """The number that represents HEAD SIZE for this plate.
+
+    Prefers "scale" (the vertical eye-line-to-mouth-line distance) and falls
+    back to inter-eye distance only when it is absent, which keeps every
+    hand-written eye_dx-only entry working exactly as before.
+
+    Why the fallback is second choice: inter-eye distance is a HORIZONTAL
+    measurement, so head yaw foreshortens it by roughly cos(yaw). Measured on
+    the first real plate set, the same man came out at 167.7px on his frontal
+    plate and 90.3px on his profile plate -- an apparent 1.9x difference in
+    head size that is entirely turn, not size. Scaling on that shrank him by
+    36% against an opponent. A vertical distance is unchanged by rotation
+    about the vertical axis, so eye-to-mouth survives the turn.
+    """
+    v = eye.get("scale")
+    return float(v) if v else float(eye["eye_dx"])
+
+
 def scaled(img: Image.Image, eye: dict, target_dx: float):
-    """Scale a plate so its inter-eye distance equals target_dx."""
-    f = target_dx / eye["eye_dx"]
+    """Scale a plate so its head-size metric equals target_dx."""
+    f = target_dx / scale_metric(eye)
     if abs(f - 1.0) < 1e-6:
         return img, eye["eye_y"]
     size = (max(1, int(round(img.width * f))), max(1, int(round(img.height * f))))
     return img.resize(size, Image.LANCZOS), eye["eye_y"] * f
+
+
+def plate_bg(im: Image.Image):
+    """The plate's own background colour, taken as the modal pixel along its
+    top edge -- which is the flat unlit field the plate brief demands.
+
+    Layers used to be filled with BAND_COLOR. Because the plates come back at
+    pure black and BAND_COLOR is (14,14,16), that left a visibly LIGHTER
+    rectangle in the strip above whichever plate is shorter after eye-line
+    placement -- measured at rows 0-40 of the first real composite set. Filling
+    with the plate's own background makes that strip continuous instead.
+    """
+    row = list(im.crop((0, 0, im.width, 3)).getdata())
+    return max(set(row), key=row.count)
 
 
 def assemble(left_img, left_eye_y, right_img, right_eye_y, overlap_frac=0.0):
@@ -215,8 +252,8 @@ def assemble(left_img, left_eye_y, right_img, right_eye_y, overlap_frac=0.0):
     top_l, top_r = E - left_eye_y, E - right_eye_y
     H = int(min(top_l + left_img.height, top_r + right_img.height))
 
-    layer_l = Image.new("RGB", (W, H), BAND_COLOR)
-    layer_r = Image.new("RGB", (W, H), BAND_COLOR)
+    layer_l = Image.new("RGB", (W, H), plate_bg(left_img))
+    layer_r = Image.new("RGB", (W, H), plate_bg(right_img))
     layer_l.paste(left_img, (0, int(round(top_l))))
     layer_r.paste(right_img, (W - half_w, int(round(top_r))))
 
@@ -381,7 +418,7 @@ def main() -> int:
                 continue
 
             li, ri = Image.open(lp).convert("RGB"), Image.open(rp).convert("RGB")
-            target_dx = min(le["eye_dx"], re_["eye_dx"])   # downscale only
+            target_dx = min(scale_metric(le), scale_metric(re_))  # downscale only
             li_s, l_eye = scaled(li, le, target_dx)
             ri_s, r_eye = scaled(ri, re_, target_dx)
             # Flush layers for rule/starburst; overlapped layers for split, so
