@@ -23,14 +23,17 @@
 <header class="svp-masthead">
   <div class="svp-masthead-inner">
     <a class="svp-wordmark" href="index.html">CF <span>Challenge</span></a>
-    <!-- The built tabs only. ANALYTICS is still unbuilt and its COMING SOON
-         placeholder lives on the home page, so it is not linked from here
-         rather than pointing at nothing. PROFILES is a real page now. -->
+    <!-- Every tab in PAGE_NAV is a real page now: PROFILES and ANALYTICS both
+         ship. This strip is hardcoded rather than built from site.js — this
+         page loads no scripts of its own — so it has to be kept in step by
+         hand when a tab is added. The query-carrying block at the bottom of
+         this file lists the same filenames and must be updated with it. -->
     <nav class="svp-nav" aria-label="Site sections">
       <a class="nav-btn" href="index.html">Home</a>
       <a class="nav-btn" href="index.html">Standings</a>
       <span class="nav-btn" aria-current="true">Weekly recap</span>
       <a class="nav-btn" href="managers.html">Profiles</a>
+      <a class="nav-btn" href="analytics.html">Analytics</a>
     </nav>
     <span class="svp-week">Week 01</span>
   </div>
@@ -66,7 +69,7 @@
   (function () {
     var q = location.search;
     if (!q) return;
-    ['index.html', 'managers.html'].forEach(function (page) {
+    ['index.html', 'managers.html', 'analytics.html'].forEach(function (page) {
       document.querySelectorAll('a[href="' + page + '"]').forEach(function (a) {
         a.setAttribute('href', page + q);
       });
