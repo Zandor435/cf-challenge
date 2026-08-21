@@ -412,6 +412,11 @@ function renderPageNav(groupId) {
 // inline, small and muted: the accent is reserved for live/leading states.
 function renderProvenance(meta) {
   const strip = $('provenance');
+  // DELIBERATELY NOT weekLabel(). This strip reports the run's INVOCATION --
+  // "scored live" means nobody passed --as-of-week -- while weekLabel() answers
+  // "when is this season", which is a different question with a different
+  // predicate. Routing this through it would print "scored Preseason", which
+  // describes the league rather than the command that produced the file.
   const wk = (meta.as_of_week === null || meta.as_of_week === undefined)
     ? 'live' : `week ${meta.as_of_week}`;
   const dataSeason = Number(meta.season);
@@ -468,40 +473,24 @@ function renderPreDraft(groupId, meta) {
 }
 
 // ---------- preseason posture ----------------------------------------------
-// WHY THIS EXISTS. With zero games played, scoring.py's signed_delta collapses
-// to +line for every Under and -line for every Over, so a manager's banked
-// total is nothing but their lines added up in their picks' directions. Board 1
-// then ranks the group by how many Unders someone drafted; the hero names that
-// manager the leader and prints a gap to second; every range marker is pinned at
-// one end of its own range (the ceiling for an Under, the floor for an Over), so
-// an all-Under manager has zero ceiling left; and the scoreboard's delta column
-// is every team's line restated. All of it is arithmetically correct and none of
-// it means anything. A reader arriving before kickoff and told none of this
-// concludes the engine is broken -- or, worse, believes the ordering.
+// WHY THIS PAGE CARES. With zero games played, scoring.py's signed_delta
+// collapses to +line for every Under and -line for every Over, so a manager's
+// banked total is nothing but their lines added up in their picks' directions.
+// Board 1 then ranks the group by how many Unders someone drafted; the hero
+// names that manager the leader and prints a gap to second; every range marker
+// is pinned at one end of its own range (the ceiling for an Under, the floor for
+// an Over), so an all-Under manager has zero ceiling left; and the scoreboard's
+// delta column is every team's line restated. All of it is arithmetically
+// correct and none of it means anything. A reader arriving before kickoff and
+// told none of this concludes the engine is broken -- or, worse, believes the
+// ordering.
 //
-// SAME PATTERN AS analytics.js's isPreseason(), WITH ONE DELIBERATE DIFFERENCE.
-// That function's first signal is `meta.as_of_week === null`, which is sound
-// there because analytics.json carries the EFFECTIVE week. standings.json does
-// not: its meta.as_of_week is the --as-of-week argument verbatim (scoring.py
-// writes it straight through), so it is null on EVERY live run, week 9 included.
-// Carrying that signal over would stamp a mid-season board "preseason". Only
-// analytics.js's second signal survives the port -- nothing banked anywhere --
-// and expressed against the fields standings.json actually carries that is
-// banked_wins == banked_losses == 0 on every pick. It is the same predicate
-// scoring.py's _any_played() uses, and exactly what analytics.js's
-// |banked_delta| == |line| test is a proxy for.
-//
-// DETECTED FROM THE DATA, NEVER FROM A DATE, so it clears itself the moment the
-// first game is banked -- no edit here, no kickoff constant to keep in sync.
-function isPreseason(standings) {
-  const mgrs = standings.managers || [];
-  let seen = 0;
-  const untouched = mgrs.every((m) => (m.picks || []).every((p) => {
-    seen += 1;
-    return !Number(p.banked_wins) && !Number(p.banked_losses);
-  }));
-  return seen > 0 && untouched;
-}
+// The DETECTION moved to site.js as isPreseasonStandings(), along with
+// weekLabel(), the day a third page had to agree with this one about the same
+// standings.json. The old comment here claimed analytics.json "carries the
+// EFFECTIVE week" and that this page therefore had to differ from it; that was
+// wrong -- both files write the --as-of-week argument through verbatim -- and
+// the correction is documented at the definitions. Read them there.
 
 // The honesty line under a degenerate card's .card-sub. A distinct element with
 // its own rule rather than text appended to the sub, so it cannot be skimmed as
@@ -598,9 +587,7 @@ function renderHero(standings, ident, pre) {
   if (!mgrs.length) return;
   const meta = standings.meta || {};
   const leader = mgrs[0];
-  const wk = pre ? 'Preseason'
-    : (meta.as_of_week === null || meta.as_of_week === undefined)
-      ? 'Live' : `Week ${meta.as_of_week}`;
+  const wk = weekLabel(meta.as_of_week, pre);
   const season = Number.isFinite(Number(meta.season)) ? String(meta.season) : '';
 
   // The sub-line is derived, never invented: the gap to second place, or a tie.
@@ -787,10 +774,7 @@ function compactCard(m, ident, moves) {
 function renderBoard1(standings, ident, moves, pre) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   const meta = standings.meta || {};
-  const wk = pre ? 'Preseason'
-    : (meta.as_of_week === null || meta.as_of_week === undefined)
-      ? 'Live' : `Week ${meta.as_of_week}`;
-  $('board1-week').textContent = wk;
+  $('board1-week').textContent = weekLabel(meta.as_of_week, pre);
   preseasonNote('board1-preseason', pre,
     'Preseason &mdash; nothing has been played, so every banked total is just that ' +
     'manager&rsquo;s lines added up in their picks&rsquo; directions. This orders the ' +
@@ -811,9 +795,7 @@ function renderBoard1(standings, ident, moves, pre) {
 function renderStandingsDetail(standings, ident, moves, pre) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   const meta = standings.meta || {};
-  $('detail-week').textContent = pre ? 'Preseason'
-    : (meta.as_of_week === null || meta.as_of_week === undefined)
-      ? 'Live' : `Week ${meta.as_of_week}`;
+  $('detail-week').textContent = weekLabel(meta.as_of_week, pre);
   preseasonNote('detail-preseason', pre,
     'Preseason &mdash; nothing has been played, so each pick&rsquo;s banked figure is ' +
     'its line restated in the direction it was taken, and every marker sits pinned at ' +
@@ -1065,7 +1047,7 @@ async function main() {
   // Preseason is a posture, not a filter: nothing below is recomputed, re-ranked
   // or suppressed because of it. What changes is what the page CLAIMS about the
   // numbers it was handed.
-  const pre = isPreseason(standings);
+  const pre = isPreseasonStandings(standings);
 
   wireLightbox();
   renderHero(standings, ident, pre);

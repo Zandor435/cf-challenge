@@ -397,8 +397,10 @@ async function main() {
   const names = {};
   mgrs.forEach((m) => { names[m.manager_id] = m.display_name; });
 
-  const wk = (meta.as_of_week === null || meta.as_of_week === undefined)
-    ? 'Live' : `Week ${meta.as_of_week}`;
+  // Was a local `null ? 'Live' : 'Week N'`, which called a preseason board
+  // "Live" while index.html and analytics.html called the same standings.json
+  // "Preseason". Same helper, same predicate, same answer as the other two now.
+  const wk = weekLabel(meta.as_of_week, isPreseasonStandings(standings));
   $('mgr-intro').innerHTML =
     `<p class="mgr-intro-kicker">Profiles</p>
      <h1 class="mgr-intro-title">${esc(groupLabel(groupId))}</h1>

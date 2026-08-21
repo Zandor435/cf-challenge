@@ -132,6 +132,75 @@ function has(v) {
   return typeof v === 'string' ? v.trim().length > 0 : v !== null && v !== undefined;
 }
 
+// ---------- board state: is this before kickoff, and what week is it? -------
+// Three pages read the same fact off the same file and answered differently:
+// index.html and analytics.html called a preseason board "Preseason" while
+// managers.html called identical data "Live". The answer lives here now, so a
+// disagreement has to be introduced on purpose rather than by forgetting a page.
+//
+// ONE PREDICATE, TWO EXPRESSIONS OF IT, AND NEVER A DATE. With zero games
+// played, scoring.py's signed_delta collapses to +line for every Under and
+// -line for every Over, so every board built on it restates the draft instead
+// of reporting a season. The question "has anything been played" is therefore
+// asked of the PICKS, never of a calendar and never of meta.as_of_week, and it
+// answers itself the moment the first game is banked.
+//
+// WHY NOT meta.as_of_week. It is tempting and it is wrong for every file on
+// this site. output-contract.md's meta block — shared by standings.json,
+// projection.json and analytics.json — states that as_of_week "mirrors the
+// --as-of-week N flag and is null on a live run", and scoring.py:111 and
+// analytics.py:490 both write that argument straight through. A null week means
+// "nobody passed --as-of-week", not "nothing has been played", and the two come
+// apart on every live run from week 1 onward. Only the timeline snapshot's
+// as_of_week is the effective week, and no page reads that for a label.
+//
+// The two functions below are the SAME TEST against two different shapes, which
+// is why they are two functions rather than one with a branch: standings.json
+// carries banked_wins / banked_losses per pick and can be asked directly;
+// analytics.json carries banked_delta and line, whose equality in absolute
+// value is exactly banked_wins == banked_losses == 0. Prefer the standings form
+// wherever standings.json is in hand — it is the direct reading — and keep the
+// analytics form for the one page that may not have it.
+function isPreseasonStandings(standings) {
+  const mgrs = (standings && standings.managers) || [];
+  let seen = 0;
+  const untouched = mgrs.every((m) => (m.picks || []).every((p) => {
+    seen += 1;
+    return !Number(p.banked_wins) && !Number(p.banked_losses);
+  }));
+  return seen > 0 && untouched;
+}
+
+function isPreseasonAnalytics(a) {
+  const mgrs = (a && a.portfolio && a.portfolio.managers) || [];
+  let seen = 0;
+  const untouched = mgrs.every((m) => (m.picks || []).every((p) => {
+    seen += 1;
+    return Math.abs(Number(p.banked_delta)) === Math.abs(Number(p.line));
+  }));
+  return seen > 0 && untouched;
+}
+
+// The label every page prints for "when is this". Three states, and the order
+// of the tests is the whole content of the function:
+//
+//   Preseason  nothing has been banked, whatever the flag says.
+//   Week N     a replay: somebody passed --as-of-week N, so the number is real
+//              and is the most specific thing that can be said.
+//   Live       games are banked but no week was pinned. This is the ordinary
+//              cron run, and "Live" is the honest answer rather than a week
+//              number, because standings.json and analytics.json do not carry
+//              the effective week — inventing one here would be this page
+//              computing a fact the engine did not emit.
+//
+// Number.isInteger, not a null check: the contract types as_of_week as an int
+// or null, and a non-integer that slipped through should fall to "Live" rather
+// than print "Week null".
+function weekLabel(week, pre) {
+  if (pre) return 'Preseason';
+  return Number.isInteger(week) ? `Week ${week}` : 'Live';
+}
+
 // ---------- URL state ------------------------------------------------------
 // Two optional params. `group` picks the board; `scoped=1` is group-scoped
 // mode — the per-group entry URLs (/panel/, /family/, /church/) redirect here

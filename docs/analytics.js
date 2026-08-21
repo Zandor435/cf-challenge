@@ -89,16 +89,10 @@ const signCls = (n) => (Number(n) > 0 ? ' pos' : Number(n) < 0 ? ' neg' : '');
 // banked_wins == banked_losses == 0 everywhere — the predicate
 // scoring.py's _any_played() uses, expressed against the fields analytics.json
 // happens to carry.
-function isPreseason(a) {
-  const mgrs = (a.portfolio && a.portfolio.managers) || [];
-  if (!mgrs.length) return false;
-  let seen = 0;
-  const untouched = mgrs.every((m) => (m.picks || []).every((p) => {
-    seen += 1;
-    return Math.abs(Number(p.banked_delta)) === Math.abs(Number(p.line));
-  }));
-  return seen > 0 && untouched;
-}
+// Both expressions of it now live in site.js as isPreseasonStandings() and
+// isPreseasonAnalytics(). This page holds standings.json for the banner
+// anyway, so it asks the DIRECT form and keeps the analytics-shaped one as the
+// fallback for the run where standings.json 404s -- see main().
 
 // The honesty line under a degenerate module's .card-sub. Rendered as a
 // distinct element rather than appended to the sub, so it cannot be skimmed as
@@ -529,9 +523,12 @@ async function main() {
     show($('sample-banner'));
   }
 
-  const pre = isPreseason(a);
-  const wk = (meta.as_of_week === null || meta.as_of_week === undefined)
-    ? 'Preseason' : `Week ${meta.as_of_week}`;
+  // Prefer the direct reading. standingsRes is already in hand for the banner,
+  // and banked_wins/banked_losses is the fact itself rather than a proxy for it;
+  // the analytics-shaped test is what remains when standings.json did not load.
+  const pre = standingsRes ? isPreseasonStandings(standingsRes)
+    : isPreseasonAnalytics(a);
+  const wk = weekLabel(meta.as_of_week, pre);
   const n = ((a.race && a.race.managers) || []).length;
   $('an-intro').innerHTML =
     `<p class="an-intro-kicker">Analytics</p>
