@@ -20,7 +20,12 @@ Kept as a separate, explicit boundary case.
 Both exercise the real projector.simulate_totals path. season is single-source
 (season.json), so the synthetic configs carry none.
 
+Runs both ways, and they are equivalent: pytest collects one test per section
+and conftest.py raises on any check() the section recorded as FAIL; the
+standalone runner sums the same ledger and exits 0/1.
+
 Usage:
+    python -m pytest scripts/test_projector_correlation.py
     python scripts/test_projector_correlation.py
 """
 
@@ -33,11 +38,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from projector import simulate_totals
 
 WK = 6          # mid-season: every team still has ~7 remaining games -> real variance
+# The check ledger. Each entry is (label, ok, detail) — the LABEL is carried so a
+# failure is diagnosable from the pytest report alone, not only from the printed
+# transcript above it. conftest.py clears this before every pytest test and raises
+# on any recorded FAIL; main() sums it for the standalone `python scripts/...` run.
 _res = []
 
 
 def check(name, ok, detail=""):
-    _res.append(bool(ok))
+    _res.append((name, bool(ok), detail))
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}" + (f" — {detail}" if detail else ""))
 
 
@@ -90,7 +99,7 @@ def test_degenerate_opposite_single_team():
 def main():
     test_realistic_partial_overlap()
     test_degenerate_opposite_single_team()
-    passed, total = sum(_res), len(_res)
+    passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
     sys.exit(0 if passed == total else 1)
 
