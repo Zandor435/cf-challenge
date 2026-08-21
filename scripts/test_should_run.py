@@ -19,7 +19,12 @@ deadlock by itself.
 Fixtures are synthetic caches built in a tempdir — never written into the
 files production reads (CLAUDE.md P2 #14).
 
+Runs both ways, and they are equivalent: pytest collects one test per section
+and conftest.py raises on any check() the section recorded as FAIL; the
+standalone runner sums the same ledger and exits 0/1.
+
 Usage:
+    python -m pytest scripts/test_should_run.py
     python scripts/test_should_run.py
 """
 
@@ -38,11 +43,15 @@ import should_run as sr
 SEASON = 2026
 NOW = datetime(2026, 9, 13, 13, 0, tzinfo=timezone.utc)   # a Sunday, 13:00 UTC
 
+# The check ledger. Each entry is (label, ok, detail) — the LABEL is carried so a
+# failure is diagnosable from the pytest report alone, not only from the printed
+# transcript above it. conftest.py clears this before every pytest test and raises
+# on any recorded FAIL; main() sums it for the standalone `python scripts/...` run.
 _res = []
 
 
 def check(name, ok, detail=""):
-    _res.append(bool(ok))
+    _res.append((name, bool(ok), detail))
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}" + (f" — {detail}" if detail else ""))
 
 
@@ -58,10 +67,9 @@ def verdict(c, present=True, force=False, now=NOW):
                      sr.DEFAULT_SETTLE_HOURS, force)
 
 
-def main():
-    print("should_run gate")
-
-    # ---- RUN escapes: these must never be blockable ------------------------
+def test_run_escapes():
+    """The RUN escapes. Stuck CLOSED is the silent direction, so these come first."""
+    print("\nshould_run gate - RUN escapes: these must never be blockable")
     run, why = verdict(cache(offsets_h=(+100,)), force=True)
     check("manual dispatch always runs, even on a dead day", run, why)
 
@@ -76,7 +84,10 @@ def main():
     run, why = verdict(cache(offsets_h=()))
     check("cache with no games runs (rebuild it)", run, why)
 
-    # ---- the window --------------------------------------------------------
+
+def test_window():
+    """The lookback/settle window around a real slate."""
+    print("\nthe window")
     run, why = verdict(cache(offsets_h=(-20,)))
     check("game 20h ago -> run", run, why)
 
@@ -91,7 +102,10 @@ def main():
     run, why = verdict(cache(offsets_h=slate))
     check("full Saturday slate -> run", run, why)
 
-    # ---- season edges ------------------------------------------------------
+
+def test_season_edges():
+    """Pre-season and post-season, both self-removing rather than date literals."""
+    print("\nseason edges")
     run, why = verdict(cache(offsets_h=(+24 * 10,)))
     check("before first kickoff -> skip (pre-season)", not run, why)
     check("...self-removing: names the real first kickoff, no date literal",
@@ -100,7 +114,10 @@ def main():
     run, why = verdict(cache(offsets_h=(-24 * 30,)))
     check("30 days after the last game -> skip (season complete)", not run, why)
 
-    # ---- bye week, called out explicitly -----------------------------------
+
+def test_bye_week_is_called_out():
+    """A bye is a distinct verdict from a quiet day - CLAUDE.md rule 9."""
+    print("\nbye week, called out explicitly")
     run, why = verdict(cache(offsets_h=(-24 * 6, +24 * 6)))
     check("gap either side -> skip as a BYE WEEK, not a quiet day",
           not run and "bye week" in why, why)
@@ -109,15 +126,24 @@ def main():
     check("game 3 days back, another in 2 -> quiet day, not a bye",
           not run and "bye week" not in why, why)
 
-    # ---- malformed input is tolerated, not fatal (rule 10) -----------------
+
+def test_malformed_input_is_tolerated():
+    """Rule 10: parse best-effort, never crash on a messy upstream string."""
+    print("\nmalformed input is tolerated, not fatal (rule 10)")
     c = cache(offsets_h=(-20,))
     c["games"].append({"start_date": "not-a-date", "week": 1})
     c["games"].append({"week": 1})
     run, why = verdict(c)
     check("unparseable start_date is skipped, not fatal", run, why)
 
-    # ---- fail-open, end to end through main() ------------------------------
-    # A corrupt cache must produce run=true, exit 0 — never a silent skip.
+
+def test_fail_open_end_to_end():
+    """A corrupt cache must produce run=true, exit 0 - never a silent skip.
+
+    Fixtures are synthetic caches built in a tempdir - never written into the
+    files production reads (CLAUDE.md P2 #14).
+    """
+    print("\nfail-open, end to end through main()")
     with tempfile.TemporaryDirectory() as td:
         bad = Path(td) / "corrupt.json"
         bad.write_text("{ this is not json", encoding="utf-8")
@@ -135,7 +161,10 @@ def main():
               proc.returncode == 0, f"rc={proc.returncode}")
         check("...and warns loudly", "::warning" in proc.stdout, proc.stdout.strip()[:90])
 
-    # ---- the emitted contract the workflow branches on ---------------------
+
+def test_emitted_contract():
+    """The run=/reason= lines the workflow branches on."""
+    print("\nthe emitted contract the workflow branches on")
     with tempfile.TemporaryDirectory() as td:
         cpath = Path(td) / "cache.json"
         cpath.write_text(json.dumps(cache(offsets_h=(+24 * 10,))), encoding="utf-8")
@@ -154,7 +183,17 @@ def main():
         check("emits a reason= line", "reason=" in emitted, emitted.strip())
         check("exit 0 on a normal decision", proc.returncode == 0, f"rc={proc.returncode}")
 
-    passed, total = sum(_res), len(_res)
+
+def main():
+    test_run_escapes()
+    test_window()
+    test_season_edges()
+    test_bye_week_is_called_out()
+    test_malformed_input_is_tolerated()
+    test_fail_open_end_to_end()
+    test_emitted_contract()
+
+    passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
     sys.exit(0 if passed == total else 1)
 

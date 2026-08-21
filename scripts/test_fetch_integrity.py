@@ -17,7 +17,12 @@ The keyless case forces CFB_API_KEY="" in the child env; utils.load_env_file use
 setdefault, so the empty value is NOT overwritten by a real .env key — the child
 takes the auth-fail path without any network call.
 
+Runs both ways, and they are equivalent: pytest collects one test per section
+and conftest.py raises on any check() the section recorded as FAIL; the
+standalone runner sums the same ledger and exits 0/1.
+
 Usage:
+    python -m pytest scripts/test_fetch_integrity.py
     python scripts/test_fetch_integrity.py
 """
 
@@ -35,11 +40,15 @@ from cfbd_client import CFBDError
 ROOT = Path(__file__).resolve().parent.parent
 ARCHIVE = ROOT / "data" / "ratings_archive"
 
+# The check ledger. Each entry is (label, ok, detail) — the LABEL is carried so a
+# failure is diagnosable from the pytest report alone, not only from the printed
+# transcript above it. conftest.py clears this before every pytest test and raises
+# on any recorded FAIL; main() sums it for the standalone `python scripts/...` run.
 _res = []
 
 
 def check(name, ok, detail=""):
-    _res.append(bool(ok))
+    _res.append((name, bool(ok), detail))
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}" + (f" — {detail}" if detail else ""))
 
 
@@ -51,12 +60,21 @@ def archive_snapshot_set():
             for p in ARCHIVE.rglob("*.json")}
 
 
-def main():
-    if utils.cache_fingerprint() is None:
-        print("  [FAIL] cache missing — cannot test integrity")
-        sys.exit(1)
+def _require_cache():
+    """main() opened with this guard and exited 1 on a missing cache.
 
-    # ---- 1. keyless subprocess leaves cache byte-identical, archives nothing ----
+    Kept loud rather than turned into a skip: sections 1 and 4 compare the cache
+    before and after a keyless run, and a suite that quietly skipped them would
+    report green while proving nothing about the file it exists to protect.
+    """
+    assert utils.cache_fingerprint() is not None, (
+        "cache missing - cannot test integrity")
+
+
+def test_keyless_run_writes_nothing():
+    """A failed-auth fetch leaves data/cfbd_cache.json byte-identical and archives nothing."""
+    print("\n[1] keyless subprocess leaves cache byte-identical, archives nothing")
+    _require_cache()
     before_hash = utils.cache_fingerprint()          # raw-bytes sha256 via utils (guard-safe)
     before_arch = archive_snapshot_set()
     env = dict(os.environ, CFB_API_KEY="")           # force the auth-fail path, no network
@@ -75,7 +93,10 @@ def main():
     check("no ratings-archive snapshot written by keyless run", before_arch == after_arch,
           f"new={sorted(after_arch - before_arch)}")
 
-    # ---- 2. the pre-write gate rejects incomplete fetches ----------------------
+
+def test_pre_write_gate_rejects_incomplete_fetches():
+    """assert_fetch_complete is what stops a partial fetch reaching the writer."""
+    print("\n[2] the pre-write gate rejects incomplete fetches")
     ok = False
     try:
         fr.assert_fetch_complete([], {"Ohio State": {"rating": 20.0}})
@@ -97,7 +118,10 @@ def main():
         ok = False
     check("assert_fetch_complete passes when games AND SP+ present", ok)
 
-    # ---- 3. archive_ratings refuses a cache with no SP+ ratings ----------------
+
+def test_archive_refuses_a_ratingless_cache():
+    """archive_ratings must not snapshot a cache with no SP+ (tempdir ARCHIVE_DIR)."""
+    print("\n[3] archive_ratings refuses a cache with no SP+ ratings")
     with tempfile.TemporaryDirectory() as td:
         saved = fr.ARCHIVE_DIR
         try:
@@ -112,10 +136,17 @@ def main():
     check("archive_ratings writes nothing when SP+ is empty", wrote == [],
           f"wrote={[p.name for p in wrote]}")
 
-    # ---- 4. archive is append-only: idempotent same-day, no dup/clobber --------
-    # (BUILD 2 cadence guarantee, now CI-enforced.) Twice-weekly = two dates in
-    # one CFB week -> two distinct vintages kept; a same-day re-run is a no-op;
-    # a same-date/different-week write keeps the existing file.
+
+def test_archive_is_append_only():
+    """BUILD 2 cadence guarantee, CI-enforced.
+
+    Twice-weekly = two dates in one CFB week -> two distinct vintages kept; a
+    same-day re-run is a no-op; a same-date/different-week write keeps the
+    existing file. ARCHIVE_DIR is redirected to a tempdir throughout, so
+    data/ratings_archive/ is never touched (CLAUDE.md P2 #14).
+    """
+    print("\n[4] archive is append-only: idempotent same-day, no dup/clobber")
+
     def cache(date, week, ratings):
         return {"season": 2025, "fetched_at": f"{date}T12:00:00+00:00", "week": week,
                 "source": "CFBD", "sp_ratings": {t: {"rating": r} for t, r in ratings.items()},
@@ -143,7 +174,14 @@ def main():
           first["week"] == 3 and first["sp_ratings"]["A"]["rating"] == 10,
           f"first={first.get('week')}/{first.get('sp_ratings',{}).get('A')}")
 
-    passed, total = sum(_res), len(_res)
+
+def main():
+    test_keyless_run_writes_nothing()
+    test_pre_write_gate_rejects_incomplete_fetches()
+    test_archive_refuses_a_ratingless_cache()
+    test_archive_is_append_only()
+
+    passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
     sys.exit(0 if passed == total else 1)
 
