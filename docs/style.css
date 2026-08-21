@@ -903,8 +903,11 @@ a { color: inherit; }
    disclaimer with nothing to disclaim is worse than none. */
 
 /* ---- 5. picks ---- */
+/* Four columns: team, conference, line+direction, delta. Status was a sixth
+   and is gone — see pickTable(). The line and its Over/Under are ONE cell
+   because they are one statement. */
 .mgr-picks {
-  --mgr-pick-grid: minmax(0, 1fr) 70px 46px 66px 52px 74px;
+  --mgr-pick-grid: minmax(0, 1fr) 70px 118px 52px;
   margin-top: 18px; border-top: 2px solid var(--text);
 }
 .mgr-pick-row {
@@ -921,14 +924,21 @@ a { color: inherit; }
 .mgr-pick-row.is-dead { opacity: .55; }
 .mgr-pick-team { font-weight: 600; }
 .mgr-pick-conf { color: var(--text-faint); font-size: .68rem; }
-.mgr-pick-line, .mgr-pick-delta { text-align: right; }
-.mgr-pick-delta { font-weight: 600; }
-.mgr-pick-status {
-  font-family: var(--display); font-weight: 700; font-size: .62rem; letter-spacing: .06em;
+.mgr-pick-delta { text-align: right; font-weight: 600; }
+/* The merged cell. The number is right-aligned against the pill so the lines
+   form a column of digits rather than drifting with each team's name length. */
+.mgr-pick-lineou {
+  display: flex; align-items: center; gap: 7px; justify-content: flex-end;
 }
-.mgr-pick-status.st-live { color: var(--text); }
-.mgr-pick-status.st-clinched { color: var(--positive); }
-.mgr-pick-status.st-dead { color: var(--text-faint); }
+.mgr-pick-num { font-weight: 600; min-width: 3ch; text-align: right; }
+/* Direction as colour, on the number only. .pos / .neg are the site's existing
+   --positive / --negative; no new colour enters here. This is a SECOND reading
+   of the pill beside it, never the only one — the word Over or Under is always
+   present, so nothing depends on telling green from red. */
+.mgr-pick-lineou .dir-badge { flex: 0 0 auto; }
+/* The head has no pill to align against, so its label sits where the numbers
+   do rather than where the pills do. */
+.mgr-pick-row.is-head .mgr-pick-lineou { justify-content: flex-end; }
 .mgr-picks-empty {
   color: var(--text-faint); font-size: .8rem; padding: 20px 0; text-align: center;
 }
@@ -1010,24 +1020,24 @@ a { color: inherit; }
 }
 
 @media (max-width: 620px) {
-  /* The pick table folds to two lines: the team and its status on top, the
-     numbers beneath. Six fixed columns at 360px would set a team name one word
-     per line. Each cell is placed BY NAME, so the header — which carries the
-     same classes — folds identically instead of drifting out of register with
-     the rows it labels. The header keeps only TEAM and STATUS: on two lines,
-     labelling the second one costs more room than it explains. */
-  .mgr-picks { --mgr-pick-grid: minmax(0, 1fr) auto auto auto; }
+  /* The pick table folds to a 2x2: team and its delta on top, conference and
+     the line beneath. Four fixed columns at 360px would set a team name one
+     word per line, and the delta is the row's headline number — it belongs on
+     the line the eye reads first, not buried under it.
+
+     Every cell is placed BY NAME, so the header — which carries the same
+     per-column classes — folds identically instead of drifting out of register
+     with the rows it labels. The header keeps TEAM and delta, the two cells
+     that stay on row 1; labelling row 2 costs more width than it explains,
+     since "Big Ten" and "9.5 Under" both say what they are. */
+  .mgr-picks { --mgr-pick-grid: minmax(0, 1fr) auto; }
   .mgr-pick-row { row-gap: 3px; column-gap: 10px; }
-  .mgr-pick-team   { grid-column: 1 / 4; grid-row: 1; }
-  .mgr-pick-status { grid-column: 4;     grid-row: 1; text-align: right; }
-  .mgr-pick-conf   { grid-column: 1;     grid-row: 2; }
-  .mgr-pick-line   { grid-column: 2;     grid-row: 2; text-align: right; }
-  .mgr-pick-ou     { grid-column: 3;     grid-row: 2; }
-  .mgr-pick-delta  { grid-column: 4;     grid-row: 2; text-align: right; }
+  .mgr-pick-team   { grid-column: 1; grid-row: 1; }
+  .mgr-pick-delta  { grid-column: 2; grid-row: 1; text-align: right; }
+  .mgr-pick-conf   { grid-column: 1; grid-row: 2; }
+  .mgr-pick-lineou { grid-column: 2; grid-row: 2; }
   .mgr-pick-row.is-head .mgr-pick-conf,
-  .mgr-pick-row.is-head .mgr-pick-line,
-  .mgr-pick-row.is-head .mgr-pick-ou,
-  .mgr-pick-row.is-head .mgr-pick-delta { display: none; }
+  .mgr-pick-row.is-head .mgr-pick-lineou { display: none; }
   .mgr-display { font-size: 2rem; }
   .mgr-display.is-solo { font-size: 2.4rem; }
   .mgr-intro-title { font-size: 1.9rem; }

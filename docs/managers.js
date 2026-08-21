@@ -115,19 +115,32 @@ function nameBlock(m, p) {
 // 5 — picks. ALWAYS renders. This is the page's guarantee that a manager with
 // zero flavor content still gets a real card: live scoring is something
 // everybody has.
+// FOUR COLUMNS, DOWN FROM SIX.
+//
+// Status is gone. CLINCHED / LIVE / DEAD is derivable from the numbers already
+// in the row, it is a full column of repeated words at every width, and the
+// standings board carries it as a status dot on every chip. The one thing it
+// did that nothing else does — dimming a settled row — is kept: .is-dead still
+// rides on the row, off the same contract token.
+//
+// Line and O/U are one cell. They were never two facts: "9.5" and "Under" is a
+// single statement, and splitting it put a bare number in a column of its own
+// where it read as a score. Together, the number takes the direction's colour
+// — green for an Over, red for an Under, straight off --positive / --negative —
+// and keeps the shared .dir-badge pill beside it, the same pill the standings
+// board prints. The colour is a second encoding of the pill, never the only
+// one: it is never the sole carrier of the Over/Under distinction.
 function pickTable(m) {
   const picks = m.picks || [];
   // The header cells carry the SAME per-column classes as the body cells.
   // Without them the narrow-screen fold — which places each column by name —
-  // silently misses the header and leaves six labels stacked two-per-line
-  // above a correctly folded table.
+  // silently misses the header and leaves the labels stacked above a correctly
+  // folded table.
   const head = `<div class="mgr-pick-row is-head">
     <span class="mgr-pick-team">Team</span>
     <span class="mgr-pick-conf">Conf</span>
-    <span class="mgr-pick-line">Line</span>
-    <span class="mgr-pick-ou">O/U</span>
+    <span class="mgr-pick-lineou">Line</span>
     <span class="mgr-pick-delta">&Delta;</span>
-    <span class="mgr-pick-status">Status</span>
   </div>`;
   if (!picks.length) {
     // Pre-draft is a real state, not a failure — say so instead of printing
@@ -140,15 +153,14 @@ function pickTable(m) {
     const over = p.direction === 'O';
     const d = Number(p.banked_delta);
     const dCls = d > 0 ? ' pos' : d < 0 ? ' neg' : '';
-    const stCls = p.status === 'LIVE' ? 'st-live'
-      : p.status === 'CLINCHED' ? 'st-clinched' : 'st-dead';
     return `<div class="mgr-pick-row${p.status === 'DEAD' ? ' is-dead' : ''}">
       <span class="mgr-pick-team">${esc(p.team)}</span>
       <span class="mgr-pick-conf">${esc(p.conference || '—')}</span>
-      <span class="mgr-pick-line mono">${fmtLine(p.line)}</span>
-      <span class="mgr-pick-ou"><span class="dir-badge ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'}</span></span>
+      <span class="mgr-pick-lineou">
+        <span class="mgr-pick-num mono ${over ? 'pos' : 'neg'}">${fmtLine(p.line)}</span>
+        <span class="dir-badge ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'}</span>
+      </span>
       <span class="mgr-pick-delta mono${dCls}">${fmtSigned(d)}</span>
-      <span class="mgr-pick-status ${stCls}">${esc(p.status)}</span>
     </div>`;
   }).join('');
   return `<div class="mgr-picks">${head}${rows}</div>`;
