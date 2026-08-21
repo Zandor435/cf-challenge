@@ -81,22 +81,114 @@ def _rank_map(rows):
     return {r["manager_id"]: i for i, r in enumerate(ordered, 1)}
 
 
-def prior_snapshot(timeline, eff_week):
-    """The most recent timeline snapshot STRICTLY BEFORE the week being scored,
-    or None.
+# Why prior selection refused, when it did. These never reach the renderer —
+# week_move is null for every one of them alike. They exist so the RUN LOG can
+# say WHICH null this is, because two of them are ordinary, one is ordinary or a
+# production fault depending on a second fact, and before this they were
+# indistinguishable from each other and from a real measured move.
+PRIOR_NO_TIMELINE     = "no_timeline"        # ordinary: group has never scored
+PRIOR_NO_EARLIER_WEEK = "no_earlier_week"    # ordinary: this is the first week
+PRIOR_WEEK_UNRESOLVED = "week_unresolved"    # preseason (ordinary) OR a fault
+PRIOR_SEASON_MISMATCH = "season_mismatch"    # the timeline is another season's
+
+
+def any_games_banked(standings):
+    """Has ANY drafted team played a game yet?
+
+    Read off the standings being reshaped rather than off the cache: this is the
+    board's OWN answer, so the discriminator cannot disagree with the numbers it
+    is describing — the same reason nothing else in this file re-derives a value
+    another board owns. scoring.py emits banked_wins/banked_losses on every pick,
+    and both are 0 on every pick exactly when nothing has been played.
+
+    This is the only thing separating benign preseason from a real fault when the
+    effective week is unresolvable. See _report_prior."""
+    for m in standings.get("managers", []):
+        for p in m.get("picks", []):
+            if (p.get("banked_wins") or 0) or (p.get("banked_losses") or 0):
+                return True
+    return False
+
+
+def select_prior(timeline, eff_week, season=None):
+    """(snapshot, reason) — the most recent timeline snapshot STRICTLY BEFORE the
+    week being scored, or (None, why-not).
 
     Strictly-before matters: run_groups appends the current week's snapshot
     before analytics runs, so "the latest snapshot" would be this week and every
     week_move would come out 0 — a wrong number wearing the costume of a real
-    one. Honest null beats a confident zero."""
+    one. Honest null beats a confident zero.
+
+    AN UNRESOLVABLE WEEK IS NOT A WILDCARD. eff_week is None whenever neither
+    --as-of-week nor the cache supplies a week, which is the ordinary preseason
+    state. That used to short-circuit the strictly-before test to True, so EVERY
+    snapshot qualified and max() handed back the highest week on file. For the
+    2026 preseason that was a week-16 snapshot left behind by the 2025 replay,
+    and every week_move the site printed was correct arithmetic against a board
+    from another season. With no "now" there is no "before": refuse, and emit
+    null. The reasoning that rejects a confident zero rejects a confident wrong
+    number for exactly the same reason.
+
+    A DECLARED SEASON THAT DISAGREES IS ALSO A REFUSAL. timeline.json is
+    append-only across seasons and its snapshots are keyed by week ALONE, so last
+    season's week 6 sits in the same list as this season's and the two are
+    indistinguishable by week — once this season reaches week 7, a plain
+    strictly-before test would happily reach back across the rollover. When the
+    file DECLARES a season and it is not the one being scored, nothing in it can
+    be shown to belong to this season, so none of it is eligible.
+
+    When the file declares no season at all this check does NOT fire: the
+    snapshots carry no season of their own, and inventing one here would be a
+    guarantee the data does not make. The week test then stands alone."""
     if not timeline:
-        return None
+        return None, PRIOR_NO_TIMELINE
+    if eff_week is None:
+        return None, PRIOR_WEEK_UNRESOLVED
+    declared = timeline.get("season")
+    if season is not None and declared is not None and int(declared) != int(season):
+        return None, PRIOR_SEASON_MISMATCH
     snaps = [s for s in timeline.get("snapshots", [])
-             if isinstance(s.get("as_of_week"), int)
-             and (eff_week is None or s["as_of_week"] < eff_week)]
+             if isinstance(s.get("as_of_week"), int) and s["as_of_week"] < eff_week]
     if not snaps:
-        return None
-    return max(snaps, key=lambda s: s["as_of_week"])
+        return None, PRIOR_NO_EARLIER_WEEK
+    return max(snaps, key=lambda s: s["as_of_week"]), None
+
+
+def prior_snapshot(timeline, eff_week, season=None):
+    """The snapshot alone, for callers that do not care why it is missing."""
+    return select_prior(timeline, eff_week, season)[0]
+
+
+def _report_prior(reason, group_id, timeline, season, played):
+    """Say which null this is, once per group per run.
+
+    Two of the four reasons are unremarkable and stay silent — a group that has
+    never scored, and the first scored week of a season, both legitimately have
+    no earlier snapshot and always will. The two that get a line are the ones
+    that look alike in the output and are not alike at all:
+
+      preseason     no week anywhere AND nothing banked. Benign; null is the
+                    true answer. A plain line, not a warning.
+      missing week  no week anywhere but games HAVE been banked. That is a
+                    fault — the cache lost its `week` tag while the season is
+                    live — and it must not ride out disguised as preseason.
+
+    Deliberately NOT one branch: collapsing them is precisely how the second
+    case would go dark behind the first."""
+    if reason == PRIOR_WEEK_UNRESOLVED and played:
+        print(f"::warning:: [{group_id}] no effective week (--as-of-week and the "
+              f"cache's `week` are both null) but games have already been banked "
+              f"— week_move is null for every manager. This is NOT the preseason "
+              f"case: the cache lost its week tag mid-season. Check fetch_results.py.")
+    elif reason == PRIOR_WEEK_UNRESOLVED:
+        print(f"  [{group_id}] preseason (no effective week, nothing banked) — "
+              f"week_move and prior_week null for every manager.")
+    elif reason == PRIOR_SEASON_MISMATCH:
+        print(f"::warning:: [{group_id}] timeline.json declares season "
+              f"{timeline.get('season')} but this run scores {season}; no snapshot "
+              f"in it is eligible, so week_move is null. Note run_groups."
+              f"append_timeline stamps `season` only when it CREATES the file, so "
+              f"a timeline that survived a rollover keeps the old season's tag.")
 
 
 def _snapshot_rows(snap):
@@ -381,9 +473,15 @@ def build_analytics(config, standings, projection=None, timeline=None,
     if eff_week is None:
         eff_week = (as_of_week if as_of_week is not None
                     else utils.cache_meta(utils.get_season())["week"])
-    prior = prior_snapshot(timeline, eff_week)
 
     season = utils.get_season()
+    # Refusals are reported, not swallowed: a null week_move produced by a
+    # live-season fault must not read the same as one produced by preseason.
+    prior, reason = select_prior(timeline, eff_week, season)
+    if reason is not None:
+        _report_prior(reason, config.get("group_id"), timeline, season,
+                      any_games_banked(standings))
+
     cm = utils.cache_meta(season)
     return {
         "meta": {

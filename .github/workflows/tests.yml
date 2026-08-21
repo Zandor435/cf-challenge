@@ -50,6 +50,15 @@ jobs:
         run: python scripts/test_enter_draft.py
       - name: test_output_shape.py
         run: python scripts/test_output_shape.py
+      # Board-3 prior-snapshot selection. Silent when wrong in the worst way:
+      # picking the wrong snapshot does not crash and does not look wrong -- it
+      # publishes correct arithmetic against the wrong board. The 2026 preseason
+      # shipped week_move measured against a week-16 snapshot from the 2025
+      # replay because an unresolvable week short-circuited the strictly-before
+      # test. Nothing else in the suite would have caught it: test_output_shape
+      # always passes an explicit --as-of-week, so eff_week is never null there.
+      - name: test_analytics_week_move.py
+        run: python scripts/test_analytics_week_move.py
       - name: test_projector_correlation.py
         run: python scripts/test_projector_correlation.py
       # Head-to-head coupling (ARCHITECTURE §3). Silent when wrong in the worst
