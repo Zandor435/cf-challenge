@@ -482,8 +482,25 @@ function snapshotTotals(snap) {
   });
   return out;
 }
+
+// ONLY INTEGER-WEEK SNAPSHOTS ARE ELIGIBLE BASELINES. timeline.json also carries
+// the preseason snapshot, whose as_of_week is null, and run_groups sorts that row
+// LAST (_week_sort_key: "weeks ascending, the unresolvable-week row last"). So the
+// moment week 1 is scored the live file reads [week 1, null] and choosing a
+// baseline BY POSITION lands on the preseason board: every manager's "move" would
+// come out as their entire banked total measured against a restatement of their
+// draft, under a column header reading "Since wk null". Filtering to integer weeks
+// is the rule analytics.select_prior and build_week_packet already apply on the
+// Python side; this was the one reader of the three that did not, so it is the
+// only place the null row could still be mistaken for a scored week.
+//
+// With no earlier scored week the answer is no answer — return null and let the
+// column render an em dash. Honest null beats a confident zero, and it beats a
+// confident wrong number for exactly the same reason.
 function computeMoves(standings, timeline) {
-  const snaps = (timeline && timeline.snapshots) || [];
+  const snaps = ((timeline && timeline.snapshots) || [])
+    .filter((s) => Number.isInteger(s.as_of_week))
+    .sort((a, b) => a.as_of_week - b.as_of_week);
   if (snaps.length < 2) return null;
 
   const current = {};
