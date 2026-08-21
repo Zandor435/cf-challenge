@@ -30,14 +30,18 @@ const MANAGER_PALETTE = [
 ];
 
 // ---------- helpers --------------------------------------------------------
-// $ / show / hide / esc / fetchJSON live in site.js. The number formatters
-// below stay here: they are this page's box-score conventions, not primitives.
-
-// Every displayed number is rounded to one decimal before render — raw float
-// math never leaks into the page. Percentages render as whole percent.
-const fmtSigned = (n) => (n > 0 ? '+' : n < 0 ? '' : '') + Number(n).toFixed(1);
-const fmtLine = (n) => Number(n).toFixed(1);
-const pct = (p) => (Number(p) * 100).toFixed(0) + '%';
+// $ / show / hide / esc / fetchJSON live in site.js, and so do fmtSigned /
+// fmtLine / pct as of profile.html. They were duplicated here and in
+// managers.js until three pages needed them; the comment that used to sit
+// here called them "this page's box-score conventions, not primitives", which
+// stopped being true the moment a second page had to match them exactly. They
+// ARE the site's rounding convention — every displayed number is rounded to
+// one decimal before render, raw float math never leaks into a page, and
+// percentages render as whole percent — so they belong in one place.
+//
+// These are classic scripts sharing one global lexical scope: re-declaring a
+// `const` that site.js already declares is not shadowing, it is a
+// SyntaxError that kills the whole page. Do not add a local copy back.
 const round1 = (n) => Math.round(Number(n) * 10) / 10;
 
 function fmtStamp(iso) {

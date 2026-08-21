@@ -56,6 +56,60 @@ async function fetchJSON(path) {
   return res.json();
 }
 
+// ---------- persona primitives ---------------------------------------------
+// These four lived in managers.js until profile.html — the single-manager
+// view — needed the same rules. They are here for the reason at the top of
+// this file: a second copy of the tone gate is a second, silently-drifting
+// answer to "may this person be captioned with a fatal flaw", and that is the
+// one question on this site where drift is not a cosmetic bug.
+
+// Number formatting matches the boards exactly — a delta that reads +2.5 on
+// the standings page must not read 2.50 on a profile.
+const fmtSigned = (n) => (n > 0 ? '+' : n < 0 ? '' : '') + Number(n).toFixed(1);
+const fmtLine = (n) => Number(n).toFixed(1);
+const pct = (p) => (Number(p) * 100).toFixed(0) + '%';
+
+// THE TONE GATE. tone decides whether a person gets a "fatal flaw", a running
+// gag, and a named rival printed under their name. Three registers:
+//
+//   roast     everything present renders. Panel, Browns.
+//   warm      running gag and rival render; a fatal flaw NEVER does. CEC —
+//             the jokes aim at picks, not people, but the affectionate gag
+//             each manager has and the one real rivalry in the group are the
+//             point of the page and are not "flaws".
+//   straight  the neutral blocks + draft_tendency ONLY. Family's John,
+//             Rachel and Vic.
+//
+// Withheld blocks are not rendered, not hidden with CSS — they never enter
+// the markup.
+//
+// ANY tone that is not one of the three keys below is treated as `straight`,
+// the most restrictive. That direction is deliberate: a typo, a missing
+// field, or a persona file written before tone existed must fail toward the
+// quiet version, because the failure mode in the other direction is somebody's
+// father captioned with a fatal flaw on a page his family reads.
+// scripts/sync_personas.py already nulls each register's withheld fields
+// before publishing, so this is the second of two independent gates.
+const TONE_BLOCKS = {
+  roast:    { fatal_flaw: true,  running_gag: true,  rival: true },
+  warm:     { fatal_flaw: false, running_gag: true,  rival: true },
+  straight: { fatal_flaw: false, running_gag: false, rival: false },
+};
+
+function toneOf(p) {
+  const t = p && p.tone;
+  return Object.prototype.hasOwnProperty.call(TONE_BLOCKS, t)
+    ? TONE_BLOCKS[t] : TONE_BLOCKS.straight;
+}
+
+// One test for "is there anything here". null, "", and whitespace are all the
+// same answer, so the render sites never have to ask three questions. The sync
+// script guarantees every key EXISTS (null when unauthored, never absent and
+// never a "TODO" string) so this only ever has to judge emptiness.
+function has(v) {
+  return typeof v === 'string' ? v.trim().length > 0 : v !== null && v !== undefined;
+}
+
 // ---------- URL state ------------------------------------------------------
 // Two optional params. `group` picks the board; `scoped=1` is group-scoped
 // mode — the per-group entry URLs (/panel/, /family/, /church/) redirect here

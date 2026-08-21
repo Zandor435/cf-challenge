@@ -23,54 +23,13 @@
    ========================================================================== */
 'use strict';
 
-// Number formatting matches the boards exactly — a delta that reads +2.5 on
-// the standings page must not read 2.50 here.
-const fmtSigned = (n) => (n > 0 ? '+' : n < 0 ? '' : '') + Number(n).toFixed(1);
-const fmtLine = (n) => Number(n).toFixed(1);
-const pct = (p) => (Number(p) * 100).toFixed(0) + '%';
-
-// ---------- the tone gate --------------------------------------------------
-// tone decides whether a person gets a "fatal flaw", a running gag, and a
-// named rival printed under their name. Three registers:
-//
-//   roast     everything present renders. Panel, Browns.
-//   warm      running gag and rival render; a fatal flaw NEVER does. CEC —
-//             the jokes aim at picks, not people, but the affectionate gag
-//             each manager has and the one real rivalry in the group are the
-//             point of the page and are not "flaws".
-//   straight  blocks 1-6 + draft_tendency + back-to-top ONLY. Family's John,
-//             Rachel and Vic.
-//
-// Withheld blocks are not rendered, not hidden with CSS — they never enter
-// the markup.
-//
-// ANY tone that is not one of the three keys below is treated as `straight`,
-// the most restrictive. That direction is deliberate: a typo, a missing
-// field, or a persona file written before tone existed must fail toward the
-// quiet version, because the failure mode in the other direction is somebody's
-// father captioned with a fatal flaw on a page his family reads.
-// scripts/sync_personas.py already nulls each register's withheld fields
-// before publishing, so this is the second of two independent gates.
-const TONE_BLOCKS = {
-  roast:    { fatal_flaw: true,  running_gag: true,  rival: true },
-  warm:     { fatal_flaw: false, running_gag: true,  rival: true },
-  straight: { fatal_flaw: false, running_gag: false, rival: false },
-};
-
-function toneOf(p) {
-  const t = p && p.tone;
-  return Object.prototype.hasOwnProperty.call(TONE_BLOCKS, t)
-    ? TONE_BLOCKS[t] : TONE_BLOCKS.straight;
-}
-
-// ---------- empty states ---------------------------------------------------
-// One test for "is there anything here". null, "", and whitespace are all the
-// same answer, so the render sites never have to ask three questions. The
-// sync script guarantees every key EXISTS (null when unauthored, never absent
-// and never a "TODO" string) so this only ever has to judge emptiness.
-function has(v) {
-  return typeof v === 'string' ? v.trim().length > 0 : v !== null && v !== undefined;
-}
+// fmtSigned / fmtLine / pct, the TONE_BLOCKS gate, toneOf() and has() now
+// live in site.js. They moved the day profile.html (the single-manager view)
+// needed the identical rules: two copies of the tone gate would be two
+// silently-drifting answers to "may this person be captioned with a fatal
+// flaw". Read them there — the reasoning is documented at the definitions.
+// These are classic scripts sharing one global lexical scope, so they are in
+// scope here by name, exactly as when they were local.
 
 // ---------- blocks ---------------------------------------------------------
 
@@ -254,7 +213,10 @@ function profile(m, persona, proj, ctx, index) {
       ${traits(p, allow)}
       ${gag(p, allow)}
       ${rivalLine(p, allow, ctx.names)}
-      <p class="mgr-top"><a href="#top">&uarr; Back to top</a></p>
+      <p class="mgr-top">
+        <a href="profile.html?group=${encodeURIComponent(ctx.groupId)}&amp;id=${encodeURIComponent(m.manager_id)}${isScoped() ? '&amp;scoped=1' : ''}">${esc(m.display_name)}&rsquo;s full profile &rarr;</a>
+        <a href="#top">&uarr; Back to top</a>
+      </p>
     </div>
   </article>`;
 }

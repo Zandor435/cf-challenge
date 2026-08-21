@@ -950,11 +950,23 @@ a { color: inherit; }
 }
 .mgr-rival a { color: var(--text); text-underline-offset: 3px; }
 
-/* ---- 10. back to top ---- */
-.mgr-top { margin-top: 22px; }
+/* ---- 10. card footer: full profile + back to top ----
+   Two links, so this is a flex row rather than a bare line — without the gap
+   they butt together at .6rem and read as one string. The full-profile link
+   goes first and carries the accent underline: it is the card's primary
+   action (the whole single-manager page), and back-to-top is navigation. */
+.mgr-top {
+  margin-top: 22px;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px;
+}
 .mgr-top a {
   font-family: var(--mono); font-size: .6rem; letter-spacing: .12em;
   text-transform: uppercase; color: var(--text-faint); text-decoration: none;
+}
+.mgr-top a:first-child {
+  color: var(--text);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 2px;
 }
 .mgr-top a:hover, .mgr-top a:focus-visible { color: var(--text); text-decoration: underline; }
 
