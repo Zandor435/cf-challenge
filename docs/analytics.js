@@ -511,17 +511,11 @@ async function main() {
   const a = analyticsRes;
   const meta = a.meta || {};
 
-  // Sample-data banner — the same band and the same sentence index.html shows,
-  // read off standings.json because analytics.json deliberately carries no
-  // draft_status. All four leagues are "dummy" today. Only the literal string
-  // triggers it; a missing standings.json shows nothing rather than guessing.
-  const sMeta = (standingsRes && standingsRes.meta) || {};
-  if (sMeta.draft_status === 'dummy') {
-    $('sample-banner').textContent =
-      `Sample data — the draft has not been entered. These picks are placeholders ` +
-      `to preview the board, not real selections.`;
-    show($('sample-banner'));
-  }
+  // Sample-data banner — read off standings.json, which is why this page
+  // fetches it at all. The band and its sentence are site.js's now; a missing
+  // standings.json passes undefined and shows nothing, which is the same
+  // "never guess" behaviour spelled out at the definition.
+  renderSampleBanner(standingsRes && standingsRes.meta);
 
   // Prefer the direct reading. standingsRes is already in hand for the banner,
   // and banked_wins/banked_losses is the fact itself rather than a proxy for it;

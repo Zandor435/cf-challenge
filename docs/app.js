@@ -441,18 +441,6 @@ function renderProvenance(meta) {
   strip.innerHTML = parts.map((p) => `<span class="prov-item">${p}</span>`)
     .join('<span class="prov-sep">&middot;</span>');
   show(strip);
-
-  // Sample-data banner stays a visible band: dummy picks previewing the board
-  // must never read as a real draft.
-  const sample = $('sample-banner');
-  if (meta.draft_status === 'dummy') {
-    sample.textContent =
-      `Sample data — the draft has not been entered. These picks are placeholders ` +
-      `to preview the board, not real selections.`;
-    show(sample);
-  } else {
-    hide(sample);
-  }
 }
 
 // ---------- pre-draft state (STEP 3) --------------------------------------
@@ -1025,6 +1013,9 @@ async function main() {
   if (meta.season) $('wordmark-season').textContent = meta.season;
   document.title = `${groupLabel(groupId)} — CFB Pick'Em`;
   renderProvenance(meta);
+  // Out of renderProvenance and into main(), where managers.js and analytics.js
+  // call it too: three pages, one helper, one call site apiece.
+  renderSampleBanner(meta);
   hide($('loading'));
 
   // Pre-draft: first-class state, not a fallback (STEP 3).

@@ -397,6 +397,11 @@ async function main() {
   const names = {};
   mgrs.forEach((m) => { names[m.manager_id] = m.display_name; });
 
+  // The sample-data band this page never had. All four groups are dummy today,
+  // so a reader landing here saw placeholder picks laid out as a real roster --
+  // on the one page that prints every pick a manager holds.
+  renderSampleBanner(meta);
+
   // Was a local `null ? 'Live' : 'Week N'`, which called a preseason board
   // "Live" while index.html and analytics.html called the same standings.json
   // "Preseason". Same helper, same predicate, same answer as the other two now.

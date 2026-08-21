@@ -201,6 +201,43 @@ function weekLabel(week, pre) {
   return Number.isInteger(week) ? `Week ${week}` : 'Live';
 }
 
+// ---------- sample-data banner ---------------------------------------------
+// The band that says these picks are not a real draft. It was emitted from two
+// pages in two places with one identical sentence typed twice, and the third
+// page — managers.html, the one that shows every pick a manager holds — had no
+// band at all. All four groups are draft_status "dummy" today, so Profiles was
+// presenting placeholder selections as somebody's actual roster.
+//
+// READ OFF standings.json AND NOWHERE ELSE. draft_status lives on that file by
+// contract (analytics.json's meta block is spec'd with no extra keys, which is
+// why analytics.html fetches standings.json for this one field). Only the
+// literal string "dummy" triggers the band: a missing or unrecognised
+// draft_status shows nothing rather than guessing, because the failure mode of
+// guessing wrong in the loud direction is crying wolf over a real draft.
+//
+// ANSWERS A DIFFERENT QUESTION FROM weekLabel(), and the two must never be
+// merged. This one asks "are these picks real" and clears when the draft is
+// entered; preseason asks "has anything been played" and clears when week 1 is
+// scored. Two facts on two clocks — one sentence covering both would clear at
+// the wrong moment for one of them.
+//
+// Idempotent, and hides on the negative path rather than only skipping the
+// show: a page that re-renders must be able to take the band back down.
+function renderSampleBanner(standingsMeta) {
+  const el = $('sample-banner');
+  if (!el) return false;
+  const dummy = !!(standingsMeta && standingsMeta.draft_status === 'dummy');
+  if (dummy) {
+    el.textContent =
+      'Sample data — the draft has not been entered. These picks are placeholders ' +
+      'to preview the board, not real selections.';
+    show(el);
+  } else {
+    hide(el);
+  }
+  return dummy;
+}
+
 // ---------- URL state ------------------------------------------------------
 // Two optional params. `group` picks the board; `scoped=1` is group-scoped
 // mode — the per-group entry URLs (/panel/, /family/, /church/) redirect here
