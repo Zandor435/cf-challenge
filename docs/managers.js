@@ -1,5 +1,10 @@
 /* ==========================================================================
-   managers.js — the manager profile page (managers.html).
+   managers.js — THE manager profile page (managers.html).
+
+   THE ONLY ONE. profile.html was a second, single-manager view of the same
+   four files; it was retired and this page absorbed what it did better. A
+   reader who wants one person deep-links to them (#<manager_id>) and lands on
+   their card in the stack. Everything the retired page rendered renders here.
 
    GROUP-GENERIC BY CONSTRUCTION. There is no roster, no manager id, and no
    group path anywhere in this file. It renders whatever standings.json hands
@@ -23,13 +28,14 @@
    ========================================================================== */
 'use strict';
 
-// fmtSigned / fmtLine / pct, the TONE_BLOCKS gate, toneOf() and has() now
-// live in site.js. They moved the day profile.html (the single-manager view)
-// needed the identical rules: two copies of the tone gate would be two
-// silently-drifting answers to "may this person be captioned with a fatal
-// flaw". Read them there — the reasoning is documented at the definitions.
-// These are classic scripts sharing one global lexical scope, so they are in
-// scope here by name, exactly as when they were local.
+// fmtSigned / fmtLine / pct, the TONE_BLOCKS gate, toneOf() and has() live in
+// site.js. They moved there when a second page needed the identical rules, and
+// they stay there now that this is the only page that reads them: the tone gate
+// is the one rule on this site where a second copy would be a second,
+// silently-drifting answer to "may this person be captioned with a fatal flaw",
+// and analytics.html and index.html still share the formatters. Read them
+// there — the reasoning is documented at the definitions. These are classic
+// scripts sharing one global lexical scope, so they are in scope here by name.
 
 // ---------- blocks ---------------------------------------------------------
 
@@ -39,12 +45,11 @@
 // placeholder, no alt stub, no empty gutter. A manager without a picture
 // should look like a manager whose card was designed without one.
 //
-// TWO SLOTS, TRIED IN ORDER -- the SAME chain profile.js:heroArt() runs, in
-// the same order, through the same resolveArt(). This page used to read
-// profile_hero alone, which is why panel rendered the opaque cut here and the
-// torn cut on profile.html. There is deliberately no second resolution path:
-// if this ever diverges from profile.js again it should be because a slot
-// changed, not because a page grew its own lookup.
+// TWO SLOTS, TRIED IN ORDER. profile_page_hero is the torn, alpha-keyed cut;
+// profile_hero is the opaque bordered rectangle and the fallback for every
+// group that never declared the page slot. Both names survive the retirement of
+// profile.html -- they name CUTS OF ART, not pages, and art_slots.json is not
+// this thread's to rewrite. This page is now the only consumer of either.
 //
 // WHY .is-bleed IS GATED ON THE TWO SLOTS DISAGREEING, and not simply on
 // profile_page_hero answering: family declares profile_page_hero pointing at
@@ -172,43 +177,55 @@ function prose(p) {
   return `<div class="mgr-prose">${paras.map((t) => `<p>${esc(t)}</p>`).join('')}</div>`;
 }
 
-// 7 — draft tendency and fatal flaw, side by side. Draft tendency renders in
-// every register. Where the fatal flaw is withheld only the tendency remains,
-// and it takes the full width rather than sitting next to an empty column.
-function traits(p, allow) {
-  const items = [];
+// 7 — the persona cards: draft tendency, fatal flaw, running gag, rival.
+//
+// CARRIED OVER FROM THE RETIRED profile.html, which had this right and this
+// page did not. Here, tendency and flaw were a two-up card grid and then gag
+// and rival were dropped underneath as bordered lines — two treatments for
+// four blocks that are the same KIND of thing. That split was an artifact of
+// the order they were written in, not a distinction anyone meant. One grid,
+// one card each, and a typographic mark per BLOCK — never per person: this
+// file cannot know that a particular manager's gag is about Texas.
+//
+// auto-fit is load-bearing rather than cosmetic, and it is why the old
+// `.is-solo` special case is gone: THE TONE GATE decides how many cards exist.
+// A straight-register manager gets exactly one, a roast-register manager with
+// a full persona gets four, and every count between happens. A fixed column
+// count sits the one-card manager beside that many empty cells.
+//
+// Rival is a SAME-PAGE anchor, and only when the rival is someone this render
+// actually produced — an id that never rendered would be a dead jump.
+// sync_personas.py already rejects a rival that is not a manager_id in the
+// group; this catches the narrower case where the roster and this render
+// disagree.
+function metaCards(p, allow, names) {
+  const cards = [];
   if (p && has(p.draft_tendency)) {
-    items.push({ lbl: 'Draft tendency', txt: p.draft_tendency });
+    cards.push({ icon: '\u21c4', title: 'Draft tendency', copy: esc(p.draft_tendency) });
   }
   if (allow.fatal_flaw && p && has(p.fatal_flaw)) {
-    items.push({ lbl: 'Fatal flaw', txt: p.fatal_flaw });
+    cards.push({ icon: '!', title: 'Fatal flaw', copy: esc(p.fatal_flaw) });
   }
-  if (!items.length) return '';
-  return `<div class="mgr-traits${items.length === 1 ? ' is-solo' : ''}">
-    ${items.map((i) => `<div class="mgr-trait">
-      <div class="mgr-trait-lbl">${i.lbl}</div>
-      <p class="mgr-trait-txt">${esc(i.txt)}</p>
-    </div>`).join('')}
-  </div>`;
-}
-
-// 8 — running gag. Roast and warm; never straight.
-function gag(p, allow) {
-  if (!allow.running_gag || !p || !has(p.running_gag)) return '';
-  return `<p class="mgr-gag"><span class="mgr-gag-lbl">Running gag</span>${esc(p.running_gag)}</p>`;
-}
-
-// 9 — rival. Roast and warm; never straight. And only when the rival is
-// someone actually on this page: the link is a same-page anchor, so an id that
-// never rendered would be a dead jump. sync_personas.py already rejects a
-// rival that is not a manager_id in the group; this second check catches the
-// narrower case where the roster and this render disagree.
-function rivalLine(p, allow, names) {
-  if (!allow.rival || !p || !has(p.rival)) return '';
-  const rid = String(p.rival);
-  if (!Object.prototype.hasOwnProperty.call(names, rid)) return '';
-  return `<p class="mgr-rival"><span class="mgr-rival-lbl">Rival</span>` +
-    `<a href="#${encodeURIComponent(rid)}">${esc(names[rid])}</a></p>`;
+  if (allow.running_gag && p && has(p.running_gag)) {
+    cards.push({ icon: '\u21bb', title: 'Running gag', copy: esc(p.running_gag) });
+  }
+  if (allow.rival && p && has(p.rival) &&
+      Object.prototype.hasOwnProperty.call(names, String(p.rival))) {
+    const rid = String(p.rival);
+    cards.push({
+      icon: '\u2694',
+      title: 'Rival',
+      copy: `<a href="#${encodeURIComponent(rid)}">${esc(names[rid])}</a>`,
+    });
+  }
+  if (!cards.length) return '';
+  return `<div class="mgr-meta">${cards.map((c) => `<div class="mgr-metacard">
+    <div class="mgr-metacard-head">
+      <span class="mgr-metaicon" aria-hidden="true">${c.icon}</span>
+      <span class="mgr-metacard-lbl">${esc(c.title)}</span>
+    </div>
+    <p class="mgr-metacard-txt">${c.copy}</p>
+  </div>`).join('')}</div>`;
 }
 
 // ---------- one profile ----------------------------------------------------
@@ -233,11 +250,9 @@ function profile(m, persona, proj, ctx, index) {
       ${statStrip(m, proj, ctx.projNote)}
       ${pickTable(m)}
       ${prose(p)}
-      ${traits(p, allow)}
-      ${gag(p, allow)}
-      ${rivalLine(p, allow, ctx.names)}
+      ${metaCards(p, allow, ctx.names)}
       <p class="mgr-top">
-        <a href="profile.html?group=${encodeURIComponent(ctx.groupId)}&amp;id=${encodeURIComponent(m.manager_id)}${isScoped() ? '&amp;scoped=1' : ''}">${esc(m.display_name)}&rsquo;s full profile &rarr;</a>
+        <a href="#${esc(encodeURIComponent(m.manager_id))}">Link to ${esc(m.display_name)} &rarr;</a>
         <a href="#top">&uarr; Back to top</a>
       </p>
     </div>

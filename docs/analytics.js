@@ -471,7 +471,7 @@ async function main() {
   const groupId = currentGroupId();
 
   // Unknown league: name it and stop, exactly as app.js, managers.js and
-  // profile.js do. A wrong ?group= must never quietly render another league's
+  // managers.js do. A wrong ?group= must never quietly render another league's
   // numbers under this URL.
   if (groupId === null) {
     fail(`Unknown league &quot;${esc(groupParam())}&quot;.`,

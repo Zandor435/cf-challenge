@@ -62,11 +62,13 @@ async function fetchJSON(path) {
 }
 
 // ---------- persona primitives ---------------------------------------------
-// These four lived in managers.js until profile.html — the single-manager
-// view — needed the same rules. They are here for the reason at the top of
-// this file: a second copy of the tone gate is a second, silently-drifting
-// answer to "may this person be captioned with a fatal flaw", and that is the
-// one question on this site where drift is not a cosmetic bug.
+// These four lived in managers.js until a second view needed the same rules.
+// That view (profile.html, the single-manager page) has since been retired and
+// managers.html is the only profile surface, but these stay here for the reason
+// at the top of this file: a second copy of the tone gate is a second,
+// silently-drifting answer to "may this person be captioned with a fatal
+// flaw", and that is the one question on this site where drift is not a
+// cosmetic bug. The formatters below are still read by three pages.
 
 // Number formatting matches the boards exactly — a delta that reads +2.5 on
 // the standings page must not read 2.50 on a profile.

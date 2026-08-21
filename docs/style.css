@@ -952,38 +952,56 @@ a { color: inherit; }
 .mgr-prose p { font-size: .94rem; line-height: 1.66; }
 .mgr-prose p + p { margin-top: 12px; }
 
-/* ---- 7. tendency / flaw ---- */
-.mgr-traits {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px; margin-top: 22px;
+/* ---- 7. persona cards: tendency / flaw / gag / rival ---- */
+/* ONE treatment for four blocks, carried over from the retired profile.html.
+   This page used to give tendency and flaw a card each and then set gag and
+   rival as bordered lines below them, which read as a hierarchy nobody meant.
+
+   auto-fit, not a fixed column count, and that is load-bearing: the tone gate
+   hands this grid anywhere from one card (straight register) to four (roast,
+   fully authored). A fixed two- or four-up leaves the one-card manager beside
+   that many empty cells — which is exactly the bug the old `.is-solo` special
+   case existed to patch, and why it is gone rather than renamed.
+
+   The gap is a 1px hairline over a --border-soft ground: the same seam the
+   stat strip used, so a card grid still reads as one object rather than as
+   loose tiles. */
+.mgr-meta {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1px; margin-top: 22px;
+  background: var(--border-soft); border: 1px solid var(--border-soft);
 }
-/* Straight tone leaves one item: it takes the full width rather than sitting
-   beside an empty column. */
-.mgr-traits.is-solo { grid-template-columns: minmax(0, 1fr); }
-.mgr-trait { border-top: 3px solid var(--mc); padding-top: 8px; }
-.mgr-trait-lbl {
+.mgr-metacard {
+  background: var(--bg); padding: 13px 15px 15px;
+  border-top: 3px solid var(--mc);
+}
+.mgr-metacard-head {
+  display: flex; align-items: center; gap: 9px; margin-bottom: 7px;
+}
+/* The mark is a RULE around type, never a fill behind it. --mc is a team
+   colour picked for a helmet — Colorado's #cfb87c sits at 1.94:1 on white —
+   so the one thing it must never become is a text ground. Same rule the rest
+   of this page follows; see the note at profile()'s --mc. */
+.mgr-metaicon {
+  width: 24px; height: 24px; flex: 0 0 24px;
+  display: grid; place-items: center; border-radius: 50%;
+  border: 2px solid var(--mc); color: var(--text);
+  font-family: var(--display); font-weight: 900; font-size: .82rem; line-height: 1;
+}
+.mgr-metacard-lbl {
   font-family: var(--mono); font-size: .56rem; letter-spacing: .14em;
   text-transform: uppercase; color: var(--text-faint);
 }
-.mgr-trait-txt { font-size: .86rem; line-height: 1.55; margin-top: 6px; }
+.mgr-metacard-txt { font-size: .86rem; line-height: 1.55; }
+.mgr-metacard-txt a { color: var(--text); text-underline-offset: 3px; }
 
-/* ---- 8. running gag / 9. rival ---- */
-.mgr-gag, .mgr-rival {
-  margin-top: 16px; font-size: .86rem; line-height: 1.55;
-  padding-left: 12px; border-left: 3px solid var(--mc);
-}
-.mgr-gag-lbl, .mgr-rival-lbl {
-  display: block; font-family: var(--mono); font-size: .56rem;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint);
-  margin-bottom: 4px;
-}
-.mgr-rival a { color: var(--text); text-underline-offset: 3px; }
-
-/* ---- 10. card footer: full profile + back to top ----
+/* ---- 10. card footer: permalink + back to top ----
    Two links, so this is a flex row rather than a bare line — without the gap
-   they butt together at .6rem and read as one string. The full-profile link
-   goes first and carries the accent underline: it is the card's primary
-   action (the whole single-manager page), and back-to-top is navigation. */
+   they butt together at .6rem and read as one string. The permalink goes first
+   and carries the accent underline: it is the card's primary action now that
+   there is no single-manager page to link to, and back-to-top is navigation.
+   Clicking it puts #<manager_id> in the address bar, which is the shareable
+   URL for one person — the same target the standings board's name links at. */
 .mgr-top {
   margin-top: 22px;
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px;
@@ -1027,7 +1045,8 @@ a { color: inherit; }
   .mgr-display { font-size: 2rem; }
   .mgr-display.is-solo { font-size: 2.4rem; }
   .mgr-intro-title { font-size: 1.9rem; }
-  .mgr-traits { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  /* .mgr-meta needs no rule here: auto-fit collapses to one column on its own
+     the moment the track cannot hold 240px. */
 }
 
 @media (min-width: 900px) {

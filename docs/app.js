@@ -31,10 +31,10 @@ const MANAGER_PALETTE = [
 
 // ---------- helpers --------------------------------------------------------
 // $ / show / hide / esc / fetchJSON live in site.js, and so do fmtSigned /
-// fmtLine / pct as of profile.html. They were duplicated here and in
-// managers.js until three pages needed them; the comment that used to sit
-// here called them "this page's box-score conventions, not primitives", which
-// stopped being true the moment a second page had to match them exactly. They
+// fmtLine / pct. They were duplicated here and in managers.js until a third
+// page needed them; the comment that used to sit here called them "this page's
+// box-score conventions, not primitives", which stopped being true the moment
+// a second page had to match them exactly. They
 // ARE the site's rounding convention — every displayed number is rounded to
 // one decimal before render, raw float math never leaks into a page, and
 // percentages render as whole percent — so they belong in one place.
