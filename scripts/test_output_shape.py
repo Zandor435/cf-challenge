@@ -31,7 +31,12 @@ moment season.json flips, the new season has zero played games, and
 fixture is what CLAUDE.md P0 #2 asks for: a fixed fixture set must produce the
 same scoring output regardless of what the live source is doing.
 
+Runs both ways, and they are equivalent: pytest collects one test per section
+and conftest.py raises on any check() the section recorded as FAIL; the
+standalone runner sums the same ledger and exits 0/1.
+
 Usage:
+    python -m pytest scripts/test_output_shape.py
     python scripts/test_output_shape.py
 """
 
@@ -46,11 +51,15 @@ import projector
 import run_groups
 import analytics
 
+# The check ledger. Each entry is (label, ok, detail) — the LABEL is carried so a
+# failure is diagnosable from the pytest report alone, not only from the printed
+# transcript above it. conftest.py clears this before every pytest test and raises
+# on any recorded FAIL; main() sums it for the standalone `python scripts/...` run.
 _res = []
 
 
 def check(name, ok, detail=""):
-    _res.append(bool(ok))
+    _res.append((name, bool(ok), detail))
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}" + (f" — {detail}" if detail else ""))
 
 
@@ -241,22 +250,55 @@ def validate_timeline_snapshot(snap, label):
     check(f"[{label}] timeline snapshot shape", ok)
 
 
-def main():
-    season = utils.pin_contract_fixture()
-    print(f"  (scoring off the frozen contract fixture, season {season})")
-    config, picks = utils.load_group(utils.TEST_GROUP_ID)
+_BOARDS = None
 
-    # --- Mid-season (week 6): LIVE picks present ---
-    st6 = scoring.build_standings(config, picks, as_of_week=6)
-    pr6 = projector.build_projection(config, picks, as_of_week=6)
+
+def _boards():
+    """The four boards main() built once off the frozen contract fixture.
+
+    pin_contract_fixture() runs on EVERY entry, not just the first: it re-points
+    the whole process at data/fixtures/contract_cache.json and conftest.py
+    restores utils' globals after each test, so a memoised board set alone would
+    leave later tests reading the live cache -- which is exactly the silent
+    source-drift this file's SOURCE OF TRUTH note exists to prevent. Pinning is
+    three globals and one json load; the board derivation is what gets cached.
+    """
+    global _BOARDS
+    season = utils.pin_contract_fixture()
+    if _BOARDS is None:
+        print(f"  (scoring off the frozen contract fixture, season {season})")
+        config, picks = utils.load_group(utils.TEST_GROUP_ID)
+        st6 = scoring.build_standings(config, picks, as_of_week=6)
+        pr6 = projector.build_projection(config, picks, as_of_week=6)
+        st14 = scoring.build_standings(config, picks, as_of_week=14)
+        pr14 = projector.build_projection(config, picks, as_of_week=14)
+        _BOARDS = {"season": season, "config": config, "picks": picks,
+                   "st6": st6, "pr6": pr6, "st14": st14, "pr14": pr14}
+    return _BOARDS
+
+
+def _tl14(b):
+    """A week-6 snapshot to measure week 14's moves against."""
+    return {"group_id": b["config"]["group_id"], "season": b["season"],
+            "snapshots": [run_groups.build_snapshot(b["st6"], b["pr6"], 6)]}
+
+
+def test_midseason_boards():
+    """Mid-season (week 6): LIVE picks present."""
+    print("\n--- Mid-season (week 6): LIVE picks present ---")
+    b = _boards()
+    st6, pr6 = b["st6"], b["pr6"]
     validate_standings(st6, "wk6")
     validate_projection(pr6, "wk6")
     live = any(p["status"] == "LIVE" for m in st6["managers"] for p in m["picks"])
     check("[wk6] at least one LIVE pick (mid-season state is real)", live)
 
-    # --- Final (week 14): every slate complete -> two boards must agree ---
-    st14 = scoring.build_standings(config, picks, as_of_week=14)
-    pr14 = projector.build_projection(config, picks, as_of_week=14)
+
+def test_final_week_boards_agree():
+    """Final (week 14): every slate complete -> Board 1 and Board 2 must agree."""
+    print("\n--- Final (week 14): every slate complete -> two boards must agree ---")
+    b = _boards()
+    st14, pr14 = b["st14"], b["pr14"]
     banked_by = {(m["manager_id"], p["team"]): p["banked_delta"]
                  for m in st14["managers"] for p in m["picks"]}
     zero_width = all(p["games_remaining"] == 0 for m in st14["managers"] for p in m["picks"])
@@ -264,18 +306,25 @@ def main():
     validate_standings(st14, "wk14")
     validate_projection(pr14, "wk14", final=True, banked_by=banked_by)
 
-    # --- Board 3: analytics (shape only — the values are Board-1 arithmetic) ---
-    # No timeline at week 6: week_move must be null everywhere, NOT zero.
-    an6 = analytics.build_analytics(config, st6, pr6, timeline=None, as_of_week=6)
+
+def test_analytics_week6_no_timeline():
+    """Board 3 with no timeline: week_move must be null everywhere, NOT zero."""
+    print("\n--- Board 3: analytics, week 6 (no timeline) ---")
+    b = _boards()
+    an6 = analytics.build_analytics(b["config"], b["st6"], b["pr6"],
+                                    timeline=None, as_of_week=6)
     validate_analytics(an6, "wk6-analytics")
     check("[wk6-analytics] no timeline => week_move null (never 0)",
           all(m["week_move"] is None for m in an6["race"]["managers"])
           and an6["race"]["prior_week"] is None)
 
-    # With a week-6 snapshot in hand, week 14's moves become real ints measured
-    # against prior_week 6 — the only place week_move is exercised end to end.
-    tl14 = {"group_id": config["group_id"], "season": season,
-            "snapshots": [run_groups.build_snapshot(st6, pr6, 6)]}
+
+def test_analytics_week14_week_move():
+    """The only place week_move is exercised end to end against a real prior week."""
+    print("\n--- Board 3: analytics, week 14 (week-6 snapshot in hand) ---")
+    b = _boards()
+    config, st14, pr14 = b["config"], b["st14"], b["pr14"]
+    tl14 = _tl14(b)
     an14 = analytics.build_analytics(config, st14, pr14, timeline=tl14, as_of_week=14)
     validate_analytics(an14, "wk14-analytics")
     check("[wk14-analytics] prior snapshot => week_move is an int, prior_week=6",
@@ -286,7 +335,7 @@ def main():
           sum(m["week_move"] for m in an14["race"]["managers"]) == 0)
     # The current week's own snapshot must NOT be the comparison point — that is
     # what would turn every move into a confident, wrong 0.
-    tl14_self = {"group_id": config["group_id"], "season": season,
+    tl14_self = {"group_id": config["group_id"], "season": b["season"],
                  "snapshots": tl14["snapshots"] + [run_groups.build_snapshot(st14, pr14, 14)]}
     an14b = analytics.build_analytics(config, st14, pr14, timeline=tl14_self, as_of_week=14)
     check("[wk14-analytics] current week's own snapshot is not the baseline",
@@ -294,10 +343,14 @@ def main():
           and [m["week_move"] for m in an14b["race"]["managers"]]
               == [m["week_move"] for m in an14["race"]["managers"]])
 
-    # Degraded projector: championship_odds must go null + available=false, and
-    # every OTHER module must still be fully populated (Board 3 degrades the way
-    # Board 2 does — it does not take the page down).
-    an_nop = analytics.build_analytics(config, st14, None, timeline=tl14, as_of_week=14)
+
+def test_analytics_degraded_projector():
+    """Board 3 degrades the way Board 2 does — it does not take the page down."""
+    print("\n--- Board 3: analytics, projector down ---")
+    b = _boards()
+    st14 = b["st14"]
+    an_nop = analytics.build_analytics(b["config"], st14, None,
+                                       timeline=_tl14(b), as_of_week=14)
     validate_analytics(an_nop, "wk14-analytics-degraded", expect_odds=False)
     check("[wk14-analytics-degraded] projector down => p_win_pool/week_move all null",
           all(m["p_win_pool"] is None and m["week_move"] is None
@@ -306,9 +359,16 @@ def main():
           len(an_nop["race"]["managers"]) == len(st14["managers"])
           and len(an_nop["portfolio"]["managers"]) == len(st14["managers"]))
 
-    # Pre-draft / dummy-data / no-scored-weeks: honest nulls, never a crash.
-    # Two managers tied at zero with an unplayed pick each — the literal shape of
-    # a group whose draft is in but whose season has not started.
+
+def test_analytics_predraft_zero_state():
+    """Pre-draft / dummy-data / no-scored-weeks: honest nulls, never a crash.
+
+    Two managers tied at zero with an unplayed pick each — the literal shape of
+    a group whose draft is in but whose season has not started.
+    """
+    print("\n--- Board 3: analytics, pre-draft zero state ---")
+    b = _boards()
+
     def _zero_mgr(mid, rank):
         return {"manager_id": mid, "display_name": mid.title(), "banked_total": 0.0,
                 "floor": 0.0, "ceiling": 0.0, "rank": rank,
@@ -316,8 +376,9 @@ def main():
                            "direction": "O", "banked_wins": 0, "banked_losses": 0,
                            "games_remaining": 12, "banked_delta": 0.0, "floor": 0.0,
                            "ceiling": 0.0, "status": "LIVE"}]}
-    st_zero = {"meta": st14["meta"], "managers": [_zero_mgr("a", 1), _zero_mgr("b", 2)]}
-    an_zero = analytics.build_analytics(config, st_zero, None, timeline=None, as_of_week=1)
+    st_zero = {"meta": b["st14"]["meta"], "managers": [_zero_mgr("a", 1), _zero_mgr("b", 2)]}
+    an_zero = analytics.build_analytics(b["config"], st_zero, None,
+                                        timeline=None, as_of_week=1)
     validate_analytics(an_zero, "predraft-analytics", expect_odds=False)
     check("[predraft-analytics] share_of_delta is null, not a divide error",
           all(p["share_of_delta"] is None
@@ -327,14 +388,28 @@ def main():
     check("[predraft-analytics] every manager still lands in a valid path state",
           all(m["state"] in PATH_STATES for m in an_zero["paths"]["managers"]))
 
-    # A group with no managers at all (a config entered before its draft).
-    an_empty = analytics.build_analytics(config, {"managers": []}, None, None, as_of_week=1)
+
+def test_analytics_empty_group():
+    """A group with no managers at all (a config entered before its draft)."""
+    print("\n--- Board 3: analytics, group with no managers ---")
+    b = _boards()
+    an_empty = analytics.build_analytics(b["config"], {"managers": []}, None,
+                                         None, as_of_week=1)
     validate_analytics(an_empty, "empty-analytics", expect_odds=False)
     check("[empty-analytics] no managers => empty modules, no leader",
           an_empty["race"]["managers"] == [] and an_empty["race"]["leader_id"] is None
           and an_empty["paths"]["managers"] == [])
 
-    # --- Timeline: append-only + idempotent on the effective week ---
+
+def test_timeline_append_only_and_idempotent():
+    """Timeline: append-only + idempotent on the effective week.
+
+    WEB_DATA_DIR is redirected into a TemporaryDirectory for the whole block, so
+    nothing here writes to docs/data/ (CLAUDE.md P2 #14).
+    """
+    print("\n--- Timeline: append-only + idempotent on the effective week ---")
+    b = _boards()
+    config, st6, pr6, st14, pr14 = b["config"], b["st6"], b["pr6"], b["st14"], b["pr14"]
     with tempfile.TemporaryDirectory() as td:
         tl_path = Path(td) / "timeline.json"
         # monkeypatch the write target to the temp dir
@@ -358,7 +433,18 @@ def main():
         finally:
             utils.WEB_DATA_DIR = orig
 
-    passed, total = sum(_res), len(_res)
+
+def main():
+    test_midseason_boards()
+    test_final_week_boards_agree()
+    test_analytics_week6_no_timeline()
+    test_analytics_week14_week_move()
+    test_analytics_degraded_projector()
+    test_analytics_predraft_zero_state()
+    test_analytics_empty_group()
+    test_timeline_append_only_and_idempotent()
+
+    passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
     sys.exit(0 if passed == total else 1)
 
