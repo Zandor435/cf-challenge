@@ -1,0 +1,1411 @@
+{
+  "meta": {
+    "_note": "FROZEN preseason baseline (ARCHITECTURE §7). Written ONCE, before the first 2026 kickoff, and never reseeded — the gap between this and the live projection IS the drift story. Not a scoring input: nothing reads it to score a board.",
+    "season": 2026,
+    "generated_at": "2026-08-21T14:10:01.301352+00:00",
+    "frozen": true,
+    "sp_vintage": {
+      "cache_fetched_at": "2026-08-21T13:14:07.256672+00:00",
+      "date": "2026-08-21",
+      "cache_week": null,
+      "completed_games_at_freeze": 0,
+      "teams_rated": 139,
+      "archive": "data/ratings_archive/2026/2026-08-21.json"
+    },
+    "projector": {
+      "function": "projector.game_win_prob",
+      "model": "logistic on the SP+ point margin, home field applied to the margin; expected_wins = sum of per-game P(win)",
+      "home_field_advantage_pts": 4.0,
+      "win_prob_points_scale": 13.5,
+      "fcs_fallback_rating": -35.0,
+      "calibration": "scale/HFA jointly fitted on the leak-free market bridge (calibrate_spread.py, 2026-07, 2021-2025)",
+      "same_code_path_as_live_projection": true
+    },
+    "reference": {
+      "path": "data/team_win_totals_2026.json",
+      "source": "manual entry — preseason win totals, frozen at draft",
+      "teams": 137
+    },
+    "counts": {
+      "teams": 137,
+      "scheduled_game_lengths": {
+        "11": 8,
+        "12": 128,
+        "13": 1
+      },
+      "teams_with_a_line": 137
+    }
+  },
+  "teams": {
+    "Air Force": {
+      "display_name": "Air Force",
+      "conference": "Mountain West",
+      "sp_rating": -3.2,
+      "sp_ranking": 84,
+      "games_scheduled": 12,
+      "expected_wins": 7.3384,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.1616
+    },
+    "Akron": {
+      "display_name": "Akron",
+      "conference": "MAC",
+      "sp_rating": -22.9,
+      "sp_ranking": 130,
+      "games_scheduled": 12,
+      "expected_wins": 4.062,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": -0.438
+    },
+    "Alabama": {
+      "display_name": "Alabama",
+      "conference": "SEC",
+      "sp_rating": 17.6,
+      "sp_ranking": 13,
+      "games_scheduled": 12,
+      "expected_wins": 7.507,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.993
+    },
+    "App State": {
+      "display_name": "Appalachian State",
+      "conference": "Sun Belt",
+      "sp_rating": -12.7,
+      "sp_ranking": 111,
+      "games_scheduled": 12,
+      "expected_wins": 6.1778,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.6778
+    },
+    "Arizona": {
+      "display_name": "Arizona",
+      "conference": "Big 12",
+      "sp_rating": 9.5,
+      "sp_ranking": 31,
+      "games_scheduled": 12,
+      "expected_wins": 7.3914,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.1086
+    },
+    "Arizona State": {
+      "display_name": "Arizona State",
+      "conference": "Big 12",
+      "sp_rating": 4.9,
+      "sp_ranking": 51,
+      "games_scheduled": 12,
+      "expected_wins": 5.9188,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.5812
+    },
+    "Arkansas": {
+      "display_name": "Arkansas",
+      "conference": "SEC",
+      "sp_rating": 5.6,
+      "sp_ranking": 44,
+      "games_scheduled": 12,
+      "expected_wins": 4.8552,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.3552
+    },
+    "Arkansas State": {
+      "display_name": "Arkansas State",
+      "conference": "Sun Belt",
+      "sp_rating": -11.6,
+      "sp_ranking": 105,
+      "games_scheduled": 12,
+      "expected_wins": 6.5151,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.0151
+    },
+    "Army": {
+      "display_name": "Army",
+      "conference": "American",
+      "sp_rating": -2.4,
+      "sp_ranking": 81,
+      "games_scheduled": 12,
+      "expected_wins": 6.9699,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.5301
+    },
+    "Auburn": {
+      "display_name": "Auburn",
+      "conference": "SEC",
+      "sp_rating": 11.5,
+      "sp_ranking": 26,
+      "games_scheduled": 12,
+      "expected_wins": 6.4811,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.0189
+    },
+    "BYU": {
+      "display_name": "BYU",
+      "conference": "Big 12",
+      "sp_rating": 14.9,
+      "sp_ranking": 21,
+      "games_scheduled": 12,
+      "expected_wins": 8.2659,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.2341
+    },
+    "Ball State": {
+      "display_name": "Ball State",
+      "conference": "MAC",
+      "sp_rating": -25.1,
+      "sp_ranking": 133,
+      "games_scheduled": 12,
+      "expected_wins": 3.9667,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.4667
+    },
+    "Baylor": {
+      "display_name": "Baylor",
+      "conference": "Big 12",
+      "sp_rating": 3.8,
+      "sp_ranking": 53,
+      "games_scheduled": 12,
+      "expected_wins": 6.0227,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.4773
+    },
+    "Boise State": {
+      "display_name": "Boise State",
+      "conference": "Pac-12",
+      "sp_rating": 5.1,
+      "sp_ranking": 49,
+      "games_scheduled": 11,
+      "expected_wins": 7.0983,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.4017
+    },
+    "Boston College": {
+      "display_name": "Boston College",
+      "conference": "ACC",
+      "sp_rating": -2.5,
+      "sp_ranking": 82,
+      "games_scheduled": 12,
+      "expected_wins": 4.4211,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.9211
+    },
+    "Bowling Green": {
+      "display_name": "Bowling Green",
+      "conference": "MAC",
+      "sp_rating": -15.0,
+      "sp_ranking": 118,
+      "games_scheduled": 12,
+      "expected_wins": 5.7233,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 1.2233
+    },
+    "Buffalo": {
+      "display_name": "Buffalo",
+      "conference": "MAC",
+      "sp_rating": -12.7,
+      "sp_ranking": 111,
+      "games_scheduled": 12,
+      "expected_wins": 6.7358,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 1.2358
+    },
+    "California": {
+      "display_name": "California",
+      "conference": "ACC",
+      "sp_rating": 3.0,
+      "sp_ranking": 59,
+      "games_scheduled": 12,
+      "expected_wins": 6.0162,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.4838
+    },
+    "Central Michigan": {
+      "display_name": "Central Michigan",
+      "conference": "MAC",
+      "sp_rating": -15.1,
+      "sp_ranking": 119,
+      "games_scheduled": 12,
+      "expected_wins": 5.6663,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.8337
+    },
+    "Charlotte": {
+      "display_name": "Charlotte",
+      "conference": "American",
+      "sp_rating": -24.1,
+      "sp_ranking": 132,
+      "games_scheduled": 12,
+      "expected_wins": 3.0606,
+      "vegas_win_total": 2.5,
+      "delta_vs_vegas": 0.5606
+    },
+    "Cincinnati": {
+      "display_name": "Cincinnati",
+      "conference": "Big 12",
+      "sp_rating": 3.0,
+      "sp_ranking": 59,
+      "games_scheduled": 12,
+      "expected_wins": 5.9862,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.4862
+    },
+    "Clemson": {
+      "display_name": "Clemson",
+      "conference": "ACC",
+      "sp_rating": 13.1,
+      "sp_ranking": 23,
+      "games_scheduled": 12,
+      "expected_wins": 7.6118,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": 0.1118
+    },
+    "Coastal Carolina": {
+      "display_name": "Coastal Carolina",
+      "conference": "Sun Belt",
+      "sp_rating": -14.7,
+      "sp_ranking": 117,
+      "games_scheduled": 12,
+      "expected_wins": 5.4223,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.9223
+    },
+    "Colorado": {
+      "display_name": "Colorado",
+      "conference": "Big 12",
+      "sp_rating": 0.7,
+      "sp_ranking": 65,
+      "games_scheduled": 12,
+      "expected_wins": 5.1136,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.6136
+    },
+    "Colorado State": {
+      "display_name": "Colorado State",
+      "conference": "Pac-12",
+      "sp_rating": -11.6,
+      "sp_ranking": 105,
+      "games_scheduled": 11,
+      "expected_wins": 4.1422,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.6422
+    },
+    "Delaware": {
+      "display_name": "Delaware",
+      "conference": "Conference USA",
+      "sp_rating": -12.9,
+      "sp_ranking": 113,
+      "games_scheduled": 12,
+      "expected_wins": 5.8887,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.6113
+    },
+    "Duke": {
+      "display_name": "Duke",
+      "conference": "ACC",
+      "sp_rating": 5.6,
+      "sp_ranking": 44,
+      "games_scheduled": 12,
+      "expected_wins": 6.383,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.883
+    },
+    "East Carolina": {
+      "display_name": "East Carolina",
+      "conference": "American",
+      "sp_rating": -2.3,
+      "sp_ranking": 79,
+      "games_scheduled": 12,
+      "expected_wins": 7.3044,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.1956
+    },
+    "Eastern Michigan": {
+      "display_name": "Eastern Michigan",
+      "conference": "MAC",
+      "sp_rating": -16.1,
+      "sp_ranking": 122,
+      "games_scheduled": 12,
+      "expected_wins": 5.9073,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.4073
+    },
+    "Florida": {
+      "display_name": "Florida",
+      "conference": "SEC",
+      "sp_rating": 15.2,
+      "sp_ranking": 20,
+      "games_scheduled": 12,
+      "expected_wins": 6.8603,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.6397
+    },
+    "Florida Atlantic": {
+      "display_name": "Florida Atlantic",
+      "conference": "American",
+      "sp_rating": -6.1,
+      "sp_ranking": 91,
+      "games_scheduled": 12,
+      "expected_wins": 6.3832,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.8832
+    },
+    "Florida International": {
+      "display_name": "FIU",
+      "conference": "Conference USA",
+      "sp_rating": -14.5,
+      "sp_ranking": 115,
+      "games_scheduled": 12,
+      "expected_wins": 6.1131,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.3869
+    },
+    "Florida State": {
+      "display_name": "Florida State",
+      "conference": "ACC",
+      "sp_rating": 9.1,
+      "sp_ranking": 35,
+      "games_scheduled": 12,
+      "expected_wins": 6.6032,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.1032
+    },
+    "Fresno State": {
+      "display_name": "Fresno State",
+      "conference": "Pac-12",
+      "sp_rating": -1.4,
+      "sp_ranking": 73,
+      "games_scheduled": 11,
+      "expected_wins": 6.1942,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.3058
+    },
+    "Georgia": {
+      "display_name": "Georgia",
+      "conference": "SEC",
+      "sp_rating": 26.4,
+      "sp_ranking": 4,
+      "games_scheduled": 12,
+      "expected_wins": 9.2149,
+      "vegas_win_total": 9.5,
+      "delta_vs_vegas": -0.2851
+    },
+    "Georgia Southern": {
+      "display_name": "Georgia Southern",
+      "conference": "Sun Belt",
+      "sp_rating": -10.8,
+      "sp_ranking": 103,
+      "games_scheduled": 12,
+      "expected_wins": 5.6806,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 1.1806
+    },
+    "Georgia State": {
+      "display_name": "Georgia State",
+      "conference": "Sun Belt",
+      "sp_rating": -29.3,
+      "sp_ranking": 137,
+      "games_scheduled": 12,
+      "expected_wins": 2.8639,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": -1.6361
+    },
+    "Georgia Tech": {
+      "display_name": "Georgia Tech",
+      "conference": "ACC",
+      "sp_rating": 5.9,
+      "sp_ranking": 42,
+      "games_scheduled": 12,
+      "expected_wins": 6.2056,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.2944
+    },
+    "Hawai'i": {
+      "display_name": "Hawaii",
+      "conference": "Mountain West",
+      "sp_rating": -2.6,
+      "sp_ranking": 83,
+      "games_scheduled": 12,
+      "expected_wins": 7.2973,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.2027
+    },
+    "Houston": {
+      "display_name": "Houston",
+      "conference": "Big 12",
+      "sp_rating": 7.4,
+      "sp_ranking": 38,
+      "games_scheduled": 12,
+      "expected_wins": 7.1492,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -1.3508
+    },
+    "Illinois": {
+      "display_name": "Illinois",
+      "conference": "Big Ten",
+      "sp_rating": 10.4,
+      "sp_ranking": 28,
+      "games_scheduled": 12,
+      "expected_wins": 6.9268,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.5732
+    },
+    "Indiana": {
+      "display_name": "Indiana",
+      "conference": "Big Ten",
+      "sp_rating": 25.8,
+      "sp_ranking": 5,
+      "games_scheduled": 12,
+      "expected_wins": 9.3899,
+      "vegas_win_total": 10.5,
+      "delta_vs_vegas": -1.1101
+    },
+    "Iowa": {
+      "display_name": "Iowa",
+      "conference": "Big Ten",
+      "sp_rating": 14.6,
+      "sp_ranking": 22,
+      "games_scheduled": 12,
+      "expected_wins": 7.6916,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": 0.1916
+    },
+    "Iowa State": {
+      "display_name": "Iowa State",
+      "conference": "Big 12",
+      "sp_rating": -0.4,
+      "sp_ranking": 69,
+      "games_scheduled": 12,
+      "expected_wins": 5.4639,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.9639
+    },
+    "Jacksonville State": {
+      "display_name": "Jacksonville State",
+      "conference": "Conference USA",
+      "sp_rating": -7.8,
+      "sp_ranking": 95,
+      "games_scheduled": 12,
+      "expected_wins": 7.5653,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": 0.0653
+    },
+    "James Madison": {
+      "display_name": "James Madison",
+      "conference": "Sun Belt",
+      "sp_rating": -0.9,
+      "sp_ranking": 70,
+      "games_scheduled": 12,
+      "expected_wins": 8.2657,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.2343
+    },
+    "Kansas": {
+      "display_name": "Kansas",
+      "conference": "Big 12",
+      "sp_rating": 3.3,
+      "sp_ranking": 58,
+      "games_scheduled": 12,
+      "expected_wins": 6.0714,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.5714
+    },
+    "Kansas State": {
+      "display_name": "Kansas State",
+      "conference": "Big 12",
+      "sp_rating": 9.2,
+      "sp_ranking": 34,
+      "games_scheduled": 12,
+      "expected_wins": 7.6609,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.8391
+    },
+    "Kennesaw State": {
+      "display_name": "Kennesaw State",
+      "conference": "Conference USA",
+      "sp_rating": -12.9,
+      "sp_ranking": 113,
+      "games_scheduled": 12,
+      "expected_wins": 6.4617,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.0383
+    },
+    "Kent State": {
+      "display_name": "Kent State",
+      "conference": "MAC",
+      "sp_rating": -22.4,
+      "sp_ranking": 129,
+      "games_scheduled": 12,
+      "expected_wins": 4.0615,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.5615
+    },
+    "Kentucky": {
+      "display_name": "Kentucky",
+      "conference": "SEC",
+      "sp_rating": 5.2,
+      "sp_ranking": 47,
+      "games_scheduled": 12,
+      "expected_wins": 5.0089,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.5089
+    },
+    "LSU": {
+      "display_name": "LSU",
+      "conference": "SEC",
+      "sp_rating": 20.4,
+      "sp_ranking": 10,
+      "games_scheduled": 12,
+      "expected_wins": 8.0937,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.4063
+    },
+    "Liberty": {
+      "display_name": "Liberty",
+      "conference": "Conference USA",
+      "sp_rating": -5.3,
+      "sp_ranking": 88,
+      "games_scheduled": 12,
+      "expected_wins": 8.2597,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.2403
+    },
+    "Louisiana": {
+      "display_name": "Louisiana",
+      "conference": "Sun Belt",
+      "sp_rating": -10.6,
+      "sp_ranking": 102,
+      "games_scheduled": 12,
+      "expected_wins": 7.244,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.256
+    },
+    "Louisiana Tech": {
+      "display_name": "Louisiana Tech",
+      "conference": "Sun Belt",
+      "sp_rating": -9.1,
+      "sp_ranking": 99,
+      "games_scheduled": 12,
+      "expected_wins": 6.3188,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.8188
+    },
+    "Louisville": {
+      "display_name": "Louisville",
+      "conference": "ACC",
+      "sp_rating": 11.1,
+      "sp_ranking": 27,
+      "games_scheduled": 12,
+      "expected_wins": 7.4995,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -1.0005
+    },
+    "Marshall": {
+      "display_name": "Marshall",
+      "conference": "Sun Belt",
+      "sp_rating": -8.2,
+      "sp_ranking": 98,
+      "games_scheduled": 12,
+      "expected_wins": 7.3211,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.1789
+    },
+    "Maryland": {
+      "display_name": "Maryland",
+      "conference": "Big Ten",
+      "sp_rating": 5.2,
+      "sp_ranking": 47,
+      "games_scheduled": 12,
+      "expected_wins": 6.0704,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.5704
+    },
+    "Massachusetts": {
+      "display_name": "UMass",
+      "conference": "MAC",
+      "sp_rating": -32.9,
+      "sp_ranking": 138,
+      "games_scheduled": 12,
+      "expected_wins": 3.3346,
+      "vegas_win_total": 2.5,
+      "delta_vs_vegas": 0.8346
+    },
+    "Memphis": {
+      "display_name": "Memphis",
+      "conference": "American",
+      "sp_rating": 0.3,
+      "sp_ranking": 67,
+      "games_scheduled": 12,
+      "expected_wins": 7.4322,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.0678
+    },
+    "Miami": {
+      "display_name": "Miami (FL)",
+      "conference": "ACC",
+      "sp_rating": 22.0,
+      "sp_ranking": 7,
+      "games_scheduled": 12,
+      "expected_wins": 9.2767,
+      "vegas_win_total": 10.5,
+      "delta_vs_vegas": -1.2233
+    },
+    "Miami (OH)": {
+      "display_name": "Miami (OH)",
+      "conference": "MAC",
+      "sp_rating": -4.0,
+      "sp_ranking": 85,
+      "games_scheduled": 12,
+      "expected_wins": 7.9245,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": 0.4245
+    },
+    "Michigan": {
+      "display_name": "Michigan",
+      "conference": "Big Ten",
+      "sp_rating": 17.0,
+      "sp_ranking": 15,
+      "games_scheduled": 12,
+      "expected_wins": 7.2766,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -1.2234
+    },
+    "Michigan State": {
+      "display_name": "Michigan State",
+      "conference": "Big Ten",
+      "sp_rating": 2.2,
+      "sp_ranking": 62,
+      "games_scheduled": 12,
+      "expected_wins": 4.9584,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.4584
+    },
+    "Middle Tennessee": {
+      "display_name": "Middle Tennessee",
+      "conference": "Conference USA",
+      "sp_rating": -26.5,
+      "sp_ranking": 135,
+      "games_scheduled": 12,
+      "expected_wins": 3.5352,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.0352
+    },
+    "Minnesota": {
+      "display_name": "Minnesota",
+      "conference": "Big Ten",
+      "sp_rating": 6.2,
+      "sp_ranking": 40,
+      "games_scheduled": 12,
+      "expected_wins": 6.1913,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.3087
+    },
+    "Mississippi State": {
+      "display_name": "Mississippi State",
+      "conference": "SEC",
+      "sp_rating": 4.8,
+      "sp_ranking": 52,
+      "games_scheduled": 12,
+      "expected_wins": 5.1694,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.6694
+    },
+    "Missouri": {
+      "display_name": "Missouri",
+      "conference": "SEC",
+      "sp_rating": 15.4,
+      "sp_ranking": 19,
+      "games_scheduled": 12,
+      "expected_wins": 7.131,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.631
+    },
+    "Missouri State": {
+      "display_name": "Missouri State",
+      "conference": "Conference USA",
+      "sp_rating": -19.1,
+      "sp_ranking": 126,
+      "games_scheduled": 12,
+      "expected_wins": 4.4798,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": -0.0202
+    },
+    "NC State": {
+      "display_name": "NC State",
+      "conference": "ACC",
+      "sp_rating": 5.7,
+      "sp_ranking": 43,
+      "games_scheduled": 12,
+      "expected_wins": 6.9376,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.5624
+    },
+    "Navy": {
+      "display_name": "Navy",
+      "conference": "American",
+      "sp_rating": 1.2,
+      "sp_ranking": 64,
+      "games_scheduled": 12,
+      "expected_wins": 7.5712,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": 0.0712
+    },
+    "Nebraska": {
+      "display_name": "Nebraska",
+      "conference": "Big Ten",
+      "sp_rating": 9.3,
+      "sp_ranking": 33,
+      "games_scheduled": 12,
+      "expected_wins": 6.2954,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.2046
+    },
+    "Nevada": {
+      "display_name": "Nevada",
+      "conference": "Mountain West",
+      "sp_rating": -11.7,
+      "sp_ranking": 108,
+      "games_scheduled": 12,
+      "expected_wins": 5.6184,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 1.1184
+    },
+    "New Mexico": {
+      "display_name": "New Mexico",
+      "conference": "Mountain West",
+      "sp_rating": 0.0,
+      "sp_ranking": 68,
+      "games_scheduled": 12,
+      "expected_wins": 7.6858,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": 0.1858
+    },
+    "New Mexico State": {
+      "display_name": "New Mexico State",
+      "conference": "Conference USA",
+      "sp_rating": -18.5,
+      "sp_ranking": 125,
+      "games_scheduled": 12,
+      "expected_wins": 4.835,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.335
+    },
+    "North Carolina": {
+      "display_name": "North Carolina",
+      "conference": "ACC",
+      "sp_rating": 3.5,
+      "sp_ranking": 56,
+      "games_scheduled": 12,
+      "expected_wins": 5.5171,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 1.0171
+    },
+    "North Texas": {
+      "display_name": "North Texas",
+      "conference": "American",
+      "sp_rating": -11.6,
+      "sp_ranking": 105,
+      "games_scheduled": 12,
+      "expected_wins": 5.1716,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": -0.3284
+    },
+    "Northern Illinois": {
+      "display_name": "Northern Illinois",
+      "conference": "Mountain West",
+      "sp_rating": -17.2,
+      "sp_ranking": 123,
+      "games_scheduled": 12,
+      "expected_wins": 4.4036,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.9036
+    },
+    "Northwestern": {
+      "display_name": "Northwestern",
+      "conference": "Big Ten",
+      "sp_rating": 5.1,
+      "sp_ranking": 49,
+      "games_scheduled": 12,
+      "expected_wins": 5.627,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.127
+    },
+    "Notre Dame": {
+      "display_name": "Notre Dame",
+      "conference": "Independent",
+      "sp_rating": 26.5,
+      "sp_ranking": 3,
+      "games_scheduled": 12,
+      "expected_wins": 10.0172,
+      "vegas_win_total": 11.5,
+      "delta_vs_vegas": -1.4828
+    },
+    "Ohio": {
+      "display_name": "Ohio",
+      "conference": "MAC",
+      "sp_rating": -11.8,
+      "sp_ranking": 109,
+      "games_scheduled": 12,
+      "expected_wins": 6.7626,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.2626
+    },
+    "Ohio State": {
+      "display_name": "Ohio State",
+      "conference": "Big Ten",
+      "sp_rating": 32.7,
+      "sp_ranking": 1,
+      "games_scheduled": 12,
+      "expected_wins": 9.5252,
+      "vegas_win_total": 9.5,
+      "delta_vs_vegas": 0.0252
+    },
+    "Oklahoma": {
+      "display_name": "Oklahoma",
+      "conference": "SEC",
+      "sp_rating": 18.8,
+      "sp_ranking": 11,
+      "games_scheduled": 12,
+      "expected_wins": 7.2602,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.2398
+    },
+    "Oklahoma State": {
+      "display_name": "Oklahoma State",
+      "conference": "Big 12",
+      "sp_rating": 6.9,
+      "sp_ranking": 39,
+      "games_scheduled": 12,
+      "expected_wins": 6.5273,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.0273
+    },
+    "Old Dominion": {
+      "display_name": "Old Dominion",
+      "conference": "Sun Belt",
+      "sp_rating": -6.9,
+      "sp_ranking": 93,
+      "games_scheduled": 12,
+      "expected_wins": 6.9707,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.5293
+    },
+    "Ole Miss": {
+      "display_name": "Ole Miss",
+      "conference": "SEC",
+      "sp_rating": 16.5,
+      "sp_ranking": 16,
+      "games_scheduled": 12,
+      "expected_wins": 7.1608,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.3392
+    },
+    "Oregon": {
+      "display_name": "Oregon",
+      "conference": "Big Ten",
+      "sp_rating": 29.2,
+      "sp_ranking": 2,
+      "games_scheduled": 12,
+      "expected_wins": 9.4563,
+      "vegas_win_total": 10.5,
+      "delta_vs_vegas": -1.0437
+    },
+    "Oregon State": {
+      "display_name": "Oregon State",
+      "conference": "Pac-12",
+      "sp_rating": -5.6,
+      "sp_ranking": 89,
+      "games_scheduled": 11,
+      "expected_wins": 5.2385,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.7385
+    },
+    "Penn State": {
+      "display_name": "Penn State",
+      "conference": "Big Ten",
+      "sp_rating": 16.2,
+      "sp_ranking": 17,
+      "games_scheduled": 12,
+      "expected_wins": 8.4218,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.0782
+    },
+    "Pittsburgh": {
+      "display_name": "Pittsburgh",
+      "conference": "ACC",
+      "sp_rating": 6.2,
+      "sp_ranking": 40,
+      "games_scheduled": 12,
+      "expected_wins": 6.774,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.726
+    },
+    "Purdue": {
+      "display_name": "Purdue",
+      "conference": "Big Ten",
+      "sp_rating": -2.2,
+      "sp_ranking": 78,
+      "games_scheduled": 12,
+      "expected_wins": 4.0741,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.5741
+    },
+    "Rice": {
+      "display_name": "Rice",
+      "conference": "American",
+      "sp_rating": -15.3,
+      "sp_ranking": 120,
+      "games_scheduled": 12,
+      "expected_wins": 4.1119,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.6119
+    },
+    "Rutgers": {
+      "display_name": "Rutgers",
+      "conference": "Big Ten",
+      "sp_rating": 2.7,
+      "sp_ranking": 61,
+      "games_scheduled": 12,
+      "expected_wins": 5.67,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 1.17
+    },
+    "SMU": {
+      "display_name": "SMU",
+      "conference": "ACC",
+      "sp_rating": 12.1,
+      "sp_ranking": 25,
+      "games_scheduled": 12,
+      "expected_wins": 7.9223,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.5777
+    },
+    "Sacramento State": {
+      "display_name": "Sacramento State",
+      "conference": "MAC",
+      "sp_rating": -23.4,
+      "sp_ranking": 131,
+      "games_scheduled": 12,
+      "expected_wins": 4.5376,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.0376
+    },
+    "Sam Houston": {
+      "display_name": "Sam Houston",
+      "conference": "Conference USA",
+      "sp_rating": -26.0,
+      "sp_ranking": 134,
+      "games_scheduled": 12,
+      "expected_wins": 3.6011,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.1011
+    },
+    "San Diego State": {
+      "display_name": "San Diego State",
+      "conference": "Pac-12",
+      "sp_rating": 0.7,
+      "sp_ranking": 65,
+      "games_scheduled": 11,
+      "expected_wins": 6.6558,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.1558
+    },
+    "San José State": {
+      "display_name": "San Jose State",
+      "conference": "Mountain West",
+      "sp_rating": -15.7,
+      "sp_ranking": 121,
+      "games_scheduled": 13,
+      "expected_wins": 4.9033,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.4033
+    },
+    "South Alabama": {
+      "display_name": "South Alabama",
+      "conference": "Sun Belt",
+      "sp_rating": -14.6,
+      "sp_ranking": 116,
+      "games_scheduled": 12,
+      "expected_wins": 5.6277,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.1277
+    },
+    "South Carolina": {
+      "display_name": "South Carolina",
+      "conference": "SEC",
+      "sp_rating": 12.6,
+      "sp_ranking": 24,
+      "games_scheduled": 12,
+      "expected_wins": 6.5768,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.0768
+    },
+    "South Florida": {
+      "display_name": "South Florida",
+      "conference": "American",
+      "sp_rating": -1.7,
+      "sp_ranking": 74,
+      "games_scheduled": 12,
+      "expected_wins": 7.7128,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.7872
+    },
+    "Southern Miss": {
+      "display_name": "Southern Miss",
+      "conference": "Sun Belt",
+      "sp_rating": -20.7,
+      "sp_ranking": 128,
+      "games_scheduled": 12,
+      "expected_wins": 4.1981,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.6981
+    },
+    "Stanford": {
+      "display_name": "Stanford",
+      "conference": "ACC",
+      "sp_rating": -2.3,
+      "sp_ranking": 79,
+      "games_scheduled": 12,
+      "expected_wins": 4.3656,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.8656
+    },
+    "Syracuse": {
+      "display_name": "Syracuse",
+      "conference": "ACC",
+      "sp_rating": -1.9,
+      "sp_ranking": 76,
+      "games_scheduled": 12,
+      "expected_wins": 4.7614,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.2614
+    },
+    "TCU": {
+      "display_name": "TCU",
+      "conference": "Big 12",
+      "sp_rating": 9.4,
+      "sp_ranking": 32,
+      "games_scheduled": 12,
+      "expected_wins": 7.2387,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.7387
+    },
+    "Temple": {
+      "display_name": "Temple",
+      "conference": "American",
+      "sp_rating": -9.1,
+      "sp_ranking": 99,
+      "games_scheduled": 12,
+      "expected_wins": 5.9096,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.4096
+    },
+    "Tennessee": {
+      "display_name": "Tennessee",
+      "conference": "SEC",
+      "sp_rating": 17.3,
+      "sp_ranking": 14,
+      "games_scheduled": 12,
+      "expected_wins": 7.6222,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": 0.1222
+    },
+    "Texas": {
+      "display_name": "Texas",
+      "conference": "SEC",
+      "sp_rating": 22.8,
+      "sp_ranking": 6,
+      "games_scheduled": 12,
+      "expected_wins": 7.8188,
+      "vegas_win_total": 9.5,
+      "delta_vs_vegas": -1.6812
+    },
+    "Texas A&M": {
+      "display_name": "Texas A&M",
+      "conference": "SEC",
+      "sp_rating": 20.9,
+      "sp_ranking": 9,
+      "games_scheduled": 12,
+      "expected_wins": 8.0545,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.4455
+    },
+    "Texas State": {
+      "display_name": "Texas State",
+      "conference": "Pac-12",
+      "sp_rating": -2.1,
+      "sp_ranking": 77,
+      "games_scheduled": 11,
+      "expected_wins": 6.0803,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.4197
+    },
+    "Texas Tech": {
+      "display_name": "Texas Tech",
+      "conference": "Big 12",
+      "sp_rating": 21.8,
+      "sp_ranking": 8,
+      "games_scheduled": 12,
+      "expected_wins": 9.8208,
+      "vegas_win_total": 10.5,
+      "delta_vs_vegas": -0.6792
+    },
+    "Toledo": {
+      "display_name": "Toledo",
+      "conference": "MAC",
+      "sp_rating": -9.1,
+      "sp_ranking": 99,
+      "games_scheduled": 12,
+      "expected_wins": 7.251,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.249
+    },
+    "Troy": {
+      "display_name": "Troy",
+      "conference": "Sun Belt",
+      "sp_rating": -8.0,
+      "sp_ranking": 97,
+      "games_scheduled": 12,
+      "expected_wins": 6.9606,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.4606
+    },
+    "Tulane": {
+      "display_name": "Tulane",
+      "conference": "American",
+      "sp_rating": -4.3,
+      "sp_ranking": 86,
+      "games_scheduled": 12,
+      "expected_wins": 6.5097,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.9903
+    },
+    "Tulsa": {
+      "display_name": "Tulsa",
+      "conference": "American",
+      "sp_rating": -6.1,
+      "sp_ranking": 91,
+      "games_scheduled": 12,
+      "expected_wins": 6.4765,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.9765
+    },
+    "UAB": {
+      "display_name": "UAB",
+      "conference": "American",
+      "sp_rating": -17.5,
+      "sp_ranking": 124,
+      "games_scheduled": 12,
+      "expected_wins": 4.474,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.974
+    },
+    "UCF": {
+      "display_name": "UCF",
+      "conference": "Big 12",
+      "sp_rating": 1.7,
+      "sp_ranking": 63,
+      "games_scheduled": 12,
+      "expected_wins": 6.1662,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.6662
+    },
+    "UCLA": {
+      "display_name": "UCLA",
+      "conference": "Big Ten",
+      "sp_rating": 5.4,
+      "sp_ranking": 46,
+      "games_scheduled": 12,
+      "expected_wins": 5.9151,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.5849
+    },
+    "UConn": {
+      "display_name": "UConn",
+      "conference": "Independent",
+      "sp_rating": -11.9,
+      "sp_ranking": 110,
+      "games_scheduled": 12,
+      "expected_wins": 5.5116,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.0116
+    },
+    "UL Monroe": {
+      "display_name": "ULM",
+      "conference": "Sun Belt",
+      "sp_rating": -28.9,
+      "sp_ranking": 136,
+      "games_scheduled": 12,
+      "expected_wins": 3.0153,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": -0.4847
+    },
+    "UNLV": {
+      "display_name": "UNLV",
+      "conference": "Mountain West",
+      "sp_rating": 3.6,
+      "sp_ranking": 55,
+      "games_scheduled": 12,
+      "expected_wins": 8.2282,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": 0.7282
+    },
+    "USC": {
+      "display_name": "USC",
+      "conference": "Big Ten",
+      "sp_rating": 17.7,
+      "sp_ranking": 12,
+      "games_scheduled": 12,
+      "expected_wins": 7.5171,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.9829
+    },
+    "UTEP": {
+      "display_name": "UTEP",
+      "conference": "Mountain West",
+      "sp_rating": -19.3,
+      "sp_ranking": 127,
+      "games_scheduled": 12,
+      "expected_wins": 3.762,
+      "vegas_win_total": 3.5,
+      "delta_vs_vegas": 0.262
+    },
+    "UTSA": {
+      "display_name": "UTSA",
+      "conference": "American",
+      "sp_rating": -1.1,
+      "sp_ranking": 71,
+      "games_scheduled": 12,
+      "expected_wins": 7.1663,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.3337
+    },
+    "Utah": {
+      "display_name": "Utah",
+      "conference": "Big 12",
+      "sp_rating": 9.8,
+      "sp_ranking": 29,
+      "games_scheduled": 12,
+      "expected_wins": 7.6126,
+      "vegas_win_total": 8.5,
+      "delta_vs_vegas": -0.8874
+    },
+    "Utah State": {
+      "display_name": "Utah State",
+      "conference": "Pac-12",
+      "sp_rating": -7.9,
+      "sp_ranking": 96,
+      "games_scheduled": 11,
+      "expected_wins": 4.5803,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.0803
+    },
+    "Vanderbilt": {
+      "display_name": "Vanderbilt",
+      "conference": "SEC",
+      "sp_rating": 9.8,
+      "sp_ranking": 29,
+      "games_scheduled": 12,
+      "expected_wins": 6.3979,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.8979
+    },
+    "Virginia": {
+      "display_name": "Virginia",
+      "conference": "ACC",
+      "sp_rating": 8.1,
+      "sp_ranking": 37,
+      "games_scheduled": 12,
+      "expected_wins": 7.4862,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.0138
+    },
+    "Virginia Tech": {
+      "display_name": "Virginia Tech",
+      "conference": "ACC",
+      "sp_rating": 8.6,
+      "sp_ranking": 36,
+      "games_scheduled": 12,
+      "expected_wins": 6.9272,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.4272
+    },
+    "Wake Forest": {
+      "display_name": "Wake Forest",
+      "conference": "ACC",
+      "sp_rating": 3.4,
+      "sp_ranking": 57,
+      "games_scheduled": 12,
+      "expected_wins": 6.1159,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.6159
+    },
+    "Washington": {
+      "display_name": "Washington",
+      "conference": "Big Ten",
+      "sp_rating": 15.8,
+      "sp_ranking": 18,
+      "games_scheduled": 12,
+      "expected_wins": 7.5737,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": 0.0737
+    },
+    "Washington State": {
+      "display_name": "Washington State",
+      "conference": "Pac-12",
+      "sp_rating": -4.3,
+      "sp_ranking": 86,
+      "games_scheduled": 11,
+      "expected_wins": 4.9021,
+      "vegas_win_total": 4.5,
+      "delta_vs_vegas": 0.4021
+    },
+    "West Virginia": {
+      "display_name": "West Virginia",
+      "conference": "Big 12",
+      "sp_rating": -1.3,
+      "sp_ranking": 72,
+      "games_scheduled": 12,
+      "expected_wins": 5.2823,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": -0.2177
+    },
+    "Western Kentucky": {
+      "display_name": "Western Kentucky",
+      "conference": "Conference USA",
+      "sp_rating": -7.3,
+      "sp_ranking": 94,
+      "games_scheduled": 12,
+      "expected_wins": 6.7494,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": 0.2494
+    },
+    "Western Michigan": {
+      "display_name": "Western Michigan",
+      "conference": "MAC",
+      "sp_rating": -6.0,
+      "sp_ranking": 90,
+      "games_scheduled": 12,
+      "expected_wins": 7.1761,
+      "vegas_win_total": 7.5,
+      "delta_vs_vegas": -0.3239
+    },
+    "Wisconsin": {
+      "display_name": "Wisconsin",
+      "conference": "Big Ten",
+      "sp_rating": 3.8,
+      "sp_ranking": 53,
+      "games_scheduled": 12,
+      "expected_wins": 5.8361,
+      "vegas_win_total": 6.5,
+      "delta_vs_vegas": -0.6639
+    },
+    "Wyoming": {
+      "display_name": "Wyoming",
+      "conference": "Mountain West",
+      "sp_rating": -10.8,
+      "sp_ranking": 103,
+      "games_scheduled": 12,
+      "expected_wins": 5.9258,
+      "vegas_win_total": 5.5,
+      "delta_vs_vegas": 0.4258
+    }
+  }
+}

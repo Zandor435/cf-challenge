@@ -61,6 +61,18 @@ jobs:
         run: python scripts/test_projector_h2h.py
       - name: test_fetch_integrity.py
         run: python scripts/test_fetch_integrity.py
+
+      # The frozen preseason baseline (ARCHITECTURE section 7). Write-once and
+      # UNREPEATABLE: preseason SP+ vanished the moment the first 2026 game went
+      # final, because CFBD's /ratings/sp only ever returns the CURRENT rating
+      # for a season. So the guards that stop it being written wrong are the only
+      # protection there is, and they are tested here rather than trusted. The
+      # checks are deliberately durable past kickoff -- guards and projector
+      # reuse run on in-memory fixtures, schedule length uses games_scheduled
+      # (which counts played and unplayed alike), and the sane-range checks read
+      # the committed artifact instead of recomputing it.
+      - name: test_preseason_baseline.py
+        run: python scripts/test_preseason_baseline.py
       # The scheduled pipeline's run gate. Both directions are silent when
       # wrong — stuck open burns the free-tier budget, stuck closed freezes the
       # site while every run still shows green — so it is tested here rather
