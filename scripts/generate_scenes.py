@@ -246,14 +246,56 @@ def fidelity_clause(lead_cue, other_cues):
 REF_PREFERENCE = ["accent", "jacket", "quarterzip", "polo"]
 
 
+def recolor_dir(mid):
+    """The directory a manager's kept recolors live in. Single source of truth
+    for the path, so the resolver and its diagnosis can never disagree."""
+    return ROOT / "output" / "personas" / "recolor" / mid
+
+
 def resolve_reference(mid):
     """Return the kept recolor to use as this manager's character reference."""
-    d = ROOT / "output" / "personas" / "recolor" / mid
-    have = {f.stem.split("_")[1]: f for f in d.glob(f"{mid}_*_gemini.png")}
+    have = {f.stem.split("_")[1]: f
+            for f in recolor_dir(mid).glob(f"{mid}_*_gemini.png")}
     for slug in REF_PREFERENCE:
         if slug in have:
             return have[slug], slug
     return None, None
+
+
+def reference_failure(mid):
+    """Say why resolve_reference() came up empty -- accurately.
+
+    Four causes look identical to the caller and need four different fixes, so
+    naming the wrong one sends the next person to the wrong place. This used to
+    assert "every variant appears to be archived" unconditionally; that is only
+    one of the four, and it was the wrong one the day the live directory went
+    missing. Look at disk and report what is actually there.
+    """
+    d = recolor_dir(mid)
+    archive = ROOT / "output" / "archive" / "recolor" / mid
+    archived = sorted(f.name for f in archive.glob(f"{mid}_*_gemini.png"))         if archive.is_dir() else []
+
+    if not d.exists():
+        why = f"the live recolor directory {d} DOES NOT EXIST"
+    elif not any(d.glob(f"{mid}_*_gemini.png")):
+        why = f"the live recolor directory {d} EXISTS BUT IS EMPTY"
+    else:
+        # Files are present; none of them carries a garment slug the
+        # preference ladder knows. Name them -- the fix is a rename or a new
+        # ladder entry, not a restore.
+        found = sorted(f.name for f in d.glob(f"{mid}_*_gemini.png"))
+        return (f"ERROR: no usable recolor for {mid!r}: {d} holds "
+                f"{', '.join(found)}, but none matches the preference ladder "
+                f"{REF_PREFERENCE}. Rename one or extend REF_PREFERENCE.")
+
+    if archived:
+        return (f"ERROR: no kept recolor on disk for {mid!r} — {why}. "
+                f"{len(archived)} variant(s) are archived under {archive} "
+                f"({', '.join(archived)}); restore one, or pass a different "
+                f"--leads set.")
+    return (f"ERROR: no kept recolor on disk for {mid!r} — {why}, and nothing "
+            f"is archived under {archive} either. Regenerate with "
+            f"scripts/recolor_personas.py, or pass a different --leads set.")
 
 
 def build_batch_prompt(entry, style, personas, colors, plate):
@@ -289,8 +331,8 @@ def build_batch_prompt(entry, style, personas, colors, plate):
     for mid in who:
         rp, _slug = resolve_reference(mid)
         if rp is None:
-            raise SystemExit("ERROR: no kept recolor on disk for " + repr(mid)
-                             + " (needed by " + entry["slug"] + ").")
+            raise SystemExit(reference_failure(mid)
+                             + f" (needed by {entry['slug']}.)")
         refs.append(rp)
     if entry.get("trophy"):
         refs.append(plate)
@@ -407,7 +449,7 @@ def build_poster_prompt(entry, style, personas, colors, plate):
     for mid in who:
         rp, _slug = resolve_reference(mid)
         if rp is None:
-            raise SystemExit("ERROR: no kept recolor on disk for " + repr(mid))
+            raise SystemExit(reference_failure(mid))
         refs.append(rp)
     refs.append(plate)
     return text, refs
@@ -503,7 +545,7 @@ def build_halfcard_prompt(mid, facing, style, personas, colors):
 
     rp, _slug = resolve_reference(mid)
     if rp is None:
-        raise SystemExit("ERROR: no kept recolor on disk for " + repr(mid))
+        raise SystemExit(reference_failure(mid))
     return text, [rp]
 
 
@@ -734,10 +776,7 @@ def main() -> int:
                 for m in order:
                     rp, _slug = resolve_reference(m)
                     if rp is None:
-                        print(f"ERROR: no kept recolor on disk for {m!r} — "
-                              f"every variant appears to be archived. Restore "
-                              f"one from output/archive/recolor/{m}/ or pass a "
-                              f"different --leads set.", file=sys.stderr)
+                        print(reference_failure(m), file=sys.stderr)
                         return 1
                     refs.append(rp)
                 if plate:
