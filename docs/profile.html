@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manager Profile — CF Challenge</title>
+<meta name="description" content="One manager, full page: persona, picks, and live standing.">
+<!-- Icon: same pair as every other page. The SVG is the real asset;
+     favicon.ico is declared after it so browsers that ignore an SVG icon
+     request a file that exists instead of 404ing on /favicon.ico. -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Superset of the site face set: this page uses heavier Inter and Mono
+     weights than style.css asks for, so it requests one combined URL rather
+     than a second stylesheet link that would re-fetch the shared weights. -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="profile.css">
+</head>
+<body class="pf-body" id="top">
+
+<!-- GROUP-GENERIC AND MANAGER-GENERIC, exactly like managers.html. Nothing
+     here knows about panel, or about Blaine. It renders whichever manager
+     ?id= names out of ?group='s standings.json, and every persona field is
+     optional — a manager with no prose at all still gets a finished page off
+     their picks and their standing.
+
+     This is the single-manager view. managers.html is the roster view; both
+     read the same four files and honour the same tone gate. -->
+
+<header class="svp-masthead mgr-masthead">
+  <div class="svp-masthead-inner">
+    <a class="svp-wordmark" href="index.html" id="brand-link">CF <span>Challenge</span></a>
+    <!-- Built from PAGE_NAV in site.js so this strip cannot drift from the
+         other pages'. PROFILES is marked current: this page is a leaf of it. -->
+    <nav class="svp-nav" id="page-nav" aria-label="Site sections"></nav>
+    <span class="svp-week" id="group-label"></span>
+  </div>
+</header>
+
+<main class="pf-page">
+  <div class="loading" id="loading">Loading&hellip;</div>
+
+  <!-- Fatal load error: an unknown ?group=, an unknown ?id=, or a missing
+       standings.json. Same posture as app.js and managers.js — name it and
+       stop, never quietly serve a different manager under this URL. -->
+  <section class="load-error" id="load-error" hidden></section>
+
+  <article class="pf-card" id="pf-card" hidden></article>
+
+  <nav class="pf-alsoin" id="pf-alsoin" hidden></nav>
+</main>
+
+<footer class="site-foot">
+  <p>Standings are exact arithmetic off committed game results. The projection is a
+     model estimate from SP+ ratings and updates weekly. Data via collegefootballdata.com.</p>
+</footer>
+
+<!-- site.js first: it defines GROUPS, PAGE_NAV, the URL rules and resolveArt()
+     that profile.js reads by name. Order is load-bearing. -->
+<script src="site.js"></script>
+<script src="profile.js"></script>
+</body>
+</html>
