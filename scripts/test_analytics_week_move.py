@@ -42,7 +42,12 @@ Offline: scores off data/fixtures/contract_cache.json via
 utils.pin_contract_fixture(), the same frozen artifact test_output_shape.py
 uses, so nothing here depends on what the live cache happens to hold.
 
+Runs both ways, and they are equivalent: pytest collects one test per section
+and conftest.py raises on any check() the section recorded as FAIL; the
+standalone runner sums the same ledger and exits 0/1.
+
 Usage:
+    python -m pytest scripts/test_analytics_week_move.py
     python scripts/test_analytics_week_move.py
 """
 
@@ -59,11 +64,15 @@ import projector
 import run_groups
 import analytics
 
+# The check ledger. Each entry is (label, ok, detail) — the LABEL is carried so a
+# failure is diagnosable from the pytest report alone, not only from the printed
+# transcript above it. conftest.py clears this before every pytest test and raises
+# on any recorded FAIL; main() sums it for the standalone `python scripts/...` run.
 _res = []
 
 
 def check(name, ok, detail=""):
-    _res.append(bool(ok))
+    _res.append((name, bool(ok), detail))
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}" + (f" — {detail}" if detail else ""))
 
 
@@ -113,23 +122,49 @@ def moves(analytics_obj, module):
     return [m["week_move"] for m in analytics_obj[module]["managers"]]
 
 
-def main():
+_BOARDS = None
+
+
+def _boards():
+    """Everything main() built once up front, memoised.
+
+    pin_contract_fixture() is called on EVERY entry, not just the first: it
+    re-points the whole process at the frozen fixture and conftest.py restores
+    utils' globals after each test, so a memoised board set alone would leave
+    the second test computing against the live cache. Pinning is cheap (three
+    globals and one json load); the board derivation is what gets cached.
+    """
+    global _BOARDS
     season = utils.pin_contract_fixture()
-    print(f"  (scoring off the frozen contract fixture, season {season})")
-    config, picks = utils.load_group(utils.TEST_GROUP_ID)
+    if _BOARDS is None:
+        print(f"  (scoring off the frozen contract fixture, season {season})")
+        config, picks = utils.load_group(utils.TEST_GROUP_ID)
 
-    st6 = scoring.build_standings(config, picks, 6)
-    pr6 = projector.build_projection(config, picks, 6)
-    st14 = scoring.build_standings(config, picks, 14)
-    pr14 = projector.build_projection(config, picks, 14)
+        st6 = scoring.build_standings(config, picks, 6)
+        pr6 = projector.build_projection(config, picks, 6)
+        st14 = scoring.build_standings(config, picks, 14)
+        pr14 = projector.build_projection(config, picks, 14)
 
-    # One week-6 snapshot, tagged with the season being scored — the shape
-    # run_groups.append_timeline creates on a group's first scored week.
-    tl = {"group_id": config["group_id"], "season": season,
-          "snapshots": [run_groups.build_snapshot(st6, pr6, 6)]}
+        # One week-6 snapshot, tagged with the season being scored - the shape
+        # run_groups.append_timeline creates on a group's first scored week.
+        tl = {"group_id": config["group_id"], "season": season,
+              "snapshots": [run_groups.build_snapshot(st6, pr6, 6)]}
+        # Two snapshots, week 6 and week 16: the shape that produced the bug.
+        tl_many = {"group_id": config["group_id"], "season": season,
+                   "snapshots": [run_groups.build_snapshot(st6, pr6, 6),
+                                 run_groups.build_snapshot(st14, pr14, 16)]}
+        _BOARDS = {"season": season, "config": config, "picks": picks,
+                   "st6": st6, "pr6": pr6, "st14": st14, "pr14": pr14,
+                   "tl": tl, "tl_many": tl_many}
+    return _BOARDS
 
-    # --- 1. select_prior: the week test ------------------------------------
-    print("\nselect_prior — week")
+
+def test_select_prior_week():
+    """[1] the week test: strictly-before, and NEVER the highest on file."""
+    print("\nselect_prior - week")
+    b = _boards()
+    season, tl, tl_many = b["season"], b["tl"], b["tl_many"]
+
     snap, reason = analytics.select_prior(tl, 14, season)
     check("a real effective week selects the latest snapshot strictly before it",
           snap is not None and snap["as_of_week"] == 6 and reason is None,
@@ -146,9 +181,6 @@ def main():
     # THE REGRESSION. Before the fix this returned the week-16 snapshot: with
     # eff_week None the strictly-before test short-circuited to True, so every
     # snapshot qualified and max() took the highest.
-    tl_many = {"group_id": config["group_id"], "season": season,
-               "snapshots": [run_groups.build_snapshot(st6, pr6, 6),
-                             run_groups.build_snapshot(st14, pr14, 16)]}
     check("unresolvable week => refuse, NOT the highest snapshot on file",
           analytics.select_prior(tl_many, None, season)
           == (None, analytics.PRIOR_WEEK_UNRESOLVED),
@@ -166,8 +198,13 @@ def main():
               analytics.select_prior(tl_live, None, tl_live.get("season"))[0] is None,
               f"integer-week snapshots present: {weeks or 'none (check is vacuous)'}")
 
-    # --- 2. select_prior: the season boundary ------------------------------
-    print("\nselect_prior — season boundary")
+
+def test_select_prior_season_boundary():
+    """[2] a week alone does not identify a snapshot; the season has to agree."""
+    print("\nselect_prior - season boundary")
+    b = _boards()
+    season, config, tl = b["season"], b["config"], b["tl"]
+
     check("a timeline declaring another season is refused whatever the week",
           analytics.select_prior(tl, 14, season + 1)
           == (None, analytics.PRIOR_SEASON_MISMATCH))
@@ -179,7 +216,7 @@ def main():
           analytics.select_prior(tl, 14, season)[0]["as_of_week"] == 6)
 
     # Snapshots carry no season of their own. When the FILE declares none
-    # either, there is nothing to compare and this check must not fire — the
+    # either, there is nothing to compare and this check must not fire - the
     # alternative is inventing a guarantee the data does not make.
     untagged = {"group_id": config["group_id"], "snapshots": tl["snapshots"]}
     check("an untagged timeline is not blocked (no season is invented)",
@@ -188,8 +225,11 @@ def main():
     check("season is only compared when the caller supplies one",
           analytics.select_prior(tl, 14, None)[0]["as_of_week"] == 6)
 
-    # --- 3. any_games_banked: the discriminator ----------------------------
+
+def test_any_games_banked():
+    """[3] the discriminator that tells preseason apart from a live-season fault."""
     print("\nany_games_banked")
+    st14 = _boards()["st14"]
     check("a scored board reports played", analytics.any_games_banked(st14) is True)
     check("an all-zero board reports not-played",
           analytics.any_games_banked(
@@ -200,11 +240,17 @@ def main():
     check("no managers at all reports not-played",
           analytics.any_games_banked({"managers": []}) is False)
 
-    # --- 4. build_analytics: a real prior week is unchanged ----------------
-    # The arithmetic was never wrong — only the selection was. These are pinned
-    # as literals so this file fails if the math moves, not just if it changes.
-    print("\nbuild_analytics — a real prior week still computes what it did")
-    an14 = analytics.build_analytics(config, st14, pr14, timeline=tl, as_of_week=14)
+
+def test_build_analytics_real_prior_week_unchanged():
+    """[4] the arithmetic was never wrong - only the selection was.
+
+    Pinned as literals so this file fails if the math MOVES, not merely if it
+    changes shape.
+    """
+    print("\nbuild_analytics - a real prior week still computes what it did")
+    b = _boards()
+    an14 = analytics.build_analytics(b["config"], b["st14"], b["pr14"],
+                                     timeline=b["tl"], as_of_week=14)
     check("race.prior_week == 6", an14["race"]["prior_week"] == 6)
     check("championship_odds.prior_week == 6",
           an14["championship_odds"]["prior_week"] == 6)
@@ -221,11 +267,16 @@ def main():
           str([(m["manager_id"], m["week_move"])
                for m in an14["championship_odds"]["managers"]]))
 
-    # --- 5. build_analytics: unresolvable week end to end ------------------
-    print("\nbuild_analytics — unresolvable week emits null, not a number")
+
+def test_build_analytics_unresolvable_week_emits_null():
+    """[5] unresolvable week end to end: null, never a number."""
+    print("\nbuild_analytics - unresolvable week emits null, not a number")
+    b = _boards()
+    an14 = analytics.build_analytics(b["config"], b["st14"], b["pr14"],
+                                     timeline=b["tl"], as_of_week=14)
     with no_cache_week():
         an_pre, _ = capture(lambda: analytics.build_analytics(
-            config, st14, pr14, timeline=tl_many, as_of_week=None))
+            b["config"], b["st14"], b["pr14"], timeline=b["tl_many"], as_of_week=None))
     check("race.prior_week is null", an_pre["race"]["prior_week"] is None)
     check("championship_odds.prior_week is null",
           an_pre["championship_odds"]["prior_week"] is None)
@@ -243,18 +294,23 @@ def main():
     check("the exact modules are unaffected",
           [m["banked_total"] for m in an_pre["race"]["managers"]]
           == [m["banked_total"] for m in an14["race"]["managers"]]
-          and len(an_pre["portfolio"]["managers"]) == len(st14["managers"]))
+          and len(an_pre["portfolio"]["managers"]) == len(b["st14"]["managers"]))
 
-    # --- 6. one symptom, two situations — kept apart -----------------------
-    # Both refuse and both emit null. Only one is a fault, and it has to be
-    # possible to tell which happened from the run's own output.
-    print("\nbuild_analytics — preseason and a live-season fault stay distinguishable")
+
+def test_preseason_and_fault_stay_distinguishable():
+    """[6] one symptom, two situations - kept apart.
+
+    Both refuse and both emit null. Only one is a fault, and it has to be
+    possible to tell which happened from the run's own output.
+    """
+    print("\nbuild_analytics - preseason and a live-season fault stay distinguishable")
+    b = _boards()
     st_zero = {"managers": [zero_manager("a", 1), zero_manager("b", 2)]}
     with no_cache_week():
         an_benign, log_benign = capture(lambda: analytics.build_analytics(
-            config, st_zero, None, timeline=tl_many, as_of_week=None))
+            b["config"], st_zero, None, timeline=b["tl_many"], as_of_week=None))
         an_fault, log_fault = capture(lambda: analytics.build_analytics(
-            config, st14, pr14, timeline=tl_many, as_of_week=None))
+            b["config"], b["st14"], b["pr14"], timeline=b["tl_many"], as_of_week=None))
 
     check("preseason (nothing banked) does not raise a warning",
           "::warning::" not in log_benign, log_benign.strip() or "(silent)")
@@ -271,20 +327,34 @@ def main():
           all(v is None for v in moves(an_benign, "race"))
           and all(v is None for v in moves(an_fault, "race")))
 
-    # --- 7. the ordinary refusals stay quiet -------------------------------
-    # A group's first scored week has no earlier snapshot and never will. If
-    # that logged, every run would carry noise that means nothing.
-    print("\nbuild_analytics — ordinary refusals stay quiet")
+
+def test_ordinary_refusals_stay_quiet():
+    """[7] a group's first scored week has no earlier snapshot and never will.
+
+    If that logged, every run would carry noise that means nothing.
+    """
+    print("\nbuild_analytics - ordinary refusals stay quiet")
+    b = _boards()
     _, log_first = capture(lambda: analytics.build_analytics(
-        config, st6, pr6, timeline=tl, as_of_week=6))
+        b["config"], b["st6"], b["pr6"], timeline=b["tl"], as_of_week=6))
     check("first scored week logs nothing", log_first.strip() == "",
           log_first.strip() or "(silent)")
     _, log_none = capture(lambda: analytics.build_analytics(
-        config, st14, pr14, timeline=None, as_of_week=14))
+        b["config"], b["st14"], b["pr14"], timeline=None, as_of_week=14))
     check("no timeline logs nothing", log_none.strip() == "",
           log_none.strip() or "(silent)")
 
-    passed, total = sum(_res), len(_res)
+
+def main():
+    test_select_prior_week()
+    test_select_prior_season_boundary()
+    test_any_games_banked()
+    test_build_analytics_real_prior_week_unchanged()
+    test_build_analytics_unresolvable_week_emits_null()
+    test_preseason_and_fault_stay_distinguishable()
+    test_ordinary_refusals_stay_quiet()
+
+    passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
     sys.exit(0 if passed == total else 1)
 

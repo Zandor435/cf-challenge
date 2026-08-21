@@ -28,7 +28,12 @@ scoring season B, and a week-6 row from one season can never overwrite another's
 Offline and hermetic — every check runs against a temp directory, so nothing here
 reads or writes a committed board.
 
+Runs both ways, and they are equivalent: pytest collects one test per section
+and conftest.py raises on any check() the section recorded as FAIL; the
+standalone runner sums the same ledger and exits 0/1.
+
 Usage:
+    python -m pytest scripts/test_timeline_seasons.py
     python scripts/test_timeline_seasons.py
 """
 
@@ -44,6 +49,10 @@ import utils
 import run_groups
 import analytics
 
+# The check ledger. Each entry is (label, ok, detail) — the LABEL is carried so a
+# failure is diagnosable from the pytest report alone, not only from the printed
+# transcript above it. conftest.py clears this before every pytest test and raises
+# on any recorded FAIL; main() sums it for the standalone `python scripts/...` run.
 _res = []
 
 GID = "tl-test"
@@ -51,7 +60,7 @@ CONFIG = {"group_id": GID}
 
 
 def check(name, ok, detail=""):
-    _res.append(bool(ok))
+    _res.append((name, bool(ok), detail))
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}" + (f" — {detail}" if detail else ""))
 
 
@@ -98,7 +107,8 @@ def weeks(tl):
     return [s.get("as_of_week") for s in tl["snapshots"]]
 
 
-def main():
+def test_season_tag_written_every_run():
+    """The season tag is written on EVERY run, not only at file creation."""
     # --- 1. the tag is written every run, not only at creation --------------
     print("the season tag")
     with sandbox() as root:
@@ -121,6 +131,9 @@ def main():
         check("appending in the same season keeps earlier weeks",
               weeks(tl) == [1, 2], str(weeks(tl)))
 
+
+def test_rollover_rescopes_the_live_file():
+    """FAULT 1: a rollover re-scopes the live file and archives what it displaced."""
     # --- 2. FAULT 1: a rollover re-scopes the live file ---------------------
     print("\nrollover — the live file follows the season")
     with sandbox() as root:
@@ -143,6 +156,9 @@ def main():
               arch["snapshots"] == before, f"{len(arch['snapshots'])} snapshot(s)")
         check("the rollover is announced", "rolled over" in log, log.strip() or "(silent)")
 
+
+def test_a_week_cannot_cross_seasons():
+    """FAULT 2: week 6 of one season can never overwrite week 6 of another."""
     # --- 3. FAULT 2: a week cannot cross seasons ---------------------------
     print("\ncross-season overwrite is impossible")
     with sandbox() as root:
@@ -163,6 +179,9 @@ def main():
         check("no file holds two week-6 rows",
               len(live["snapshots"]) == 1 and len(arch["snapshots"]) == 1)
 
+
+def test_within_one_season_nothing_changed():
+    """Inside one season the old append/dedupe/sort contract still holds exactly."""
     # --- 4. within a season, nothing changed -------------------------------
     print("\nwithin one season, the old contract still holds")
     with sandbox() as root:
@@ -185,6 +204,9 @@ def main():
               sorted([{"as_of_week": None}, {"as_of_week": None}, {"as_of_week": 3}],
                      key=run_groups._week_sort_key)[0]["as_of_week"] == 3)
 
+
+def test_rearchiving_is_additive():
+    """season.json gets flipped for replays, so the same season can roll twice."""
     # --- 5. re-archiving is additive ---------------------------------------
     # season.json gets flipped for replays, so the same season can roll twice.
     print("\nre-archiving a season adds, never rewrites")
@@ -208,6 +230,9 @@ def main():
         check("the merge says what it kept and what it added",
               "merged" in log and "untouched" in log, log.strip() or "(silent)")
 
+
+def test_select_prior_over_a_rolled_timeline():
+    """End to end against the reader this was breaking."""
     # --- 6. end to end against analytics.select_prior -----------------------
     # The reader this was breaking. A 2026 week-1 run must not be refused for a
     # season mismatch, and must not reach back into 2025.
@@ -242,7 +267,16 @@ def main():
         check("no 2025 snapshot is even present in the live file",
               set(weeks(live)) == {1, 2, 17}, str(weeks(live)))
 
-    passed, total = sum(_res), len(_res)
+
+def main():
+    test_season_tag_written_every_run()
+    test_rollover_rescopes_the_live_file()
+    test_a_week_cannot_cross_seasons()
+    test_within_one_season_nothing_changed()
+    test_rearchiving_is_additive()
+    test_select_prior_over_a_rolled_timeline()
+
+    passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
     sys.exit(0 if passed == total else 1)
 
