@@ -45,8 +45,9 @@ IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp"}
 
 # Section order. A category discovered outside this list is appended just
 # before "unsorted", which is always last.
-CATEGORY_ORDER = ["posters", "banners", "scenes", "objects", "halfcards",
-                  "recolors", "personas", "unsorted"]
+CATEGORY_ORDER = ["personas", "banners", "posters", "scenes", "matchups",
+                  "objects", "halfcards", "recolors", "source", "vault",
+                  "rejects", "duplicates", "unsorted"]
 
 CATEGORY_BLURB = {
     "posters": "fight cards and matchup bills",
@@ -55,7 +56,13 @@ CATEGORY_BLURB = {
     "objects": "trophy plates",
     "halfcards": "half-card plates",
     "recolors": "solo posters recolored to team accent",
-    "personas": "per-owner persona exploration",
+    "personas": "the published portrait per manager -- feeds hero, page hero "
+                "and avatar",
+    "matchups": "two half-cards composited into one bill",
+    "source": "raw camera input. never published, kept to re-treat from",
+    "vault": "finished work with no slot yet, or still under review",
+    "rejects": "disqualified in review -- kept, never deleted",
+    "duplicates": "redundant copies, parked under their original path",
     "unsorted": "filename did not parse -- kept here rather than dropped",
 }
 
@@ -69,6 +76,11 @@ GROUP_KEYS = {
     "halfcards": ("lead", "setup"),
     "recolors": ("lead",),
     "personas": ("lead", "setup"),
+    "matchups": ("lead",),
+    "source": ("setup",),
+    "vault": ("setup",),
+    "rejects": ("setup",),
+    "duplicates": (),
     "unsorted": (),
 }
 
@@ -126,8 +138,12 @@ def parse(category, parts, stem):
     """-> dict(setup, lead, style, variant), or None if the name won't parse."""
     tokens = stem.split("_")
 
-    if category in ("posters", "banners", "scenes", "halfcards"):
-        if len(tokens) < 2 or tokens[0] != "panel":
+    if category in ("posters", "banners", "scenes", "halfcards", "matchups"):
+        # The group prefix is read off the DIRECTORY, not hardcoded. This used
+        # to demand tokens[0] == "panel", which was true only because panel was
+        # the only group with art: the first file dropped in banners/church/
+        # fell straight to "unsorted" with nothing wrong with it.
+        if len(tokens) < 2 or tokens[0] != parts[1]:
             return None
         tokens = tokens[1:]
 
@@ -173,6 +189,14 @@ def parse(category, parts, stem):
             slug, lead = "_".join(tokens), None
         return dict(setup=slug, lead=lead, style=style, variant=variant)
 
+    if category == "matchups":
+        # <group>_vs_<a>_<b>_<style>_<seam>, built by composite_halfcards.py.
+        # Never had a rule here, so all 18 sat in "unsorted" from day one.
+        if len(tokens) < 5 or tokens[0] != "vs":
+            return None
+        return dict(setup="vs", lead="_".join(tokens[1:-2]),
+                    style="_".join(tokens[-2:]), variant=None)
+
     if category == "objects":
         # trophy_<angle>_<nn>
         tokens, variant = split_variant(tokens)
@@ -215,7 +239,18 @@ def classify(rel):
         parts = parts[1:]
 
     top = parts[0]
-    if top in ("posters", "banners", "scenes", "objects", "halfcards"):
+    # _source/ and _vault/ are PARKING, not candidate art: raw camera input on
+    # one side, finished work with no slot yet on the other. Neither follows a
+    # filename convention and neither should be forced to -- they get a section
+    # keyed on the group directory so they stay browsable, and "unsorted" goes
+    # back to meaning "this is misfiled", which is the only way it is useful.
+    if top in ("_source", "_vault", "duplicates", "portraits"):
+        name = {"duplicates": "duplicates", "portraits": "rejects"}.get(
+            top, top[1:])
+        return name, archived, dict(setup=parts[1] if len(parts) > 2 else None,
+                                    lead=None, style=None, variant=None)
+    if top in ("posters", "banners", "scenes", "objects", "halfcards",
+               "matchups"):
         category = top
     elif top == "recolor":
         category = "recolors"
