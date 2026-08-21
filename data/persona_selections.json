@@ -1,6 +1,7 @@
 {
   "_note": "APPROVED persona art selections, decided by Z on 2026-08-18. This file is the RECORD of which generated variants won; it is not read by the pipeline yet. Sources live in the gitignored output/ tree — winners under output/personas/recolor/<manager>/ and output/banners/panel/, rejects moved to output/archive/ (kept, never deleted). Publishing a winner is still an explicit step: scripts/prepare_portraits.py --map (avatars/posters) or --banner (hero art). `banner_rotation` is the approved pool for a site rotation that is NOT built yet — today docs/assets/banners/panel.webp holds a single static file.",
   "decided": "2026-08-18",
+  "_bookkeeping": "2026-08-21: the `published` flags and file paths above were corrected against disk. They are location/shipping bookkeeping ONLY -- no selection decided on 2026-08-18 was changed. Context: on 2026-08-20 the four kept recolors were moved out of output/personas/recolor/<mid>/ and left flat in output/scenes/panel/, which broke resolve_reference() in scripts/generate_scenes.py and classify() in scripts/build_selection_sheet.py, both of which read the documented path. The four were restored to the documented path (verified by sha256), so every `file` above resolves again. `published` was verified by pixel-correlating each live derivative against its candidate source.",
   "panel": {
     "avatars": {
       "_note": "Which variant supplies each manager's published poster + face crop. 'original' means the un-recolored approved art already in docs/assets/portraits/panel/ — no republish needed.",
@@ -8,25 +9,47 @@
         "source": "recolor:accent",
         "team": "Oklahoma State",
         "file": "output/personas/recolor/blaine/blaine_accent_gemini.png",
-        "published": false
+        "published": true,
+        "published_to": [
+          "docs/assets/profiles/panel/blaine.webp",
+          "docs/img/avatars/blaine_56.webp",
+          "docs/img/avatars/blaine_112.webp"
+        ],
+        "not_yet_published_to": ["docs/assets/portraits/panel/blaine.webp"]
       },
       "jonathan": {
         "source": "recolor:accent",
         "team": "Texas Tech",
         "file": "output/personas/recolor/jonathan/jonathan_accent_gemini.png",
-        "published": false
+        "published": true,
+        "published_to": [
+          "docs/assets/profiles/panel/jonathan.webp",
+          "docs/img/avatars/jonathan_56.webp",
+          "docs/img/avatars/jonathan_112.webp"
+        ],
+        "not_yet_published_to": ["docs/assets/portraits/panel/jonathan.webp"]
       },
       "zach": {
         "source": "recolor:accent",
         "team": "Wake Forest",
         "file": "output/personas/recolor/zach/zach_accent_gemini.png",
-        "published": false
+        "published": true,
+        "published_to": [
+          "docs/assets/profiles/panel/zach.webp",
+          "docs/img/avatars/zach_56.webp",
+          "docs/img/avatars/zach_112.webp"
+        ],
+        "not_yet_published_to": ["docs/assets/portraits/panel/zach.webp"]
       },
       "chris": {
         "source": "original",
         "team": "Colorado",
         "file": "output/personas/Fat friends/Fat/fat beck.png",
         "published": true,
+        "published_to": [
+          "docs/assets/profiles/panel/chris.webp",
+          "docs/assets/portraits/panel/chris.webp"
+        ],
         "reason": "The original black-and-gold FAT PRIME jacket reads better than any recolor; it is already what is live."
       }
     },
@@ -36,6 +59,12 @@
         {
           "source": "recolor:jacket",
           "file": "output/personas/recolor/chris/chris_jacket_gemini.png",
+          "published": true,
+          "published_to": [
+            "docs/img/avatars/chris_56.webp",
+            "docs/img/avatars/chris_112.webp"
+          ],
+          "published_note": "Not a change of pick. scripts/build_avatars.py resolves only out of output/personas/recolor/, so Chris's un-recolored original is not a candidate there and the gold jacket supplies his avatar circles. His poster and profile hero are still the original.",
           "reason": "Gold jacket version — held as a second approved look."
         }
       ]
