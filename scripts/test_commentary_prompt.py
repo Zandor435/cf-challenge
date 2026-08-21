@@ -23,7 +23,12 @@ column to write yet), but these checks are about PROMPT ASSEMBLY and must not go
 dark for the months before Week 1. So the seed packet is built off the SAME
 committed boards with the cache stubbed to a played slate — see seed_packet().
 
+Runs both ways, and they are equivalent: pytest collects one test per section
+and conftest.py raises on any check() the section recorded as FAIL; the
+standalone runner sums the same ledger and exits 0/1.
+
 Usage:
+    python -m pytest scripts/test_commentary_prompt.py
     python scripts/test_commentary_prompt.py
 """
 
@@ -40,11 +45,15 @@ import utils
 import build_week_packet as B
 import generate_commentary as G
 
+# The check ledger. Each entry is (label, ok, detail) — the LABEL is carried so a
+# failure is diagnosable from the pytest report alone, not only from the printed
+# transcript above it. conftest.py clears this before every pytest test and raises
+# on any recorded FAIL; main() sums it for the standalone `python scripts/...` run.
 _res = []
 
 
 def check(name, ok, detail=""):
-    _res.append(bool(ok))
+    _res.append((name, bool(ok), detail))
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}" + (f" — {detail}" if detail else ""))
 
 
@@ -94,7 +103,9 @@ def no_api_key():
             os.environ["OPENAI_API_KEY"] = key
 
 
-def validate_prompt_shape(packet):
+def test_prompt_shape():
+    print("\nPrompt shape:")
+    packet = _seeded_packet()
     with sandbox("panel", packet):
         system_text, user_text, pk = G.build_prompt("panel")
 
@@ -122,11 +133,15 @@ def validate_prompt_shape(packet):
     check("memory sent to the model excludes bookkeeping",
           '"nicknames"' in user_text and '"columns"' not in user_text.split(
               "=== LAST PUBLISHED COLUMN ===")[0].split("COLUMN MEMORY")[1])
-    return user_text
+    # (validate_prompt_shape used to `return user_text`; main() never read it and
+    # pytest warns on a non-None test return, so the dead return is gone. Every
+    # check above still runs against the same user_text.)
 
 
-def validate_basis_warning(base_packet):
+def test_basis_warning():
     """The comparison basis must be stated honestly for all three gap shapes."""
+    print("\nComparison basis (the *_this_week honesty guard):")
+    base_packet = _seeded_packet()
     multi = json.loads(json.dumps(base_packet))
     multi["comparison"] = {"prior_week": 6, "weeks_elapsed": 10,
                            "basis": "since week 6"}
@@ -156,7 +171,9 @@ def validate_basis_warning(base_packet):
           "Do not describe week-over-week movement at all" in user_text)
 
 
-def validate_stakes(base_packet):
+def test_stakes():
+    print("\nStakes passthrough:")
+    base_packet = _seeded_packet()
     no_stakes = json.loads(json.dumps(base_packet))
     no_stakes["stakes"] = None
     with sandbox("panel", no_stakes):
@@ -172,8 +189,10 @@ def validate_stakes(base_packet):
           "loser buys dinner" in user_text)
 
 
-def validate_season_complete(base_packet):
+def test_season_complete():
     """A finished season has to be stated, not left implicit in the JSON."""
+    print("\nSeason completion in the prompt:")
+    base_packet = _seeded_packet()
     over = json.loads(json.dumps(base_packet))
     over["season_complete"] = True
     with sandbox("panel", over):
@@ -202,9 +221,11 @@ def validate_season_complete(base_packet):
           "THE SEASON IS OVER" not in user_text)
 
 
-def validate_uniform_fields(base_packet):
+def test_uniform_fields():
     """A value the whole room shares must be stated as sharing, or the column
     reads one profile and writes exclusivity (persona sacred rule 7)."""
+    print("\nUniform profile fields in the prompt:")
+    base_packet = _seeded_packet()
     shared = json.loads(json.dumps(base_packet))
     shared["uniform_profile_fields"] = {"picks_alive": 0, "conference_spread": 4}
     with sandbox("panel", shared):
@@ -237,8 +258,10 @@ def validate_uniform_fields(base_packet):
           "DISTINGUISH NOBODY" not in user_text)
 
 
-def validate_dry_run(base_packet):
+def test_dry_run():
     """--dry-run writes a complete preview and makes no network call."""
+    print("\nDry run:")
+    base_packet = _seeded_packet()
     with sandbox("panel", base_packet) as out:
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
@@ -259,8 +282,10 @@ def validate_dry_run(base_packet):
     check("dry run: creates no column memory", not wrote_memory)
 
 
-def validate_fail_soft(base_packet):
+def test_fail_soft():
     """Live mode must exit 0 on every failure path — including SystemExit."""
+    print("\nFail-soft:")
+    base_packet = _seeded_packet()
     argv, key = sys.argv, os.environ.pop("OPENAI_API_KEY", None)
     try:
         # No key from ANY source: the earliest live failure. Must run inside
@@ -379,32 +404,33 @@ def seed_packet(group):
     return packet
 
 
+_SEEDED = None
+
+
+def _seeded_packet():
+    """seed_packet('panel'), built once per process.
+
+    main() seeded one packet and passed the same object to all seven validators,
+    so this is the same sharing, memoised. Under pytest a single -k selection
+    seeds its own copy, which is strictly stronger.
+    """
+    global _SEEDED
+    if _SEEDED is None:
+        _SEEDED = seed_packet("panel")
+    return _SEEDED
+
+
 def main():
-    print("generate_commentary.py — prompt assembly, dry run, fail-soft\n")
-    packet = seed_packet("panel")
+    print("generate_commentary.py \u2014 prompt assembly, dry run, fail-soft")
+    test_prompt_shape()
+    test_basis_warning()
+    test_stakes()
+    test_season_complete()
+    test_uniform_fields()
+    test_dry_run()
+    test_fail_soft()
 
-    print("Prompt shape:")
-    validate_prompt_shape(packet)
-
-    print("\nComparison basis (the *_this_week honesty guard):")
-    validate_basis_warning(packet)
-
-    print("\nStakes passthrough:")
-    validate_stakes(packet)
-
-    print("\nSeason completion in the prompt:")
-    validate_season_complete(packet)
-
-    print("\nUniform profile fields in the prompt:")
-    validate_uniform_fields(packet)
-
-    print("\nDry run:")
-    validate_dry_run(packet)
-
-    print("\nFail-soft:")
-    validate_fail_soft(packet)
-
-    passed, total = sum(_res), len(_res)
+    passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
     sys.exit(0 if passed == total else 1)
 
