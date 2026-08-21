@@ -18,6 +18,9 @@ asserts:
   - storylines dedupe to one per MOMENT, keeping the max score and losing no
     picks,
   - season_complete never reports True from an empty or partial cache,
+  - preseason (zero played games) returns None and writes nothing, WITHOUT
+    weakening the fail-loud path: an unresolvable week with games already played
+    still exits 1,
   - fail-loud: a missing output contract exits non-zero and writes nothing.
 
 Feud fixtures are constructed IN MEMORY — never written into the files
@@ -695,6 +698,102 @@ def validate_uniform_profile_fields():
           U(mixed)["flag"] is False and U(mixed)["n"] == 0, f"got {U(mixed)}")
 
 
+# --- Preseason ----------------------------------------------------------------
+
+def _cache(games, season=2026, week=None):
+    """A minimal in-memory cache (playbook rule 14 — never a real file)."""
+    return {"season": season, "week": week, "games": games}
+
+
+def _game(completed):
+    return {"completed": completed, "home_team": "A", "away_team": "B",
+            "home_points": 21 if completed else None,
+            "away_points": 17 if completed else None,
+            "week": 1, "start_date": "2026-08-27T04:00:00.000Z"}
+
+
+def _with_cache(cache, fn):
+    """Run fn() with build_week_packet's cache loader stubbed to `cache`.
+
+    Stubs the loader rather than writing a fixture file, so production data is
+    never touched (playbook rule 14). The season guard is stubbed alongside it
+    because it reads the same cache off disk and would otherwise veto the
+    in-memory fixture.
+    """
+    real_load, real_assert = B.utils.load_cache, B.utils.assert_season_matches_cache
+    B.utils.load_cache = lambda *a, **k: cache
+    B.utils.assert_season_matches_cache = lambda *a, **k: cache["season"]
+    try:
+        return fn()
+    finally:
+        B.utils.load_cache = real_load
+        B.utils.assert_season_matches_cache = real_assert
+
+
+def _packet_state(path):
+    return (path.exists(), path.stat().st_mtime if path.exists() else None)
+
+
+def validate_preseason():
+    """Zero played games is a clean no-op; a played game with an unresolvable
+    week is still fatal.
+
+    The second half is the load-bearing one: it is what stops the preseason gate
+    from widening into a swallow-everything catch that hides a real cache/board
+    disagreement behind a friendly message.
+    """
+    group = utils.get_all_group_ids()[0]
+    path = B.packet_path(group)
+    before = _packet_state(path)
+
+    # (1) Preseason: a full schedule loaded, nothing kicked off yet.
+    out = io.StringIO()
+    code = None
+    packet = "not-run"
+    try:
+        with contextlib.redirect_stdout(out):
+            packet = _with_cache(_cache([_game(False) for _ in range(5)]),
+                                 lambda: B.build_packet(group))
+    except SystemExit as e:          # must NOT happen
+        code = e.code
+    check("preseason: zero played games does not exit", code is None, f"exit={code}")
+    check("preseason: returns None instead of a packet", packet is None,
+          f"got {type(packet).__name__}")
+    check("preseason: says why, naming the state",
+          "preseason" in out.getvalue().lower(), out.getvalue().strip()[:60])
+    check("preseason: writes no packet", _packet_state(path) == before,
+          f"{before} -> {_packet_state(path)}")
+
+    # (2) The fail-loud path is UNCHANGED. The committed boards carry
+    #     as_of_week null, so a played game plus a null cache week leaves the
+    #     week genuinely unresolvable — an error, not a preseason.
+    err = io.StringIO()
+    code = None
+    try:
+        with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+            _with_cache(_cache([_game(True), _game(False)]),
+                        lambda: B.build_packet(group))
+    except SystemExit as e:
+        code = e.code
+    check("played games + unresolvable week STILL exits 1", code == 1, f"exit={code}")
+    check("played games + unresolvable week still names the error",
+          "::error::" in err.getvalue() and "effective week" in err.getvalue(),
+          err.getvalue().strip()[:60])
+    check("the fatal path wrote no packet either", _packet_state(path) == before)
+
+    # (3) The discriminator itself: the played-game COUNT, never `week is None`.
+    check("discriminator: none played counts 0",
+          B.completed_game_count(_cache([_game(False), _game(False)])) == 0)
+    check("discriminator: one played counts 1 (week still null)",
+          B.completed_game_count(_cache([_game(True), _game(False)])) == 1)
+    check("discriminator: an empty cache counts 0, it does not raise",
+          B.completed_game_count(_cache([])) == 0)
+    check("discriminator: a cache with no games key counts 0",
+          B.completed_game_count({"season": 2026}) == 0)
+    check("discriminator: a missing completed flag is not counted as played",
+          B.completed_game_count(_cache([{"week": 1}])) == 0)
+
+
 # --- Fail-loud ---------------------------------------------------------------
 
 def validate_fail_loud():
@@ -750,12 +849,26 @@ def main():
     print("\nUniform profile fields:")
     validate_uniform_profile_fields()
 
+    print("\nPreseason (and the fail-loud path it must not weaken):")
+    validate_preseason()
+
     print("\nFail-loud:")
     validate_fail_loud()
 
+    # Schema checks run against the LIVE cache. Before the first kickoff there
+    # is no packet to check - build_packet returns None by contract - so assert
+    # that contract instead of pretending to validate a schema. This re-arms by
+    # itself the moment one game is final; it is not a permanent opt-out.
+    live_played = B.completed_game_count(utils.load_cache(utils.get_season()))
     for group in utils.get_all_group_ids():
         print(f"\nPacket schema — {group}:")
-        validate_packet(B.build_packet(group), group)
+        if live_played == 0:
+            packet = B.build_packet(group)
+            check(f"[{group}] preseason: no packet to validate yet "
+                  f"(0 games played); build_packet returns None",
+                  packet is None, f"got {type(packet).__name__}")
+        else:
+            validate_packet(B.build_packet(group), group)
 
     passed, total = sum(_res), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")

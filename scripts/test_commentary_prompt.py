@@ -18,6 +18,11 @@ Everything here is a DRY RUN — no network call is made, and no OPENAI_API_KEY 
 needed or read. Fixtures are written to a temp dir with utils.GROUPS_DIR
 redirected, so production files are never touched (playbook rule 14).
 
+PRESEASON: build_week_packet returns None before the first kickoff (there is no
+column to write yet), but these checks are about PROMPT ASSEMBLY and must not go
+dark for the months before Week 1. So the seed packet is built off the SAME
+committed boards with the cache stubbed to a played slate — see seed_packet().
+
 Usage:
     python scripts/test_commentary_prompt.py
 """
@@ -324,9 +329,59 @@ def validate_fail_soft(base_packet):
             os.environ["OPENAI_API_KEY"] = key
 
 
+def _played_slate(cache, through_week=1):
+    """The REAL schedule with everything up to `through_week` marked final.
+
+    Derived from the live cache rather than hand-written so the team names are
+    the ones the committed picks actually reference — a hand-rolled slate would
+    index to nothing and quietly drop bad-beat coverage. Scores are constant and
+    the home side always wins: these checks assert prompt assembly, not football.
+    In memory only; the cache on disk is never touched (playbook rule 14).
+    """
+    games = []
+    for g in cache.get("games") or []:
+        g = dict(g)
+        if g.get("week") is not None and int(g["week"]) <= through_week:
+            g["completed"] = True
+            g["home_points"] = 21
+            g["away_points"] = 17
+        games.append(g)
+    return {**cache, "week": through_week, "games": games}
+
+
+def seed_packet(group):
+    """The packet every validator below sandboxes and mutates.
+
+    Prefer the real one. In preseason build_packet returns None by contract, so
+    rebuild it off the same committed boards against a stubbed played slate: the
+    week resolves, the packet is contract-shaped, and the checks keep their teeth
+    year-round. Re-arms automatically once real games are final.
+    """
+    packet = B.build_packet(group)
+    if packet is not None:
+        return packet
+
+    print(f"  (preseason: 0 games played, so no live packet exists. Seeding from "
+          f"the committed {group} boards against a stubbed week-1 slate.)")
+    cache = _played_slate(utils.load_cache(utils.get_season()))
+    real_load, real_assert = B.utils.load_cache, B.utils.assert_season_matches_cache
+    B.utils.load_cache = lambda *a, **k: cache
+    B.utils.assert_season_matches_cache = lambda *a, **k: cache["season"]
+    try:
+        packet = B.build_packet(group)
+    finally:
+        B.utils.load_cache = real_load
+        B.utils.assert_season_matches_cache = real_assert
+    if packet is None:
+        print("::error:: could not seed a packet even from a played slate.",
+              file=sys.stderr)
+        sys.exit(1)
+    return packet
+
+
 def main():
     print("generate_commentary.py — prompt assembly, dry run, fail-soft\n")
-    packet = B.build_packet("panel")
+    packet = seed_packet("panel")
 
     print("Prompt shape:")
     validate_prompt_shape(packet)

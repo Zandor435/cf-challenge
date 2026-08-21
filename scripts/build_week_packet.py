@@ -21,6 +21,13 @@ Reads (all local, NO network):
 Writes:
   groups/<group>/output/week_packet.json   (overwrite, regenerated each run)
 
+PRESEASON writes NOTHING and exits 0. Before the first kickoff the cache holds a
+full schedule but zero played games: there is no week to resolve and no column
+to write. That is a legitimate state, so build_packet() returns None and main()
+exits cleanly rather than erroring. The gate keys on the PLAYED-GAME COUNT, not
+on `week` being null — a null week with games already played means the cache and
+the committed boards disagree, which still fails loud in resolve_week().
+
 NOT docs/data/ — that is the Pages web root and the output contract locks it to
 exactly three files. The packet is an internal prompt input, not a published
 artifact.
@@ -230,6 +237,18 @@ def resolve_week(standings, cache, cli_week):
               f"does not replay.", file=sys.stderr)
         sys.exit(1)
     return eff
+
+
+def completed_game_count(cache):
+    """How many games in the cache are final.
+
+    The preseason discriminator (see build_packet). Deliberately counts PLAYED
+    games rather than reading `week`: a null week is a symptom shared by two
+    completely different states — "the season has not started" (benign) and
+    "the boards and the cache disagree" (a real fault) — and only the played-game
+    count tells them apart.
+    """
+    return sum(1 for g in (cache.get("games") or []) if g.get("completed"))
 
 
 def season_is_complete(cache):
@@ -967,6 +986,25 @@ def build_packet(group_id, cli_week=None):
     config, picks = utils.load_group(group_id)
     cache = utils.load_cache(season)
 
+    # Preseason: the schedule is loaded but nothing has kicked off. There is no
+    # week to resolve and, more to the point, nothing for the column to write
+    # about — every pick is unresolved and no board has moved. That is a
+    # legitimate state, not a failure, so we return None and let main() exit 0
+    # having written nothing.
+    #
+    # The discriminator is the COMPLETED-GAME COUNT, never `week is None`. Those
+    # are two different states wearing the same symptom:
+    #   - 0 played  -> the season has not started. Benign; handled here.
+    #   - >0 played -> the cache and the committed boards disagree about what
+    #                  week it is. A real fault, and resolve_week below still
+    #                  exits 1 on it. This gate must never widen to swallow that.
+    if completed_game_count(cache) == 0:
+        n_scheduled = len(cache.get("games") or [])
+        print(f"  [{group_id}] preseason: 0 of {n_scheduled} scheduled game(s) "
+              f"played in season {season}. No week to resolve and no column to "
+              f"write — no packet built (this is not an error).")
+        return None
+
     week = resolve_week(standings, cache, cli_week)
     prior_snap = prior_snapshot(timeline, week)
     prior = state_from_snapshot(prior_snap) if prior_snap else None
@@ -1033,6 +1071,10 @@ def main():
     args = ap.parse_args()
 
     packet = build_packet(args.group, args.week)
+    if packet is None:
+        # Preseason. build_packet already said so; exit 0 without writing a
+        # packet, and WITHOUT disturbing any packet already on disk.
+        return
     utils.save_json_atomic(packet_path(args.group), packet)
     print(f"  [{args.group}] week {packet['week']} "
           f"({packet['comparison']['basis']}): "
