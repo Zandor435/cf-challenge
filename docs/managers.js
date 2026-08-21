@@ -38,8 +38,31 @@
 // emitted AT ALL and the copy takes the full width: no grey box, no
 // placeholder, no alt stub, no empty gutter. A manager without a picture
 // should look like a manager whose card was designed without one.
+//
+// TWO SLOTS, TRIED IN ORDER -- the SAME chain profile.js:heroArt() runs, in
+// the same order, through the same resolveArt(). This page used to read
+// profile_hero alone, which is why panel rendered the opaque cut here and the
+// torn cut on profile.html. There is deliberately no second resolution path:
+// if this ever diverges from profile.js again it should be because a slot
+// changed, not because a page grew its own lookup.
+//
+// WHY .is-bleed IS GATED ON THE TWO SLOTS DISAGREEING, and not simply on
+// profile_page_hero answering: family declares profile_page_hero pointing at
+// the SAME file as profile_hero (its art is real photographs, deliberately
+// never given a torn edge -- see art_slots.json). Keying the frameless
+// treatment on "the page slot answered" would therefore strip the frame off
+// every family card for a cut that does not exist. The treatment belongs to a
+// DISTINCT cut, so that is exactly what is tested. A group whose two slots
+// name one file renders precisely as it did before this change.
 function artPanel(groupId, managerId, name, week) {
-  const src = resolveArt(groupId, 'profile_hero', week, { id: managerId });
+  const cut = resolveArt(groupId, 'profile_page_hero', week, { id: managerId });
+  const card = resolveArt(groupId, 'profile_hero', week, { id: managerId });
+  const src = cut || card;
+  // A torn, alpha-keyed cut inside a bordered figure reads as a rendering
+  // fault -- the tear shows the card ground through a hard 1px edge. When the
+  // cut is genuinely distinct the frame comes off and the art sits on the
+  // page, which is the treatment the cut was made for.
+  const isCut = !!(cut && cut !== card);
   if (!src) return '';
   // NOT lazy. The hero is this page's primary content, not a below-fold
   // decoration, and there is one per manager -- four today, and the only
@@ -48,7 +71,7 @@ function artPanel(groupId, managerId, name, week) {
   // capture or on a slow connection, which reads as the no-art empty state
   // when it is nothing of the kind. Revisit if a league ever ships enough
   // profile art for the page weight to matter.
-  return `<figure class="mgr-art">
+  return `<figure class="mgr-art${isCut ? ' is-bleed' : ''}">
     <img class="mgr-art-img" src="${esc(src)}" alt="${esc(name)}" decoding="async">
   </figure>`;
 }

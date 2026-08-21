@@ -851,6 +851,18 @@ a { color: inherit; }
 }
 .mgr-art.is-loaded { aspect-ratio: auto; }
 .mgr-art-img { display: block; width: 100%; height: auto; }
+/* A torn, alpha-keyed cut (profile_page_hero) sits ON the page rather than in
+   a frame: the whole point of the ragged edge is that it dissolves into the
+   ground, and a 1px border around it turns the tear into a rendering fault.
+   Only the manager's colour accent survives, moved off the figure and onto the
+   art itself so the card still reads as theirs. Groups whose page slot names
+   the same file as the card slot never get this class -- see artPanel(). */
+.mgr-art.is-bleed {
+  border: 0; background: none;
+  /* The reserved box was sized for a bordered rectangle; a cut carries its own
+     silhouette, so it releases immediately rather than padding the tear. */
+  aspect-ratio: auto;
+}
 
 /* ---- 2/3. identity ---- */
 .mgr-kicker {
