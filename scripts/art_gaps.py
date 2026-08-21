@@ -42,6 +42,13 @@ IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp"}
 PER_MANAGER = ("profile_hero", "profile_page_hero", "manager_avatar")
 PER_GROUP = ("hero_banner", "svp_column_art", "editorial_hero")
 
+# Group-agnostic art: one asset, every group. The SVP column runs in all four,
+# so its source lives in output/editorial/ rather than under any group.
+EDITORIAL = ROOT / "output" / "editorial"
+SHARED_SVP = EDITORIAL.is_dir() and any(
+    p.stem.startswith("svp_") for p in EDITORIAL.iterdir()
+    if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"})
+
 
 def groups():
     """-> {group_id: [manager_id, ...]}, straight from the configs."""
@@ -87,6 +94,12 @@ def published(group, mid, slot):
             sorted(base.glob(f"{mid}_*-ripped.webp"))
         return hits or (sorted(base.glob(f"{mid}.webp")) if group == "family" else [])
     if slot == "manager_avatar":
+        # docs/img/avatars/ is FLAT -- no group in the path -- so zach_56.webp
+        # is one file that four rosters all match by name. Counting it for
+        # every group reported browns/church/family zach as done when only
+        # panel's avatar exists. A published avatar counts for a group only if
+        # that group actually declares the slot; otherwise it is someone
+        # else's file that happens to share an id.
         base = DOCS / "img" / "avatars"
         return sorted(base.glob(f"{mid}_56.webp")) if base.is_dir() else []
     return []
@@ -94,6 +107,8 @@ def published(group, mid, slot):
 
 def status(group, mid, slot, slots):
     pub, src = published(group, mid, slot), sources(group, mid)
+    if slot == "manager_avatar" and pub and not declared(slots, group, slot):
+        pub = []                      # not this group's file -- see published()
     if pub:
         return "LIVE" if declared(slots, group, slot) else "BUILT"
     return "READY" if src else "GAP"
@@ -125,7 +140,12 @@ def main():
         gw = {"hero_banner": ("LIVE" if live_banner and declared(slots, grp, "hero_banner")
                               else "BUILT" if live_banner
                               else "READY" if has_banner else "GAP")}
-        for s in PER_GROUP[1:]:
+        # svp_column_art is SHARED: the column runs in every group off one
+        # asset in output/editorial/, so its source is group-agnostic and the
+        # only per-group question is whether that group declares the slot.
+        gw["svp_column_art"] = ("LIVE" if declared(slots, grp, "svp_column_art")
+                                else "READY" if SHARED_SVP else "GAP")
+        for s in PER_GROUP[2:]:
             gw[s] = "LIVE" if declared(slots, grp, s) else "GAP"
         report[grp] = {"managers": rows, "group": gw}
         for r in rows.values():

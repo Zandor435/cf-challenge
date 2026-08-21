@@ -46,8 +46,8 @@ IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp"}
 # Section order. A category discovered outside this list is appended just
 # before "unsorted", which is always last.
 CATEGORY_ORDER = ["personas", "banners", "posters", "scenes", "matchups",
-                  "objects", "halfcards", "recolors", "source", "vault",
-                  "rejects", "duplicates", "unsorted"]
+                  "editorial", "objects", "halfcards", "recolors", "source",
+                  "vault", "rejects", "duplicates", "unsorted"]
 
 CATEGORY_BLURB = {
     "posters": "fight cards and matchup bills",
@@ -59,6 +59,8 @@ CATEGORY_BLURB = {
     "personas": "the published portrait per manager -- feeds hero, page hero "
                 "and avatar",
     "matchups": "two half-cards composited into one bill",
+    "editorial": "column and editorial art. GROUP-AGNOSTIC, like objects -- "
+                 "the SVP column runs in every group off one asset",
     "source": "raw camera input. never published, kept to re-treat from",
     "vault": "finished work with no slot yet, or still under review",
     "rejects": "disqualified in review -- kept, never deleted",
@@ -77,6 +79,7 @@ GROUP_KEYS = {
     "recolors": ("lead",),
     "personas": ("lead", "setup"),
     "matchups": ("lead",),
+    "editorial": ("setup",),
     "source": ("setup",),
     "vault": ("setup",),
     "rejects": ("setup",),
@@ -197,6 +200,15 @@ def parse(category, parts, stem):
         return dict(setup="vs", lead="_".join(tokens[1:-2]),
                     style="_".join(tokens[-2:]), variant=None)
 
+    if category == "editorial":
+        # <subject>_<treatment>_<nn>. No group token: this art is shared by
+        # every group, so scoping it to one would be a lie about who owns it.
+        tokens, variant = split_variant(tokens)
+        if len(tokens) < 2:
+            return None
+        return dict(setup=tokens[0], lead=None, style="_".join(tokens[1:]),
+                    variant=variant)
+
     if category == "objects":
         # trophy_<angle>_<nn>
         tokens, variant = split_variant(tokens)
@@ -250,7 +262,7 @@ def classify(rel):
         return name, archived, dict(setup=parts[1] if len(parts) > 2 else None,
                                     lead=None, style=None, variant=None)
     if top in ("posters", "banners", "scenes", "objects", "halfcards",
-               "matchups"):
+               "matchups", "editorial"):
         category = top
     elif top == "recolor":
         category = "recolors"
