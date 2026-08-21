@@ -273,7 +273,8 @@ def reference_failure(mid):
     """
     d = recolor_dir(mid)
     archive = ROOT / "output" / "archive" / "recolor" / mid
-    archived = sorted(f.name for f in archive.glob(f"{mid}_*_gemini.png"))         if archive.is_dir() else []
+    archived = (sorted(f.name for f in archive.glob(f"{mid}_*_gemini.png"))
+                if archive.is_dir() else [])
 
     if not d.exists():
         why = f"the live recolor directory {d} DOES NOT EXIST"
