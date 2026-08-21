@@ -18,8 +18,8 @@ skips that manager rather than silently shipping a crop of someone's torso.
 
 Usage:
     python scripts/prepare_portraits.py --group panel \
-        --map "blaine=output/personas/Fat friends/Fat/fat blaine.png" \
-        --map "chris=output/personas/Fat friends/Fat/fat beck.png" \
+        --map "blaine=output/personas/panel/panel_blaine_fat_01.png" \
+        --map "chris=output/personas/panel/panel_chris_fat_01.png" \
         --preview
 
     # review the sheet it prints, then drop --preview to write real assets

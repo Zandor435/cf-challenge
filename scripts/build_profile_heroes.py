@@ -17,7 +17,7 @@ photograph of somebody's father is the same error the tone gate exists to
 prevent. Family gets the same page, with its photograph presented straight.
 
 BLAINE IS SKIPPED. His cut comes from a hand-painted source with a real brush
-edge (output/personas/Fat friends/Fat/ripped blaine.png) via
+edge (output/personas/panel/panel_blaine_ripped_01.png) via
 scripts/build_ripped_hero.py, and that hand-made edge beats anything
 synthesised here. Overwriting it would be a downgrade.
 

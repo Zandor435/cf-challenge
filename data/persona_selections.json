@@ -1,7 +1,7 @@
 {
   "_note": "APPROVED persona art selections, decided by Z on 2026-08-18. This file is the RECORD of which generated variants won; it is not read by the pipeline yet. Sources live in the gitignored output/ tree — winners under output/personas/recolor/<manager>/ and output/banners/panel/, rejects moved to output/archive/ (kept, never deleted). Publishing a winner is still an explicit step: scripts/prepare_portraits.py --map (avatars/posters) or --banner (hero art). `banner_rotation` is the approved pool for a site rotation that is NOT built yet — today docs/assets/banners/panel.webp holds a single static file.",
   "decided": "2026-08-18",
-  "_bookkeeping": "2026-08-21: the `published` flags and file paths above were corrected against disk. They are location/shipping bookkeeping ONLY -- no selection decided on 2026-08-18 was changed. Context: on 2026-08-20 the four kept recolors were moved out of output/personas/recolor/<mid>/ and left flat in output/scenes/panel/, which broke resolve_reference() in scripts/generate_scenes.py and classify() in scripts/build_selection_sheet.py, both of which read the documented path. The four were restored to the documented path (verified by sha256), so every `file` above resolves again. `published` was verified by pixel-correlating each live derivative against its candidate source.",
+  "_bookkeeping": "2026-08-21: the `published` flags and file paths above were corrected against disk. They are location/shipping bookkeeping ONLY -- no selection decided on 2026-08-18 was changed. Context: on 2026-08-20 the four kept recolors were moved out of output/personas/recolor/<mid>/ and left flat in output/scenes/panel/, which broke resolve_reference() in scripts/generate_scenes.py and classify() in scripts/build_selection_sheet.py, both of which read the documented path. The four were restored to the documented path (verified by sha256), so every `file` above resolves again. `published` was verified by pixel-correlating each live derivative against its candidate source. || 2026-08-21 (later): output/ was reorganised. Portrait sources now live at output/personas/<group>/<group>_<manager_id>_<treatment>_<nn>.<ext> -- ONE asset per manager, feeding profile_hero, profile_page_hero and manager_avatar. Chris's `file` above was repointed from 'output/personas/Fat friends/Fat/fat beck.png' to its new path, and Blaine's hand-painted cut to 'output/personas/panel/panel_blaine_ripped_01.png' (scripts/build_ripped_hero.py updated in the same commit). output/personas/recolor/<mid>/ was NOT touched -- resolve_reference() reads it and it remains the frozen contract. Every move was copy -> sha256 verify -> unlink; no selection decided on 2026-08-18 was changed, and docs/ is unmodified apart from one comment line in art_slots.json. Run scripts/art_gaps.py for what is still missing.",
   "panel": {
     "avatars": {
       "_note": "Which variant supplies each manager's published poster + face crop. 'original' means the un-recolored approved art already in docs/assets/portraits/panel/ — no republish needed.",
@@ -44,7 +44,7 @@
       "chris": {
         "source": "original",
         "team": "Colorado",
-        "file": "output/personas/Fat friends/Fat/fat beck.png",
+        "file": "output/personas/panel/panel_chris_fat_01.png",
         "published": true,
         "published_to": [
           "docs/assets/profiles/panel/chris.webp",

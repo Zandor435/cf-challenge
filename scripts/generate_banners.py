@@ -15,8 +15,8 @@ pile to choose from, not one precious render.
 
 Usage:
     python scripts/generate_banners.py --group panel \
-        --ref "blaine=output/personas/Fat friends/Fat/fat blaine.png:Oklahoma State" \
-        --ref "chris=output/personas/Fat friends/Fat/fat beck.png:Colorado" \
+        --ref "blaine=output/personas/panel/panel_blaine_fat_01.png:Oklahoma State" \
+        --ref "chris=output/personas/panel/panel_chris_fat_01.png:Colorado" \
         --styles all --n 3 --preview
 
     # review the resolved prompts, then drop --preview

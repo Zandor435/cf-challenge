@@ -16,7 +16,7 @@ import numpy as np
 from collections import deque
 from PIL import Image
 
-SRC = r"output/personas/Fat friends/Fat/ripped blaine.png"
+SRC = r"output/personas/panel/panel_blaine_ripped_01.png"
 OUT = r"docs/assets/profiles/panel/blaine-ripped.webp"
 LONG_EDGE = 1200
 TOL = 34

@@ -21,7 +21,7 @@ budget helpers are reused here; its prompts deliberately are not.
 
 Usage:
     python scripts/recolor_personas.py --group panel \
-        --map "blaine=output/personas/Fat friends/Fat/fat blaine.png:Oklahoma State" \
+        --map "blaine=output/personas/panel/panel_blaine_fat_01.png:Oklahoma State" \
         --n 4 --preview
 
     # review the sheet, then drop --preview to write the variants
