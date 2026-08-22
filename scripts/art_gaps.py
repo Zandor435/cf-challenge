@@ -18,7 +18,11 @@ from docs/. A manager added to config.json shows up here as gaps on the next
 run, with no edit to this file.
 
 STATUS VOCABULARY, narrowest to widest:
-    LIVE     published under docs/ AND declared in art_slots.json -- on the site
+    LIVE     published under docs/ AND declared in art_slots.json AND some page
+             script actually resolves the slot -- visible on the site
+    STAGED   published and declared, but NO page reads this slot yet. The art is
+             done; the wiring is not. Reporting these as LIVE would be a lying
+             green, which is the one thing this report must never produce.
     BUILT    published under docs/ but NOT declared -- a file nobody renders
     READY    source art exists in output/, derivative not built yet -- no
              generation needed, just a crop/convert
@@ -41,6 +45,21 @@ SLOTS = DOCS / "assets" / "art_slots.json"
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp"}
 PER_MANAGER = ("profile_hero", "profile_page_hero", "manager_avatar")
 PER_GROUP = ("hero_banner", "svp_column_art", "editorial_hero")
+
+# Which slots a page script actually calls resolveArt() for. Derived from the
+# site source rather than hardcoded, so wiring a slot up flips its status here
+# with no edit to this file -- and forgetting to wire one can never read LIVE.
+def _consumed_slots():
+    found = set()
+    for f in sorted((ROOT / "docs").glob("*.js")):
+        src = f.read_text(encoding="utf-8", errors="ignore")
+        for slot in PER_MANAGER + PER_GROUP:
+            if f"'{slot}'" in src or f'"{slot}"' in src:
+                found.add(slot)
+    return found
+
+
+CONSUMED = _consumed_slots()
 
 # Group-agnostic art: one asset, every group. The SVP column runs in all four,
 # so its source lives in output/editorial/ rather than under any group.
@@ -115,7 +134,9 @@ def status(group, mid, slot, slots):
     if slot == "manager_avatar" and pub and not declared(slots, group, slot):
         pub = []                      # not this group's file -- see published()
     if pub:
-        return "LIVE" if declared(slots, group, slot) else "BUILT"
+        if not declared(slots, group, slot):
+            return "BUILT"
+        return "LIVE" if slot in CONSUMED else "STAGED"
     return "READY" if src else "GAP"
 
 
@@ -142,16 +163,21 @@ def main():
         has_banner = bdir.is_dir() and any(
             p.suffix.lower() in IMAGE_EXT for p in bdir.iterdir())
         live_banner = (DOCS / "assets" / "banners" / f"{grp}.webp").is_file()
-        gw = {"hero_banner": ("LIVE" if live_banner and declared(slots, grp, "hero_banner")
-                              else "BUILT" if live_banner
-                              else "READY" if has_banner else "GAP")}
+        if live_banner and declared(slots, grp, "hero_banner"):
+            hb = "LIVE" if "hero_banner" in CONSUMED else "STAGED"
+        elif live_banner:
+            hb = "BUILT"
+        else:
+            hb = "READY" if has_banner else "GAP"
+        gw = {"hero_banner": hb}
         # svp_column_art is SHARED: the column runs in every group off one
         # asset in output/editorial/, so its source is group-agnostic and the
         # only per-group question is whether that group declares the slot.
-        gw["svp_column_art"] = ("LIVE" if declared(slots, grp, "svp_column_art")
-                                else "READY" if SHARED_SVP else "GAP")
-        for s in PER_GROUP[2:]:
-            gw[s] = "LIVE" if declared(slots, grp, s) else "GAP"
+        for s in PER_GROUP[1:]:
+            if not declared(slots, grp, s):
+                gw[s] = "READY" if (s == "svp_column_art" and SHARED_SVP) else "GAP"
+            else:
+                gw[s] = "LIVE" if s in CONSUMED else "STAGED"
         report[grp] = {"managers": rows, "group": gw}
         for r in rows.values():
             gaps += sum(v == "GAP" for v in r.values())
@@ -174,6 +200,11 @@ def main():
             print(f"  {'(group)':<12} {s:<28} {v}")
 
     print("\n" + "=" * 70)
+    staged = sum(v == "STAGED" for d in report.values()
+                 for r in (list(d["managers"].values()) + [d["group"]])
+                 for v in r.values())
+    if staged:
+        print(f"STAGED{staged:>4}   art done, but no page reads the slot yet")
     print(f"GAP   {gaps:>3}   needs generation")
     print(f"READY {ready:>3}   source exists, needs only a crop/convert/declare")
     # Shared ids across rosters used to be a live hazard: manager_avatar

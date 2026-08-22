@@ -54,8 +54,17 @@
     "candidates": []
    },
    "svp_column_art": {
-    "mode": "weekly",
-    "candidates": []
+    "$why": [
+     "SHARED BY EVERY GROUP -- the column runs in all four, so the asset",
+     "belongs to none of them and lives at output/editorial/svp_fat_01.png",
+     "rather than under any group directory. Same path for all four here.",
+     "STAGED, NOT RENDERED: no page script calls resolveArt() for this slot",
+     "yet. The art is ready and the candidate is declared so the wiring is a",
+     "one-line change in the page that eventually carries the column; until",
+     "then nothing requests it and nothing 404s."
+    ],
+    "mode": "fixed",
+    "candidates": ["assets/editorial/svp.webp"]
    },
    "profile_hero": {
     "$why": [
@@ -137,7 +146,19 @@
     "candidates": ["img/avatars/{group}/{id}"]
    },
    "editorial_hero": { "mode": "fixed",  "candidates": [] },
-   "svp_column_art": { "mode": "weekly", "candidates": [] },
+   "svp_column_art": {
+    "$why": [
+     "SHARED BY EVERY GROUP -- the column runs in all four, so the asset",
+     "belongs to none of them and lives at output/editorial/svp_fat_01.png",
+     "rather than under any group directory. Same path for all four here.",
+     "STAGED, NOT RENDERED: no page script calls resolveArt() for this slot",
+     "yet. The art is ready and the candidate is declared so the wiring is a",
+     "one-line change in the page that eventually carries the column; until",
+     "then nothing requests it and nothing 404s."
+    ],
+    "mode": "fixed",
+    "candidates": ["assets/editorial/svp.webp"]
+   },
    "profile_hero":   {
     "$why": [
      "Real family photographs and period gag artifacts rather than the",
@@ -204,7 +225,19 @@
     "candidates": ["img/avatars/{group}/{id}"]
    },
    "editorial_hero": { "mode": "fixed",  "candidates": [] },
-   "svp_column_art": { "mode": "weekly", "candidates": [] },
+   "svp_column_art": {
+    "$why": [
+     "SHARED BY EVERY GROUP -- the column runs in all four, so the asset",
+     "belongs to none of them and lives at output/editorial/svp_fat_01.png",
+     "rather than under any group directory. Same path for all four here.",
+     "STAGED, NOT RENDERED: no page script calls resolveArt() for this slot",
+     "yet. The art is ready and the candidate is declared so the wiring is a",
+     "one-line change in the page that eventually carries the column; until",
+     "then nothing requests it and nothing 404s."
+    ],
+    "mode": "fixed",
+    "candidates": ["assets/editorial/svp.webp"]
+   },
    "profile_hero":   {
     "$why": [
      "One image per manager, so `fixed`, same as panel. manager_avatar and",
@@ -264,7 +297,19 @@
     "candidates": ["img/avatars/{group}/{id}"]
    },
    "editorial_hero": { "mode": "fixed",  "candidates": [] },
-   "svp_column_art": { "mode": "weekly", "candidates": [] },
+   "svp_column_art": {
+    "$why": [
+     "SHARED BY EVERY GROUP -- the column runs in all four, so the asset",
+     "belongs to none of them and lives at output/editorial/svp_fat_01.png",
+     "rather than under any group directory. Same path for all four here.",
+     "STAGED, NOT RENDERED: no page script calls resolveArt() for this slot",
+     "yet. The art is ready and the candidate is declared so the wiring is a",
+     "one-line change in the page that eventually carries the column; until",
+     "then nothing requests it and nothing 404s."
+    ],
+    "mode": "fixed",
+    "candidates": ["assets/editorial/svp.webp"]
+   },
    "profile_hero":   {
     "$why": [
      "Uneven variant counts, which is what by_id is for: todd has two images",
