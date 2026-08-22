@@ -1,26 +1,119 @@
 {
-  "_note": "DUMMY SAMPLE DATA — this is NOT a real draft. `draft_status` is \"dummy\" so the site shows the amber sample-data banner and no one mistakes these for real picks. Engineered against the completed 2025 fixture so that at --as-of-week 6 the board exercises every state (a CLINCHED and a DEAD pick, a sub-1.0 top two, an opposite-side team share, and the under-heavy illusion where the Board-1 leader sits near the bottom of Board 2). Replace WHOLESALE at the real draft: overwrite `picks` and set `draft_status` to \"final\" (see README 'Replacing the dummy data'). Each manager holds EXACTLY 4 picks across 4 distinct conferences; `line` is the frozen preseason win total; direction = \"O\" (over) | \"U\" (under); store canonical team names only (§9); `manager` is the manager_id join key from config.json.",
+  "_note": "Written by scripts/enter_draft.py from a dictated paste block. `team` is the canonical name returned by utils.resolve_team (§9) — never a display_name, never an ambiguity candidate. `conference` and `line` are copied from team_win_totals_2026.json (season 2026), the frozen draft-day reference; nothing dictated overrides them (§1). direction = \"O\" (over) | \"U\" (under), uppercase only — the engine tests `direction == \"O\"`. `manager` is the manager_id join key from config.json. Regenerate with enter_draft.py rather than hand-editing.",
   "group_id": "panel",
-  "draft_status": "dummy",
+  "draft_status": "final",
   "picks": [
-    { "manager": "zach", "team": "Ohio State",  "conference": "Big Ten", "direction": "U", "line": 9.5 },
-    { "manager": "zach", "team": "Georgia",     "conference": "SEC",     "direction": "U", "line": 9.5 },
-    { "manager": "zach", "team": "Miami",       "conference": "ACC",     "direction": "U", "line": 10.5 },
-    { "manager": "zach", "team": "BYU",         "conference": "Big 12",  "direction": "U", "line": 8.5 },
-
-    { "manager": "chris", "team": "Indiana",      "conference": "Big Ten", "direction": "U", "line": 10.5 },
-    { "manager": "chris", "team": "Ole Miss",     "conference": "SEC",     "direction": "U", "line": 7.5 },
-    { "manager": "chris", "team": "Georgia Tech", "conference": "ACC",     "direction": "U", "line": 6.5 },
-    { "manager": "chris", "team": "Texas Tech",   "conference": "Big 12",  "direction": "U", "line": 10.5 },
-
-    { "manager": "blaine", "team": "Ohio State", "conference": "Big Ten", "direction": "O", "line": 9.5 },
-    { "manager": "blaine", "team": "Texas A&M",  "conference": "SEC",     "direction": "O", "line": 8.5 },
-    { "manager": "blaine", "team": "Virginia",   "conference": "ACC",     "direction": "O", "line": 7.5 },
-    { "manager": "blaine", "team": "Utah",       "conference": "Big 12",  "direction": "O", "line": 8.5 },
-
-    { "manager": "jonathan", "team": "Memphis",        "conference": "American", "direction": "O", "line": 7.5 },
-    { "manager": "jonathan", "team": "Oklahoma State", "conference": "Big 12",            "direction": "O", "line": 6.5 },
-    { "manager": "jonathan", "team": "Alabama",        "conference": "SEC",               "direction": "O", "line": 8.5 },
-    { "manager": "jonathan", "team": "James Madison",  "conference": "Sun Belt",          "direction": "O", "line": 8.5 }
+    {
+      "manager": "jonathan",
+      "team": "LSU",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 8.5
+    },
+    {
+      "manager": "jonathan",
+      "team": "Kansas State",
+      "conference": "Big 12",
+      "direction": "O",
+      "line": 8.5
+    },
+    {
+      "manager": "jonathan",
+      "team": "Ole Miss",
+      "conference": "SEC",
+      "direction": "U",
+      "line": 7.5
+    },
+    {
+      "manager": "jonathan",
+      "team": "Oregon",
+      "conference": "Big Ten",
+      "direction": "O",
+      "line": 10.5
+    },
+    {
+      "manager": "zach",
+      "team": "Notre Dame",
+      "conference": "Independent",
+      "direction": "U",
+      "line": 11.5
+    },
+    {
+      "manager": "zach",
+      "team": "Virginia Tech",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 6.5
+    },
+    {
+      "manager": "zach",
+      "team": "Wake Forest",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 5.5
+    },
+    {
+      "manager": "zach",
+      "team": "James Madison",
+      "conference": "Sun Belt",
+      "direction": "O",
+      "line": 8.5
+    },
+    {
+      "manager": "blaine",
+      "team": "Boise State",
+      "conference": "Pac-12",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "blaine",
+      "team": "Wisconsin",
+      "conference": "Big Ten",
+      "direction": "U",
+      "line": 6.5
+    },
+    {
+      "manager": "blaine",
+      "team": "Indiana",
+      "conference": "Big Ten",
+      "direction": "U",
+      "line": 10.5
+    },
+    {
+      "manager": "blaine",
+      "team": "Texas",
+      "conference": "SEC",
+      "direction": "U",
+      "line": 9.5
+    },
+    {
+      "manager": "chris",
+      "team": "Texas",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 9.5
+    },
+    {
+      "manager": "chris",
+      "team": "Tennessee",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "chris",
+      "team": "USC",
+      "conference": "Big Ten",
+      "direction": "O",
+      "line": 8.5
+    },
+    {
+      "manager": "chris",
+      "team": "Michigan State",
+      "conference": "Big Ten",
+      "direction": "O",
+      "line": 4.5
+    }
   ]
 }
