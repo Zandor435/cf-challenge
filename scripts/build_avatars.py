@@ -43,10 +43,14 @@ Usage:
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from prepare_portraits import detect_face  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC_ROOT = ROOT / "output" / "personas" / "recolor"
@@ -79,6 +83,19 @@ ANCHORS = {
     "chris":    {"head_top": 0.080, "chin": 0.285, "cx": 0.520, "eye_y": 0.175},
     "jonathan": {"head_top": 0.055, "chin": 0.340, "cx": 0.475, "eye_y": 0.205},
     "zach":     {"head_top": 0.135, "chin": 0.310, "cx": 0.490, "eye_y": 0.220},
+
+    # NON-PANEL managers are keyed "<group>/<manager_id>", because `zach` is on
+    # all four rosters with different art on each. Detection handles the other
+    # seventeen; an entry here is the documented escape hatch for a portrait
+    # the cascade cannot read.
+    #
+    # family/gunner: novelty joke glasses with thick round lenses defeat the
+    # frontal cascade completely -- it found no face on him at all and matched
+    # a small face in a framed Christmas photo on the fridge behind him
+    # instead, which the MIN_FACE_FRAC floor now rejects. His head genuinely
+    # fills the frame; it just cannot be detected.
+    "family/gunner": {"head_top": 0.005, "chin": 0.490, "cx": 0.467,
+                      "eye_y": 0.280},
 }
 
 # Breathing room above the hair, and total crop height, both in head-heights.
@@ -103,6 +120,85 @@ def resolve_reference(mid):
     return None, None
 
 
+# ---------------------------------------------------------------- detection
+# Panel's four anchors were measured by hand. Eighteen more managers across
+# browns/church/family is 54 numbers, and hand-measuring them is both tedious
+# and the kind of thing that rots when a portrait is replaced. So derive them.
+#
+# CALIBRATED against panel's hand-measured ANCHORS. The OpenCV cascade box is
+# very good at two of the four numbers and bad at the others:
+#
+#     cx     within 0.015 of measured on all four   -> trust it
+#     eye_y  within 0.013 on all four               -> trust it
+#     head_top  off by 0.05-0.10, inconsistently    -> do NOT trust it
+#     chin      off by ~0.05                        -> do NOT trust it
+#
+# The reason is hair. The measured head_top is the top of the HAIR MASS, and
+# hair above the cascade box ranged from 0.01x face height (Chris, cap) to
+# 0.23x (Blaine, mullet). No single multiplier recovers that, which is the same
+# observation the ANCHORS comment already makes.
+#
+# So the derived path does not estimate head_top/chin at all. It sizes the
+# square off the detected face height and positions it so the EYE LINE lands at
+# a fixed fraction of the crop -- built from the two numbers detection actually
+# measures well. Panel keeps its hand-measured anchors; nothing here touches it.
+FACE_TO_SIDE = 2.0      # square side, in detected face heights
+EYE_IN_CROP = 0.33      # where the eye line sits down the finished square
+EYE_IN_FACE = 0.42      # eye line down the cascade box
+# The floor separates "a face in the background" from "a small but real
+# subject", and both exist here. Calibrated against the two ends actually on
+# disk: gunner's false positive on a photo pinned to a fridge was 4.5% of image
+# height, while gayden is a CORRECT detection at 11.8% -- his source is a
+# full-page catalogue scan where he is kneeling, so his face is genuinely
+# small. 8% sits between them. Panel's four, for scale, run 21-27%.
+MIN_FACE_FRAC = 0.08
+
+
+def derive_box(im, mid):
+    """Square crop box from a detected face, or raise naming the manager."""
+    box = detect_face(im)
+    if box is None:
+        raise SystemExit(
+            f"ERROR: {mid}: no frontal face detected in the source. Rule 4 -- "
+            f"a center crop of someone's torso shipped silently is exactly "
+            f"what this refuses. Add an ANCHORS entry by hand, or pick a "
+            f"different source portrait.")
+    x, y, fw, fh = box
+    # PLAUSIBILITY. detect_face returns the LARGEST match, which is not the
+    # same as the subject: on a snapshot with framed pictures behind the
+    # subject, the only frontal match the cascade finds can be a face in a
+    # photo on the wall. That is how Gunner's first avatar came out a
+    # washed-out blur of somebody else's kitchen.
+    #
+    # A portrait's subject fills the frame. Panel's four sources put the face
+    # at 0.21-0.27 of image height; anything under MIN_FACE_FRAC is not the
+    # person this avatar is for, and cropping to it silently is the exact
+    # failure rule 4 exists to stop.
+    if fh < im.height * MIN_FACE_FRAC:
+        raise SystemExit(
+            f"ERROR: {mid}: the only face found is {fh}px tall in a "
+            f"{im.width}x{im.height} source ({fh / im.height:.1%} of height, "
+            f"floor {MIN_FACE_FRAC:.0%}). That is a background face, not the "
+            f"subject. Crop the source to the subject, pick a different "
+            f"portrait, or add a hand-measured ANCHORS entry.")
+    side = min(round(fh * FACE_TO_SIDE), im.width, im.height)
+    eye_abs = y + fh * EYE_IN_FACE
+    left = round(x + fw / 2 - side / 2)
+    top = round(eye_abs - side * EYE_IN_CROP)
+    left = max(0, min(left, im.width - side))
+    top = max(0, min(top, im.height - side))
+    # Clamping is allowed -- a face near an edge is a framing compromise, not a
+    # broken build -- but if it pushed the eye line out of the band the crop is
+    # no longer head-and-shoulders and must not ship.
+    eye_frac = (eye_abs - top) / side
+    if not 0.20 <= eye_frac <= 0.45:
+        raise SystemExit(
+            f"ERROR: {mid}: after clamping, eyes land at {eye_frac:.2f} of the "
+            f"crop (want 0.20-0.45). The face sits too near an edge of "
+            f"{im.width}x{im.height} for a square head-and-shoulders cut.")
+    return (left, top, left + side, top + side), eye_frac
+
+
 def crop_box(size, a, mid):
     """Square head-and-shoulders box (left, top, right, bottom) for one source.
 
@@ -124,42 +220,71 @@ def crop_box(size, a, mid):
     return left, top, left + side, top + side
 
 
-def build(mid, contact_rows):
+def group_source(group, mid):
+    """Portrait source for a non-panel group: the lowest-numbered variant.
+
+    output/personas/<group>/<group>_<mid>_<treatment>_<nn>.<ext> -- the same
+    path art_gaps.py reports on, so READY there means resolvable here.
+    """
+    d = ROOT / "output" / "personas" / group
+    if not d.is_dir():
+        return None, None
+    hits = sorted(p for p in d.iterdir()
+                  if p.is_file() and p.suffix.lower() in
+                  {".png", ".jpg", ".jpeg", ".webp"}
+                  and p.stem.startswith(f"{group}_{mid}_"))
+    return (hits[0], hits[0].stem.split("_")[-2]) if hits else (None, None)
+
+
+def build(mid, contact_rows, group="panel"):
     """Write both sizes for one manager. Returns a list of (path, bytes)."""
-    src_path, slug = resolve_reference(mid)
-    if src_path is None:
-        raise SystemExit(
-            f"ERROR: no kept recolor on disk for {mid!r} "
-            f"(looked in {SRC_ROOT / mid} for {mid}_<variant>_gemini.png).")
-    a = ANCHORS.get(mid)
-    if a is None:
-        raise SystemExit(
-            f"ERROR: no ANCHORS entry for {mid!r}. Measure head_top/chin/cx/eye_y "
-            f"off {src_path.name} and add it -- refusing to guess a crop.")
+    if group == "panel":
+        src_path, slug = resolve_reference(mid)
+        if src_path is None:
+            raise SystemExit(
+                f"ERROR: no kept recolor on disk for {mid!r} "
+                f"(looked in {SRC_ROOT / mid} for {mid}_<variant>_gemini.png).")
+    else:
+        src_path, slug = group_source(group, mid)
+        if src_path is None:
+            raise SystemExit(
+                f"ERROR: no portrait on disk for {group}/{mid!r} (looked in "
+                f"{ROOT / 'output' / 'personas' / group} for "
+                f"{group}_{mid}_*). Run scripts/art_gaps.py --group {group}.")
 
     with Image.open(src_path) as im:
         im = im.convert("RGB")
-        box = crop_box(im.size, a, mid)
+        a = ANCHORS.get(mid if group == "panel" else f"{group}/{mid}")
+        if a is not None:
+            # Hand-measured wins wherever it exists: panel's four anchors put
+            # the hair mass where detection cannot see it.
+            box = crop_box(im.size, a, f"{group}/{mid}")
+            side = box[2] - box[0]
+            eye_frac = (a["eye_y"] * im.height - box[1]) / side
+            how = "measured"
+            # Rule 4, applied to framing: a crop that puts the eyes at or below
+            # the circle's center is a mis-measured anchor, and shipping it
+            # silently is exactly the failure mode we refuse.
+            if not 0.20 <= eye_frac <= 0.45:
+                raise SystemExit(
+                    f"ERROR: {mid}: eyes land at {eye_frac:.2f} of the crop "
+                    f"(want 0.20-0.45, above center). Re-measure "
+                    f"ANCHORS[{mid!r}].")
+        else:
+            box, eye_frac = derive_box(im, f"{group}/{mid}")
+            side = box[2] - box[0]
+            how = "detected"
         face = im.crop(box)
 
-    side = box[2] - box[0]
-    eye_frac = (a["eye_y"] * im.height - box[1]) / side
-    # Rule 4, applied to framing: a crop that puts the eyes at or below the
-    # circle's center is a mis-measured anchor, and shipping it silently is
-    # exactly the failure mode we refuse. 0.20-0.45 is "above center" without
-    # being so high the chin falls out of the circle.
-    if not 0.20 <= eye_frac <= 0.45:
-        raise SystemExit(
-            f"ERROR: {mid}: eyes land at {eye_frac:.2f} of the crop "
-            f"(want 0.20-0.45, above center). Re-measure ANCHORS[{mid!r}].")
-
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out_dir = OUT_DIR if group == "panel" else OUT_DIR / group
+    out_dir.mkdir(parents=True, exist_ok=True)
     written = []
     for px in SIZES:
-        out = OUT_DIR / f"{mid}_{px}.webp"
-        face.resize((px, px), Image.LANCZOS).save(out, "WEBP", quality=88, method=6)
+        out = out_dir / f"{mid}_{px}.webp"
+        face.resize((px, px), Image.LANCZOS).save(out, "WEBP", quality=88,
+                                                  method=6)
         written.append((out, out.stat().st_size))
-    print(f"  {mid:<9} src={src_path.name} ({slug})  crop={box} side={side}px  "
+    print(f"  {mid:<11} {how:<9} src={src_path.name[:34]:<34} side={side:>4}px  "
           f"eyes@{eye_frac:.2f}  -> " +
           ", ".join(f"{p.name} {n:,}B" for p, n in written))
     contact_rows.append((mid, face))
@@ -186,17 +311,36 @@ def main(argv=None):
                     help="build just these managers (repeatable)")
     ap.add_argument("--contact", metavar="PATH",
                     help="also write a round-cropped preview sheet here")
+    ap.add_argument("--group", default="panel",
+                    help="which group's roster to build (default panel). "
+                         "panel writes to docs/img/avatars/ and uses the "
+                         "hand-measured ANCHORS; every other group writes to "
+                         "docs/img/avatars/<group>/ and derives its crop by "
+                         "face detection.")
     args = ap.parse_args(argv)
 
-    targets = args.only or sorted(ANCHORS)
-    unknown = [m for m in targets if m not in ANCHORS]
-    if unknown:
-        raise SystemExit(f"ERROR: no ANCHORS entry for {unknown}.")
+    if args.group == "panel":
+        targets = args.only or sorted(ANCHORS)
+        unknown = [m for m in targets if m not in ANCHORS]
+        if unknown:
+            raise SystemExit(f"ERROR: no ANCHORS entry for {unknown}.")
+    else:
+        cfg = ROOT / "groups" / args.group / "config.json"
+        if not cfg.is_file():
+            raise SystemExit(f"ERROR: no group {args.group!r} at {cfg}")
+        roster = [m["manager_id"] for m in
+                  json.loads(cfg.read_text(encoding="utf-8"))["managers"]]
+        targets = args.only or roster
+        unknown = [m for m in targets if m not in roster]
+        if unknown:
+            raise SystemExit(f"ERROR: {unknown} not on the {args.group} roster.")
 
-    print(f"build_avatars: {len(targets)} manager(s) -> {OUT_DIR.relative_to(ROOT)}")
+    dest = OUT_DIR if args.group == "panel" else OUT_DIR / args.group
+    print(f"build_avatars[{args.group}]: {len(targets)} manager(s) -> "
+          f"{dest.relative_to(ROOT).as_posix()}")
     rows, total = [], 0
     for mid in targets:
-        total += sum(n for _p, n in build(mid, rows))
+        total += sum(n for _p, n in build(mid, rows, args.group))
     if args.contact:
         write_contact(rows, args.contact)
     print(f"  {len(targets) * len(SIZES)} files, {total:,} bytes total")

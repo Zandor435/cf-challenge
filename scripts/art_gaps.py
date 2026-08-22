@@ -94,14 +94,19 @@ def published(group, mid, slot):
             sorted(base.glob(f"{mid}_*-ripped.webp"))
         return hits or (sorted(base.glob(f"{mid}.webp")) if group == "family" else [])
     if slot == "manager_avatar":
-        # docs/img/avatars/ is FLAT -- no group in the path -- so zach_56.webp
-        # is one file that four rosters all match by name. Counting it for
-        # every group reported browns/church/family zach as done when only
-        # panel's avatar exists. A published avatar counts for a group only if
-        # that group actually declares the slot; otherwise it is someone
-        # else's file that happens to share an id.
-        base = DOCS / "img" / "avatars"
-        return sorted(base.glob(f"{mid}_56.webp")) if base.is_dir() else []
+        # TWO layouts, and the group-scoped one is checked FIRST.
+        # docs/img/avatars/<group>/ is where every group except panel writes,
+        # because the flat docs/img/avatars/ cannot hold `zach` four times --
+        # he is on all four rosters with different art on each. panel stays
+        # flat: art_slots.json is documented as safe to 404, and moving
+        # panel's files would break the fallback that contract promises.
+        scoped = DOCS / "img" / "avatars" / group
+        if scoped.is_dir():
+            hit = sorted(scoped.glob(f"{mid}_56.webp"))
+            if hit:
+                return hit
+        flat = DOCS / "img" / "avatars"
+        return sorted(flat.glob(f"{mid}_56.webp")) if flat.is_dir() else []
     return []
 
 
@@ -171,15 +176,19 @@ def main():
     print("\n" + "=" * 70)
     print(f"GAP   {gaps:>3}   needs generation")
     print(f"READY {ready:>3}   source exists, needs only a crop/convert/declare")
-    # Namespace hazard: manager_avatar candidates are "img/avatars/{id}", which
-    # is NOT group-scoped. zach is on all four rosters, so the day a second
-    # group declares avatars, zach_56.webp collides. Say so before it bites.
-    dupe = [m for m in set().union(*(set(v["managers"]) for v in report.values()))
-            if sum(m in v["managers"] for v in report.values()) > 1]
-    if dupe:
-        print(f"\nNOTE: {', '.join(sorted(dupe))} appear(s) in more than one group, "
-              f"and\n      manager_avatar resolves to img/avatars/{{id}} with no group "
-              f"scope.\n      Scope the candidate before a second group ships avatars.")
+    # Shared ids across rosters used to be a live hazard: manager_avatar
+    # resolved to the flat img/avatars/{id} for every group, and `zach` is on
+    # all four. Now every group except panel is scoped to img/avatars/<group>/,
+    # so this is reported as a fact to keep an eye on rather than a warning.
+    shared = sorted(m for m in set().union(*(set(v["managers"])
+                                             for v in report.values()))
+                    if sum(m in v["managers"] for v in report.values()) > 1)
+    if shared and len(report) > 1:
+        print(f"\nNOTE: {', '.join(shared)} appear(s) on more than one roster.")
+        print("      Avatars are group-scoped (img/avatars/<group>/<id>), so "
+              "the art may")
+        print("      differ per group. panel alone stays flat and cannot "
+              "collide with them.")
 
 
 if __name__ == "__main__":

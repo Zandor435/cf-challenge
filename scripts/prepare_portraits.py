@@ -170,6 +170,13 @@ def main() -> int:
     ap.add_argument("--face-px", type=int, default=256, help="face crop side")
     ap.add_argument("--expand", type=float, default=2.3,
                     help="face-box multiplier for the head-and-shoulders square")
+    ap.add_argument("--face-box", action="append", default=[],
+                    metavar="ID=X,Y,W,H",
+                    help="explicit face box in SOURCE pixels, bypassing "
+                         "detection for that manager (repeatable). The escape "
+                         "hatch this script's own failure message has always "
+                         "told you to use: family/gunner's novelty joke "
+                         "glasses defeat the frontal cascade outright.")
     ap.add_argument("--quality", type=int, default=82)
     ap.add_argument("--force", action="store_true",
                     help="overwrite existing approved assets")
@@ -215,14 +222,25 @@ def main() -> int:
     if not args.preview:
         out_dir.mkdir(parents=True, exist_ok=True)
 
+    explicit = {}
+    for entry in args.face_box:
+        mid, _, nums = entry.partition("=")
+        try:
+            x, y, w, h = (int(v) for v in nums.split(","))
+        except ValueError:
+            ap.error(f"--face-box needs ID=X,Y,W,H in source pixels, "
+                     f"got {entry!r}")
+        explicit[mid.strip()] = (x, y, w, h)
+
     tiles, written, made, skipped, failed = [], {}, 0, 0, 0
     for mid, src, team in pairs:
         img = Image.open(src).convert("RGB")
-        box = detect_face(img)
+        box = explicit.get(mid) or detect_face(img)
         if box is None:
             # rule 4: name the offender, never guess a crop.
-            print(f"  FAILED {mid}: no face detected in {src.name} — pass an "
-                  f"explicit crop or re-shoot the art.", file=sys.stderr)
+            print(f"  FAILED {mid}: no face detected in {src.name} — pass "
+                  f"--face-box {mid}=X,Y,W,H or re-shoot the art.",
+                  file=sys.stderr)
             failed += 1
             continue
 

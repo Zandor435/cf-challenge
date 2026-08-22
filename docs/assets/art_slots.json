@@ -101,7 +101,24 @@
   },
   "family": {
    "hero_banner":    { "mode": "fixed",  "candidates": [] },
-   "manager_avatar": { "mode": "fixed",  "candidates": [] },
+   "manager_avatar": {
+    "$why": [
+     "GROUP-SCOPED: img/avatars/{group}/{id}, not the flat img/avatars/{id}",
+     "panel uses. `zach` is on all four rosters with DIFFERENT art on each --",
+     "a fat coach here, a 1980s school photo in family -- so one flat",
+     "namespace cannot hold them and whichever group shipped second would",
+     "have silently served the first group's face.",
+     "panel stays flat on purpose: art_slots.json is documented as safe to",
+     "404, and every caller then falls back to the behaviour it had before",
+     "this file existed -- which for panel is the flat path its files still",
+     "sit at. Moving them would break that fallback to buy tidiness.",
+     "Built by scripts/build_avatars.py --group family. Still gated by",
+     "assets/portraits/index.json: this file chooses WHICH avatar, never",
+     "WHETHER there is one."
+    ],
+    "mode": "fixed",
+    "candidates": ["img/avatars/{group}/{id}"]
+   },
    "editorial_hero": { "mode": "fixed",  "candidates": [] },
    "svp_column_art": { "mode": "weekly", "candidates": [] },
    "profile_hero":   {
@@ -141,7 +158,24 @@
   },
   "church": {
    "hero_banner":    { "mode": "fixed",  "candidates": [] },
-   "manager_avatar": { "mode": "fixed",  "candidates": [] },
+   "manager_avatar": {
+    "$why": [
+     "GROUP-SCOPED: img/avatars/{group}/{id}, not the flat img/avatars/{id}",
+     "panel uses. `zach` is on all four rosters with DIFFERENT art on each --",
+     "a fat coach here, a 1980s school photo in family -- so one flat",
+     "namespace cannot hold them and whichever group shipped second would",
+     "have silently served the first group's face.",
+     "panel stays flat on purpose: art_slots.json is documented as safe to",
+     "404, and every caller then falls back to the behaviour it had before",
+     "this file existed -- which for panel is the flat path its files still",
+     "sit at. Moving them would break that fallback to buy tidiness.",
+     "Built by scripts/build_avatars.py --group church. Still gated by",
+     "assets/portraits/index.json: this file chooses WHICH avatar, never",
+     "WHETHER there is one."
+    ],
+    "mode": "fixed",
+    "candidates": ["img/avatars/{group}/{id}"]
+   },
    "editorial_hero": { "mode": "fixed",  "candidates": [] },
    "svp_column_art": { "mode": "weekly", "candidates": [] },
    "profile_hero":   {
@@ -184,7 +218,24 @@
     "mode": "fixed",
     "candidates": ["assets/banners/{group}.webp"]
    },
-   "manager_avatar": { "mode": "fixed",  "candidates": [] },
+   "manager_avatar": {
+    "$why": [
+     "GROUP-SCOPED: img/avatars/{group}/{id}, not the flat img/avatars/{id}",
+     "panel uses. `zach` is on all four rosters with DIFFERENT art on each --",
+     "a fat coach here, a 1980s school photo in family -- so one flat",
+     "namespace cannot hold them and whichever group shipped second would",
+     "have silently served the first group's face.",
+     "panel stays flat on purpose: art_slots.json is documented as safe to",
+     "404, and every caller then falls back to the behaviour it had before",
+     "this file existed -- which for panel is the flat path its files still",
+     "sit at. Moving them would break that fallback to buy tidiness.",
+     "Built by scripts/build_avatars.py --group browns. Still gated by",
+     "assets/portraits/index.json: this file chooses WHICH avatar, never",
+     "WHETHER there is one."
+    ],
+    "mode": "fixed",
+    "candidates": ["img/avatars/{group}/{id}"]
+   },
    "editorial_hero": { "mode": "fixed",  "candidates": [] },
    "svp_column_art": { "mode": "weekly", "candidates": [] },
    "profile_hero":   {
