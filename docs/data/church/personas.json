@@ -3,9 +3,13 @@
   "GENERATED -- do not edit. Written by scripts/sync_personas.py from",
   "groups/church/personas.json (source) + groups/church/config.json.",
   "Edit the source and re-run the script; --check runs in CI and fails on drift.",
-  "Art-pipeline fields (traits, silhouette_cue/s) are deliberately NOT published.",
+  "Art-pipeline fields (traits, silhouette_cue/s) and the editorial-profile",
+  "creative brief (north_star, motifs, easter_eggs) are deliberately NOT",
+  "published -- they are image-prompt inputs, not page copy.",
   "tone withholds fields per register: straight nulls fatal_flaw,",
-  "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing."
+  "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing.",
+  "A withheld field takes its modules[<field>] block with it, so a",
+  "withheld block can never render as a headline with no body."
  ],
  "$version": 1,
  "group_id": "church",
@@ -20,7 +24,16 @@
    "draft_tendency": "Overthinks it, then takes the model’s number anyway.",
    "fatal_flaw": null,
    "rival": "david",
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "brian": {
    "tone": "warm",
@@ -32,7 +45,16 @@
    "draft_tendency": "Reads everything. Picks like someone who read everything.",
    "fatal_flaw": null,
    "rival": null,
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "david": {
    "tone": "warm",
@@ -44,7 +66,16 @@
    "draft_tendency": "Picks for the story, not the spread.",
    "fatal_flaw": null,
    "rival": "zach",
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "john_wells": {
    "tone": "warm",
@@ -56,7 +87,16 @@
    "draft_tendency": "Conservative. Won’t reach.",
    "fatal_flaw": null,
    "rival": null,
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "john_tamu": {
    "tone": "warm",
@@ -68,7 +108,16 @@
    "draft_tendency": "Has better information than he lets on.",
    "fatal_flaw": null,
    "rival": null,
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   }
  }
 }

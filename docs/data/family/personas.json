@@ -3,9 +3,13 @@
   "GENERATED -- do not edit. Written by scripts/sync_personas.py from",
   "groups/family/personas.json (source) + groups/family/config.json.",
   "Edit the source and re-run the script; --check runs in CI and fails on drift.",
-  "Art-pipeline fields (traits, silhouette_cue/s) are deliberately NOT published.",
+  "Art-pipeline fields (traits, silhouette_cue/s) and the editorial-profile",
+  "creative brief (north_star, motifs, easter_eggs) are deliberately NOT",
+  "published -- they are image-prompt inputs, not page copy.",
   "tone withholds fields per register: straight nulls fatal_flaw,",
-  "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing."
+  "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing.",
+  "A withheld field takes its modules[<field>] block with it, so a",
+  "withheld block can never render as a headline with no body."
  ],
  "$version": 1,
  "group_id": "family",
@@ -20,7 +24,16 @@
    "draft_tendency": "Sneaky-good. Doesn't announce anything.",
    "fatal_flaw": null,
    "rival": null,
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "john": {
    "tone": "straight",
@@ -32,7 +45,16 @@
    "draft_tendency": "Backed Ole Miss, faded Mississippi State, and can tell you why in order.",
    "fatal_flaw": null,
    "rival": null,
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "vic": {
    "tone": "straight",
@@ -44,7 +66,16 @@
    "draft_tendency": "Unbothered. Four overs, no hedge, moves on.",
    "fatal_flaw": null,
    "rival": null,
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "gayden": {
    "tone": "roast",
@@ -56,7 +87,16 @@
    "draft_tendency": "Three overs on teams nobody expects anything from, and an under on Gunner.",
    "fatal_flaw": "No casual setting. Anywhere. Ever.",
    "rival": "gunner",
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "devin": {
    "tone": "roast",
@@ -68,7 +108,16 @@
    "draft_tendency": "Confident. Trusts the pick, waits it out.",
    "fatal_flaw": "Took his own school to the over. His aunt took the other side without blinking.",
    "rival": "gunner",
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "holly": {
    "tone": "roast",
@@ -80,7 +129,16 @@
    "draft_tendency": "Picks against the teams whose fans have annoyed her most. Historically not a bad system.",
    "fatal_flaw": null,
    "rival": "vic",
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "zach": {
    "tone": "roast",
@@ -92,7 +150,16 @@
    "draft_tendency": "Overthinks it, then drafts with his heart anyway.",
    "fatal_flaw": "Built a projection engine that keeps telling him he loses. Shipped it anyway.",
    "rival": "gunner",
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "gunner": {
    "tone": "roast",
@@ -104,7 +171,16 @@
    "draft_tendency": "Says nothing, walks out with the best board.",
    "fatal_flaw": "Will let you walk off the cliff rather than raise his voice.",
    "rival": "devin",
-   "color": null
+   "color": null,
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   }
  }
 }

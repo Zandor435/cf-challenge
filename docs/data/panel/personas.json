@@ -3,9 +3,13 @@
   "GENERATED -- do not edit. Written by scripts/sync_personas.py from",
   "groups/panel/personas.json (source) + groups/panel/config.json.",
   "Edit the source and re-run the script; --check runs in CI and fails on drift.",
-  "Art-pipeline fields (traits, silhouette_cue/s) are deliberately NOT published.",
+  "Art-pipeline fields (traits, silhouette_cue/s) and the editorial-profile",
+  "creative brief (north_star, motifs, easter_eggs) are deliberately NOT",
+  "published -- they are image-prompt inputs, not page copy.",
   "tone withholds fields per register: straight nulls fatal_flaw,",
-  "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing."
+  "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing.",
+  "A withheld field takes its modules[<field>] block with it, so a",
+  "withheld block can never render as a headline with no body."
  ],
  "$version": 1,
  "group_id": "panel",
@@ -20,7 +24,16 @@
    "draft_tendency": "Contrarian for the bit. Will take an under purely because you took the over.",
    "fatal_flaw": "Drafted special-teamers as his boys. On purpose. Repeatedly. And John Emery Jr. — a man who played approximately six years of college football and peaked as a 2019 freshman, which Blaine will tell you was simply early identification of talent.",
    "rival": null,
-   "color": "#fe5c00"
+   "color": "#fe5c00",
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "chris": {
    "tone": "roast",
@@ -32,7 +45,16 @@
    "draft_tendency": "Measured. Doesn't chase. Will explain his reasoning like it's a chart read.",
    "fatal_flaw": "Above the fray means unarmed when the fray comes for him.",
    "rival": null,
-   "color": "#cfb87c"
+   "color": "#cfb87c",
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "jonathan": {
    "tone": "roast",
@@ -44,7 +66,16 @@
    "draft_tendency": "Rigorous, defensible, cursed.",
    "fatal_flaw": "His boys. It's a documented pattern at this point.",
    "rival": null,
-   "color": "#c30020"
+   "color": "#c30020",
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   },
   "zach": {
    "tone": "roast",
@@ -56,7 +87,16 @@
    "draft_tendency": "Overthinks it, then takes the number the model gave him anyway.",
    "fatal_flaw": "Boys. Jack Bech, who we never threw to. Sage Ryan, five stars of nothing who left for Ole Miss.",
    "rival": null,
-   "color": "#ceb888"
+   "color": "#ceb888",
+   "archetype": null,
+   "thesis": null,
+   "dossier": null,
+   "modules": null,
+   "pull_quote": null,
+   "footer": null,
+   "theme": null,
+   "layout": null,
+   "assets": null
   }
  }
 }

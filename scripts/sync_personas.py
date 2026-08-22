@@ -62,9 +62,29 @@ Usage:
 """
 
 import argparse
+import copy
 import json
 import sys
 from pathlib import Path
+
+# The editorial-profile field contract lives beside this file rather than in
+# it. See scripts/persona_schema.py for why -- in short, this module reconciles
+# the roster and decides what leaves the repo; validating nine structured
+# creative fields inline would have buried that.
+try:
+    from persona_schema import (  # noqa: F401  (run as a script from scripts/)
+        PROFILE_SITE_FIELDS,
+        PersonaSchemaError,
+        strip_modules_for_tone,
+        validate_manager,
+    )
+except ImportError:  # imported as scripts.persona_schema by the test suite
+    from scripts.persona_schema import (
+        PROFILE_SITE_FIELDS,
+        PersonaSchemaError,
+        strip_modules_for_tone,
+        validate_manager,
+    )
 
 ROOT = Path(__file__).resolve().parent.parent
 GROUPS_DIR = ROOT / "groups"
@@ -107,11 +127,16 @@ SITE_FIELDS = (
     "fatal_flaw",
     "rival",
     "color",
-)
+) + PROFILE_SITE_FIELDS
 # Deliberately NOT published: traits, silhouette_cue, silhouette_cues,
-# _phase2_finding. Those are Gemini prompt inputs -- internal art direction
-# with no surface on the page. Keeping them out of docs/ is the whole reason
-# this is a projection and not a file copy.
+# _phase2_finding, and the editorial-profile creative brief (north_star,
+# motifs, easter_eggs -- persona_schema.PRIVATE_FIELDS). Those are image-prompt
+# inputs: internal art direction with no surface on the page. Keeping them out
+# of docs/ is the whole reason this is a projection and not a file copy.
+#
+# PROFILE_SITE_FIELDS is appended rather than interleaved so the original ten
+# keys keep their published order and the diff of an existing docs/ payload
+# stays readable when a profile field is added to one manager.
 
 
 def load_json(path):
@@ -180,9 +205,28 @@ def build_payload(group_id, config, personas, colors):
                 "from it.".format(g=group_id, m=mid, c=color, t=team, k=colors[team])
             )
 
-        rec = {k: src.get(k, None) for k in SITE_FIELDS}
+        # Editorial-profile fields. Absent and null are always fine; present
+        # and malformed fails the build and names the offender (playbook rule
+        # 4). This runs BEFORE the projection so a bad layout key or a bad hex
+        # is reported against the source file the author has to edit.
+        try:
+            validate_manager(group_id, mid, src)
+        except PersonaSchemaError as exc:
+            sys.exit(str(exc))
+
+        # deepcopy, not a shared reference: strip_modules_for_tone() mutates
+        # the nested `modules` dict, and a shallow projection would reach
+        # through and edit the in-memory source. Harmless today because nothing
+        # writes the source back, but --check renders twice in one process and
+        # a mutating projection is exactly how the second render disagrees
+        # with the first.
+        rec = copy.deepcopy({k: src.get(k, None) for k in SITE_FIELDS})
         for k in TONE_POLICY[tone]:
             rec[k] = None
+        # The second half of the tone gate: a withheld flat field must take its
+        # module block with it, or the page prints a label and a headline over
+        # an empty body. See persona_schema.strip_modules_for_tone.
+        strip_modules_for_tone(rec, TONE_POLICY[tone])
 
         rival = rec.get("rival")
         if rival is not None and rival not in cfg_ids:
@@ -199,9 +243,13 @@ def build_payload(group_id, config, personas, colors):
             "GENERATED -- do not edit. Written by scripts/sync_personas.py from",
             "groups/{g}/personas.json (source) + groups/{g}/config.json.".format(g=group_id),
             "Edit the source and re-run the script; --check runs in CI and fails on drift.",
-            "Art-pipeline fields (traits, silhouette_cue/s) are deliberately NOT published.",
+            "Art-pipeline fields (traits, silhouette_cue/s) and the editorial-profile",
+            "creative brief (north_star, motifs, easter_eggs) are deliberately NOT",
+            "published -- they are image-prompt inputs, not page copy.",
             "tone withholds fields per register: straight nulls fatal_flaw,",
             "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing.",
+            "A withheld field takes its modules[<field>] block with it, so a",
+            "withheld block can never render as a headline with no body.",
         ],
         "$version": 1,
         "group_id": group_id,
