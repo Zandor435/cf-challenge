@@ -6,9 +6,9 @@
   "_count_conference_championship_note": "Per-group rule (ARCHITECTURE §1/§5): do conference-championship wins settle into a team's season win total? Sportsbooks differ, so it is per-group config, not a code constant. CFBD returns conf-title games as seasonType=regular; the shared cache tags them but excludes nothing — this flag decides. Default false.",
   "count_conference_championship": false,
 
-  "_pick_rules_note": "Settled format (LOCKED), enforced by validate_team_names.py per group: EXACTLY 4 picks per manager, spanning 4 distinct conferences. Always enforced — no unenforced path.",
+  "_pick_rules_note": "Settled format, enforced by validate_team_names.py per group: EXACTLY 4 picks per manager. Always enforced — no unenforced path. Conference spread is ADVISORY for this group and deliberately not gated: it was never agreed as a hard constraint in the family league and must not block a submitted board, so `min_distinct_conferences` is 1 (every roster trivially satisfies it). There is nothing to waive, so no `conference_minimum_waivers` list here — that mechanism is panel's.",
   "picks_per_manager": 4,
-  "min_distinct_conferences": 4,
+  "min_distinct_conferences": 1,
 
   "_managers_note": "Locked real identities; the roster is COMPLETE at 8 managers (the two anticipated additions landed, plus a third). Any further change is a config.json + picks edit, never a rebuild — every manager here needs a matching 4-pick set in picks.json or the §5 gate fails. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. `email` per manager (recipient list derives from these when email_enabled).",
   "managers": [
