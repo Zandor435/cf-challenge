@@ -44,7 +44,9 @@ from generate_owner_images import (  # noqa: E402
     _post_with_retries, bump_budget, load_budget,
 )
 from recolor_personas import color_name, team_colors  # noqa: E402
+import banner_batch  # noqa: E402  -- pure data, no side effects
 import gemini_image  # noqa: E402
+import style_spec  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_MODEL = gemini_image.DEFAULT_MODEL
@@ -119,8 +121,17 @@ def main() -> int:
                     help="manager_id=poster_path:Team Name (repeatable)")
     ap.add_argument("--styles", default="all",
                     help=f"comma-separated or 'all' ({', '.join(STYLES)})")
+    ap.add_argument("--style-spec", action="append", default=[], metavar="PATH",
+                    help="a derived style fragment (repeatable). Opts into the "
+                         "decomposed path: composition, style, wardrobe and "
+                         "locks are separate and only the fragment varies.")
+    ap.add_argument("--composition", default=None,
+                    choices=[e["slug"] for e in banner_batch.BANNERS],
+                    help="required with --style-spec; supplies pose/framing/"
+                         "setting, which the legacy STYLES bake in themselves")
     ap.add_argument("--n", type=int, default=3, help="variants per style")
-    ap.add_argument("--aspect", default="21:9")
+    ap.add_argument("--aspect", default=None,
+                    help="default 21:9, or the composition's own")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--out", default=str(ROOT / "output" / "banners"))
     ap.add_argument("--force", action="store_true")
@@ -174,21 +185,82 @@ def main() -> int:
               f"{args.model}. Split the group or composite instead.", file=sys.stderr)
         return 1
 
-    style_names = list(STYLES) if args.styles == "all" else \
-        [s.strip() for s in args.styles.split(",") if s.strip()]
-    unknown = [s for s in style_names if s not in STYLES]
-    if unknown:
-        print(f"ERROR: unknown style(s): {unknown}. Available: {', '.join(STYLES)}",
+    # ---- part 1: STYLE. Derived fragments load and validate before anything
+    # is spent; an invalid one stops the run naming which part it reached into.
+    specs = {}
+    for raw in args.style_spec:
+        spec = style_spec.load(Path(raw) if Path(raw).is_absolute()
+                               else ROOT / raw)
+        if spec["style_id"] in STYLES:
+            print(f"ERROR: spec {spec['style_id']!r} shadows a built-in style. "
+                  f"Rename it -- the built-ins are frozen.", file=sys.stderr)
+            return 1
+        specs[spec["style_id"]] = spec
+    if specs and not args.composition:
+        print("ERROR: --style-spec needs --composition. A fragment says only "
+              "HOW the picture is made; something has to say what is in it. "
+              f"Choose from: {', '.join(e['slug'] for e in banner_batch.BANNERS)}",
               file=sys.stderr)
+        return 1
+
+    available = dict(STYLES)
+    available.update({k: v["fragment"] for k, v in specs.items()})
+    style_names = list(available) if args.styles == "all" else \
+        [s.strip() for s in args.styles.split(",") if s.strip()]
+    unknown = [s for s in style_names if s not in available]
+    if unknown:
+        print(f"ERROR: unknown style(s): {unknown}. Available: "
+              f"{', '.join(available)}", file=sys.stderr)
         return 1
 
     n_people = len(refs)
     colors_str = "; ".join(desc)
-    prompts = {
-        s: STYLES[s].format(n=n_people, colors=colors_str)
-        + GROUP_LOCK.format(n=n_people) + NO_TEXT
-        for s in style_names
-    }
+    comp = banner_batch.BY_SLUG.get(args.composition)
+
+    def assemble(s):
+        """Concatenate the five parts in a fixed order. Authors nothing.
+
+        LEGACY path (no spec): STYLES[s] is a whole prompt that already bakes
+        in composition, setting and subject count, so it is used as-is. Those
+        four strings produced the approved panel art and browns_comic_02 and
+        are frozen.
+
+        DECOMPOSED path (spec): composition, style, wardrobe and locks are
+        separate strings. Holding composition + refs constant and varying only
+        the fragment yields the same picture in a different medium -- the thing
+        the legacy path cannot express, because switching `comic` for
+        `vintage70s` also switches the pose and the setting.
+        """
+        spec = specs.get(s)
+        if spec is None:
+            head = STYLES[s].format(n=n_people, colors=colors_str)
+        else:
+            head = (comp["text"].format(n=n_people)
+                    + " " + available[s].strip().rstrip(".") + "."
+                    + " Each man wears his own color: " + colors_str + ".")
+        tail = GROUP_LOCK.format(n=n_people)
+        # NO_TEXT is suppressed only by an explicit typography policy; the
+        # default and every legacy style keep it.
+        if (spec or {}).get("text_policy") != "typography":
+            tail += NO_TEXT
+        return head + tail
+
+    prompts = {s: assemble(s) for s in style_names}
+
+    # Aspect: explicit flag > the chosen composition's own > the 21:9 default.
+    # COMPOSITION owns aspect, not style -- "a row of five, end to end" is 21:9
+    # because of the row, not because of the ink. A spec's `aspect` records what
+    # the style was derived AT and is advisory, so a disagreement is announced
+    # rather than silently resolved; silence here is how you ship a poster style
+    # squeezed into a masthead and spend an hour blaming the prompt.
+    if args.aspect is None:
+        args.aspect = (comp or {}).get("aspect") or "21:9"
+    for sid, sp in specs.items():
+        if sp.get("aspect") and sp["aspect"] != args.aspect and sid in style_names:
+            print(f"  note: spec {sid!r} was derived at {sp['aspect']}; "
+                  f"rendering at {args.aspect} "
+                  f"({'--aspect' if comp is None else 'composition ' + comp['slug']})"
+                  f". Pass --aspect {sp['aspect']} to match the source.")
 
     print(f"model={args.model} aspect={args.aspect} people={n_people}")
     print(f"styles={', '.join(style_names)} x {args.n} = "

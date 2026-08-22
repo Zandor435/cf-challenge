@@ -1,0 +1,21 @@
+{
+ "_note": "STYLE fragment only -- part 1 of five. It says HOW a picture is made, never who is in it, how they are posed, what they wear, or what must not change. See scripts/style_spec.py.",
+ "style_id": "gameday_fat_photoreal",
+ "version": 1,
+ "derived_from": [
+  "output/_vault/church/Fat Banner.png"
+ ],
+ "derived_by": {
+  "script": "derive_style.py",
+  "model": "gpt-4o",
+  "detail": "high",
+  "temperature": 0.2
+ },
+ "render_mode": "photoreal",
+ "text_policy": "typography",
+ "fragment": "rendered as a DIGITAL COLLAGE: high contrast, textured overlays, dynamic lighting effects, bold typography, and a gritty, sports-themed aesthetic",
+ "model_notes": "The image uses digital collage techniques with strong contrast and textured overlays. The lighting effects and bold typography contribute to a gritty, energetic sports theme. Unsure about the intentionality of some texture effects, but they seem stylistic.",
+ "human_edits": [],
+ "_photoreal_why": "The source artifact IS a photographic composite; forcing it to illustration would lose the entire style.",
+ "aspect": "2:3"
+}

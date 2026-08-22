@@ -267,18 +267,28 @@ def build_prompt(group_id):
 
 # --- Live call (raw urllib, no SDK) ------------------------------------------
 
-def call_openai(system_text, user_text, api_key):
+def call_openai(system_text, user_text, api_key, model=None, temperature=None,
+                max_tokens=None, response_format=None):
     """POST to the chat-completions endpoint with the two retry loops rule 2
     prescribes. Re-raises after the last attempt — the caller's fail-soft guard
-    decides what a persistent outage means (here: warn and exit 0)."""
+    decides what a persistent outage means (here: warn and exit 0).
+
+    The optional arguments exist so a second caller can reuse this retry shell
+    rather than growing a fourth copy of it (scripts/derive_style.py, which
+    needs a vision message, a lower temperature and a JSON response format).
+    Every one defaults to the column's own settings, so the commentary call
+    site is unchanged. `user_text` may be a plain string or an already-built
+    list of content parts — the vision API's shape.
+    """
     body = json.dumps({
-        "model": OPENAI_MODEL,
-        "temperature": TEMPERATURE,
-        "max_tokens": MAX_TOKENS,
+        "model": model or OPENAI_MODEL,
+        "temperature": TEMPERATURE if temperature is None else temperature,
+        "max_tokens": max_tokens or MAX_TOKENS,
         "messages": [
             {"role": "system", "content": system_text},
             {"role": "user", "content": user_text},
         ],
+        **({"response_format": response_format} if response_format else {}),
     }).encode("utf-8")
 
     rate_limit_attempts = 0
