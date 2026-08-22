@@ -1,46 +1,231 @@
 {
-  "_note": "DUMMY SAMPLE DATA — this is NOT a real draft. `draft_status` is \"dummy\" so the site shows the amber sample-data banner. Plausible, varied rosters over the completed 2025 fixture so the board renders and commentary has something to narrate. Replace WHOLESALE at the real draft: overwrite `picks` and set `draft_status` to \"final\" (see README 'Replacing the dummy data'). Each manager holds EXACTLY 4 picks across 4 distinct conferences; `line` is the frozen preseason win total; direction = \"O\" (over) | \"U\" (under); store canonical team names only (§9). Family may add two more managers later — that is a config.json + picks edit, never a rebuild.",
+  "_note": "REAL 2026 DRAFT — Family League, entered 2026-08-22. 8 managers x 4 picks. `draft_status` is \"final\", so the site shows no sample-data banner. `team` is the canonical name returned by utils.resolve_team (§9) — never a display name, never an ambiguity candidate. `conference` and `line` are read from data/team_win_totals_2026.json, the SOLE 2026 authority on both (teams_canonical.json is a 2025-vintage snapshot and is not consulted); `line` is the preseason win total, FROZEN at draft and never updated (§1). direction = \"O\" (over) | \"U\" (under). Four teams are held on OPPOSITE sides by two managers (Georgia, Auburn, Baylor, Mississippi State) — legal, and the only sharing the §5 gate allows. Conference spread is advisory for this group (config.json min_distinct_conferences: 1).",
   "group_id": "family",
-  "draft_status": "dummy",
+  "draft_status": "final",
   "picks": [
-    { "manager": "john", "team": "Indiana",    "conference": "Big Ten", "direction": "O", "line": 10.5 },
-    { "manager": "john", "team": "Oklahoma",    "conference": "SEC",     "direction": "O", "line": 7.5 },
-    { "manager": "john", "team": "Louisville",  "conference": "ACC",     "direction": "O", "line": 8.5 },
-    { "manager": "john", "team": "Arizona",     "conference": "Big 12",  "direction": "O", "line": 7.5 },
-
-    { "manager": "rachel", "team": "Oregon",       "conference": "Big Ten", "direction": "O", "line": 10.5 },
-    { "manager": "rachel", "team": "Vanderbilt",   "conference": "SEC",     "direction": "O", "line": 5.5 },
-    { "manager": "rachel", "team": "Georgia Tech", "conference": "ACC",     "direction": "O", "line": 6.5 },
-    { "manager": "rachel", "team": "Houston",      "conference": "Big 12",  "direction": "U", "line": 8.5 },
-
-    { "manager": "gayden", "team": "Michigan",  "conference": "Big Ten",       "direction": "U", "line": 8.5 },
-    { "manager": "gayden", "team": "Tennessee", "conference": "SEC",           "direction": "U", "line": 7.5 },
-    { "manager": "gayden", "team": "Miami",     "conference": "ACC",           "direction": "O", "line": 10.5 },
-    { "manager": "gayden", "team": "UNLV",      "conference": "Mountain West", "direction": "O", "line": 7.5 },
-
-    { "manager": "vic", "team": "USC",         "conference": "Big Ten",           "direction": "U", "line": 8.5 },
-    { "manager": "vic", "team": "Texas",       "conference": "SEC",               "direction": "O", "line": 9.5 },
-    { "manager": "vic", "team": "SMU",         "conference": "ACC",               "direction": "O", "line": 8.5 },
-    { "manager": "vic", "team": "North Texas", "conference": "American", "direction": "O", "line": 5.5 },
-
-    { "manager": "zach", "team": "Penn State", "conference": "Big Ten", "direction": "U", "line": 8.5 },
-    { "manager": "zach", "team": "Alabama",    "conference": "SEC",     "direction": "U", "line": 8.5 },
-    { "manager": "zach", "team": "Clemson",    "conference": "ACC",     "direction": "U", "line": 7.5 },
-    { "manager": "zach", "team": "Utah",       "conference": "Big 12",  "direction": "O", "line": 8.5 },
-
-    { "manager": "devin", "team": "Ohio State",    "conference": "Big Ten", "direction": "O", "line": 9.5 },
-    { "manager": "devin", "team": "Florida",       "conference": "SEC",     "direction": "U", "line": 7.5 },
-    { "manager": "devin", "team": "Kansas State",  "conference": "Big 12",  "direction": "U", "line": 8.5 },
-    { "manager": "devin", "team": "Oregon State",  "conference": "Pac-12",  "direction": "O", "line": 4.5 },
-
-    { "manager": "holly", "team": "Virginia Tech", "conference": "ACC",       "direction": "U", "line": 6.5 },
-    { "manager": "holly", "team": "Marshall",      "conference": "Sun Belt",  "direction": "O", "line": 7.5 },
-    { "manager": "holly", "team": "Toledo",        "conference": "MAC",       "direction": "O", "line": 7.5 },
-    { "manager": "holly", "team": "Memphis",       "conference": "American",  "direction": "U", "line": 7.5 },
-
-    { "manager": "gunner", "team": "Ole Miss",       "conference": "SEC",            "direction": "O", "line": 7.5 },
-    { "manager": "gunner", "team": "Oklahoma State", "conference": "Big 12",         "direction": "O", "line": 6.5 },
-    { "manager": "gunner", "team": "Liberty",        "conference": "Conference USA", "direction": "U", "line": 8.5 },
-    { "manager": "gunner", "team": "Air Force",      "conference": "Mountain West",  "direction": "U", "line": 7.5 }
+    {
+      "manager": "john",
+      "team": "Ohio State",
+      "conference": "Big Ten",
+      "direction": "O",
+      "line": 9.5
+    },
+    {
+      "manager": "john",
+      "team": "Miami",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 10.5
+    },
+    {
+      "manager": "john",
+      "team": "Mississippi State",
+      "conference": "SEC",
+      "direction": "U",
+      "line": 4.5
+    },
+    {
+      "manager": "john",
+      "team": "Ole Miss",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "gunner",
+      "team": "Baylor",
+      "conference": "Big 12",
+      "direction": "O",
+      "line": 6.5
+    },
+    {
+      "manager": "gunner",
+      "team": "Virginia",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "gunner",
+      "team": "Purdue",
+      "conference": "Big Ten",
+      "direction": "O",
+      "line": 3.5
+    },
+    {
+      "manager": "gunner",
+      "team": "Vanderbilt",
+      "conference": "SEC",
+      "direction": "U",
+      "line": 5.5
+    },
+    {
+      "manager": "vic",
+      "team": "Florida State",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 6.5
+    },
+    {
+      "manager": "vic",
+      "team": "Memphis",
+      "conference": "American",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "vic",
+      "team": "Mississippi State",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 4.5
+    },
+    {
+      "manager": "vic",
+      "team": "Georgia",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 9.5
+    },
+    {
+      "manager": "rachel",
+      "team": "Notre Dame",
+      "conference": "Independent",
+      "direction": "U",
+      "line": 11.5
+    },
+    {
+      "manager": "rachel",
+      "team": "Utah",
+      "conference": "Big 12",
+      "direction": "U",
+      "line": 8.5
+    },
+    {
+      "manager": "rachel",
+      "team": "James Madison",
+      "conference": "Sun Belt",
+      "direction": "O",
+      "line": 8.5
+    },
+    {
+      "manager": "rachel",
+      "team": "Auburn",
+      "conference": "SEC",
+      "direction": "U",
+      "line": 6.5
+    },
+    {
+      "manager": "holly",
+      "team": "Georgia",
+      "conference": "SEC",
+      "direction": "U",
+      "line": 9.5
+    },
+    {
+      "manager": "holly",
+      "team": "Clemson",
+      "conference": "ACC",
+      "direction": "U",
+      "line": 7.5
+    },
+    {
+      "manager": "holly",
+      "team": "UAB",
+      "conference": "American",
+      "direction": "O",
+      "line": 3.5
+    },
+    {
+      "manager": "holly",
+      "team": "Tennessee",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "zach",
+      "team": "Wake Forest",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 5.5
+    },
+    {
+      "manager": "zach",
+      "team": "LSU",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 8.5
+    },
+    {
+      "manager": "zach",
+      "team": "Navy",
+      "conference": "American",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "zach",
+      "team": "SMU",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 8.5
+    },
+    {
+      "manager": "gayden",
+      "team": "Michigan State",
+      "conference": "Big Ten",
+      "direction": "O",
+      "line": 4.5
+    },
+    {
+      "manager": "gayden",
+      "team": "Baylor",
+      "conference": "Big 12",
+      "direction": "U",
+      "line": 6.5
+    },
+    {
+      "manager": "gayden",
+      "team": "UNLV",
+      "conference": "Mountain West",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "gayden",
+      "team": "West Virginia",
+      "conference": "Big 12",
+      "direction": "O",
+      "line": 5.5
+    },
+    {
+      "manager": "devin",
+      "team": "Auburn",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 6.5
+    },
+    {
+      "manager": "devin",
+      "team": "Texas Tech",
+      "conference": "Big 12",
+      "direction": "U",
+      "line": 10.5
+    },
+    {
+      "manager": "devin",
+      "team": "Boston College",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 3.5
+    },
+    {
+      "manager": "devin",
+      "team": "Houston",
+      "conference": "Big 12",
+      "direction": "U",
+      "line": 8.5
+    }
   ]
 }
