@@ -67,6 +67,26 @@ GROUP_LOCK = (
     "three-quarter length, roughly equal prominence, each clearly distinguishable."
 )
 
+# The same invariant with the fat-coach joke removed. GROUP_LOCK asserts every
+# subject is "large and heavy-set", which is the whole premise for panel,
+# browns and church -- and false for family, whose art is real photographs of
+# a grandmother, a boy and several adults. Asserting a body type about real
+# people who do not have it is not a style choice, it is being wrong about
+# them. Everything load-bearing is kept: same face, no merging, no generic
+# substitutes, no slimming, all N present and distinguishable.
+GROUP_LOCK_PLAIN = (
+    " CRITICAL: each person must be clearly recognizable as the specific "
+    "individual from their reference image -- same face, same facial features, "
+    "same hair, same age, same body shape and build. Do NOT slim anyone, do "
+    "NOT alter anyone's age, do NOT merge or blend their faces, do NOT "
+    "substitute generic people, do NOT make them look like each other. All "
+    "{n} people appear together in ONE scene, side by side, full body or "
+    "three-quarter length, roughly equal prominence, each clearly "
+    "distinguishable."
+)
+
+LOCKS = {"heavyset": GROUP_LOCK, "plain": GROUP_LOCK_PLAIN}
+
 # No lettering: the site's own type layer supplies the headline over the banner,
 # and generated text renders unreliably at 21:9 anyway.
 NO_TEXT = (
@@ -107,6 +127,19 @@ STYLES = {
         "his own team's colors: {colors}."
     ),
 }
+
+
+def show(path):
+    """Repo-relative when it is inside the repo, absolute when it is not.
+
+    --out accepts any path, including a scratch directory outside the repo, and
+    Path.relative_to() RAISES on that rather than returning something. Printing
+    a filename must never be able to fail a run that has already spent money.
+    """
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
 def gen_banner(api_key, model, refs, prompt, aspect):
@@ -173,9 +206,7 @@ def main() -> int:
         # Ordinal, NOT manager_id: the model sees an ordered list of
         # reference images and has no way to map a name onto one. The
         # index is the only handle that actually binds a face to a color.
-        desc.append(f"the man from reference image #{len(refs)} wears "
-                    + (f"{team} " if team else "")
-                    + f"{color_name(hexc)} ({hexc})")
+        desc.append((refs, team, hexc))
     if not refs:
         ap.error("at least one --ref ID=PATH:TEAM is required")
 
@@ -214,8 +245,17 @@ def main() -> int:
         return 1
 
     n_people = len(refs)
-    colors_str = "; ".join(desc)
     comp = banner_batch.BY_SLUG.get(args.composition)
+    # The subject NOUN belongs to the composition: "man" is right for the three
+    # coach line-ups and wrong for family, whose roster includes a grandmother
+    # and a boy. Ordinal still does the binding work -- the model has no way to
+    # map a name onto a reference image, so the index is the only handle.
+    noun = (comp or {}).get("subject", banner_batch.DEFAULT_SUBJECT)
+    colors_str = "; ".join(
+        f"the {noun} from reference image #{i} wears "
+        + (f"{team} " if team else "") + f"{color_name(hexc)} ({hexc})"
+        for i, (_r, team, hexc) in enumerate(desc, start=1))
+    lock = LOCKS[(comp or {}).get("lock", banner_batch.DEFAULT_LOCK)]
 
     def assemble(s):
         """Concatenate the five parts in a fixed order. Authors nothing.
@@ -237,8 +277,8 @@ def main() -> int:
         else:
             head = (comp["text"].format(n=n_people)
                     + " " + available[s].strip().rstrip(".") + "."
-                    + " Each man wears his own color: " + colors_str + ".")
-        tail = GROUP_LOCK.format(n=n_people)
+                    + f" Each {noun} wears their own color: " + colors_str + ".")
+        tail = (GROUP_LOCK if spec is None else lock).format(n=n_people)
         # NO_TEXT is suppressed only by an explicit typography policy; the
         # default and every legacy style keep it.
         if (spec or {}).get("text_policy") != "typography":
@@ -290,7 +330,7 @@ def main() -> int:
         for i in range(1, args.n + 1):
             out_file = out_dir / f"{args.group}_{style}_{i:02d}.png"
             if out_file.exists() and not args.force:
-                print(f"  skip (exists): {out_file.relative_to(ROOT)}")
+                print(f"  skip (exists): {show(out_file)}")
                 skipped += 1
                 continue
             print(f"  {style} #{i} ...")
@@ -306,7 +346,7 @@ def main() -> int:
                 continue
             out_file.write_bytes(img)
             made += 1
-            print(f"  wrote {out_file.relative_to(ROOT)} ({len(img)//1024} KB)")
+            print(f"  wrote {show(out_file)} ({len(img)//1024} KB)")
 
     req = budget["requests"]
     print(f"\ndone: {made} generated, {skipped} skipped, {failed} failed. "

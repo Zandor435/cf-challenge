@@ -51,6 +51,26 @@ BANNERS = [
         "{n} heavy-set college football head coaches spread along a sideline "
         "during a game, headsets and play sheets, caught mid-moment rather "
         "than posed, the field and stands behind them.")),
+
+    # NOT coaches, NOT all men, NOT heavy-set. family's roster spans a
+    # grandmother, a boy and several adults, and its art is real family
+    # photographs rather than the fat-coach treatment the other three groups
+    # share. Rendering them as "heavy-set college football head coaches" would
+    # be wrong about who these people are, and GROUP_LOCK's "every man is
+    # large and heavy-set" is wrong twice over.
+    #
+    # `subject` is the noun the wardrobe clause uses; `lock` picks which
+    # invariant block the renderer appends. Art direction does not port
+    # between groups even when the rendering style does.
+    dict(slug="row", aspect="5:4", subject="person", lock="plain", text=(
+        "{n} people of different ages standing together in one row, side by "
+        "side, roughly equal prominence, three-quarter length, facing the "
+        "viewer, a bright open outdoor background behind them.")),
 ]
+
+# Default for every entry that does not say otherwise -- the three coach
+# compositions above.
+DEFAULT_SUBJECT = "man"
+DEFAULT_LOCK = "heavyset"
 
 BY_SLUG = {e["slug"]: e for e in BANNERS}

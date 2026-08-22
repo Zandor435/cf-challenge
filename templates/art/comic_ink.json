@@ -1,0 +1,21 @@
+{
+ "_note": "STYLE fragment only -- part 1 of five. It says HOW a picture is made, never who is in it, how they are posed, what they wear, or what must not change. See scripts/style_spec.py.",
+ "style_id": "comic_ink",
+ "version": 1,
+ "derived_from": [
+  "output/banners/panel/panel_comic_03.png",
+  "output/banners/browns/browns_comic_02.png"
+ ],
+ "derived_by": {
+  "script": "hand-authored",
+  "model": null,
+  "note": "NOT model-derived. Written by hand from the medium half of generate_banners.STYLES['comic'] and generate_scenes.STYLE_SET, which are the strings that actually produced the approved comic banners. Deriving it from the rendered PNGs would have been strictly worse: panel_comic_03 renders OSU/CU/T/WF wordmarks that NO_TEXT forbade, and a model reading those pixels cannot tell a defect from an intention."
+ },
+ "render_mode": "illustration",
+ "text_policy": "none",
+ "aspect": "21:9",
+ "fragment": "rendered as a CLASSIC COMIC BOOK PAGE: bold black ink outlines, heavy halftone dot shading, flat saturated cel color fills, strong graphic blacks, clean hard-edged separations between color areas",
+ "human_edits": [
+  "2026-08-21: authored by hand, not derived. The four words this deliberately DROPS from STYLES['comic'] are the reason it exists: 'superhero' (a subject word that rendered two browns managers as costumed muscle-men in browns_comic_01), 'low-angle heroic framing' (composition), 'stadium and floodlights' (setting), and 'college football head coaches' (subject). Those belong to the composition, and keeping them here is what made 'same picture, different medium' inexpressible."
+ ]
+}

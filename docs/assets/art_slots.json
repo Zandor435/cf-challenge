@@ -100,7 +100,24 @@
    }
   },
   "family": {
-   "hero_banner":    { "mode": "fixed",  "candidates": [] },
+   "hero_banner": {
+    "$why": [
+     "family_comic_01 -- TWO COMIC PANELS, not one scene, and that is a real",
+     "constraint made idiomatic rather than a stylistic whim. Gemini carries 5",
+     "character-reference slots and family has EIGHT managers, so a single",
+     "all-hands render is impossible without dropping three real people. Two",
+     "renders of four, composited with a gutter, is what a comic page IS.",
+     "Rendered through the decomposed path (--style-spec comic_ink",
+     "--composition row), which is the only reason it is correct about who",
+     "these people are: the legacy `comic` style hardcodes 'heavy-set college",
+     "football head coaches' and GROUP_LOCK asserts 'every man is large and",
+     "heavy-set'. This roster is a grandmother, a boy and six others, and its",
+     "art is real family photographs, not the fat-coach treatment. The `row`",
+     "composition supplies subject='person' and lock='plain' instead."
+    ],
+    "mode": "fixed",
+    "candidates": ["assets/banners/{group}.webp"]
+   },
    "manager_avatar": {
     "$why": [
      "GROUP-SCOPED: img/avatars/{group}/{id}, not the flat img/avatars/{id}",
@@ -157,7 +174,17 @@
    }
   },
   "church": {
-   "hero_banner":    { "mode": "fixed",  "candidates": [] },
+   "hero_banner": {
+    "$why": [
+     "church_comic_02, generated 2026-08-21 from the five fat coach portraits.",
+     "Colors are passed as literal hex, not team names: Stanford and Georgia",
+     "both resolve to 'crimson red' through color_name(), so David uses the",
+     "black of the Georgia polo he actually wears in his portrait and the five",
+     "read as five. Hex also leaves no team wordmark for the render to leak."
+    ],
+    "mode": "fixed",
+    "candidates": ["assets/banners/{group}.webp"]
+   },
    "manager_avatar": {
     "$why": [
      "GROUP-SCOPED: img/avatars/{group}/{id}, not the flat img/avatars/{id}",
