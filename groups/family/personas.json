@@ -15,7 +15,52 @@
       "rival": null,
       "team": null,
       "color": null,
-      "silhouette_cues": null
+      "silhouette_cues": null,
+
+      "_creative_note": "2026-08-22: the STRAIGHT-REGISTER stress test for the editorial profile system, and the reason it exists. Everything here is drawn from the backstory already in this file -- McComb, the Ole Miss/LSU Law ordering, the Attorney General's office, pressure-testing Zach's takes, the board being the argument stated out loud. NOTHING was invented, and nothing here is a joke at his expense. That is the register, not a limitation of it: a straight profile has to be a finished editorial page in its own right, not a roast page with the jokes removed. Note what is ABSENT and cannot be added: modules.fatal_flaw and modules.running_gag would both be REJECTED at build time here, because the flat fields they decorate are null under the straight register -- the schema will not let a headline exist over a withheld body. The footer is affectionate and factual rather than a punchline.",
+
+      "archetype": "The Counselor",
+      "thesis": "Ole Miss first, LSU second, and he'd like the record to reflect that.",
+      "layout": "program",
+      "theme": {
+        "accent": "#14213d",
+        "accent_secondary": "#8a1538",
+        "paper": null,
+        "ink": null
+      },
+      "dossier": {
+        "role": "The Counselor",
+        "nicknames": null,
+        "known_for": "Pressure-testing every take in this family before it ever reached daylight.",
+        "hometown": "McComb, MS",
+        "college": "Ole Miss, then LSU Law",
+        "drafted": null,
+        "status": "Ole Miss first. LSU immediately after."
+      },
+      "modules": {
+        "draft_tendency": { "label": "Draft tendency", "headline": "The Argument, Stated Out Loud", "art": null }
+      },
+      "pull_quote": null,
+      "footer": {
+        "left": "Ole Miss first.",
+        "right": "LSU immediately after."
+      },
+      "assets": {
+        "hero": null,
+        "nameplate": null,
+        "signature": null,
+        "badge": null,
+        "spots": []
+      },
+      "north_star": "A courthouse-steps portrait on the cover of a 1970s bowl-game programme -- navy, restrained, symmetrical, and completely serious about football.",
+      "motifs": [
+        "deep navy as the dominant colour, with Mississippi crimson only as a secondary",
+        "legal-pad and case-file typography: ruled lines, numbered points"
+      ],
+      "easter_eggs": [
+        "a McComb high-school football field in the far background",
+        "two pennants hung in deliberate order, Ole Miss above LSU"
+      ]
     },
     "rachel": {
       "display_name": "Rachel",
