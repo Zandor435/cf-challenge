@@ -6,9 +6,14 @@
   "_count_conference_championship_note": "Per-group rule (ARCHITECTURE §1/§5): do conference-championship wins settle into a team's season win total? Sportsbooks differ, so it is per-group config, not a code constant. CFBD returns conf-title games as seasonType=regular; the shared cache tags them but excludes nothing — this flag decides. Default false.",
   "count_conference_championship": false,
 
-  "_pick_rules_note": "Settled format (LOCKED), enforced by validate_team_names.py per group: EXACTLY 4 picks per manager, spanning 4 distinct conferences. Always enforced — no unenforced path.",
+  "_pick_rules_note": "Settled format (LOCKED), enforced by validate_team_names.py per group: EXACTLY 4 picks per manager, spanning 3 distinct conferences. Always enforced — no unenforced path. The minimum was 4 here through 2026-08-21; that was config drift from the documented league rule of 3, corrected before the real draft was entered. The other three groups still read 4 and have NOT been reconciled — do not assume this value is league-wide.",
   "picks_per_manager": 4,
-  "min_distinct_conferences": 4,
+  "min_distinct_conferences": 3,
+
+  "_conference_minimum_waivers_note": "Per-manager exemptions from min_distinct_conferences ONLY — every other draft rule still applies to a waived manager, and every manager not named here still hard-fails the gate. Opt-in: an absent or empty list waives nobody. Each applied waiver prints a WAIVED: line on every validator run, so a roster scored against something other than the written rule says so in the output that scored it. Do not add an entry here to paper over a bad draft — it is a record of a commissioner decision, not a fix.",
+  "conference_minimum_waivers": [
+    { "manager_id": "chris", "reason": "commissioner waiver, 2026 season — drafted 2 conferences", "granted": "2026-08-21" }
+  ],
 
   "_managers_note": "Locked real identities; remaining managers added at draft. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. `email` per manager (recipient list derives from these when email_enabled).",
   "managers": [
