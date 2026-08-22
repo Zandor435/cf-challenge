@@ -272,6 +272,15 @@ def validate_group_data(group_id, config, picks):
     # A typo'd manager_id needs no separate check: it waives nobody, so the
     # manager it was meant to cover still hard-fails loudly below.
     waived = {}   # manager_id -> waiver record
+    # Only a malformed WAIVER CONFIG may abort the remaining rule checks, so
+    # count what was already reported and compare, rather than testing the
+    # whole accumulated list. Testing `if errors:` here meant any earlier pick
+    # problem -- an unknown team, an ambiguous one, a disagreeing line --
+    # returned before picks-per-manager and min-distinct-conferences ever ran,
+    # so a bad roster reported four problems instead of six and looked closer
+    # to correct than it was. Reporting every problem in ONE run is the whole
+    # contract of this gate; test_enter_draft.py pins it.
+    errors_before_waivers = len(errors)
     raw_waivers = config.get("conference_minimum_waivers") or []
     if not isinstance(raw_waivers, list):
         err("(config)", "(rules)", "waivers-malformed",
@@ -285,7 +294,7 @@ def validate_group_data(group_id, config, picks):
                 f"`manager_id`; got {w!r}")
             continue
         waived[str(w["manager_id"]).strip()] = w
-    if errors:
+    if len(errors) > errors_before_waivers:
         return checked, errors
 
     # group by manager over REAL picks only -> managers with no real picks (all
