@@ -19,6 +19,8 @@ bet — must be impossible):
   FAIL — same team + same side across two managers
   FAIL — one manager holding the same team twice
   PASS — same team, OPPOSITE sides (the only legal sharing)
+  PASS — same team + same side in two DIFFERENT groups (scope is per group)
+  FAIL — the collision in a group still tagged draft_status "dummy" (no exemption)
 
 Fixtures use real canonical teams with their real 2026 conference AND line (per
 data/team_win_totals_2026.json), so the ONLY possible error is the draft-rule
@@ -33,11 +35,14 @@ Usage:
     python scripts/test_pick_rules.py
 """
 
+import json
 import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from validate_team_names import validate_group_data
+import utils
+from validate_team_names import validate_group, validate_group_data
 
 RULES = {"picks_per_manager": 4, "min_distinct_conferences": 4}
 
@@ -202,11 +207,67 @@ def test_direction_domain_and_case_hardening():
           "same-team-same-side" not in p, f"problems={p}")
 
 
+def test_sharing_gate_is_per_group_and_has_no_dummy_exemption():
+    """Scope is ONE group; sample data is held to the rule like a real draft.
+
+    (c) The gate runs once per group over that group's own picks, so the same
+        team on the same side in two DIFFERENT groups is legal — every group is
+        a separate pool betting on the same games.
+    (d) validate_group_data never reads picks.json's top-level `draft_status`,
+        and _real_picks() drops only `_note` rows and TODO placeholders. A group
+        still on dummy sample data therefore fails exactly as a final draft
+        would. Driven through validate_group() — the file-level entry the CI
+        gate step uses — against a temp groups/ tree, so the loader path is
+        covered and not just the core function.
+    """
+    print("\n[5] sharing-gate scope: per group, and dummy picks are not exempt")
+
+    a = sided("a", [(OHIO_STATE, "O"), (ALABAMA, "O"), (CLEMSON, "O"), (UTAH, "O")])
+    b = sided("b", [(OHIO_STATE, "O"), (GEORGIA, "O"), (MIAMI, "O"), (BAYLOR, "O")])
+
+    # PASS - cross-group: each group sees only its own roster.
+    _, errs_one = validate_group_data("group_one", RULES, a)
+    _, errs_two = validate_group_data("group_two", RULES, b)
+    check("same team + same side in two DIFFERENT groups passes both gates",
+          errs_one == [] and errs_two == [],
+          f"one={[e['problem'] for e in errs_one]} two={[e['problem'] for e in errs_two]}")
+
+    # FAIL - the same two rosters in ONE group, under each draft_status value the
+    # site recognises. The error set must be identical: the flag is not consulted.
+    config = dict(RULES, group_id="flagtest", display_name="Flag Test",
+                  managers=[{"manager_id": "a", "display_name": "A", "email": "TODO"},
+                            {"manager_id": "b", "display_name": "B", "email": "TODO"}])
+    saved_groups_dir = utils.GROUPS_DIR
+    seen = {}
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            utils.GROUPS_DIR = Path(tmp)
+            for status in ("dummy", "final"):
+                gdir = Path(tmp) / f"flagtest_{status}"
+                gdir.mkdir()
+                (gdir / "config.json").write_text(json.dumps(config), encoding="utf-8")
+                (gdir / "picks.json").write_text(json.dumps({
+                    "group_id": f"flagtest_{status}", "draft_status": status,
+                    "picks": a + b}), encoding="utf-8")
+                _, errs = validate_group(f"flagtest_{status}")
+                seen[status] = sorted((e["manager"], e["team"], e["problem"]) for e in errs)
+    finally:
+        utils.GROUPS_DIR = saved_groups_dir
+
+    check("draft_status \"dummy\" still fails same-team-same-side",
+          any(p == "same-team-same-side" for _, _, p in seen["dummy"]),
+          f"errors={seen['dummy']}")
+    check("the dummy group reports exactly what the final group reports",
+          seen["dummy"] == seen["final"] and len(seen["dummy"]) == 1,
+          f"dummy={seen['dummy']} final={seen['final']}")
+
+
 def main():
     test_picks_per_manager_and_conference_count()
     test_todo_placeholder_manager_is_skipped()
     test_team_sharing_gate()
     test_direction_domain_and_case_hardening()
+    test_sharing_gate_is_per_group_and_has_no_dummy_exemption()
 
     passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
