@@ -254,12 +254,14 @@ no repo-specific claims — no drift.
 
 ## 1. Commits landed — `git log --oneline main..overnight-audit-2026-08-21`
 ```
+ef0d31c fix(requirements): add Pillow -- the Tests workflow has been red on main since f466262
+fd4640b docs(report): overnight audit 2026-08-21 -- snapshot, commits, findings, Z's calls
 584f20a docs: README/ARCHITECTURE match the repo (four groups, docs/data, real draft)
 4cd7809 ci(selftest): make selftest_10_1 honest offline and drop continue-on-error
 c9e2df1 fix(budget): count every HTTP attempt, not one per image
 00c4c90 test(pick-rules): pin the sharing gate's per-group scope and no-dummy-exemption
 ```
-(+ the report commit on top.) Review: `git diff main..overnight-audit-2026-08-21`.
+(+ the final report commit on top.) Review: `git diff main..overnight-audit-2026-08-21`.
 Every commit message carries the full what/why; this section is the test evidence.
 
 ### 00c4c90 — test(pick-rules)  [Phase 1.1]
@@ -335,11 +337,27 @@ README + ARCHITECTURE fact corrections only (items 1–9 of 0.12). Item 10
 (the "EXACTLY 4 / 4 conferences (LOCKED)" wording) deliberately untouched.
 No tests affected: `104 passed`.
 
+### ef0d31c — fix(requirements)  [Phase 1.5, found by CI after the push]
+The first dispatched CI run on the branch failed in pytest — **and so had the
+last four pushes to `main`** (f466262, 43bc9da, b3ef1cb, 6a23196), identically:
+```
+$ gh run view 32549756553 --log-failed      (branch)      / 32548376590 (main, 6a23196)
+scripts/test_style_spec.py::test_style_spec FAILED
+  scripts/style_spec.py:99: in _banned_terms -> scripts/generate_scenes.py:53 -> scripts/recolor_personas.py:49
+E   ModuleNotFoundError: No module named 'PIL'
+======================== 1 failed, 103 passed in 2.17s =========================
+```
+Eight scripts import `PIL` unconditionally; `requirements.txt` never listed
+Pillow; the workstation has it, runners don't. One line added (no pin, matching
+the file). Local: `104 passed`. CI re-dispatched → green (see §5).
+
 ### Skipped phases, with reason
 - **1.4 Node 20 → 24:** nothing to bump — no `setup-node`/`node-version` in any
   workflow; action pins already on Node-24 majors since 53f09c5. `node --check`
-  clean locally (v20.10.0). See §5 for CI.
-- **1.5 reds / contract violations:** none found (0.4, 0.10, 0.11 all clean).
+  clean locally (v20.10.0). The green CI run in §5 executed on those pins with
+  no runtime-deprecation annotation.
+- **1.5 reds / contract violations:** none locally (0.4, 0.10, 0.11 all clean);
+  the one CI-only red (Pillow) is fixed in ef0d31c above.
 - **1.6 77-keep sweep:** precondition not met — the keep list does not exist in
   the repo (0.9). No script written, nothing moved. See §3/§4.
 
@@ -427,7 +445,20 @@ No test was removed, skipped, or xfailed in the pytest suite; the one SKIP is
 inside `selftest_10_1.py`, printed with its reason, and is the deliberate
 replacement for CI's `continue-on-error`.
 
-CI: `tests.yml` triggers on `push: branches [main]` / `pull_request` /
-`workflow_dispatch` only, so **pushing this branch does not run CI by itself**.
-Open a PR (or dispatch `Tests` on the branch) to see the Node-24 action pins and
-the now-blocking selftest step run. Status at hand-off is in the final message.
+### CI on the branch (`Tests`, `workflow_dispatch` — a branch push alone does not trigger it)
+| run | head | result |
+|-----|------|--------|
+| 32549756553 | fd4640b | **failure** — `1 failed, 103 passed` (`No module named 'PIL'`, pre-existing on main) |
+| 32549822422 | ef0d31c | **success** — all four steps, 14s |
+
+Raw lines from the green run (`gh run view 32549822422 --log`):
+```
+[pytest (whole suite)] ============================= 104 passed in 1.98s ==============================
+[validate_team_names.py (§9 gate)] Gate OK: 96 real pick(s) resolved + conference-checked + draft-rule-checked across 4 group(s).
+[sync_personas.py --check (docs/ copy is current)] ok [browns] [church] [family] [panel]: docs/data/<g>/personas.json matches source
+[selftest_10_1.py (cache health + bypass/season-guard paths)]   [SKIP] schedule census (12/13 per FBS team; title-game participants at 13) — the season-2026 cache holds 0 conference title games -- CFBD has not posted them yet, so the slate is not complete enough to census. Runs again on its own once a fetch brings them in.
+[selftest_10_1.py (cache health + bypass/season-guard paths)] RESULT: 20/20 checks passed, 1 skipped (reasons above)
+```
+The selftest step ran **without** `continue-on-error` and passed on its own
+merits. No Node-runtime deprecation annotation appeared on the run.
+`main`'s `Tests` workflow stays red until ef0d31c (or an equivalent) lands there.
