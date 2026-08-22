@@ -76,6 +76,15 @@ jobs:
       - name: sync_personas.py --check (docs/ copy is current)
         run: python scripts/sync_personas.py --check
 
+      # Same posture, same reason, for the render-ready team identity map the
+      # profile picks table reads. It is derived from data/teams_canonical.json
+      # (mark, primary colour, and the black-or-white type colour that is
+      # readable on that primary), so a canonical spine that gains a team or
+      # changes a colour without this being regenerated ships a picks table
+      # with a stale or missing chip. --check regenerates in memory and diffs.
+      - name: build_team_marks.py --check (docs/ copy is current)
+        run: python scripts/build_team_marks.py --check
+
       # LAST, and blocking like everything above it. selftest_10_1 is a health
       # check of the COMMITTED cache plus the commentary-bypass and season-guard
       # paths — all offline: `fetch_results.py --simulate-failure` raises before

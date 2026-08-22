@@ -1,0 +1,300 @@
+# The editorial profile system
+
+How `managers.html` works: the visual principles, the schema, the four layout
+variants, the asset spec, and how to add a manager or an asset without touching
+layout code.
+
+**Visual north star:** `docs/design/profile-reference-blaine.png`.
+> ⚠️ That file is **not yet committed**. The reference board exists but has only
+> ever been shared in conversation. Drop it at that path so this document points
+> at something real — a design doc citing a missing image is the stale-doc
+> failure CLAUDE.md rule 11 exists to prevent.
+
+---
+
+## 1. Principles
+
+The rest of the site is a **box score**: white ground, hairline borders, dense
+rows. This page is a **game program**: warm newsprint, black ink, one dominant
+accent per person, and type set to be looked at rather than scanned. Both are
+the same publication; they are different sections of it.
+
+Five rules the design holds to:
+
+1. **Asymmetry over symmetry.** Portraits bleed past the card edge into the page
+   margin. Columns are unequal. Prose runs to a narrower measure than the table
+   above it — the width change is what tells you it is reading matter.
+2. **One accent, used at three strengths.** Full strength for rules, fills and
+   display type; `--profile-accent-deep` for small labels on paper;
+   `--profile-accent-on-dark` for anything on the black surfaces. Never a
+   second decorative colour.
+3. **Distress is built, not baked.** Grain, glyph erosion, torn edges and
+   halftone are SVG filters and gradients applied by class. They stay
+   retunable, work over art that does not exist yet, and let the asset pipeline
+   regenerate a portrait without re-rendering a texture. Print strips them all.
+4. **No SaaS furniture.** No drop shadows, no gradients as decoration, no pills,
+   no rounded cards, no grid of identical tiles.
+5. **Absence composes.** Every block returns markup or nothing. A profile with
+   two blocks looks as deliberate as one with eight.
+
+### What is fixed vs per-profile
+
+| Fixed for every profile | Chosen per profile |
+|---|---|
+| Paper ground, ink, grain | Accent + secondary accent (`theme`) |
+| Type scale and families | Layout variant (`layout`) |
+| Block order within a variant | Which blocks exist at all |
+| The four distress treatments | Which assets exist |
+| Tone-gate behaviour | Tone register (`tone`) |
+
+---
+
+## 2. Architecture
+
+```
+groups/<id>/personas.json      SOURCE — prose + creative direction (hand-authored)
+  │
+  ├─ scripts/persona_schema.py     the field contract + fail-loud validation
+  └─ scripts/sync_personas.py      projects to the site shape, applies the tone gate
+        │
+        ▼
+docs/data/<id>/personas.json   PUBLISHED — what the browser may see
+docs/data/<id>/standings.json  picks, exact arithmetic (unchanged by this system)
+docs/data/team_marks.json      team identity  ← scripts/build_team_marks.py
+docs/assets/art_slots.json     which picture     (pre-existing indirection)
+docs/assets/profiles/heroes.json  art dimensions (pre-existing, now load-bearing)
+        │
+        ▼
+docs/managers.js   composes eight blocks into a variant
+docs/profile.css   paints them
+```
+
+**`docs/style.css` is not touched by this system.** `profile.css` is linked only
+by `managers.html`. That is the guarantee that the standings board, analytics
+and the SVP column cannot shift when a profile rule changes — and it is worth
+preserving.
+
+**Python computes, JS renders.** Anything that is a *decision* — is this hex
+readable on that hex, which register withholds which field, what is this team's
+mark — happens in Python and arrives as data.
+
+---
+
+## 3. Schema
+
+All fields live on `groups/<id>/personas.json` under `managers.<manager_id>`.
+**Every field below is optional.** 2 of the 24 managers have no persona content
+at all and 12 more have only the four original prose fields; the page has to
+compose around every absence. What is *not* optional is being well-formed — a
+malformed field fails the build and names the offender.
+
+### Published (the page paints these)
+
+| Field | Type | Notes |
+|---|---|---|
+| `archetype` | string | Eyebrow above the name. Falls back to `epithet`. |
+| `thesis` | string | One line under the name. Falls back to `tagline`. |
+| `layout` | enum | `sideline` \| `headliner` \| `dossier` \| `program`. Absent = `sideline`. |
+| `theme` | object | `accent`, `accent_secondary`, `paper`, `ink` — `#rgb` or `#rrggbb`. |
+| `dossier` | object | `role`, `nicknames[]`, `known_for`, `hometown`, `college`, `drafted`, `status`. |
+| `modules` | object | Keys: `draft_tendency`, `fatal_flaw`, `running_gag`, `rival`. Each `{label, headline, art}`. |
+| `pull_quote` | object | `{text, attribution}`. `text` required if present. |
+| `footer` | object | `{left, right}` — **both or neither**. |
+| `assets` | object | `hero`, `nameplate`, `signature`, `badge`, `spots[]`. |
+
+### Private (never leaves the repo)
+
+`north_star`, `motifs`, `easter_eggs` — the creative brief that feeds the image
+prompt-writer. Same posture as the pre-existing `traits` / `silhouette_cue`:
+internal art direction has no surface on the page, so it is not served to a
+browser. `scripts/test_persona_schema.py` asserts they never appear in
+`docs/data/`.
+
+### The one rule that is easy to get wrong
+
+**`modules` decorates a flat field. It never carries body prose.**
+
+`modules.fatal_flaw` supplies the *label, headline and spot art*; the body text
+stays in the flat `fatal_flaw` field. Authoring a module whose flat field is
+empty is a build error, because it would render a headline over nothing:
+
+```
+FAIL [family/john]: modules.fatal_flaw is authored but the flat `fatal_flaw`
+field it decorates is empty. `modules` carries the label/headline/art only --
+the body prose stays in the flat field, so this would render a headline with
+nothing under it.
+```
+
+That is also what keeps the tone gate honest — see below.
+
+---
+
+## 4. The tone gate
+
+Three registers. Each withholds a set of flat fields, **and each withheld field
+takes its module block with it.**
+
+| Register | Withholds | Used by |
+|---|---|---|
+| `roast` | nothing | The Panel, The Browns |
+| `warm` | `fatal_flaw` | CEC |
+| `straight` | `fatal_flaw`, `running_gag`, `rival` | Family — John, Rachel, Vic |
+
+Two independent gates, deliberately: `sync_personas.py` nulls what a register
+withholds *before it leaves the repo*, and `managers.js` refuses to render it
+even if it arrives. Anything not one of the three keys is treated as `straight`,
+the most restrictive — a typo must fail toward the quiet version, because the
+failure in the other direction is somebody's father captioned with a fatal flaw
+on a page his family reads.
+
+**The acceptance criterion:** a straight profile must not look like a roast page
+with holes. Withheld blocks never enter the markup, so the surviving blocks
+close up around them. `family/john` is the worked example.
+
+---
+
+## 5. Layout variants
+
+Same eight blocks, four arrangements. The variant is a data value; there is no
+`if (manager === ...)` anywhere in `managers.js`.
+
+| Variant | Composition | Wants |
+|---|---|---|
+| **SIDELINE** | Portrait left (bleeding into the margin), editorial right. The reference. | A tall portrait, 4:5 or 3:4 |
+| **HEADLINER** | Full-bleed art, name pulled up over its foot, wide measure below. | Art with headroom, and a clean lower third |
+| **DOSSIER** | Ruled header, facts as a wide strip, picks promoted to full width. | **No art at all** |
+| **PROGRAM** | Centred nameplate, symmetric rules, framed portrait, dossier beneath. | A squarer crop |
+
+**The no-art rule.** SIDELINE, HEADLINER and PROGRAM are all compositions built
+around a picture. A manager with no art is forced to DOSSIER — a tier, not a
+special case, and currently the state of 10 of the 24 managers. The same
+override runs again at runtime if a declared portrait 404s, because a
+two-column layout with an empty column is the same failure in a different
+costume.
+
+**Adding a variant** means adding one entry to `LAYOUT_TEMPLATES` in
+`managers.js`, one block of rules in `profile.css`, and one name to `LAYOUTS`
+in `persona_schema.py`. Those three must agree — the schema rejects any value
+the templates do not implement.
+
+---
+
+## 6. Responsive
+
+The breakpoint is **900px**. Below it the two column wrappers become
+`display: contents`, every block becomes a direct child of the profile grid, and
+the reading order is set explicitly with `order`:
+
+> portrait → name → picks → dossier → scouting → modules → quote → band
+
+That is a **recomposition, not a shrink**. Portrait, name and picks come first
+because they are what someone opening a profile on a phone came for.
+
+The **picks table is the exception to the breakpoint**: it folds on a *container*
+query, not a viewport one, because it has to fold whenever its own column is
+narrow — which happens on a phone, in PROGRAM's side column, and in HEADLINER's
+secondary column. The header row drops and each cell announces itself from its
+own `data-label`. Micro-labels never go below `.62rem`.
+
+Verified at 1440px and a true 390px across all 24 profiles: no horizontal
+overflow anywhere.
+
+---
+
+## 7. Accessibility
+
+- Every accent gets two derived variants so a helmet colour never has to clear
+  4.5:1 raw: `--profile-accent-deep` (45% toward black, for small labels on
+  paper) and `--profile-accent-on-dark` (50% toward paper, for the dossier card
+  and closing band). Both numbers were **measured on the rendered page**, not
+  estimated — 32% and 40% were tried first and both still failed.
+- Over/Under is carried by **word, shape and colour** — filled block vs
+  outlined. Never colour alone.
+- Team monogram type colour is computed per team from WCAG luminance
+  (`build_team_marks.ink_for`); 21 of 137 primaries need dark type.
+- The `<h2>` survives a nameplate image as the accessible name — it is visually
+  hidden with `.sr-only`, never `display: none`.
+- Portraits are primary content and carry the manager's name as alt text.
+  Decorative art (nameplate, signature, badge, spots) is `alt=""`.
+- Audited across all 24 profiles at both widths: **zero text under 4.5:1**.
+
+---
+
+## 8. Asset spec
+
+Nothing is generated yet — this pass is architecture only. The page is fully
+functional with every asset absent, which is today's state for all 24 managers.
+
+| Slot | Aspect / size | Format | Notes |
+|---|---|---|---|
+| `hero` | **4:5 or 3:4 portrait**, ≥960px wide | `.webp`, opaque or alpha | PROGRAM prefers ~1:1 |
+| `nameplate` | **wide, ~4:1**, transparent | `.webp`/`.png` alpha | Replaces the typographic name |
+| `signature` | **wide, ~5:1**, transparent | `.webp`/`.png` alpha | Sits in the pull quote |
+| `badge` | **1:1**, ~400px | `.webp` alpha | Centre of the closing band |
+| `spots[]` | **1:1 or 4:3**, ~600px | `.webp` alpha | Illustration inside a module |
+
+**Two hard requirements on the hero:**
+
+1. **Reserve a clean flat lower third.** No baked text, numbers or busy detail in
+   the bottom ~30%. HTML overlays land there, and HEADLINER pulls the name
+   directly over it.
+2. **No baked lettering you would ever want mirrored.** The existing 15 `-ripped`
+   assets carry text in the pixels ("I'M A MAN, I'M 40!"), which is why the
+   layout can never flip them — a `scaleX(-1)` renders it backwards.
+
+**Provenance sidecars.** Each generated asset should land beside a
+`<name>.json` recording model, prompt, seed, reference images and date, so a
+regenerated asset is reproducible. Not yet implemented.
+
+**Do not mask a torn asset twice.** `art_slots.json` distinguishes the torn cut
+(`profile_page_hero`) from the opaque rectangle (`profile_hero`); the synthetic
+torn edge is applied only to the latter.
+
+> **Hard exclusion:** `output/personas/jonno/Fat/` must never be read, globbed,
+> swept or referenced by any operation. It contains source photographs of real
+> people.
+
+---
+
+## 9. How to add a manager
+
+1. Add them to `groups/<id>/config.json` (`manager_id` is the join key).
+2. Add a `managers.<manager_id>` block to `groups/<id>/personas.json`. **`tone`
+   is required**; everything else is optional.
+3. Run `python scripts/sync_personas.py` and commit the regenerated
+   `docs/data/<id>/personas.json`.
+4. Run `python -m pytest -q`.
+
+That is the whole procedure. With only `tone` and a `display_name` they get a
+real page off their picks alone.
+
+## 10. How to add an asset
+
+1. Drop the file under `docs/assets/profiles/<group>/`.
+2. Either name it to match the pattern in `art_slots.json`, or point
+   `assets.hero` at it explicitly in the persona (an explicit path wins).
+3. Re-run `python scripts/build_profile_heroes.py` so `heroes.json` learns its
+   dimensions — **skipping this reintroduces layout shift**, since the reserved
+   box comes from that file.
+
+**Team logos:** drop `docs/assets/logos/<slug>.webp` (`Texas A&M` → `texas-am`)
+and re-run `build_team_marks.py`. The picks table picks them up with no page
+change; absent, it draws a team-coloured monogram.
+
+---
+
+## 11. Known gaps
+
+- **Fonts are still CDN.** Every page, including this one, loads Roboto
+  Condensed / Inter / JetBrains Mono from Google Fonts. This system adds no new
+  font request and every stack ends in a real system fallback, but the profile
+  brief calls for self-hosted fonts and that remains **unmet**. Self-hosting is
+  a site-wide change affecting all five pages and belongs in its own commit.
+- **`docs/design/profile-reference-blaine.png` is missing** (see the top).
+- **No local team logos**, so every pick renders a monogram. Note this is a
+  deliberate difference from `index.html`, which does hot-link the
+  collegefootballdata CDN logos today.
+- **No provenance sidecars** on generated assets yet.
+- **21 of 24 managers** have no `layout`, `theme` or creative fields and render
+  on the fallback tiers. That is the designed state, not a backlog — but
+  `docs/profile-creative-template.md` is the form for filling them in.
