@@ -54,13 +54,17 @@ def ref_limit(model: str) -> int:
 
 
 def generate(api_key: str, model: str, refs, prompt: str, aspect: str,
-             timeout: int = 420) -> bytes:
+             timeout: int = 420, budget=None, daily_warn=None) -> bytes:
     """Return PNG bytes for one image.
 
     refs: list of (bytes, mime_type) reference images, in order. Order is
     load-bearing — prompts address references by index ("reference image #1"),
     because the model has no way to map a name onto an image. Pass [] for a
     pure text-to-image plate.
+
+    budget/daily_warn: the rule-6 tally, counted per HTTP attempt by the retry
+    shell. Callers pass the dict from load_budget() instead of calling
+    bump_budget() themselves, so retries are billed too.
     """
     if aspect not in SUPPORTED_ASPECTS:
         raise ValueError(f"unsupported aspect {aspect!r}; "
@@ -84,7 +88,7 @@ def generate(api_key: str, model: str, refs, prompt: str, aspect: str,
     resp = _post_with_retries(lambda: requests.post(
         f"{GEMINI_BASE}/{model}:generateContent", json=payload,
         headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-        timeout=timeout))
+        timeout=timeout), budget=budget, provider="gemini", daily_warn=daily_warn)
     data = resp.json()
     try:
         rparts = data["candidates"][0]["content"]["parts"]

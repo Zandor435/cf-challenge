@@ -24,6 +24,8 @@ Playbook compliance (CLAUDE.md):
     full 60s window; re-raises after the last attempt.
   - rule 6: per-run request count + cumulative UTC-daily tally per provider in
     data/gemini_budget.json; loud warning past --daily-warn (default 80).
+    Counted per HTTP attempt inside _post_with_retries, so a retried image is
+    billed as many times as it was actually sent.
   - rule 7: paid generation is --skip-if-exists by DEFAULT; --force re-bills.
 
 Privacy: source photos in assets/source_photos/ and outputs in output/personas/
@@ -181,8 +183,17 @@ def bump_budget(budget: dict, provider: str) -> int:
 
 
 # ---------- shared retry shell (rule 2) --------------------------------------
-def _post_with_retries(do_post):
+def _post_with_retries(do_post, budget=None, provider=None, daily_warn=None):
     """do_post() -> requests.Response. Retries transient + 429; returns 200 resp.
+
+    budget/provider: when given, EVERY attempt -- the first send and each
+    retry -- is counted through bump_budget() before it goes out. The tally is
+    spend protection (rule 6), so it must overcount-or-exact, never undercount:
+    one image can cost up to 1 + len(TRANSIENT_WAITS) + len(RATE_LIMIT_WAITS)
+    requests, and counting once per image at the call site (the old shape)
+    under-read that by up to 7x. This loop is the only code that sees the
+    retries, so this is the only place the count can be right. daily_warn
+    prints the ::warning:: the moment the tally passes it, mid-retry included.
 
     ChunkedEncodingError is in the transient tuple deliberately: it is a SIBLING
     of ConnectionError under RequestException, not a subclass, so a truncated
@@ -192,6 +203,11 @@ def _post_with_retries(do_post):
     transient_left = list(TRANSIENT_WAITS)
     ratelimit_left = list(RATE_LIMIT_WAITS)
     while True:
+        if budget is not None:
+            total = bump_budget(budget, provider)
+            if daily_warn is not None and total > daily_warn:
+                print(f"  ::warning:: image-API daily tally {total} -- past the "
+                      f"{daily_warn} threshold.")
         try:
             resp = do_post()
         except (requests.ConnectionError, requests.Timeout,
@@ -236,7 +252,7 @@ def _post_with_retries(do_post):
 
 # ---------- providers ---------------------------------------------------------
 def gen_gemini(api_key: str, photo_bytes: bytes, mime: str, prompt: str,
-               aspect: str) -> bytes:
+               aspect: str, budget=None, daily_warn=None) -> bytes:
     payload = {
         "contents": [{
             "parts": [
@@ -253,7 +269,8 @@ def gen_gemini(api_key: str, photo_bytes: bytes, mime: str, prompt: str,
     headers = {"x-goog-api-key": api_key, "Content-Type": "application/json"}
     resp = _post_with_retries(
         lambda: requests.post(GEMINI_URL, json=payload, headers=headers,
-                              timeout=REQUEST_TIMEOUT))
+                              timeout=REQUEST_TIMEOUT),
+        budget=budget, provider="gemini", daily_warn=daily_warn)
     data = resp.json()
     try:
         parts = data["candidates"][0]["content"]["parts"]
@@ -268,7 +285,7 @@ def gen_gemini(api_key: str, photo_bytes: bytes, mime: str, prompt: str,
 
 
 def gen_openai(api_key: str, photo_bytes: bytes, mime: str, prompt: str,
-               size: str) -> bytes:
+               size: str, budget=None, daily_warn=None) -> bytes:
     files = {"image[]": ("photo" + mimetypes.guess_extension(mime, strict=False)
                          or ".jpg", photo_bytes, mime)}
     form = {"model": "gpt-image-1", "prompt": prompt, "size": size,
@@ -276,7 +293,8 @@ def gen_openai(api_key: str, photo_bytes: bytes, mime: str, prompt: str,
     headers = {"Authorization": f"Bearer {api_key}"}
     resp = _post_with_retries(
         lambda: requests.post(OPENAI_URL, data=form, files=files, headers=headers,
-                              timeout=REQUEST_TIMEOUT))
+                              timeout=REQUEST_TIMEOUT),
+        budget=budget, provider="openai", daily_warn=daily_warn)
     data = resp.json()
     try:
         return base64.b64decode(data["data"][0]["b64_json"])
@@ -355,17 +373,17 @@ def main() -> int:
                     skipped += 1
                     continue
                 print(f"  {provider}: {style} #{i} …")
-                total = bump_budget(budget, provider)
-                if total > args.daily_warn:
-                    print(f"  ::warning:: image-API daily tally {total} — past "
-                          f"the {args.daily_warn} threshold.")
+                # Counted per HTTP attempt inside _post_with_retries, not once
+                # here -- a retried image is billed as many times as it was sent.
                 try:
                     if provider == "gemini":
                         img = gen_gemini(keys["gemini"], photo_bytes, mime,
-                                         STYLES[style], args.aspect)
+                                         STYLES[style], args.aspect,
+                                         budget=budget, daily_warn=args.daily_warn)
                     else:
                         img = gen_openai(keys["openai"], photo_bytes, mime,
-                                         STYLES[style], args.size)
+                                         STYLES[style], args.size,
+                                         budget=budget, daily_warn=args.daily_warn)
                 except Exception as e:
                     print(f"  FAILED {provider} {style} #{i}: {e}", file=sys.stderr)
                     failed += 1

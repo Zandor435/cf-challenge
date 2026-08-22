@@ -50,7 +50,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from generate_owner_images import (  # noqa: E402  -- shared shells, not prompts
-    _post_with_retries, bump_budget, load_budget,
+    _post_with_retries, load_budget,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -164,7 +164,8 @@ def build_prompt(team: str, hexc: str, garment_tmpl: str) -> str:
     )
 
 
-def gen_gemini_edit(api_key, model, photo_bytes, mime, prompt, aspect) -> bytes:
+def gen_gemini_edit(api_key, model, photo_bytes, mime, prompt, aspect,
+                    budget=None, daily_warn=None) -> bytes:
     payload = {
         "contents": [{
             "parts": [
@@ -181,7 +182,7 @@ def gen_gemini_edit(api_key, model, photo_bytes, mime, prompt, aspect) -> bytes:
     resp = _post_with_retries(lambda: requests.post(
         f"{GEMINI_BASE}/{model}:generateContent", json=payload,
         headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-        timeout=300))
+        timeout=300), budget=budget, provider="gemini", daily_warn=daily_warn)
     data = resp.json()
     try:
         parts = data["candidates"][0]["content"]["parts"]
@@ -195,12 +196,14 @@ def gen_gemini_edit(api_key, model, photo_bytes, mime, prompt, aspect) -> bytes:
     raise RuntimeError(f"No image in response. Model said: {texts[:400]}")
 
 
-def gen_openai_edit(api_key, model, photo_bytes, mime, prompt, size) -> bytes:
+def gen_openai_edit(api_key, model, photo_bytes, mime, prompt, size,
+                    budget=None, daily_warn=None) -> bytes:
     files = {"image[]": ("photo.png", photo_bytes, mime)}
     form = {"model": model, "prompt": prompt, "size": size, "n": "1"}
     resp = _post_with_retries(lambda: requests.post(
         OPENAI_URL, data=form, files=files,
-        headers={"Authorization": f"Bearer {api_key}"}, timeout=300))
+        headers={"Authorization": f"Bearer {api_key}"}, timeout=300),
+        budget=budget, provider="openai", daily_warn=daily_warn)
     data = resp.json()
     try:
         return base64.b64decode(data["data"][0]["b64_json"])
@@ -288,16 +291,14 @@ def main() -> int:
                 skipped += 1
                 continue
             print(f"  {mid}: {slug} ({color_name(hexc)}, {aspect}) ...")
-            total = bump_budget(budget, args.provider)
-            if total > args.daily_warn:
-                print(f"  ::warning:: image-API daily tally {total} -- past the "
-                      f"{args.daily_warn} threshold.")
             prompt = build_prompt(team, hexc, tmpl)
             try:
                 if args.provider == "gemini":
-                    img = gen_gemini_edit(key, model, photo, "image/png", prompt, aspect)
+                    img = gen_gemini_edit(key, model, photo, "image/png", prompt, aspect,
+                                          budget=budget, daily_warn=args.daily_warn)
                 else:
-                    img = gen_openai_edit(key, model, photo, "image/png", prompt, args.size)
+                    img = gen_openai_edit(key, model, photo, "image/png", prompt, args.size,
+                                          budget=budget, daily_warn=args.daily_warn)
             except Exception as e:
                 print(f"  FAILED {mid} {slug}: {e}", file=sys.stderr)
                 failed += 1

@@ -40,9 +40,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from generate_owner_images import (  # noqa: E402
-    _post_with_retries, bump_budget, load_budget,
-)
+from generate_owner_images import load_budget  # noqa: E402
 from recolor_personas import color_name, team_colors  # noqa: E402
 import banner_batch  # noqa: E402  -- pure data, no side effects
 import gemini_image  # noqa: E402
@@ -142,9 +140,10 @@ def show(path):
         return path.as_posix()
 
 
-def gen_banner(api_key, model, refs, prompt, aspect):
+def gen_banner(api_key, model, refs, prompt, aspect, budget=None, daily_warn=None):
     """Thin delegate — the payload/retry path lives in gemini_image.generate()."""
-    return gemini_image.generate(api_key, model, refs, prompt, aspect, timeout=420)
+    return gemini_image.generate(api_key, model, refs, prompt, aspect, timeout=420,
+                                 budget=budget, daily_warn=daily_warn)
 
 
 def main() -> int:
@@ -334,12 +333,9 @@ def main() -> int:
                 skipped += 1
                 continue
             print(f"  {style} #{i} ...")
-            total = bump_budget(budget, "gemini")
-            if total > args.daily_warn:
-                print(f"  ::warning:: image-API daily tally {total} -- past the "
-                      f"{args.daily_warn} threshold.")
             try:
-                img = gen_banner(key, args.model, ref_bytes, prompts[style], args.aspect)
+                img = gen_banner(key, args.model, ref_bytes, prompts[style], args.aspect,
+                                 budget=budget, daily_warn=args.daily_warn)
             except Exception as e:
                 print(f"  FAILED {style} #{i}: {e}", file=sys.stderr)
                 failed += 1

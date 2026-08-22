@@ -42,7 +42,7 @@ from dotenv import load_dotenv
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from generate_owner_images import bump_budget, load_budget  # noqa: E402
+from generate_owner_images import load_budget  # noqa: E402
 from recolor_personas import color_name, team_colors  # noqa: E402
 import gemini_image  # noqa: E402
 
@@ -177,11 +177,9 @@ def main():
             print(f"  skip (exists): {dest.name}")
             skipped += 1
             continue
-        total = bump_budget(budget, "gemini")
-        if total > a.daily_warn:
-            print(f"  ::warning:: image-API daily tally {total}", file=sys.stderr)
         print(f"  variant {i} ...")
-        img = gemini_image.generate(key, a.model, ref, prompt, a.aspect)
+        img = gemini_image.generate(key, a.model, ref, prompt, a.aspect,
+                                    budget=budget, daily_warn=a.daily_warn)
         dest.write_bytes(img)
         print(f"  wrote {dest.name} ({len(img) // 1024} KB)")
         made += 1

@@ -502,7 +502,8 @@ OPENAI_SIZES = {"1:1": "1024x1024", "3:4": "1024x1536", "2:3": "1024x1536",
                 "3:2": "1536x1024", "16:9": "1536x1024", "21:9": "1536x1024"}
 
 
-def gen_openai(api_key, model, refs, prompt, aspect, quality="high"):
+def gen_openai(api_key, model, refs, prompt, aspect, quality="high",
+               budget=None, daily_warn=None):
     """Return PNG bytes for one image from /v1/images/edits.
 
     Mirrors gemini_image.generate()'s contract -- same argument order, same
@@ -517,7 +518,8 @@ def gen_openai(api_key, model, refs, prompt, aspect, quality="high"):
             "size": OPENAI_SIZES.get(aspect, "1024x1536"), "quality": quality}
     resp = _post_with_retries(lambda: requests.post(
         OPENAI_URL, data=form, files=files,
-        headers={"Authorization": f"Bearer {api_key}"}, timeout=420))
+        headers={"Authorization": f"Bearer {api_key}"}, timeout=420),
+        budget=budget, provider="openai", daily_warn=daily_warn)
     data = resp.json()
     try:
         return base64.b64decode(data["data"][0]["b64_json"])
@@ -831,16 +833,15 @@ def main() -> int:
             continue
         refs = [(p.read_bytes(), "image/png") for p in ref_paths]
         print(f"  {out_path.name} ...")
-        total = gemini_image.bump_budget(budget, args.provider)
-        if total > args.daily_warn:
-            print(f"  ::warning:: image-API daily tally {total} -- past the "
-                  f"{args.daily_warn} threshold.")
         try:
             if args.provider == "openai":
                 img = gen_openai(key, args.model, refs, prompt, asp,
-                                 args.quality)
+                                 args.quality, budget=budget,
+                                 daily_warn=args.daily_warn)
             else:
-                img = gemini_image.generate(key, args.model, refs, prompt, asp)
+                img = gemini_image.generate(key, args.model, refs, prompt, asp,
+                                            budget=budget,
+                                            daily_warn=args.daily_warn)
         except Exception as e:
             print(f"  FAILED {out_path.name}: {type(e).__name__}: {e}",
                   file=sys.stderr)
