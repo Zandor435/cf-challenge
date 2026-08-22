@@ -35,6 +35,14 @@ Every failure names the group, the manager, the team, and which field disagreed.
 Draft rules (§5) are ALWAYS enforced per group — no unenforced path:
   - picks_per_manager: each manager has EXACTLY this many picks (no more, fewer).
   - min_distinct_conferences: those picks span at least this many conferences.
+    A manager named in the group config's OPTIONAL `conference_minimum_waivers`
+    is exempt from THIS rule only (every other rule still applies to them, and
+    every un-waived manager still hard-fails). The list is opt-in per manager:
+    absent, empty, or not naming a manager all mean the gate applies normally,
+    so a config that says nothing waives nobody. Each applied waiver PRINTS a
+    "WAIVED:" line on every run — a waiver that scores a roster differently from
+    the written rule has to be visible in the output that scored it, not just in
+    the config file, or the next person reads a passing gate as rule-compliant.
   - team-sharing: two managers may hold the same team only on OPPOSITE sides.
     Same team + same side across two managers scores BOTH as "winning" the same
     bet — the worst bug class in the project — so it is exit 1, naming both
@@ -256,6 +264,30 @@ def validate_group_data(group_id, config, picks):
             f"required — there is no unenforced path")
         return checked, errors
 
+    # Conference-minimum waivers. OPTIONAL and opt-in per manager: a missing or
+    # empty list waives nobody, so the default stays "the gate applies to all".
+    # Shape is checked rather than trusted — a malformed entry is a config
+    # failure, because the failure mode of skipping it silently is a waiver the
+    # commissioner believes is on file that is not actually exempting anyone.
+    # A typo'd manager_id needs no separate check: it waives nobody, so the
+    # manager it was meant to cover still hard-fails loudly below.
+    waived = {}   # manager_id -> waiver record
+    raw_waivers = config.get("conference_minimum_waivers") or []
+    if not isinstance(raw_waivers, list):
+        err("(config)", "(rules)", "waivers-malformed",
+            f"conference_minimum_waivers must be a list, got "
+            f"{type(raw_waivers).__name__}")
+        return checked, errors
+    for w in raw_waivers:
+        if not isinstance(w, dict) or not str(w.get("manager_id") or "").strip():
+            err("(config)", "(rules)", "waivers-malformed",
+                f"every conference_minimum_waivers entry needs a non-empty "
+                f"`manager_id`; got {w!r}")
+            continue
+        waived[str(w["manager_id"]).strip()] = w
+    if errors:
+        return checked, errors
+
     # group by manager over REAL picks only -> managers with no real picks (all
     # TODO placeholders) never appear here, so undrafted rosters are skipped.
     by_mgr = {}
@@ -271,9 +303,21 @@ def validate_group_data(group_id, config, picks):
         confs = {ref_conf.get(i) or p.get("conference")
                  for i, p in mpicks if ref_conf.get(i) or p.get("conference")}
         if len(confs) < mdc:
-            err(mgr, "(roster)", "min-distinct-conferences",
-                f"{len(mpicks)} pick(s) span {len(confs)} conference(s) {sorted(confs)}, "
-                f"rule requires >= {mdc} distinct")
+            if mgr in waived:
+                # Printed, not swallowed. This is the ONLY path that turns a
+                # real rule violation into a pass, so it says so out loud in
+                # every run — including enter_draft.py's, which calls this
+                # function as its final roster check.
+                w = waived[mgr]
+                reason = str(w.get("reason") or "no reason recorded").strip()
+                granted = str(w.get("granted") or "no date recorded").strip()
+                print(f"  WAIVED: [{group_id}] {mgr} — conference minimum "
+                      f"({len(confs)} of {mdc} required: {sorted(confs)}) — "
+                      f"{reason} [granted {granted}]")
+            else:
+                err(mgr, "(roster)", "min-distinct-conferences",
+                    f"{len(mpicks)} pick(s) span {len(confs)} conference(s) {sorted(confs)}, "
+                    f"rule requires >= {mdc} distinct")
 
     return checked, errors
 
