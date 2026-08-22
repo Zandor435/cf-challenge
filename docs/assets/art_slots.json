@@ -166,12 +166,24 @@
   },
   "browns": {
    "$why": [
-    "Scaffolded with the group. Every slot is declared and every candidate list",
-    "is empty, which resolves to null and pushes each caller onto the fallback",
-    "it had before slots existed -- initials instead of avatars, no banner, no",
-    "profile art. Empty is the normal state for a new group, not a broken one."
+    "Scaffolded with the group. Slots whose candidate list is still empty",
+    "resolve to null and push each caller onto the fallback it had before slots",
+    "existed -- initials instead of avatars, no profile art. Empty is the normal",
+    "state for a slot nobody has filled yet, not a broken one."
    ],
-   "hero_banner":    { "mode": "fixed",  "candidates": [] },
+   "hero_banner": {
+    "$why": [
+     "browns_comic_02, generated 2026-08-21 from the five fat coach portraits.",
+     "browns passes literal hex colors rather than team names (two managers have",
+     "no college allegiance, and inventing one would publish a claim about a real",
+     "person), which had the side benefit of leaving no team wordmark for the",
+     "render to leak -- compare panel's banner, which bakes in OSU/CU/T/WF marks",
+     "that NO_TEXT was supposed to prevent.",
+     "`fixed` because browns has exactly one approved banner today."
+    ],
+    "mode": "fixed",
+    "candidates": ["assets/banners/{group}.webp"]
+   },
    "manager_avatar": { "mode": "fixed",  "candidates": [] },
    "editorial_hero": { "mode": "fixed",  "candidates": [] },
    "svp_column_art": { "mode": "weekly", "candidates": [] },
