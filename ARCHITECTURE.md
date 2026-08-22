@@ -9,7 +9,7 @@
 ## 1. The League Model
 
 - **Format:** season-long win-totals pool. NOT a bracket, NOT a tournament. Runs the full ~16–17 week CFB regular season.
-- **Each manager drafts EXACTLY 4 college football teams, from 4 distinct conferences** (settled format, LOCKED — the only draft rule; draft help is out of scope, Zach supplies the draft). Enforced per group by `validate_team_names.py` via `picks_per_manager: 4` / `min_distinct_conferences: 4` — always on, no unenforced path.
+- **Each manager drafts EXACTLY 4 college football teams, spanning a minimum of 3 distinct conferences** (settled format — the only draft rule; draft help is out of scope, Zach supplies the draft). Enforced per group by `validate_team_names.py` via `picks_per_manager: 4` / `min_distinct_conferences: 3` in the group's `config.json` — always on, no unenforced path. The only exception is per manager and named: a `conference_minimum_waivers` entry in the group config exempts that one manager from the conference minimum alone (every other rule still applies), and every applied waiver is printed on every run of the gate. Example on file: Chris, Panel 2026 — drafted 2 conferences, commissioner waiver granted 2026-08-21. (Family, church and browns still carry `min_distinct_conferences: 4` on their dummy-roster configs from the earlier 4-conference wording; that value gets set when each real draft is entered.)
 - **Each pick is an over/under bet against that team's preseason Vegas win total.** Example: Penn State over 10.5 → they must win 11+ to be positive. Win 11 → +0.5. Win 3 → the under would have been +7.5.
 - **Score per pick = signed delta in the owner's chosen direction:**
   - Over: `actual_wins − line`
@@ -94,7 +94,8 @@ groups/
   panel/                # slug is load-bearing: it is the output path + URL
     config.json         # group_id (slug), display_name, managers
                         #   [{manager_id, display_name, email}], count_conference_championship,
-                        #   picks_per_manager: 4 / min_distinct_conferences: 4 (LOCKED, always enforced)
+                        #   picks_per_manager: 4 / min_distinct_conferences: 3 (always enforced;
+                        #   per-manager exceptions only via conference_minimum_waivers, printed every run)
                         #   NOTE: no `season` here — season is single-source in /season.json
     picks.json          # each manager's 3–4 canonical picks: {manager, team, line, direction (O/U), conference}
   family/  ...
