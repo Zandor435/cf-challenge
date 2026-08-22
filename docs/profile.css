@@ -160,6 +160,22 @@ body.pf-body-ground {
      at render time, so there is no single build step that could precompute it. */
   --profile-accent-deep: var(--profile-accent);
   --profile-accent-deep: color-mix(in srgb, var(--profile-accent), #000 45%);
+
+  /* THE SAME PROBLEM IN THE OTHER DIRECTION, and it bites harder. The dossier
+     card and the closing band are near-black grounds, and the raw accent is
+     used on both. That is fine for a light accent — Oklahoma State orange
+     measures 6.0:1 on black — and catastrophic for a dark one: John's navy
+     #14213d lands at about 1.3:1, which rendered his footer band as an almost
+     invisible slogan and his seal as an empty ring.
+     50% toward the paper colour, measured on the rendered page rather than
+     estimated: 40% left navy at 3.96:1, still failing. At 50% every accent in
+     the four rosters clears 4.5:1 on the dark ground (navy ~5.3, maroon ~6.1,
+     orange ~8.7, gold ~12) while keeping the hue recognisable. Fixed mix
+     rather than a computed one, for the same reason as --profile-accent-deep:
+     the accent can arrive from the persona theme or from the team-colour
+     fallback at render time. */
+  --profile-accent-on-dark: var(--profile-accent);
+  --profile-accent-on-dark: color-mix(in srgb, var(--profile-accent), #f4efe4 50%);
   --pf-rule: color-mix(in srgb, var(--profile-ink), transparent 82%);
 
   position: relative;
@@ -215,11 +231,22 @@ body.pf-body-ground {
   margin: 0;
   align-self: start;
   overflow: hidden;
+  /* The art's OWN ratio, set inline from assets/profiles/heroes.json, so the
+     box is the right size before the image arrives and the page never
+     reflows under the reader. `auto` when the manifest has no entry — the
+     figure then sizes to the image on load, as it would have anyway. */
+  aspect-ratio: var(--pf-art-ratio, auto);
 }
 .pf-portrait img {
   display: block;
   width: 100%;
-  height: auto;
+  /* height:100% + cover, with the figure already holding the image's true
+     ratio, is a no-op crop at natural size — but it is what lets a variant cap
+     the figure's height (HEADLINER, DOSSIER) and get a clean crop instead of a
+     distorted image. */
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
   /* A print-shop desaturation: not greyscale, just pulled back so the one
      accent in the layout stays the loudest colour on the page. */
   filter: saturate(.86) contrast(1.06);
@@ -332,8 +359,9 @@ body.pf-body-ground {
   font-size: .64rem;
   letter-spacing: .2em;
   text-transform: uppercase;
-  /* On black the raw accent is well clear of 4.5:1, so no deepening here. */
-  color: var(--profile-accent);
+  /* Lightened toward paper, not raw: on a near-black card a dark accent is
+     invisible. See --profile-accent-on-dark. */
+  color: var(--profile-accent-on-dark);
 }
 .pf-dossier dd {
   font-family: var(--body);
@@ -374,7 +402,19 @@ body.pf-body-ground {
    --pf-pick-cols is set per render so the live-season Δ column can appear
    without a second table implementation.
    ========================================================================== */
-.pf-picks { margin-top: 34px; }
+/* A CONTAINER, not a viewport consumer. The picks table folds when ITS OWN
+   column gets narrow, which is the only thing that actually matters — and it
+   gets narrow in three unrelated situations: a phone, the PROGRAM variant's
+   410px side column, and HEADLINER's secondary column. Keying the fold to the
+   viewport handled the first and cramped the other two, squeezing the team
+   name into ~100px beside 308px of fixed columns at a 1800px viewport.
+   One container query replaces three viewport rules and cannot disagree with
+   itself. */
+.pf-picks {
+  margin-top: 34px;
+  container-type: inline-size;
+  container-name: picks;
+}
 .pf-picks-head { display: flex; align-items: baseline; gap: 12px; }
 .pf-table { margin-top: 12px; border-top: 3px solid var(--profile-ink); }
 .pf-row {
@@ -467,6 +507,46 @@ body.pf-body-ground {
 }
 .pf-call.over { background: var(--profile-ink); color: var(--profile-paper); }
 .pf-call.under { background: transparent; color: var(--profile-ink); }
+
+/* ---- THE FOLD -----------------------------------------------------------
+   Two rows per pick: team and call on top, the reference numbers underneath in
+   a three-up strip. Nothing is dropped and nothing overflows.
+
+   The header row is dropped and each cell announces itself from its own
+   data-label instead. That is why the cells are emitted FLAT rather than
+   wrapped in a meta container — one set of grid children serves both
+   compositions, so there is no second markup path to keep in sync. */
+@container picks (max-width: 560px) {
+  .pf-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 15px 0;
+  }
+  .pf-row.is-head { display: none; }
+  .pf-team  { grid-column: 1 / 3; grid-row: 1; }
+  .pf-call  { grid-column: 3; grid-row: 1; justify-self: end; align-self: center; }
+  .pf-conf  { grid-column: 1; grid-row: 2; }
+  .pf-line  { grid-column: 2; grid-row: 2; }
+  .pf-delta { grid-column: 3; grid-row: 2; text-align: right; }
+
+  /* Micro-labels are set at .62rem and never smaller — below that they stop
+     being readable and start being texture. */
+  .pf-conf::before,
+  .pf-line::before,
+  .pf-delta::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: .62rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #8a7f6d;
+    margin-bottom: 5px;
+  }
+  .pf-line { font-size: 1.06rem; }
+  .pf-team-name { font-size: 1.08rem; }
+}
 
 .pf-picks-empty {
   font-family: var(--body);
@@ -638,7 +718,7 @@ body.pf-body-ground {
   letter-spacing: .01em;
   text-transform: uppercase;
   line-height: 1;
-  color: var(--profile-accent);
+  color: var(--profile-accent-on-dark);
   -webkit-mask-image: var(--tx-erode);
   mask-image: var(--tx-erode);
   -webkit-mask-size: 420px 420px;
@@ -652,14 +732,14 @@ body.pf-body-ground {
    the manager's initial, halftoned. Never an empty gap. */
 .pf-seal {
   width: 78px; height: 78px;
-  border: 2px solid var(--profile-accent);
+  border: 2px solid var(--profile-accent-on-dark);
   border-radius: 50%;
   display: grid;
   place-items: center;
   font-family: var(--display);
   font-weight: 900;
   font-size: 1.9rem;
-  color: var(--profile-accent);
+  color: var(--profile-accent-on-dark);
   background-image: var(--tx-halftone);
   background-size: 6px 6px;
 }
@@ -716,8 +796,12 @@ body.pf-body-ground {
 /* ---- HEADLINER — full-bleed art, name overlapping the image edge -------- */
 @media (min-width: 900px) {
   .pf--headliner .pf-col-aside { position: relative; }
-  .pf--headliner .pf-portrait { max-height: 620px; }
-  .pf--headliner .pf-portrait img { width: 100%; object-fit: cover; object-position: center 22%; }
+  /* Cap the height and let the figure's own ratio yield to it. Without
+     `aspect-ratio: auto` here the ratio and the max-height fight, and the
+     figure keeps the full-height box while the image crops inside it —
+     leaving dead space under the art. */
+  .pf--headliner .pf-portrait { max-height: 620px; aspect-ratio: auto; height: 620px; }
+  .pf--headliner .pf-portrait img { object-position: center 22%; }
   /* The overlap. The headline is pulled up over the reserved flat band at the
      foot of the art, which is why the asset spec requires that band to be
      free of baked text. */
@@ -756,8 +840,8 @@ body.pf-body-ground {
   }
   .pf--dossier .pf-headline { grid-column: 1 / -1; border-bottom: 3px solid var(--profile-ink); padding-bottom: 24px; }
   .pf--dossier .pf-headline-rule { display: none; }
-  .pf--dossier .pf-portrait { grid-column: 1 / -1; max-height: 300px; }
-  .pf--dossier .pf-portrait img { object-fit: cover; object-position: center 18%; }
+  .pf--dossier .pf-portrait { grid-column: 1 / -1; aspect-ratio: auto; height: 300px; }
+  .pf--dossier .pf-portrait img { object-position: center 18%; }
   .pf--dossier .pf-dossier {
     grid-column: 1 / -1;
     display: grid;
@@ -779,8 +863,15 @@ body.pf-body-ground {
   .pf--program .pf-col-main { display: contents; }
   .pf--program {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 320px minmax(0, 1fr);
     column-gap: 40px;
+    /* align-items:start, and the side columns SPAN both body rows. Without
+       both, the centre column stranded a ~690px void: the row was sized by the
+       tall picks table, the short portrait sat at its top, and the dossier
+       waited in the next row down. Now the portrait and dossier stack against
+       the top of the centre column while picks and scouting run the full
+       height beside them. */
+    align-items: start;
   }
   .pf--program .pf-headline { grid-column: 1 / -1; text-align: center; }
   .pf--program .pf-thesis { margin-left: auto; margin-right: auto; }
@@ -796,8 +887,8 @@ body.pf-body-ground {
     margin-top: 30px;
   }
   .pf--program .pf-portrait:not(.is-cut) img { -webkit-mask-image: none; mask-image: none; }
-  .pf--program .pf-picks { grid-column: 1; grid-row: 2; }
-  .pf--program .pf-scouting { grid-column: 3; grid-row: 2; margin-top: 34px; }
+  .pf--program .pf-picks { grid-column: 1; grid-row: 2 / span 2; }
+  .pf--program .pf-scouting { grid-column: 3; grid-row: 2 / span 2; margin-top: 34px; }
   .pf--program .pf-dossier { grid-column: 2; grid-row: 3; }
   .pf--program .pf-modules { grid-column: 1 / -1; }
   .pf--program .pf-quote { grid-column: 1 / -1; text-align: center; }
@@ -850,43 +941,10 @@ body.pf-body-ground {
   .pf-name { font-size: clamp(3rem, 17vw, 5rem); }
   .pf-thesis { font-size: .95rem; margin-top: 14px; }
 
-  /* THE PICKS TABLE FOLDS rather than scrolling or truncating. Two rows per
-     pick: team and call on top, the reference numbers underneath in a three-up
-     strip. Nothing is dropped and nothing overflows at 390px.
-
-     The header row is dropped and each cell announces itself from its own
-     data-label instead. That is why the cells are emitted FLAT rather than
-     wrapped in a meta container — one set of grid children serves both
-     compositions, so there is no second markup path to keep in sync. */
-  .pf-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px 12px;
-    padding: 15px 0;
-  }
-  .pf-row.is-head { display: none; }
-  .pf-team  { grid-column: 1 / 3; grid-row: 1; }
-  .pf-call  { grid-column: 3; grid-row: 1; justify-self: end; align-self: center; }
-  .pf-conf  { grid-column: 1; grid-row: 2; }
-  .pf-line  { grid-column: 2; grid-row: 2; }
-  .pf-delta { grid-column: 3; grid-row: 2; text-align: right; }
-
-  /* Micro-labels are set at .62rem and never smaller — below that they stop
-     being readable and start being texture. */
-  .pf-conf::before,
-  .pf-line::before,
-  .pf-delta::before {
-    content: attr(data-label);
-    display: block;
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: .62rem;
-    letter-spacing: .16em;
-    text-transform: uppercase;
-    color: #8a7f6d;
-    margin-bottom: 5px;
-  }
-  .pf-line { font-size: 1.06rem; }
-  .pf-team-name { font-size: 1.08rem; }
+  /* The picks table's fold is NOT here — it is a container query on .pf-picks
+     (see THE FOLD above), because the table has to fold whenever its own
+     column is narrow, not whenever the viewport is. On a phone the column is
+     narrow, so the same rule fires and nothing extra is needed. */
 
   .pf-band {
     grid-template-columns: 1fr;
@@ -903,17 +961,14 @@ body.pf-body-ground {
   .pf-intro { padding-top: 22px; }
 }
 
-/* Desktop states the columns once in the header row, so the per-cell
-   data-labels stay unrendered. They remain in the DOM as attributes only —
-   never as hidden text a screen reader would read twice. */
+/* The closing band and the jump links always span the full composition,
+   whichever variant put a grid on the profile root. Harmless on HEADLINER,
+   whose root is not a grid.
+   (There is no rule here turning the data-labels off: they are only ever
+   turned ON inside the container query, so at full width they stay unrendered
+   without needing to be switched back. They remain DOM attributes, never
+   hidden text a screen reader would announce twice.) */
 @media (min-width: 900px) {
-  .pf-conf::before,
-  .pf-line::before,
-  .pf-delta::before { content: none; }
-
-  /* The closing band and the jump links always span the full composition,
-     whichever variant put a grid on the profile root. Harmless on HEADLINER,
-     whose root is not a grid. */
   .pf-band, .pf-jump { grid-column: 1 / -1; }
 }
 
