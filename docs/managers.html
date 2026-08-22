@@ -14,8 +14,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<!-- The editorial profile system. LOADED BY THIS PAGE ONLY — it carries its
+     own ground, type scale and colour model (see the header of profile.css),
+     and keeping it out of style.css is what guarantees the standings board,
+     analytics and the SVP column cannot shift when a profile rule changes.
+     Loaded after style.css so it wins on the classes it shares. -->
+<link rel="stylesheet" href="profile.css">
 </head>
-<body id="top">
+<!-- pf-body-ground puts the warm newsprint behind the whole document rather
+     than behind the content column, so the paper runs to the viewport edge and
+     under any overscroll instead of stopping at a seam. -->
+<body id="top" class="pf-body-ground">
 
 <!-- GROUP-GENERIC. Nothing on this page knows about panel, or about four
      managers. It renders whatever standings.json returns for ?group=, and
@@ -40,7 +49,7 @@
      of all on the page that lays out every pick a manager holds. -->
 <div class="sample-banner" id="sample-banner" role="alert" hidden></div>
 
-<main class="mgr-page">
+<main class="pf-page">
   <div class="loading" id="loading">Loading&hellip;</div>
 
   <!-- Fatal load error: an unknown ?group=, or a missing standings.json. Same
@@ -51,11 +60,11 @@
   <!-- Masthead banner. Filled by renderBanner() with ONE image picked at
        random from data/<group>/banners.json, or left empty and hidden if that
        manifest 404s — which is every league but panel today. Stays above
-       .mgr-intro so the art sits between the site masthead and the page
+       the page intro so the art sits between the site masthead and the page
        title. -->
   <div class="mgr-banner-slot" id="mgr-banner" hidden></div>
 
-  <section class="mgr-intro" id="mgr-intro" hidden></section>
+  <section class="pf-intro" id="mgr-intro" hidden></section>
 
   <div id="mgr-list"></div>
 </main>

@@ -1,0 +1,938 @@
+/* ==========================================================================
+   profile.css — the editorial profile system (managers.html only).
+
+   A SEPARATE FILE, DELIBERATELY. style.css is the shared sports-desk identity
+   for five pages; this is a single page's magazine treatment with its own
+   ground, its own type scale and its own colour model. Merging them would mean
+   every rule here is one specificity accident away from moving the standings
+   board. Nothing outside managers.html links this file, so nothing outside
+   managers.html can shift.
+
+   THE GROUND IS DIFFERENT ON PURPOSE. The rest of the site is white paper with
+   hairline borders — a box score. This page is warm newsprint with black ink
+   and one dominant accent per person — a game program. Both are the same
+   publication; they are just different sections of it.
+
+   ---------------------------------------------------------------------------
+   PER-PROFILE TOKENS. Every colour decision on a profile reads one of four
+   custom properties, set inline on the .pf root by managers.js from the
+   persona's `theme` block:
+
+     --profile-accent            the dominant editorial colour
+     --profile-accent-secondary  the supporting colour (rules, seals)
+     --profile-paper             the ground
+     --profile-ink               the type
+
+   The accent is an EDITORIAL choice, not automatically the team's primary.
+   A profile whose persona names no theme falls back to the team colour, and
+   then to the site accent — so a manager with no creative direction still
+   gets a coloured page rather than a grey one.
+
+   --profile-accent-deep is DERIVED, not authored, and it is the one that
+   matters for accessibility. Team and editorial accents are picked for
+   helmets: Oklahoma State's #fe5c00 sits at about 3.0:1 on ivory, which
+   passes for large display type and fails for the small uppercase utility
+   labels this design uses everywhere. Rather than ban the accent from small
+   text (which would cost the design its voice) or ship it failing, every
+   accent gets a darkened variant via color-mix and the small labels use that.
+   The undarkened accent stays for rules, fills, and display type at size.
+
+   FONTS. No new font is loaded. The three families this page uses are already
+   requested by the shared <head> — Roboto Condensed carries the display
+   voice at weight 900, Inter the body, JetBrains Mono the numbers. Every
+   stack ends in a real system fallback, so the page holds its composition if
+   the webfont never arrives. (Those three are still fetched from the Google
+   Fonts CDN by every page on the site, which the profile brief rules out;
+   self-hosting them is a site-wide change and is called out in
+   profile-design-system.md rather than smuggled into this file.)
+
+   DISTRESS IS BUILT, NOT BAKED. Grain, erosion and halftone are SVG filters
+   and gradients defined once below and applied by class, never flattened into
+   the artwork. That keeps them retunable, keeps them working over any art
+   (including art that does not exist yet), and keeps the asset pipeline free
+   to regenerate a portrait without also re-rendering a texture.
+   ========================================================================== */
+
+/* ---------- the treatments ------------------------------------------------
+   Three reusable SVG data-URIs. Defined on :root so they are parsed once and
+   referenced by name; '#' must be written '%23' inside a data URI or the
+   fragment truncates the document.
+
+   --tx-grain     fractal noise, laid over paper at low opacity to kill the
+                  flatness of a solid fill.
+   --tx-erode     a LUMINANCE mask: mostly white (keep) with a scattered dark
+                  tail (punch out). The linear transfer is what makes it a
+                  print texture rather than a fog — slope 3.2 / intercept -0.55
+                  clamps the bulk of the noise to solid white and only the
+                  lower tail survives as holes, so roughly a tenth of the
+                  glyph erodes. Applied to display type ONLY; body copy is
+                  never masked.
+   --tx-halftone  a dot screen for spot illustrations and seals.
+   -------------------------------------------------------------------------- */
+:root {
+  --tx-grain:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3C/svg%3E");
+  --tx-erode:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' seed='5' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='3.2' intercept='-0.55'/%3E%3CfeFuncG type='linear' slope='3.2' intercept='-0.55'/%3E%3CfeFuncB type='linear' slope='3.2' intercept='-0.55'/%3E%3CfeFuncA type='linear' slope='0' intercept='1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23d)'/%3E%3C/svg%3E");
+  --tx-torn:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='800' preserveAspectRatio='none'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.05' numOctaves='4' seed='9'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='34' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Crect x='0' y='-40' width='566' height='880' fill='%23fff' filter='url(%23t)'/%3E%3C/svg%3E");
+  /* A dot screen. Pure CSS rather than SVG because it has to take the
+     profile's accent at use-time, which a data URI cannot do. */
+  --tx-halftone:
+    radial-gradient(currentColor 22%, transparent 23%);
+}
+
+/* ---------- page shell ---------------------------------------------------- */
+.pf-page {
+  --pf-measure: 1240px;
+  max-width: var(--pf-measure);
+  margin: 0 auto;
+  padding: 0 20px 72px;
+  background: transparent;
+}
+
+/* The whole page sits on paper, not on the site's white. Set on body via a
+   class rather than on .pf-page so the ground runs edge to edge behind the
+   footer and under any overscroll. */
+body.pf-body-ground {
+  background: #efe9dc;
+  background-image: var(--tx-grain);
+  background-blend-mode: multiply;
+  background-size: 300px 300px;
+}
+
+/* ---------- section masthead (page-level, not per profile) ---------------- */
+.pf-intro {
+  padding: 34px 0 18px;
+  border-bottom: 3px solid #14110f;
+  margin-bottom: 4px;
+}
+.pf-intro-kicker {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: .72rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #8a7f6d;
+}
+.pf-intro-title {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  line-height: .86;
+  letter-spacing: -.02em;
+  text-transform: uppercase;
+  color: #14110f;
+  margin-top: 6px;
+}
+.pf-intro-sub {
+  font-family: var(--mono);
+  font-size: .74rem;
+  letter-spacing: .04em;
+  color: #6f6355;
+  margin-top: 12px;
+}
+
+/* ==========================================================================
+   THE PROFILE ROOT
+   ========================================================================== */
+.pf {
+  /* Fallback chain, widest first. managers.js overrides --profile-accent
+     inline when the persona (or the team) supplies one. */
+  --profile-accent: #b8452a;
+  --profile-accent-secondary: #14110f;
+  --profile-paper: #f4efe4;
+  --profile-ink: #14110f;
+
+  /* DERIVED. Declared twice on purpose: the first line is the fallback for a
+     browser with no color-mix, the second wins where it is supported. Small
+     uppercase labels use --profile-accent-deep so an accent chosen for a
+     helmet still clears 4.5:1 on ivory. */
+  /* 45%, not a gentler number, and the lightest accent in the roster is why.
+     Wake Forest gold (#ceb888) is the worst case: it sits at 1.9:1 on ivory
+     raw, and a 32% mix only reaches about 3.3:1 — still failing small text
+     while LOOKING deliberate, which is the most dangerous kind of near-miss.
+     45% carries every accent in the four rosters past 4.5:1 (gold reaches
+     ~5.2:1, Oklahoma State orange ~7.4:1) and costs the small labels some
+     vibrancy the full-strength accent keeps in the rules and display type.
+     A fixed mix is used rather than a per-accent computed value because the
+     accent can arrive from the persona theme OR from the team-colour fallback
+     at render time, so there is no single build step that could precompute it. */
+  --profile-accent-deep: var(--profile-accent);
+  --profile-accent-deep: color-mix(in srgb, var(--profile-accent), #000 45%);
+  --pf-rule: color-mix(in srgb, var(--profile-ink), transparent 82%);
+
+  position: relative;
+  background: var(--profile-paper);
+  color: var(--profile-ink);
+  margin: 40px 0;
+  padding: 0;
+  isolation: isolate;
+}
+
+/* Paper grain over the card ground. Pointer-events none so it never eats a
+   click; z-index 0 under everything the profile draws. */
+.pf::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--tx-grain);
+  background-size: 300px 300px;
+  opacity: .16;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 0;
+}
+.pf > * { position: relative; z-index: 1; }
+
+/* Every profile is bounded top and bottom by a heavy accent rule — the one
+   piece of structure shared by all four variants. */
+.pf { border-top: 5px solid var(--profile-accent); }
+
+/* ---------- shared utility label ------------------------------------------
+   The tiny uppercase mark used above every block. One definition; the blocks
+   differ in what they put under it, never in how they announce themselves. */
+.pf-label {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: .7rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--profile-accent-deep);
+  display: block;
+}
+.pf-label.is-quiet { color: #8a7f6d; }
+
+/* ==========================================================================
+   BLOCK 1 — PORTRAIT
+   The art bleeds off the left/top edge of the card and dissolves into the
+   paper on its inner edge. .is-cut marks a torn, alpha-keyed asset: those are
+   already ragged in the pixels and must NOT get a second synthetic tear, so
+   the mask is only applied to the opaque rectangular cuts.
+   ========================================================================== */
+.pf-portrait {
+  position: relative;
+  margin: 0;
+  align-self: start;
+  overflow: hidden;
+}
+.pf-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* A print-shop desaturation: not greyscale, just pulled back so the one
+     accent in the layout stays the loudest colour on the page. */
+  filter: saturate(.86) contrast(1.06);
+}
+/* Opaque rectangular art gets the synthetic torn edge. */
+.pf-portrait:not(.is-cut) img {
+  -webkit-mask-image: var(--tx-torn);
+  mask-image: var(--tx-torn);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+/* Ink wash at the foot of the portrait — the flat band the asset spec
+   reserves, so an HTML overlay always has somewhere clean to land. */
+.pf-portrait::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 34%;
+  background: linear-gradient(to top,
+    color-mix(in srgb, var(--profile-paper), transparent 8%) 4%,
+    transparent 92%);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   BLOCK 2 — HEADLINE (archetype / name / thesis)
+   ========================================================================== */
+.pf-headline { padding: 34px 0 0; }
+.pf-archetype {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: .8rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--profile-accent-deep);
+}
+.pf-name {
+  font-family: var(--display);
+  font-weight: 900;
+  /* The single loudest element on the page. clamp() so it stays enormous on
+     desktop and merely large on a phone — recomposed, not shrunk to nothing. */
+  font-size: clamp(3.6rem, 12vw, 9.5rem);
+  line-height: .8;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+  color: var(--profile-ink);
+  margin: 6px 0 0;
+  /* THE DISTRESSED TYPE TREATMENT. A luminance mask erodes roughly a tenth of
+     each glyph, which reads as worn ink on absorbent stock. Display sizes
+     only — the mask is never applied to anything below ~3rem, where the same
+     erosion would start costing legibility instead of adding texture. */
+  -webkit-mask-image: var(--tx-erode);
+  mask-image: var(--tx-erode);
+  -webkit-mask-size: 420px 420px;
+  mask-size: 420px 420px;
+  -webkit-mask-mode: luminance;
+  mask-mode: luminance;
+}
+/* An authored nameplate image replaces the typographic name, but the <h2>
+   STAYS IN THE DOM carrying the real text and is only visually hidden. The
+   heading outline, the accessible name and the aria-labelledby target must not
+   depend on whether an art asset happened to be generated.
+   Defined here rather than in style.css because this page is its only user;
+   the clip-rect pattern keeps the text reachable by screen readers, which
+   display:none would not. */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.pf-nameplate { display: block; width: 100%; max-width: 640px; height: auto; }
+.pf-thesis {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(1rem, 1.6vw, 1.32rem);
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  color: #6f6355;
+  margin-top: 18px;
+  max-width: 46ch;
+}
+.pf-headline-rule {
+  height: 3px;
+  background: var(--profile-accent);
+  margin-top: 22px;
+}
+
+/* ==========================================================================
+   BLOCK 3 — DOSSIER (the dark high-contrast card)
+   Inverted ground, so it is the one place on the page where the accent sits
+   on black and can run at full saturation for small labels.
+   ========================================================================== */
+.pf-dossier {
+  background: #14110f;
+  color: #f4efe4;
+  padding: 26px 24px 28px;
+  margin-top: -2px;
+}
+.pf-dossier-row + .pf-dossier-row { margin-top: 18px; }
+.pf-dossier dt {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: .64rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  /* On black the raw accent is well clear of 4.5:1, so no deepening here. */
+  color: var(--profile-accent);
+}
+.pf-dossier dd {
+  font-family: var(--body);
+  font-size: .92rem;
+  line-height: 1.45;
+  color: #efe9dc;
+  margin-top: 4px;
+}
+.pf-dossier .is-name {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: -.01em;
+  line-height: 1;
+}
+/* The facts strip — hometown / college / drafted / status. Hairline-ruled
+   rows rather than four more cards. */
+.pf-facts { margin-top: 22px; border-top: 1px solid rgba(244, 239, 228, .22); }
+.pf-fact {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(244, 239, 228, .12);
+}
+/* .64rem = 10.2px, not .6rem. The facts strip is the smallest type on the
+   page and 9.6px put it under the .62rem floor the mobile section commits to
+   — below which a label stops being read and starts being texture. */
+.pf-fact dt { font-size: .64rem; }
+.pf-fact dd { margin-top: 0; text-align: right; font-size: .86rem; }
+
+/* ==========================================================================
+   BLOCK 4 — PICKS
+   Editorial table, not a data grid: heavy top rule, tiny column labels,
+   generous row height, the number carrying the weight.
+   --pf-pick-cols is set per render so the live-season Δ column can appear
+   without a second table implementation.
+   ========================================================================== */
+.pf-picks { margin-top: 34px; }
+.pf-picks-head { display: flex; align-items: baseline; gap: 12px; }
+.pf-table { margin-top: 12px; border-top: 3px solid var(--profile-ink); }
+.pf-row {
+  display: grid;
+  grid-template-columns: var(--pf-pick-cols, minmax(0, 1fr) 92px 96px 90px);
+  gap: 14px;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--pf-rule);
+}
+.pf-row.is-head {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--pf-rule);
+}
+.pf-row.is-head span {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: .62rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #8a7f6d;
+}
+/* A settled pick dims. Opacity only — the status is also stated in text in
+   the row, so this is never the sole carrier of the fact. */
+.pf-row.is-dead { opacity: .5; }
+
+.pf-team { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.pf-team-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.16rem;
+  letter-spacing: .005em;
+  overflow-wrap: anywhere;
+}
+/* The team mark. A local logo when one exists; otherwise a monogram chip in
+   the team's own primary colour — never a grey placeholder box. */
+.pf-mark {
+  flex: 0 0 auto;
+  width: 34px; height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 2px;
+  background: var(--pf-team-color, #14110f);
+  /* Set per team from team_marks.json `ink`. See build_team_marks.ink_for —
+     a fifth of FBS primaries are light enough that white type on them is
+     unreadable, so the readable choice is computed, not assumed. */
+  color: var(--pf-team-ink, #fff);
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: .68rem;
+  letter-spacing: .02em;
+}
+.pf-mark img { width: 100%; height: 100%; object-fit: contain; }
+
+.pf-conf {
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .02em;
+  color: #6f6355;
+}
+.pf-line {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.24rem;
+  font-weight: 500;
+}
+.pf-delta {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: right;
+}
+.pf-delta.pos { color: #1f7a2e; }
+.pf-delta.neg { color: #b3231c; }
+
+/* The call. A hard-edged block, filled for OVER and outlined for UNDER, so
+   the two are distinguishable by SHAPE as well as by the word and the
+   colour — never colour alone. */
+.pf-call {
+  justify-self: start;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: 6px 11px;
+  border: 2px solid var(--profile-ink);
+  line-height: 1;
+}
+.pf-call.over { background: var(--profile-ink); color: var(--profile-paper); }
+.pf-call.under { background: transparent; color: var(--profile-ink); }
+
+.pf-picks-empty {
+  font-family: var(--body);
+  font-size: .92rem;
+  color: #6f6355;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--pf-rule);
+}
+
+/* ==========================================================================
+   BLOCK 5 — SCOUTING REPORT
+   Narrower measure than the picks table above it. The width change is the
+   signal that this is reading matter, not reference matter.
+   ========================================================================== */
+.pf-scouting { margin-top: 40px; }
+.pf-scouting-body { margin-top: 14px; max-width: 60ch; }
+.pf-scouting-body p {
+  font-family: var(--body);
+  font-size: 1rem;
+  line-height: 1.72;
+  color: #2a241e;
+}
+.pf-scouting-body p + p { margin-top: 16px; }
+/* A drop initial on the opening paragraph — the cheapest possible signal
+   that this is a magazine and not a dashboard. */
+.pf-scouting-body p:first-child::first-letter {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 3.4em;
+  line-height: .82;
+  float: left;
+  margin: 4px 10px 0 0;
+  color: var(--profile-accent-deep);
+}
+
+/* ==========================================================================
+   BLOCK 6 — PERSONALITY MODULES
+   Tone-gated. Composition is deliberately NOT three identical cards: the
+   first module runs wide and quiet, the rest sit in a two-up band with a
+   heavier rule. The count varies from 0 to 4 depending on register and on how
+   much persona content exists, so the grid must look composed at every count
+   — which is why it is auto-fit rather than a fixed three columns.
+   ========================================================================== */
+/* THE COLUMN COUNT IS EXPLICIT, NOT auto-fit, and that is a bug fix rather
+   than a preference. The 1px gap is drawn by letting the container's rule
+   colour show between opaque cells — which is only correct when every cell is
+   filled. With auto-fit, three modules (lead + two) resolve to three columns
+   and the third track sits EMPTY, painting a grey rectangle beside the last
+   module that reads as a broken tile.
+   managers.js sets --pf-module-cols to the number of non-lead modules, so the
+   track count and the module count can never disagree. The lead still spans
+   the full width above them. */
+.pf-modules {
+  margin-top: 44px;
+  display: grid;
+  grid-template-columns: repeat(var(--pf-module-cols, 1), minmax(0, 1fr));
+  gap: 1px;
+  background: var(--pf-rule);
+  border: 1px solid var(--pf-rule);
+}
+.pf-module {
+  background: var(--profile-paper);
+  padding: 22px 20px 24px;
+  min-width: 0;
+}
+/* The lead module spans the full width and carries the accent rule. With one
+   module it is simply the only one; with four it is the band's opening
+   statement. Either way the grid never reads as a row of clones. */
+.pf-module.is-lead {
+  grid-column: 1 / -1;
+  border-top: 4px solid var(--profile-accent);
+  background: color-mix(in srgb, var(--profile-paper), var(--profile-ink) 4%);
+}
+.pf-module-head { display: flex; align-items: center; gap: 9px; }
+.pf-module-icon {
+  flex: 0 0 auto;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--profile-accent);
+  color: #fff;
+  font-size: .74rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.pf-module-title {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.22rem;
+  letter-spacing: -.005em;
+  margin-top: 10px;
+}
+.pf-module-body {
+  font-family: var(--body);
+  font-size: .9rem;
+  line-height: 1.6;
+  color: #3a332b;
+  margin-top: 8px;
+}
+.pf-module-body a { color: var(--profile-accent-deep); text-underline-offset: 3px; }
+/* Optional spot illustration. Halftoned and multiplied into the paper so a
+   generated cut-out never sits on the page as a pasted rectangle. */
+.pf-spot {
+  display: block;
+  width: 100%;
+  max-width: 190px;
+  height: auto;
+  margin-top: 14px;
+  margin-left: auto;
+  filter: grayscale(1) contrast(1.25);
+  mix-blend-mode: multiply;
+}
+
+/* ==========================================================================
+   BLOCK 7 — PULL QUOTE
+   ========================================================================== */
+.pf-quote {
+  margin-top: 30px;
+  padding: 30px 26px 26px;
+  background: color-mix(in srgb, var(--profile-paper), var(--profile-ink) 5%);
+  border-top: 3px solid var(--profile-ink);
+}
+.pf-quote-mark {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 3.4rem;
+  line-height: .6;
+  color: color-mix(in srgb, var(--profile-ink), transparent 72%);
+  display: block;
+}
+.pf-quote-text {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(1.35rem, 2.1vw, 1.85rem);
+  line-height: 1.06;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+.pf-quote-attr {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+  font-family: var(--display);
+  font-size: .8rem;
+  letter-spacing: .04em;
+  color: var(--profile-accent-deep);
+}
+.pf-signature { height: 42px; width: auto; max-width: 190px; mix-blend-mode: multiply; }
+
+/* ==========================================================================
+   BLOCK 8 — CLOSING BAND
+   ========================================================================== */
+.pf-band {
+  margin-top: 46px;
+  background: #14110f;
+  color: #f4efe4;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 20px;
+  padding: 26px 30px;
+}
+.pf-band-half {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(1.1rem, 2.4vw, 1.9rem);
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--profile-accent);
+  -webkit-mask-image: var(--tx-erode);
+  mask-image: var(--tx-erode);
+  -webkit-mask-size: 420px 420px;
+  mask-size: 420px 420px;
+  -webkit-mask-mode: luminance;
+  mask-mode: luminance;
+}
+.pf-band-half.is-right { text-align: right; }
+.pf-badge { width: 92px; height: 92px; object-fit: contain; }
+/* Drawn seal — the fallback when no badge asset exists. A ring of ink with
+   the manager's initial, halftoned. Never an empty gap. */
+.pf-seal {
+  width: 78px; height: 78px;
+  border: 2px solid var(--profile-accent);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.9rem;
+  color: var(--profile-accent);
+  background-image: var(--tx-halftone);
+  background-size: 6px 6px;
+}
+
+/* ---------- per-profile footer nav --------------------------------------- */
+.pf-jump {
+  display: flex;
+  gap: 22px;
+  justify-content: space-between;
+  padding: 16px 0 0;
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .04em;
+}
+.pf-jump a { color: #6f6355; text-underline-offset: 4px; }
+.pf-jump a:hover, .pf-jump a:focus-visible { color: var(--profile-ink); }
+
+/* Visible keyboard focus everywhere on the page, on the paper ground. */
+.pf a:focus-visible,
+.pf-jump a:focus-visible {
+  outline: 3px solid var(--profile-accent-deep);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   LAYOUT VARIANTS
+   Same blocks, same markup, different composition. The variant class is set
+   from persona `layout`; an absent value means SIDELINE.
+
+   Each variant is two column wrappers plus a full-width band. The wrappers
+   exist only at desktop width — see the mobile section, where they become
+   `display: contents` and every block becomes a direct child of one column so
+   the reading order can be set explicitly rather than inherited from a
+   desktop composition that no longer applies.
+   ========================================================================== */
+.pf-col { min-width: 0; }
+
+/* ---- SIDELINE — portrait left, editorial right. The reference. ---------- */
+@media (min-width: 900px) {
+  .pf--sideline {
+    display: grid;
+    grid-template-columns: 370px minmax(0, 1fr);
+    column-gap: 46px;
+    align-items: start;
+  }
+  .pf--sideline .pf-band { grid-column: 1 / -1; }
+  .pf--sideline .pf-col-main { padding-bottom: 8px; }
+  /* The portrait bleeds past the card's left edge into the page margin — the
+     asymmetry that keeps the composition from reading as two tidy columns. */
+  .pf--sideline .pf-col-aside { margin-left: -20px; }
+  .pf--sideline .pf-portrait { margin-bottom: 0; }
+}
+
+/* ---- HEADLINER — full-bleed art, name overlapping the image edge -------- */
+@media (min-width: 900px) {
+  .pf--headliner .pf-col-aside { position: relative; }
+  .pf--headliner .pf-portrait { max-height: 620px; }
+  .pf--headliner .pf-portrait img { width: 100%; object-fit: cover; object-position: center 22%; }
+  /* The overlap. The headline is pulled up over the reserved flat band at the
+     foot of the art, which is why the asset spec requires that band to be
+     free of baked text. */
+  .pf--headliner .pf-headline {
+    margin-top: -132px;
+    padding-left: 34px;
+    padding-right: 34px;
+  }
+  .pf--headliner .pf-name { font-size: clamp(4rem, 13vw, 11rem); }
+  .pf--headliner .pf-col-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    column-gap: 46px;
+    align-items: start;
+    padding: 0 34px;
+  }
+  .pf--headliner .pf-scouting { grid-column: 1; margin-top: 34px; }
+  .pf--headliner .pf-picks { grid-column: 2; grid-row: 1 / span 2; }
+  .pf--headliner .pf-modules { grid-column: 1 / -1; }
+  .pf--headliner .pf-quote { grid-column: 1 / -1; }
+  .pf--headliner .pf-dossier { grid-column: 1 / -1; margin-top: 30px; }
+}
+
+/* ---- DOSSIER — scouting-sheet orientation. NEEDS NO ART. ----------------
+   The variant for a manager who has no portrait, which is 10 of the 24
+   today. It must not look like SIDELINE with the picture missing, so it
+   reorganises around the facts: a ruled header block, the dossier as a wide
+   horizontal strip, and the picks promoted to full width. */
+@media (min-width: 900px) {
+  .pf--dossier .pf-col-aside,
+  .pf--dossier .pf-col-main { display: contents; }
+  .pf--dossier {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 46px;
+  }
+  .pf--dossier .pf-headline { grid-column: 1 / -1; border-bottom: 3px solid var(--profile-ink); padding-bottom: 24px; }
+  .pf--dossier .pf-headline-rule { display: none; }
+  .pf--dossier .pf-portrait { grid-column: 1 / -1; max-height: 300px; }
+  .pf--dossier .pf-portrait img { object-fit: cover; object-position: center 18%; }
+  .pf--dossier .pf-dossier {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 24px 34px;
+    align-items: start;
+  }
+  .pf--dossier .pf-facts { border-top: 0; margin-top: 0; grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 30px; }
+  .pf--dossier .pf-picks { grid-column: 1 / -1; }
+  .pf--dossier .pf-scouting { grid-column: 1; }
+  .pf--dossier .pf-quote { grid-column: 2; margin-top: 40px; }
+  .pf--dossier .pf-modules { grid-column: 1 / -1; }
+  .pf--dossier .pf-band { grid-column: 1 / -1; }
+}
+
+/* ---- PROGRAM — vintage game program. Centred, symmetric, framed. -------- */
+@media (min-width: 900px) {
+  .pf--program .pf-col-aside,
+  .pf--program .pf-col-main { display: contents; }
+  .pf--program {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px minmax(0, 1fr);
+    column-gap: 40px;
+  }
+  .pf--program .pf-headline { grid-column: 1 / -1; text-align: center; }
+  .pf--program .pf-thesis { margin-left: auto; margin-right: auto; }
+  .pf--program .pf-headline-rule {
+    width: 140px; margin-left: auto; margin-right: auto; height: 5px;
+  }
+  /* Framed portrait, dead centre — the programme cover position. */
+  .pf--program .pf-portrait {
+    grid-column: 2; grid-row: 2;
+    border: 3px solid var(--profile-ink);
+    padding: 8px;
+    background: var(--profile-paper);
+    margin-top: 30px;
+  }
+  .pf--program .pf-portrait:not(.is-cut) img { -webkit-mask-image: none; mask-image: none; }
+  .pf--program .pf-picks { grid-column: 1; grid-row: 2; }
+  .pf--program .pf-scouting { grid-column: 3; grid-row: 2; margin-top: 34px; }
+  .pf--program .pf-dossier { grid-column: 2; grid-row: 3; }
+  .pf--program .pf-modules { grid-column: 1 / -1; }
+  .pf--program .pf-quote { grid-column: 1 / -1; text-align: center; }
+  .pf--program .pf-quote-attr { justify-content: center; }
+  .pf--program .pf-band { grid-column: 1 / -1; }
+}
+
+/* A profile with no art at all: whatever the variant, nothing should reserve
+   space for a picture that is not coming. */
+.pf.has-no-art .pf-portrait { display: none; }
+@media (min-width: 900px) {
+  .pf--sideline.has-no-art { grid-template-columns: 300px minmax(0, 1fr); }
+  .pf--program.has-no-art { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .pf--program.has-no-art .pf-dossier { grid-column: 2; grid-row: 2; }
+  .pf--program.has-no-art .pf-picks { grid-column: 1; grid-row: 2; }
+  .pf--program.has-no-art .pf-scouting { grid-column: 1 / -1; }
+}
+
+/* ==========================================================================
+   MOBILE — RECOMPOSED, NOT SHRUNK (390px is the target)
+
+   The column wrappers dissolve (`display: contents`) so every block becomes a
+   direct child of .pf and the reading order is set explicitly with `order`.
+   That is the whole point: on a phone the desktop composition is not a
+   smaller version of itself, it is a different arrangement of the same
+   blocks. Portrait first, then the name, then the picks — the three things
+   someone opening a profile on a phone actually came for — and the dossier,
+   prose and modules after.
+   ========================================================================== */
+@media (max-width: 899px) {
+  .pf-page { padding: 0 14px 48px; }
+  .pf {
+    display: flex;
+    flex-direction: column;
+    margin: 26px 0;
+  }
+  .pf-col { display: contents; }
+
+  .pf-portrait  { order: 1; margin: 0 -14px; }
+  .pf-headline  { order: 2; padding: 22px 16px 0; }
+  .pf-picks     { order: 3; padding: 0 16px; margin-top: 26px; }
+  .pf-dossier   { order: 4; margin: 30px 0 0; }
+  .pf-scouting  { order: 5; padding: 0 16px; margin-top: 30px; }
+  .pf-modules   { order: 6; margin: 32px 16px 0; }
+  .pf-quote     { order: 7; margin: 26px 16px 0; }
+  .pf-band      { order: 8; margin-top: 32px; }
+  .pf-jump      { order: 9; padding: 16px; }
+
+  /* The name still has to be the loudest thing on the screen. */
+  .pf-name { font-size: clamp(3rem, 17vw, 5rem); }
+  .pf-thesis { font-size: .95rem; margin-top: 14px; }
+
+  /* THE PICKS TABLE FOLDS rather than scrolling or truncating. Two rows per
+     pick: team and call on top, the reference numbers underneath in a three-up
+     strip. Nothing is dropped and nothing overflows at 390px.
+
+     The header row is dropped and each cell announces itself from its own
+     data-label instead. That is why the cells are emitted FLAT rather than
+     wrapped in a meta container — one set of grid children serves both
+     compositions, so there is no second markup path to keep in sync. */
+  .pf-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 12px;
+    padding: 15px 0;
+  }
+  .pf-row.is-head { display: none; }
+  .pf-team  { grid-column: 1 / 3; grid-row: 1; }
+  .pf-call  { grid-column: 3; grid-row: 1; justify-self: end; align-self: center; }
+  .pf-conf  { grid-column: 1; grid-row: 2; }
+  .pf-line  { grid-column: 2; grid-row: 2; }
+  .pf-delta { grid-column: 3; grid-row: 2; text-align: right; }
+
+  /* Micro-labels are set at .62rem and never smaller — below that they stop
+     being readable and start being texture. */
+  .pf-conf::before,
+  .pf-line::before,
+  .pf-delta::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: .62rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #8a7f6d;
+    margin-bottom: 5px;
+  }
+  .pf-line { font-size: 1.06rem; }
+  .pf-team-name { font-size: 1.08rem; }
+
+  .pf-band {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 14px;
+    padding: 24px 18px;
+  }
+  .pf-band-half.is-right { text-align: center; }
+  .pf-band-half { font-size: 1.25rem; }
+
+  .pf-modules { grid-template-columns: minmax(0, 1fr); }
+  .pf-scouting-body p:first-child::first-letter { font-size: 2.9em; }
+  .pf-intro { padding-top: 22px; }
+}
+
+/* Desktop states the columns once in the header row, so the per-cell
+   data-labels stay unrendered. They remain in the DOM as attributes only —
+   never as hidden text a screen reader would read twice. */
+@media (min-width: 900px) {
+  .pf-conf::before,
+  .pf-line::before,
+  .pf-delta::before { content: none; }
+
+  /* The closing band and the jump links always span the full composition,
+     whichever variant put a grid on the profile root. Harmless on HEADLINER,
+     whose root is not a grid. */
+  .pf-band, .pf-jump { grid-column: 1 / -1; }
+}
+
+/* ==========================================================================
+   REDUCED MOTION / REDUCED TRANSPARENCY-ADJACENT PREFERENCES
+   No animation is used anywhere on this page, so there is nothing to disable.
+   The erosion mask is texture, not motion, and stays.
+
+   PRINT — the treatments are screen effects. On paper they become mud, so the
+   masks and blends come off and the page prints as a clean document.
+   ========================================================================== */
+@media print {
+  body.pf-body-ground { background: #fff; }
+  .pf::before { display: none; }
+  .pf-name, .pf-band-half {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .pf-portrait:not(.is-cut) img { -webkit-mask-image: none; mask-image: none; }
+  .pf { break-inside: avoid; border-top-width: 3px; }
+  .pf-band { background: #14110f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
