@@ -15,7 +15,7 @@
   - Over: `actual_wins − line`
   - Under: `line − actual_wins`
 - **Owner's total = sum of their picks' deltas.** Highest aggregate wins.
-- **Multiple groups:** 3–4 independent friend groups, each its own set of owners/picks. **One codebase serves all** (see §5).
+- **Multiple groups:** four independent friend groups (`panel`, `family`, `church`, `browns`), each its own set of owners/picks. **One codebase serves all** (see §5).
 
 ### Scoring boundary (LOCKED — corrected 2026-07 against real 2025 CFBD data)
 - **Regular season only.** Bowls and the playoff are excluded — none of those wins count toward the line.
@@ -99,18 +99,23 @@ groups/
     picks.json          # each manager's 3–4 canonical picks: {manager, team, line, direction (O/U), conference}
   family/  ...
   church/  ...
+  browns/  ...
 season.json             # SINGLE SOURCE: {season, cfbd_default_season} (ints). §6 guard = one comparison vs cache.
 data/
   cfbd_cache.json       # SHARED — one weekly pull, every group reads it
-site/
+docs/                   # the GitHub Pages web root (served from main)
   data/<group_id>/      # THE ONLY engine write target: standings.json, projection.json, timeline.json
 ```
 
 **Output write target (LOCKED):** the engine writes the three contract files
 (`standings.json`, `projection.json`, `timeline.json`) **only** to
-`site/data/<group_id>/`. The old `groups/*/output/` directory is removed — there
-is one write surface, defined by `docs/output-contract.md`. `manager_id` is a
-stable slug, never displayed, and is the join key across every output file.
+`docs/data/<group_id>/` — GitHub Pages serves `docs/`, so the boards are
+committed there (`.gitignore` un-ignores exactly the real groups). There is one
+engine write surface, defined by `docs/output-contract.md`. `groups/<group>/output/`
+is **not** an engine target: it holds only the commentary layer's accumulating
+files (the filed SVP columns and `column_memory.json`; its regenerated
+`week_packet.json` is gitignored). `manager_id` is a stable slug, never
+displayed, and is the join key across every output file.
 
 - Pipeline **loops over groups**; scoring runs N times over the one shared cache.
 - **`count_conference_championship` (per-group league rule, default `false`).** Do conference-championship wins settle into a team's season win total? Sportsbooks differ, and Zach's groups may bet against different books, so this is **league config, not a code constant**. The shared cache is neutral — it tags conf-title games (`conference_championship`) but excludes nothing (§1); this flag is where each group decides. `scoring.py`/`projector.py` read it via `utils.counts_conference_championship(config)` and derive schedules with `utils.count_scheduled_games(cache["games"], flag)`. Four groups can hold four different answers over the same one cache — the payoff of shared-cache multi-tenancy.
@@ -154,7 +159,7 @@ Doing step 3 *before* CC pulls SP+ means guessing from a model's memory (which g
 ## 8. Reuse Audit (grounded in the real WC repo inventory)
 
 ### CLONE AS-IS (proven pattern, minimal edit)
-- **`scoring.py`'s config-driven architecture** — the crown jewel. All inputs JSON/CSV, nothing hardcoded, writes JSON to `site/data/`. This is exactly what makes multi-tenant a clean loop. Keep the skeleton, swap the math.
+- **`scoring.py`'s config-driven architecture** — the crown jewel. All inputs JSON/CSV, nothing hardcoded, writes JSON to `docs/data/`. This is exactly what makes multi-tenant a clean loop. Keep the skeleton, swap the math.
 - **`validate_team_names.py`** — the fetch→score guard. More load-bearing for CF (see §9).
 - **`CLAUDE.md`** build principles + "definition of done = committed AND pushed." (Note: WC's CLAUDE.md prescribes a CI consistency test and a live-pipeline workflow that **never existed on disk** — aspirational. For CF, make them real or cut them.)
 - **Email machinery:** `send_email.py`, `build_email_payload.py`, `should_send.py`, `render.py`; Resend + `mustardboy.xyz`. Recipient structure changes to per-group config; send logic ports.

@@ -24,7 +24,7 @@ fetch_results.py (shared: results + SP+ -> data/cfbd_cache.json)
 run_groups.py  ──loop groups──▶  validate ─▶ score ─▶ project ─▶ timeline
         │                          (§9)     (Board 1)  (Board 2)  (append-only)
         ▼
-site/data/<group_id>/{standings,projection,timeline}.json   ← the only write target
+docs/data/<group_id>/{standings,projection,timeline}.json   ← the only write target
 ```
 
 ## Groups
@@ -36,28 +36,37 @@ sizes vary per group and are set at the draft.
 |-------|------|--------|
 | The Panel   | `panel`  | `groups/panel/config.json`  |
 | Family League | `family` | `groups/family/config.json` |
-| Church League | `church` | `groups/church/config.json` |
+| CEC (church) | `church` | `groups/church/config.json` |
+| The Browns  | `browns` | `groups/browns/config.json` |
 
 Each `config.json` carries `count_conference_championship`, the `managers`
 roster (`{manager_id, display_name, email}` — `manager_id` is the stable,
 never-displayed join key), and the draft rules `picks_per_manager` /
-`min_distinct_conferences` (`null` = unenforced). **Season is not here** — it
-lives once in top-level `season.json` (`{season, cfbd_default_season}`, both
-ints), read by every script; the §6 guard asserts it matches the cache.
+`min_distinct_conferences` — both required and always enforced (a missing key
+fails the gate; there is no unenforced path). An optional
+`conference_minimum_waivers` list exempts named managers from the conference
+minimum only, and every applied waiver is printed on every run. **Season is not
+here** — it lives once in top-level `season.json` (`{season,
+cfbd_default_season}`, both ints), read by every script; the §6 guard asserts
+it matches the cache.
 
 ## Replacing the dummy data (real draft)
 
-All three groups currently ship **engineered dummy picks** so the site renders a
-full board and commentary has real state to narrate. Each `picks.json` is tagged
-`"draft_status": "dummy"`, which makes the site show the amber **sample-data**
-banner. Swapping in a real draft is one clean, per-group operation — **no code or
-frontend change**:
+Three groups (family, church, browns) still ship **engineered dummy picks** so
+the site renders a full board and commentary has real state to narrate; panel's
+real 2026 draft is entered (`"draft_status": "final"`). A dummy `picks.json` is
+tagged `"draft_status": "dummy"`, which makes the site show the amber
+**sample-data** banner. Swapping in a real draft is one clean, per-group
+operation — **no code or frontend change**. `scripts/enter_draft.py` does steps
+1–2 from a dictated paste block and runs the gate before writing anything;
+by hand it is:
 
 For each group `groups/<group>/picks.json`:
 
 1. **Overwrite** the `picks` array with the real drafted picks
    (`{manager, team, line, direction, conference}` — canonical team names only,
-   EXACTLY 4 per manager across 4 distinct conferences).
+   EXACTLY `picks_per_manager` per manager spanning at least
+   `min_distinct_conferences` conferences, per the group's `config.json`).
 2. **Flip** the top-level `"draft_status"` from `"dummy"` to `"final"`. This is
    the single switch that removes the sample-data banner.
 3. **Adjust `config.json` only if the roster changed** — e.g. Family adding its
@@ -100,18 +109,20 @@ python scripts/projector.py --test --as-of-week 6
 python scripts/run_groups.py --group all --fetch
 ```
 
-## Tests (all part of the suite)
+## Tests
 
 ```bash
-python scripts/test_resolver.py               # name resolver + ambiguity guard (§9)
-python scripts/test_cache_access.py           # AST guards: cache I/O + raw banked-index ownership
-python scripts/validate_team_names.py         # fetch->score name + conference + draft-rule gate
-python scripts/test_pick_rules.py             # draft rules: exactly 4 picks / 4 distinct conferences
-python scripts/test_output_shape.py           # every emitted file vs docs/output-contract.md
-python scripts/test_projector_correlation.py  # shared-draw pool odds (anti-correlation)
-python scripts/selftest_10_1.py               # fetch/cache/season-guard deliverables
-python scripts/calibrate.py                   # offseason: backtest SP+/FPI win-prob scaling
+python -m pytest -v                           # THE suite: every scripts/test_*.py (CI runs exactly this)
+python scripts/validate_team_names.py         # §9 gate on the committed picks (own CI step)
+python scripts/sync_personas.py --check       # docs/ persona copy is current (own CI step)
+python scripts/selftest_10_1.py               # live-cache health + bypass/season-guard paths (own CI step)
+python scripts/calibrate.py                   # offseason only: backtest SP+/FPI win-prob scaling
 ```
+
+Every `scripts/test_*.py` also runs standalone (`python scripts/test_x.py`)
+with the same pass/fail result; `conftest.py` is what turns their check ledgers
+into pytest failures. `selftest_10_1.py` is deliberately not a pytest module —
+it reads the live cache, not the frozen contract fixture.
 
 ## Setup
 
@@ -141,8 +152,9 @@ down so it isn't reconstructed from memory in August. Each step gates the next.
    either). Without it the fetch writes nothing and the run degrades.
 2. **Wait for CFBD 2026 data.** Don't flip until collegefootballdata.com actually
    serves 2026 games/lines + SP+ ratings. Flipping early scores an empty season.
-3. **Flip `season.json` — both keys, together.** Set `season` **and**
-   `cfbd_default_season` to `2026` in top-level `season.json`. These are the only
+3. **Flip `season.json` — both keys, together.** *(Done for 2026 — both keys
+   read `2026`; left here as the procedure for the next season.)* Set `season`
+   **and** `cfbd_default_season` to the new year in top-level `season.json`. These are the only
    season levers; **no year is hardcoded anywhere else** — the workflow fetch has
    no `--season` literal, so it follows `cfbd_default_season` automatically. Both
    must move as a pair: `season` is what groups score, `cfbd_default_season` is
