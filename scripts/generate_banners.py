@@ -33,6 +33,7 @@ through scripts/prepare_portraits.py --banner.
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -51,6 +52,9 @@ DEFAULT_MODEL = gemini_image.DEFAULT_MODEL
 # Shared across every style. The group shot has the same non-negotiable as the
 # solo recolors -- these are real people and the joke only works if they are
 # recognizably themselves.
+# A --ref may carry a literal colour instead of a canonical team name.
+HEX_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+
 GROUP_LOCK = (
     " CRITICAL: each man must be clearly recognizable as the specific individual "
     "from his reference image -- same face, same facial features, same hair, same "
@@ -137,17 +141,30 @@ def main() -> int:
             print(f"ERROR: poster not found for {mid!r}: {src}", file=sys.stderr)
             return 1
         team = team.strip()
-        if team not in colors:
-            print(f"ERROR: team {team!r} (for {mid}) not in teams_canonical.json",
+        # A raw #RRGGBB is accepted in place of a team name, for groups whose
+        # identity is not a college allegiance. Browns is the first: its
+        # premise is "Cleveland Browns fans first" with one Wake Forest
+        # outlier, and two of its five managers have no stated college at all.
+        # Filling `team` in personas.json to satisfy this parser would invent a
+        # public claim about a real person -- sync_personas.py publishes that
+        # file to the live site. Canonical validation is untouched for anyone
+        # who does pass a team name.
+        if HEX_RE.match(team):
+            hexc, team = team.lower(), None
+        elif team not in colors:
+            print(f"ERROR: team {team!r} (for {mid}) not in teams_canonical.json"
+                  f" -- pass a canonical team name or a literal #RRGGBB",
                   file=sys.stderr)
             return 1
-        hexc = colors[team].get("color")
+        else:
+            hexc = colors[team].get("color")
         refs.append((src, mid, team, hexc))
         # Ordinal, NOT manager_id: the model sees an ordered list of
         # reference images and has no way to map a name onto one. The
         # index is the only handle that actually binds a face to a color.
         desc.append(f"the man from reference image #{len(refs)} wears "
-                    f"{team} {color_name(hexc)} ({hexc})")
+                    + (f"{team} " if team else "")
+                    + f"{color_name(hexc)} ({hexc})")
     if not refs:
         ap.error("at least one --ref ID=PATH:TEAM is required")
 

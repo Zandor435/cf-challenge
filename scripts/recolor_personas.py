@@ -127,6 +127,13 @@ def color_name(hex_code: str) -> str:
     if deg < 15 or deg >= 345:
         return "bright red" if val > 0.8 else "crimson red" if val > 0.5 else "dark red"
     if deg < 40:
+        # Brown is perceptually a DARK orange and had no word here at all, so
+        # every brown came out "burnt orange" -- wrong for Cleveland Browns
+        # brown, and wrong for the two schools below. Of 137 canonical team
+        # colors only Western Michigan (#532e1f) and Wyoming (#492f24) fall in
+        # this tier, and both are brown, so this corrects rather than regresses.
+        if val < 0.45:
+            return "brown"
         return "bright orange" if val > 0.85 else "burnt orange"
     if deg < 70:
         # Muted = the school "old gold"; saturated = a true yellow.
