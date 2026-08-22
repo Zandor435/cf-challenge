@@ -3,10 +3,10 @@
     "group_id": "browns",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-08-21T13:14:20.732310+00:00",
-    "cache_fetched_at": "2026-08-21T13:14:07.256672+00:00",
+    "generated_at": "2026-08-22T02:19:56.663440+00:00",
+    "cache_fetched_at": "2026-08-21T14:51:21.982505+00:00",
     "ratings_source": "SP+",
-    "ratings_asof": "2026-08-21T13:14:07.256672+00:00"
+    "ratings_asof": "2026-08-21T14:51:21.982505+00:00"
   },
   "managers": [
     {
@@ -16,7 +16,7 @@
       "p05": -3.0,
       "p50": 2.0,
       "p95": 7.0,
-      "p_win_pool": 0.370932,
+      "p_win_pool": 0.332064,
       "picks": [
         {
           "team": "Illinois",
@@ -279,7 +279,7 @@
       "p05": -4.0,
       "p50": 1.0,
       "p95": 6.0,
-      "p_win_pool": 0.216265,
+      "p_win_pool": 0.193844,
       "picks": [
         {
           "team": "Ohio State",
@@ -542,7 +542,7 @@
       "p05": -5.0,
       "p50": 0.0,
       "p95": 5.0,
-      "p_win_pool": 0.171527,
+      "p_win_pool": 0.144998,
       "picks": [
         {
           "team": "Ohio State",
@@ -805,7 +805,7 @@
       "p05": -5.0,
       "p50": 0.0,
       "p95": 5.0,
-      "p_win_pool": 0.155265,
+      "p_win_pool": 0.137015,
       "picks": [
         {
           "team": "Wisconsin",
@@ -1062,13 +1062,276 @@
       ]
     },
     {
+      "manager_id": "josh",
+      "display_name": "Josh",
+      "expected_total": -0.53,
+      "p05": -5.0,
+      "p50": 0.0,
+      "p95": 4.0,
+      "p_win_pool": 0.078167,
+      "picks": [
+        {
+          "team": "Penn State",
+          "conference": "Big Ten",
+          "line": 8.5,
+          "direction": "O",
+          "p_beat_line": 0.493178,
+          "expected_delta": -0.08,
+          "expected_final_wins": 8.422,
+          "win_distribution": [
+            {
+              "wins": 0,
+              "prob": 0.0
+            },
+            {
+              "wins": 1,
+              "prob": 3e-06
+            },
+            {
+              "wins": 2,
+              "prob": 5.8e-05
+            },
+            {
+              "wins": 3,
+              "prob": 0.000646
+            },
+            {
+              "wins": 4,
+              "prob": 0.004589
+            },
+            {
+              "wins": 5,
+              "prob": 0.021828
+            },
+            {
+              "wins": 6,
+              "prob": 0.071236
+            },
+            {
+              "wins": 7,
+              "prob": 0.160577
+            },
+            {
+              "wins": 8,
+              "prob": 0.247885
+            },
+            {
+              "wins": 9,
+              "prob": 0.255318
+            },
+            {
+              "wins": 10,
+              "prob": 0.166424
+            },
+            {
+              "wins": 11,
+              "prob": 0.061624
+            },
+            {
+              "wins": 12,
+              "prob": 0.009811
+            }
+          ]
+        },
+        {
+          "team": "Tennessee",
+          "conference": "SEC",
+          "line": 7.5,
+          "direction": "U",
+          "p_beat_line": 0.462131,
+          "expected_delta": -0.12,
+          "expected_final_wins": 7.622,
+          "win_distribution": [
+            {
+              "wins": 0,
+              "prob": 0.0
+            },
+            {
+              "wins": 1,
+              "prob": 1.5e-05
+            },
+            {
+              "wins": 2,
+              "prob": 0.000348
+            },
+            {
+              "wins": 3,
+              "prob": 0.003404
+            },
+            {
+              "wins": 4,
+              "prob": 0.018616
+            },
+            {
+              "wins": 5,
+              "prob": 0.063961
+            },
+            {
+              "wins": 6,
+              "prob": 0.146401
+            },
+            {
+              "wins": 7,
+              "prob": 0.229387
+            },
+            {
+              "wins": 8,
+              "prob": 0.247194
+            },
+            {
+              "wins": 9,
+              "prob": 0.180107
+            },
+            {
+              "wins": 10,
+              "prob": 0.08466
+            },
+            {
+              "wins": 11,
+              "prob": 0.023127
+            },
+            {
+              "wins": 12,
+              "prob": 0.002781
+            }
+          ]
+        },
+        {
+          "team": "Miami",
+          "conference": "ACC",
+          "line": 10.5,
+          "direction": "O",
+          "p_beat_line": 0.18085,
+          "expected_delta": -1.22,
+          "expected_final_wins": 9.277,
+          "win_distribution": [
+            {
+              "wins": 0,
+              "prob": 0.0
+            },
+            {
+              "wins": 1,
+              "prob": 0.0
+            },
+            {
+              "wins": 2,
+              "prob": 2e-06
+            },
+            {
+              "wins": 3,
+              "prob": 3.8e-05
+            },
+            {
+              "wins": 4,
+              "prob": 0.000475
+            },
+            {
+              "wins": 5,
+              "prob": 0.003753
+            },
+            {
+              "wins": 6,
+              "prob": 0.0198
+            },
+            {
+              "wins": 7,
+              "prob": 0.071029
+            },
+            {
+              "wins": 8,
+              "prob": 0.172626
+            },
+            {
+              "wins": 9,
+              "prob": 0.276606
+            },
+            {
+              "wins": 10,
+              "prob": 0.27482
+            },
+            {
+              "wins": 11,
+              "prob": 0.148943
+            },
+            {
+              "wins": 12,
+              "prob": 0.031907
+            }
+          ]
+        },
+        {
+          "team": "Utah",
+          "conference": "Big 12",
+          "line": 8.5,
+          "direction": "U",
+          "p_beat_line": 0.707468,
+          "expected_delta": 0.89,
+          "expected_final_wins": 7.613,
+          "win_distribution": [
+            {
+              "wins": 0,
+              "prob": 1e-06
+            },
+            {
+              "wins": 1,
+              "prob": 3.1e-05
+            },
+            {
+              "wins": 2,
+              "prob": 0.000509
+            },
+            {
+              "wins": 3,
+              "prob": 0.004159
+            },
+            {
+              "wins": 4,
+              "prob": 0.020471
+            },
+            {
+              "wins": 5,
+              "prob": 0.066135
+            },
+            {
+              "wins": 6,
+              "prob": 0.146395
+            },
+            {
+              "wins": 7,
+              "prob": 0.226138
+            },
+            {
+              "wins": 8,
+              "prob": 0.243629
+            },
+            {
+              "wins": 9,
+              "prob": 0.179385
+            },
+            {
+              "wins": 10,
+              "prob": 0.085983
+            },
+            {
+              "wins": 11,
+              "prob": 0.024152
+            },
+            {
+              "wins": 12,
+              "prob": 0.003013
+            }
+          ]
+        }
+      ]
+    },
+    {
       "manager_id": "hauck",
       "display_name": "Matt Hauck",
       "expected_total": -0.7,
       "p05": -6.0,
       "p50": -1.0,
       "p95": 4.0,
-      "p_win_pool": 0.086011,
+      "p_win_pool": 0.07333,
       "picks": [
         {
           "team": "Michigan",
@@ -1319,6 +1582,269 @@
             {
               "wins": 12,
               "prob": 0.001171
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "manager_id": "marc",
+      "display_name": "Marc",
+      "expected_total": -1.76,
+      "p05": -7.0,
+      "p50": -2.0,
+      "p95": 3.0,
+      "p_win_pool": 0.040582,
+      "picks": [
+        {
+          "team": "Nebraska",
+          "conference": "Big Ten",
+          "line": 6.5,
+          "direction": "O",
+          "p_beat_line": 0.441866,
+          "expected_delta": -0.2,
+          "expected_final_wins": 6.295,
+          "win_distribution": [
+            {
+              "wins": 0,
+              "prob": 3e-06
+            },
+            {
+              "wins": 1,
+              "prob": 0.000174
+            },
+            {
+              "wins": 2,
+              "prob": 0.002891
+            },
+            {
+              "wins": 3,
+              "prob": 0.021407
+            },
+            {
+              "wins": 4,
+              "prob": 0.082871
+            },
+            {
+              "wins": 5,
+              "prob": 0.187301
+            },
+            {
+              "wins": 6,
+              "prob": 0.263487
+            },
+            {
+              "wins": 7,
+              "prob": 0.23805
+            },
+            {
+              "wins": 8,
+              "prob": 0.139054
+            },
+            {
+              "wins": 9,
+              "prob": 0.051641
+            },
+            {
+              "wins": 10,
+              "prob": 0.011623
+            },
+            {
+              "wins": 11,
+              "prob": 0.001426
+            },
+            {
+              "wins": 12,
+              "prob": 7.2e-05
+            }
+          ]
+        },
+        {
+          "team": "Auburn",
+          "conference": "SEC",
+          "line": 6.5,
+          "direction": "U",
+          "p_beat_line": 0.506457,
+          "expected_delta": 0.02,
+          "expected_final_wins": 6.481,
+          "win_distribution": [
+            {
+              "wins": 0,
+              "prob": 2e-06
+            },
+            {
+              "wins": 1,
+              "prob": 0.000146
+            },
+            {
+              "wins": 2,
+              "prob": 0.002695
+            },
+            {
+              "wins": 3,
+              "prob": 0.019201
+            },
+            {
+              "wins": 4,
+              "prob": 0.072506
+            },
+            {
+              "wins": 5,
+              "prob": 0.166031
+            },
+            {
+              "wins": 6,
+              "prob": 0.245875
+            },
+            {
+              "wins": 7,
+              "prob": 0.242367
+            },
+            {
+              "wins": 8,
+              "prob": 0.159847
+            },
+            {
+              "wins": 9,
+              "prob": 0.069349
+            },
+            {
+              "wins": 10,
+              "prob": 0.018884
+            },
+            {
+              "wins": 11,
+              "prob": 0.002906
+            },
+            {
+              "wins": 12,
+              "prob": 0.000191
+            }
+          ]
+        },
+        {
+          "team": "Louisville",
+          "conference": "ACC",
+          "line": 8.5,
+          "direction": "O",
+          "p_beat_line": 0.27079,
+          "expected_delta": -1.0,
+          "expected_final_wins": 7.499,
+          "win_distribution": [
+            {
+              "wins": 0,
+              "prob": 1e-06
+            },
+            {
+              "wins": 1,
+              "prob": 4.9e-05
+            },
+            {
+              "wins": 2,
+              "prob": 0.000739
+            },
+            {
+              "wins": 3,
+              "prob": 0.005519
+            },
+            {
+              "wins": 4,
+              "prob": 0.02503
+            },
+            {
+              "wins": 5,
+              "prob": 0.075255
+            },
+            {
+              "wins": 6,
+              "prob": 0.156563
+            },
+            {
+              "wins": 7,
+              "prob": 0.229444
+            },
+            {
+              "wins": 8,
+              "prob": 0.236611
+            },
+            {
+              "wins": 9,
+              "prob": 0.16816
+            },
+            {
+              "wins": 10,
+              "prob": 0.078405
+            },
+            {
+              "wins": 11,
+              "prob": 0.021573
+            },
+            {
+              "wins": 12,
+              "prob": 0.002652
+            }
+          ]
+        },
+        {
+          "team": "Arizona State",
+          "conference": "Big 12",
+          "line": 6.5,
+          "direction": "O",
+          "p_beat_line": 0.353149,
+          "expected_delta": -0.58,
+          "expected_final_wins": 5.919,
+          "win_distribution": [
+            {
+              "wins": 0,
+              "prob": 2.9e-05
+            },
+            {
+              "wins": 1,
+              "prob": 0.001088
+            },
+            {
+              "wins": 2,
+              "prob": 0.01008
+            },
+            {
+              "wins": 3,
+              "prob": 0.045774
+            },
+            {
+              "wins": 4,
+              "prob": 0.123488
+            },
+            {
+              "wins": 5,
+              "prob": 0.215087
+            },
+            {
+              "wins": 6,
+              "prob": 0.251305
+            },
+            {
+              "wins": 7,
+              "prob": 0.199464
+            },
+            {
+              "wins": 8,
+              "prob": 0.106818
+            },
+            {
+              "wins": 9,
+              "prob": 0.037581
+            },
+            {
+              "wins": 10,
+              "prob": 0.008228
+            },
+            {
+              "wins": 11,
+              "prob": 0.001006
+            },
+            {
+              "wins": 12,
+              "prob": 5.2e-05
             }
           ]
         }

@@ -69,6 +69,20 @@ SHARED_SVP = EDITORIAL.is_dir() and any(
     if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"})
 
 
+def gemini_ref_ceiling():
+    """Character-reference slots on the default image model.
+
+    Read from gemini_image rather than restated, so a model change moves this
+    report with it instead of leaving a stale number behind.
+    """
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import gemini_image
+        return gemini_image.ref_limit(gemini_image.DEFAULT_MODEL)
+    except Exception:
+        return 5
+
+
 def groups():
     """-> {group_id: [manager_id, ...]}, straight from the configs."""
     out = {}
@@ -200,6 +214,24 @@ def main():
             print(f"  {'(group)':<12} {s:<28} {v}")
 
     print("\n" + "=" * 70)
+    # A group whose roster outgrew the character-reference ceiling cannot have
+    # an all-hands banner from ONE render, so a `LIVE` banner there is
+    # necessarily missing somebody. This is structural, not a guess: the
+    # ceiling is a property of the model. family hit it at 8 and was built as
+    # two composited comic panels; browns crossed it the moment it went to 7.
+    ceiling = gemini_ref_ceiling()
+    over = [(g, len(v["managers"])) for g, v in report.items()
+            if len(v["managers"]) > ceiling]
+    for g, n in over:
+        live = report[g]["group"].get("hero_banner") in ("LIVE", "STAGED")
+        print(f"\nNOTE: {g} has {n} managers, over the {ceiling}-reference "
+              f"ceiling for one render.")
+        if live:
+            print(f"      Its published banner therefore CANNOT show all {n} "
+                  f"-- it is stale by")
+            print(f"      construction. Rebuild it as composited panels, the "
+                  f"way family's was.")
+
     staged = sum(v == "STAGED" for d in report.values()
                  for r in (list(d["managers"].values()) + [d["group"]])
                  for v in r.values())

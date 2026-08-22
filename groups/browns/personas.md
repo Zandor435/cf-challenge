@@ -114,6 +114,38 @@ one game is to build a second game and administer it.
 - **draft_tendency:** Overthinks it, then takes the model's number anyway.
 - **rival:** `bryan`
 
+## josh
+
+- **tone:** roast
+- **display_name:** Josh
+
+**backstory:** *(unwritten)*
+
+Added to the roster 2026-08-22. Nothing about Josh has been written down
+yet, so every prose field is deliberately empty rather than guessed — `tone`
+is set because sync_personas.py requires it and `roast` is this group's
+register, not a claim about him. Fill this section in and copy the fields
+across to `groups/browns/personas.json`; the site renders null fields as
+absent, so he shows up correctly in the meantime.
+
+---
+
+## marc
+
+- **tone:** roast
+- **display_name:** Marc
+
+**backstory:** *(unwritten)*
+
+Added to the roster 2026-08-22. Nothing about Marc has been written down
+yet, so every prose field is deliberately empty rather than guessed — `tone`
+is set because sync_personas.py requires it and `roast` is this group's
+register, not a claim about him. Fill this section in and copy the fields
+across to `groups/browns/personas.json`; the site renders null fields as
+absent, so he shows up correctly in the meantime.
+
+---
+
 **NOTE:** Zach's Browns backstory differs deliberately from his panel, family,
 and CEC versions. Four rooms, four jokes. Keep all four distinct.
 
