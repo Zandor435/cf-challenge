@@ -181,7 +181,17 @@ body.pf-body-ground {
   position: relative;
   background: var(--profile-paper);
   color: var(--profile-ink);
-  margin: 40px 0;
+  /* SECTIONS BUTT FLUSH. This page is one continuous magazine per group, and
+     every manager is a chapter in it — so the boundary between two managers is
+     a hard cut, not a gap with a rule floating in it. A 40px margin here read
+     as eight loose cards on a shared ground; flush stacking plus the heavy
+     accent rule below makes the transition the design moment it should be.
+     Zero padding at the foot, deliberately: the closing strip below is dark
+     and is always the last child, so any bottom padding would show as a sliver
+     of paper between one section's black and the next section's accent rule —
+     the exact soft seam this is removing. Breathing room is the strip's own
+     margin-top instead. */
+  margin: 0;
   padding: 0;
   isolation: isolate;
 }
@@ -260,18 +270,25 @@ body.pf-body-ground {
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
-/* Ink wash at the foot of the portrait — the flat band the asset spec
-   reserves, so an HTML overlay always has somewhere clean to land. */
+/* Dissolve at the very foot of the portrait, so the art settles into the paper
+   instead of ending on a hard horizontal edge.
+   18%, not 34%, and it fades to nothing much sooner. At a third of the frame
+   this stopped being an edge treatment and became a wash over the lower half
+   of the picture — Jonathan and Zach both lost their torsos to it. The
+   treatment should be findable only if you look for it. */
 .pf-portrait::after {
   content: "";
   position: absolute;
   inset: auto 0 0 0;
-  height: 34%;
+  height: 18%;
   background: linear-gradient(to top,
-    color-mix(in srgb, var(--profile-paper), transparent 8%) 4%,
-    transparent 92%);
+    color-mix(in srgb, var(--profile-paper), transparent 25%) 0%,
+    transparent 70%);
   pointer-events: none;
 }
+/* The framed plate is a deliberate hard edge — a dissolve inside a 3px rule
+   reads as a printing fault, not as a treatment. */
+.pf--program .pf-portrait::after { display: none; }
 
 /* ==========================================================================
    BLOCK 2 — HEADLINE (archetype / name / thesis)
@@ -744,18 +761,31 @@ body.pf-body-ground {
   background-size: 6px 6px;
 }
 
-/* ---------- per-profile footer nav --------------------------------------- */
+/* ---------- per-section closing strip -------------------------------------
+   EVERY section ends on the dark ground, whether or not a footer band was
+   authored. That is what makes the chapter break consistent across all 24
+   managers: 3 of them have a `footer` and 21 do not, so hanging the rhythm on
+   the band alone would give three managers a proper cut and everyone else a
+   trailing edge of paper. This strip continues the band's ground when there is
+   one and supplies it when there is not, so the page always reads
+   dark → hard cut → next hero. */
 .pf-jump {
   display: flex;
   gap: 22px;
   justify-content: space-between;
-  padding: 16px 0 0;
+  align-items: center;
+  margin-top: 46px;
+  padding: 14px 30px;
+  background: #14110f;
   font-family: var(--mono);
   font-size: .72rem;
   letter-spacing: .04em;
+  color: #8a7f6d;
 }
-.pf-jump a { color: #6f6355; text-underline-offset: 4px; }
-.pf-jump a:hover, .pf-jump a:focus-visible { color: var(--profile-ink); }
+/* Directly beneath a band, the two are one continuous dark zone. */
+.pf-band + .pf-jump { margin-top: 0; }
+.pf-jump a { color: #c9bfae; text-underline-offset: 4px; }
+.pf-jump a:hover, .pf-jump a:focus-visible { color: #f4efe4; }
 
 /* Visible keyboard focus everywhere on the page, on the paper ground. */
 .pf a:focus-visible,
@@ -861,16 +891,21 @@ body.pf-body-ground {
 @media (min-width: 900px) {
   .pf--program .pf-col-aside,
   .pf--program .pf-col-main { display: contents; }
+  /* TWO COLUMNS AND PURE AUTO ROW PLACEMENT — no explicit grid-row, no row
+     spanning. The three-column version of this stranded a 248px void: picks
+     and scouting spanned rows 2-3 so that the portrait and dossier could stack
+     tightly in a centre column, but 21 of 24 managers have no dossier, so row
+     3 existed with nothing in it. Sizing a row for a block that usually does
+     not exist is the bug; removing the row removes it.
+     The composition is now genuinely vertical, which is also more like an
+     actual programme cover: centred masthead, centred plate, centred dossier,
+     then the reading matter in two columns beneath. It stays unmistakably
+     distinct from SIDELINE (symmetric and centred vs left-weighted and
+     asymmetric), which is the only thing the variant owes the page. */
   .pf--program {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px minmax(0, 1fr);
-    column-gap: 40px;
-    /* align-items:start, and the side columns SPAN both body rows. Without
-       both, the centre column stranded a ~690px void: the row was sized by the
-       tall picks table, the short portrait sat at its top, and the dossier
-       waited in the next row down. Now the portrait and dossier stack against
-       the top of the centre column while picks and scouting run the full
-       height beside them. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 46px;
     align-items: start;
   }
   .pf--program .pf-headline { grid-column: 1 / -1; text-align: center; }
@@ -878,34 +913,43 @@ body.pf-body-ground {
   .pf--program .pf-headline-rule {
     width: 140px; margin-left: auto; margin-right: auto; height: 5px;
   }
-  /* Framed portrait, dead centre — the programme cover position. */
+  /* Framed plate, dead centre — the programme cover position. Fixed width so
+     it reads as a plate rather than as a column that happens to hold a photo. */
   .pf--program .pf-portrait {
-    grid-column: 2; grid-row: 2;
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 340px;
     border: 3px solid var(--profile-ink);
     padding: 8px;
     background: var(--profile-paper);
-    margin-top: 30px;
+    margin-top: 34px;
   }
   .pf--program .pf-portrait:not(.is-cut) img { -webkit-mask-image: none; mask-image: none; }
-  .pf--program .pf-picks { grid-column: 1; grid-row: 2 / span 2; }
-  .pf--program .pf-scouting { grid-column: 3; grid-row: 2 / span 2; margin-top: 34px; }
-  .pf--program .pf-dossier { grid-column: 2; grid-row: 3; }
+  /* Same width as the plate above it, so the two read as one centred stack. */
+  .pf--program .pf-dossier {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 340px;
+    margin-top: 0;
+  }
+  .pf--program .pf-picks { grid-column: 1; }
+  .pf--program .pf-scouting { grid-column: 2; }
   .pf--program .pf-modules { grid-column: 1 / -1; }
   .pf--program .pf-quote { grid-column: 1 / -1; text-align: center; }
   .pf--program .pf-quote-attr { justify-content: center; }
   .pf--program .pf-band { grid-column: 1 / -1; }
 }
 
-/* A profile with no art at all: whatever the variant, nothing should reserve
-   space for a picture that is not coming. */
+/* A profile with no art at all: whatever the variant, nothing reserves space
+   for a picture that is not coming.
+   This is a SAFETY NET, not the main path. managers.js forces a manager with
+   no art to DOSSIER — the variant designed to carry a profile on facts alone —
+   so the picture-led variants should never see this class. It stays because
+   the runtime drop handler can add it to any variant if a declared portrait
+   404s, and one frame of a two-column layout with an empty column is worth
+   preventing. The per-variant column overrides that used to live here were
+   dead code for exactly that reason and are gone. */
 .pf.has-no-art .pf-portrait { display: none; }
-@media (min-width: 900px) {
-  .pf--sideline.has-no-art { grid-template-columns: 300px minmax(0, 1fr); }
-  .pf--program.has-no-art { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .pf--program.has-no-art .pf-dossier { grid-column: 2; grid-row: 2; }
-  .pf--program.has-no-art .pf-picks { grid-column: 1; grid-row: 2; }
-  .pf--program.has-no-art .pf-scouting { grid-column: 1 / -1; }
-}
 
 /* ==========================================================================
    MOBILE — RECOMPOSED, NOT SHRUNK (390px is the target)
@@ -923,7 +967,10 @@ body.pf-body-ground {
   .pf {
     display: flex;
     flex-direction: column;
-    margin: 26px 0;
+    /* Flush here too. This carried a 26px margin and quietly reopened the seam
+       the desktop rule had just closed — the chapter break has to read the same
+       on a phone, where the reader meets it far more often. */
+    margin: 0;
   }
   .pf-col { display: contents; }
 
@@ -935,7 +982,8 @@ body.pf-body-ground {
   .pf-modules   { order: 6; margin: 32px 16px 0; }
   .pf-quote     { order: 7; margin: 26px 16px 0; }
   .pf-band      { order: 8; margin-top: 32px; }
-  .pf-jump      { order: 9; padding: 16px; }
+  .pf-jump      { order: 9; padding: 14px 16px; margin-top: 32px; }
+  .pf-band + .pf-jump { margin-top: 0; }
 
   /* The name still has to be the loudest thing on the screen. */
   .pf-name { font-size: clamp(3rem, 17vw, 5rem); }

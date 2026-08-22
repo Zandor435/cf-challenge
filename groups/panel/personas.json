@@ -89,7 +89,9 @@
       "fatal_flaw": "Above the fray means unarmed when the fray comes for him.",
       "rival": null,
       "color": "#cfb87c",
-      "silhouette_cues": "sunglasses + chain. Shares gold with Zach — needs a contrasting ground to separate in art."
+      "silhouette_cues": "sunglasses + chain. Shares gold with Zach — needs a contrasting ground to separate in art.",
+      "_creative_note": "2026-08-22: `layout` ONLY -- see the note on zach. Chris sits fourth in standings order and takes PROGRAM so the page closes on a centred composition rather than a fourth left-weighted one. His asset carries a baked Colorado scoreboard and 'AIN'T JUST FAST. IT'S FAT PRIME', so a cropping variant is not available to him.",
+      "layout": "program"
     },
     "jonathan": {
       "display_name": "Jonathan",
@@ -109,7 +111,9 @@
       "fatal_flaw": "His boys. It's a documented pattern at this point.",
       "rival": null,
       "color": "#c30020",
-      "silhouette_cues": "visor (Spurrier persona). Eye patch is foreground-only — never at depth."
+      "silhouette_cues": "visor (Spurrier persona). Eye patch is foreground-only — never at depth.",
+      "_creative_note": "2026-08-22: `layout` ONLY -- see the note on zach. Stated explicitly rather than left to the default, even though the default IS sideline: the alternating rhythm down this page is deliberate, and leaving it implicit means a future change to DEFAULT_LAYOUT silently reshuffles the scroll.",
+      "layout": "sideline"
     },
     "zach": {
       "display_name": "Zach",
@@ -128,7 +132,9 @@
       "fatal_flaw": "Boys. Jack Bech, who we never threw to. Sage Ryan, five stars of nothing who left for Ole Miss.",
       "rival": null,
       "color": "#ceb888",
-      "silhouette_cues": "backwards Wake Forest gold cap"
+      "silhouette_cues": "backwards Wake Forest gold cap",
+      "_creative_note": "2026-08-22: `layout` ONLY. No prose, no dossier, no footer was authored here -- everything this section renders is the persona content that already existed. The variant is a design decision about the SCROLL, not a claim about Zach: four sections all set in SIDELINE read as four identical stamps down the page, so the panel alternates sideline/program. PROGRAM and SIDELINE are the two variants that display the art at its own aspect ratio; HEADLINER and DOSSIER crop to a fixed height, and every panel asset carries baked-in lettering that must never be cropped.",
+      "layout": "program"
     }
   },
   "_site_note": "2026-08-20: extended from groups/panel/personas.md (the hand-authored prose source) with the fields docs/managers.html renders. NOTHING above was overwritten -- `traits` and `silhouette_cue` are the Gemini art pipeline's inputs and are untouched; `silhouette_cues` is the prose-source line the page and the prompt-writer read, a superset of the single cue, not a replacement for it. `tone` is REQUIRED on every manager and gates which blocks the page renders (roast = all; straight = no fatal_flaw, no running_gag, no rival). `color` mirrors teams_canonical.json for `team` and scripts/sync_personas.py fails loud if the two ever drift, so this stays a cache of that lookup rather than a second source of truth."

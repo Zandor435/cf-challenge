@@ -12,6 +12,39 @@ layout code.
 
 ---
 
+## 0. The page is one scroll per group
+
+**`managers.html?group=<id>` is the only profiles route.** There are no
+per-manager pages and none should be added. One group is one long editorial
+page: a masthead (group name, manager count, standings order), then every
+manager in that group as a full-width **section**, stacked in standings order,
+read as one continuous magazine.
+
+Each manager is `<article class="pf" id="<manager_id>">`, so `#blaine` links
+directly to a section. Everything below — hero, dossier, picks, scouting,
+modules, quote, band — is a chapter *within* the scroll, not a page.
+
+Two consequences the design leans on:
+
+- **Variants alternate down the page.** Four sections all set in SIDELINE read
+  as four identical stamps, so the `layout` key is chosen for the *rhythm of the
+  scroll* as much as for the individual manager. The Panel runs
+  sideline → program → sideline → program.
+- **The section boundary is a design moment.** Sections butt flush (zero gap)
+  and every section ends on the dark ground — the footer band when one is
+  authored, the closing strip when not — so the page always reads *dark → hard
+  cut → next hero*. No dividers, no floating cards on a shared ground. That
+  consistency is why the closing strip is dark for everyone: only 3 of 24
+  managers have an authored `footer`, and hanging the rhythm on the band alone
+  would give three managers a proper cut and everyone else a trailing edge of
+  paper.
+
+**Portraits below the fold are lazy-loaded**, and that is only safe because the
+figure reserves the art's true aspect ratio first (§6). The two changes work
+together — do not re-enable one without the other.
+
+---
+
 ## 1. Principles
 
 The rest of the site is a **box score**: white ground, hairline borders, dense
@@ -158,12 +191,23 @@ close up around them. `family/john` is the worked example.
 Same eight blocks, four arrangements. The variant is a data value; there is no
 `if (manager === ...)` anywhere in `managers.js`.
 
-| Variant | Composition | Wants |
-|---|---|---|
-| **SIDELINE** | Portrait left (bleeding into the margin), editorial right. The reference. | A tall portrait, 4:5 or 3:4 |
-| **HEADLINER** | Full-bleed art, name pulled up over its foot, wide measure below. | Art with headroom, and a clean lower third |
-| **DOSSIER** | Ruled header, facts as a wide strip, picks promoted to full width. | **No art at all** |
-| **PROGRAM** | Centred nameplate, symmetric rules, framed portrait, dossier beneath. | A squarer crop |
+| Variant | Composition | Wants | Crops the art? |
+|---|---|---|---|
+| **SIDELINE** | Portrait left (bleeding into the margin), editorial right. The reference. | A tall portrait, 4:5 or 3:4 | No |
+| **HEADLINER** | Full-bleed art, name pulled up over its foot, wide measure below. | Art with headroom, clean lower third | **Yes** — fixed 620px |
+| **DOSSIER** | Ruled header, facts as a wide strip, picks promoted to full width. | **No art at all** | **Yes** — 300px letterbox |
+| **PROGRAM** | Centred masthead, centred framed plate, dossier beneath it, then picks and scouting in two columns. | A squarer crop | No |
+
+**The crop column is a hard constraint, not a note.** Much of the existing
+profile art carries *baked-in lettering* — "I'M A MAN, I'M 40!" across Blaine,
+a Colorado scoreboard across Chris, BULLDOGS across David — and that lettering
+is the joke. HEADLINER and DOSSIER scale the art to a fixed height and crop it;
+assigning either to an asset with baked lettering will cut the joke in half.
+**Only give an asset to a cropping variant if you have looked at what the crop
+removes.** The Panel alternates sideline/program for exactly this reason.
+
+Choosing a variant is as much about the **rhythm of the scroll** as the
+individual: see §0.
 
 **The no-art rule.** SIDELINE, HEADLINER and PROGRAM are all compositions built
 around a picture. A manager with no art is forced to DOSSIER — a tier, not a
@@ -274,8 +318,13 @@ real page off their picks alone.
 2. Either name it to match the pattern in `art_slots.json`, or point
    `assets.hero` at it explicitly in the persona (an explicit path wins).
 3. Re-run `python scripts/build_profile_heroes.py` so `heroes.json` learns its
-   dimensions — **skipping this reintroduces layout shift**, since the reserved
-   box comes from that file.
+   dimensions. **This step is mandatory, not an optimisation.** The manifest is
+   now the page's declaration that a file exists: `art_slots.json` resolves a
+   *pattern*, so every manager in a group resolves to a path whether or not the
+   file was made, and with portraits lazy-loaded the 404 no longer arrives in
+   time to correct the layout. Art missing from `heroes.json` is therefore
+   treated as no art — and says so with a console warning naming the manager
+   and the path.
 
 **Team logos:** drop `docs/assets/logos/<slug>.webp` (`Texas A&M` → `texas-am`)
 and re-run `build_team_marks.py`. The picks table picks them up with no page

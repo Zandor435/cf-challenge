@@ -74,11 +74,21 @@ contrast — any hue works.
 ### Layout
 
 `sideline` (portrait left — the default) · `headliner` (full-bleed, overlapping
-name) · `dossier` (no art needed) · `program` (centred, framed, squarer crop)
+name) · `dossier` (no art needed) · `program` (centred, framed plate)
 
-*Pick from the art you have, not the art you want: choose `dossier` if there is
-no portrait, `program` for a square-ish crop, `headliner` for something tall
-with headroom.*
+Two things decide this, in order:
+
+1. **What the art can survive.** `headliner` and `dossier` crop the image to a
+   fixed height. If the asset has baked-in lettering — much of the existing art
+   does, and the lettering is usually the joke — those two are unavailable.
+   `sideline` and `program` show the art at its own aspect ratio.
+2. **The rhythm of the scroll.** Every manager in a group is a section of one
+   long page, so four managers all set in `sideline` read as four identical
+   stamps. Alternate. The Panel runs sideline → program → sideline → program.
+
+*This is a decision about the page, not a claim about the person — so it needs
+no research, and setting it on a manager with no other authored content is
+perfectly legitimate.*
 
 ---
 
