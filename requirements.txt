@@ -4,3 +4,4 @@ numpy             # Poisson-binomial projector math (Board 2, §3)
 resend            # weekly per-group email, domain mustardboy.xyz (§5)
 python-dotenv     # load CFB_API_KEY / OPENAI_API_KEY from .env
 # Commentary calls OpenAI via raw urllib (Python stdlib) — no SDK dependency (§8).
+Pillow            # image I/O for the art scripts (build_avatars, prepare_portraits, recolor_personas, ...); test_style_spec reaches it via style_spec -> generate_scenes -> recolor_personas
