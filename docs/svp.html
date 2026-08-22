@@ -17,8 +17,13 @@
 </head>
 <body>
 
-<!-- STATIC PREVIEW — not wired to the commentary pipeline (still stubbed).
-     Week number, teaser, and cover art below are sample content. -->
+<!-- EMPTY STATE — the column is not published to the site yet. This page
+     asserts nothing it cannot back: no manager, event, number, or week is
+     written into the markup. The only live value is the masthead week label,
+     read from the group's committed standings.json (meta.as_of_week) by the
+     script at the bottom; it stays blank rather than guess if that fetch
+     fails. When the column pipeline publishes under docs/, the fetch in that
+     script is where the wiring lands. -->
 
 <header class="svp-masthead">
   <div class="svp-masthead-inner">
@@ -35,26 +40,20 @@
       <a class="nav-btn" href="managers.html">Profiles</a>
       <a class="nav-btn" href="analytics.html">Analytics</a>
     </nav>
-    <span class="svp-week">Week 01</span>
+    <!-- Filled from standings.json meta.as_of_week by the script below;
+         deliberately empty in the markup so nothing false can render. -->
+    <span class="svp-week" id="svp-week"></span>
   </div>
 </header>
 
 <main class="svp-page">
-  <!-- Cover art: placeholder ONLY — a flat block. Real art comes from the
-       persona pipeline (generate_persona_batch.py) once the Gemini key issue
-       is resolved, in the trading-card coach-persona style defined in
-       groups/panel/personas.json. Do not build a different style here. -->
-  <figure class="svp-cover">
-    <figcaption class="svp-cover-note">Cover art — persona pipeline</figcaption>
-  </figure>
-
   <p class="svp-kicker">The SVP Column</p>
 
   <!-- "One big thing" is the locked column format — don't change the wording. -->
   <h1 class="svp-headline">One big thing</h1>
 
-  <p class="svp-teaser">Rachel banked her fourth clinch before October — and the
-  rest of the family is now mathematically chasing one Oregon over.</p>
+  <p class="svp-teaser">The desk is dark until the games start. The first column
+  drops after Week&nbsp;0 — until then, the board is the whole story.</p>
 
   <hr class="svp-rule">
   <p class="svp-foot-note">Filed weekly. Standings live on the
@@ -62,18 +61,39 @@
 </main>
 
 <script>
-  // Presentation only: carry ?group= (and ?scoped=1 with it) onto every
-  // internal link so the league selection survives the round trip. Selecting
-  // by the bare filename rather than one hardcoded href means a tab added to
-  // the nav above is covered without touching this. No data is read here.
+  // Presentation only. Two jobs, both fail-soft:
+  //  1. carry ?group= (and ?scoped=1 with it) onto every internal link so the
+  //     league selection survives the round trip. Selecting by the bare
+  //     filename rather than one hardcoded href means a tab added to the nav
+  //     above is covered without touching this.
+  //  2. label the masthead with the group's REAL week, read off the committed
+  //     standings.json the board itself renders from: meta.as_of_week is null
+  //     before the first scored week ("Preseason") and an integer after
+  //     ("Week N"). Any failure leaves the label empty — an empty label is
+  //     honest; a guessed one is the thing this page exists to not do.
   (function () {
     var q = location.search;
-    if (!q) return;
-    ['index.html', 'managers.html', 'analytics.html'].forEach(function (page) {
-      document.querySelectorAll('a[href="' + page + '"]').forEach(function (a) {
-        a.setAttribute('href', page + q);
+    if (q) {
+      ['index.html', 'managers.html', 'analytics.html'].forEach(function (page) {
+        document.querySelectorAll('a[href="' + page + '"]').forEach(function (a) {
+          a.setAttribute('href', page + q);
+        });
       });
-    });
+    }
+
+    var group = new URLSearchParams(q).get('group') || 'panel';
+    if (!/^[a-z0-9_-]+$/.test(group)) return;
+    var label = document.getElementById('svp-week');
+    if (!label || !window.fetch) return;
+    fetch('data/' + group + '/standings.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !d.meta) return;
+        var w = d.meta.as_of_week;
+        if (w === null || w === undefined) label.textContent = 'Preseason';
+        else if (Number.isInteger(w)) label.textContent = 'Week ' + (w < 10 ? '0' + w : w);
+      })
+      .catch(function () { /* leave the label empty */ });
   })();
 </script>
 

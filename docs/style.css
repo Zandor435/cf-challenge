@@ -684,11 +684,18 @@ a { color: inherit; }
 .svp-week {
   font-family: var(--mono); font-size: .68rem; font-weight: 500;
   letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+  white-space: nowrap;
 }
-/* Same tab primitive as the home page, inverted for the dark column masthead. */
+/* Same tab primitive as the home page, inverted for the dark column masthead.
+   3px less side padding per tab than .nav-btn: the 720px masthead held
+   wordmark + five tabs + "WEEK 01" with ~1px to spare, and the honest
+   preseason label ("PRESEASON", read off standings.json) is ~18px wider, which
+   wrapped the wordmark and the last tab. Mirrored in the mobile media query
+   below because this selector outranks the bare .nav-btn override there. */
 .svp-nav { display: flex; flex-wrap: wrap; gap: 0; }
 .svp-nav .nav-btn {
   background: transparent; color: #fff; border-color: #333;
+  padding-left: 13px; padding-right: 13px;
 }
 .svp-nav .nav-btn:hover { background: #1e1e1e; }
 .svp-nav .nav-btn[aria-current="true"] { background: var(--accent); color: var(--text); border-color: var(--accent); }
@@ -771,6 +778,7 @@ a { color: inherit; }
   .hero-title { font-size: 1.5rem; }
   .ed-headline { font-size: 2rem; }
   .svp-headline { font-size: 2rem; }
+  .svp-nav .nav-btn { padding: 7px 10px; }   /* keep the mobile tab size; see the desktop rule */
 }
 
 @media (min-width: 900px) {
