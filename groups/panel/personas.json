@@ -19,7 +19,59 @@
       "fatal_flaw": "Drafted special-teamers as his boys. On purpose. Repeatedly. And John Emery Jr. — a man who played approximately six years of college football and peaked as a 2019 freshman, which Blaine will tell you was simply early identification of talent.",
       "rival": null,
       "color": "#fe5c00",
-      "silhouette_cues": "mullet + forward cap; upper-ear piercing"
+      "silhouette_cues": "mullet + forward cap; upper-ear piercing",
+
+      "_creative_note": "2026-08-22: the editorial profile system's reference implementation. WHAT IS REAL vs WHAT IS PLACEHOLDER, because the two must never be confused: archetype, thesis, every module BODY, and dossier role/nicknames/known_for/status are all drawn from the backstory and epithet already in this file -- nothing there was invented. PLACEHOLDER, marked so it can be revised without touching layout: the three module HEADLINES, the pull_quote, both footer halves, and dossier.hometown. A module headline must not restate the opening of the body beneath it -- the first draft used the reference mockup's \"Contrarian for the Bit\" and \"The In-Laws\" verbatim, and both read as the same sentence printed twice at two sizes, because the real prose in draft_tendency and running_gag already opens with those exact words. A headline earns its place by adding an angle the body does not. hometown is set to Dallas because the backstory says he runs coffee shops there NOW -- it is his current base, not necessarily where he is from, and it is the one field here most likely to be wrong. college and drafted are deliberately ABSENT rather than guessed: inventing a man's alma mater is worse than omitting it, and the dossier composes fine without them, which is the point of every field being optional.",
+
+      "archetype": "The Agitator",
+      "thesis": "Sarcasm, sourdough, and a Longhorn in-law situation.",
+      "layout": "sideline",
+      "theme": {
+        "accent": "#fe5c00",
+        "accent_secondary": "#14110f",
+        "paper": null,
+        "ink": null
+      },
+      "dossier": {
+        "role": "Agitator",
+        "nicknames": ["Frosted Tips", "The Agitator", "Timberlake Energy"],
+        "known_for": "Saying one sarcastic thing and letting it metabolize for six weeks.",
+        "hometown": "Dallas, TX",
+        "college": null,
+        "drafted": null,
+        "status": "Married into Longhorns"
+      },
+      "modules": {
+        "draft_tendency": { "label": "Draft tendency", "headline": "Against You, On Principle", "art": null },
+        "fatal_flaw": { "label": "Fatal flaw", "headline": "Special Teams PTSD", "art": null },
+        "running_gag": { "label": "Running gag", "headline": "A Thanksgiving Table Full of Them", "art": null }
+      },
+      "pull_quote": {
+        "text": "Sarcasm is my second language. Losing is not.",
+        "attribution": "Blaine"
+      },
+      "footer": {
+        "left": "Agitates by day.",
+        "right": "Overthinks by night."
+      },
+      "assets": {
+        "hero": null,
+        "nameplate": null,
+        "signature": null,
+        "badge": null,
+        "spots": []
+      },
+      "north_star": "A vintage college-football game program that spent a year on the counter of a Dallas coffee shop -- warm newsprint, heavy condensed ink, one loud orange, and a coffee ring somewhere it shouldn't be.",
+      "motifs": [
+        "Oklahoma State orange as the only saturated colour on the page",
+        "coffee-shop ephemera: rings, stamps, till receipts, kraft paper"
+      ],
+      "easter_eggs": [
+        "a burnt-orange Longhorn silhouette somewhere it is not welcome",
+        "frosted tips, referenced but never shown",
+        "an upper-ear piercing catching the light",
+        "a sourdough starter jar in the deep background"
+      ]
     },
     "chris": {
       "display_name": "Chris",
