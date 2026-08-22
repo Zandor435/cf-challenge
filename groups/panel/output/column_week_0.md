@@ -1,0 +1,9 @@
+Blaine and Chris find themselves on opposite ends of the Lone Star State spectrum, with Texas as their battleground. Blaine, ever the cautious strategist, is banking on reality to keep Texas under 9.5 wins. The SP+ ratings back him up, implying 7.819 wins over 12 games. With an 86.5% probability, Blaine's under bet is more of a solid foundation than a gamble. His market gap of 1.681 suggests that he's sitting comfortably with the numbers firmly in his corner.
+
+Chris, however, is betting on a Texas resurgence that seems more like a mirage in the desert heat. His over pick on Texas at 9.5 wins is a classic case of heart over head. The implied expected wins stand stubbornly at 7.819, and the market gap swings to -1.681, the largest discrepancy on the board. Chris, you're hoping for a turnaround that even the SP+ doesn't foresee, sitting at a meager 13.5% chance. The odds are what they are, and they’re not in your favor, but the heart wants what it wants.
+
+As Texas stares down a gauntlet of eight top-25 opponents, Blaine might as well be holding a royal flush. Chris, on the other hand, is counting on pocket aces and a lot of luck. The narrative is set, and this is a duel we'll be watching closely. Blaine has the numbers on his side, while Chris dreams of a Texas-sized miracle. 
+
+Chris, let's address the elephant in the room — your pick for Texas over 9.5 wins. SP+ has set the implied expected wins at 7.819, with a market gap of -1.681. It's the worst pick on the board, and you’ve brought an umbrella to a drought. The numbers are clear, and they don't whisper sweet nothings in your ear. You've taken a stand, a bold one, but the numbers suggest you might be standing alone. The discrepancy is not in your favor, but every season has its surprises.
+
+That's the column. Don't take the points personally. They were always going to be exactly what they are.

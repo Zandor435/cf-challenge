@@ -144,11 +144,17 @@ def last_column_text(group_id, memory):
 
 # --- Prompt assembly ---------------------------------------------------------
 
-def build_prompt(group_id):
+def build_prompt(group_id, packet_override=None):
     """Returns (system_text, user_text, packet). Shared by both modes so the
-    dry-run preview is the real prompt, not an approximation of it."""
+    dry-run preview is the real prompt, not an approximation of it.
+
+    packet_override reads the packet from an explicit path instead of the
+    group's regenerated week_packet.json. It exists for the Week 0 preseason
+    packet, which lives at its own durable path (output/<group>/week_0_packet
+    .json) because it is written once before kickoff rather than overwritten
+    every run. Default None keeps every normal week on the usual path."""
     system_text = read_text(PERSONA_PATH, "persona template")
-    packet = read_json(packet_path(group_id),
+    packet = read_json(packet_override or packet_path(group_id),
                        "week packet (run build_week_packet.py first)")
     memory = load_memory(group_id)
     last_name, last_text = last_column_text(group_id, memory)
@@ -157,11 +163,30 @@ def build_prompt(group_id):
     basis = cmp_.get("basis", "unknown basis")
     elapsed = cmp_.get("weeks_elapsed")
 
+    # WEEK 0. The preseason packet (scripts/preseason_baseline.py --week0-packet)
+    # is the one packet describing a board where nothing has happened yet, so the
+    # two beats change shape: there are no results to mine for a bad beat, and
+    # every "movement" instruction below would be describing motion that does not
+    # exist. Everything in this branch is additive and gated on the flag — a
+    # normal week's prompt is byte-identical to what it was before.
+    preseason = packet.get("preseason") is True
+
     # The packet's movement fields are named *_this_week but measure the gap to
     # the previous snapshot. If that gap is not one week, say so in the prompt —
     # otherwise the column compresses a multi-week move into one Saturday, which
     # is a false claim built out of true numbers.
-    if elapsed is None:
+    if preseason:
+        basis_warning = (
+            "THIS IS WEEK 0 — the draft, before a single snap has been played. "
+            "No game has happened, so the packet carries NO final scores, NO "
+            "margins, NO results and NO standings worth the name: total_delta is "
+            "0.0 for every manager, gap_to_leader is 0.0 for every manager, and "
+            "NOBODY LEADS. The standings order is projected pool odds, not earned "
+            "position, so do not call anyone the leader, do not say anyone is "
+            "ahead of or behind anyone, and do not describe movement of any kind. "
+            "Every number in this packet is a projection from SP+ ratings and the "
+            "frozen Vegas win-total lines.")
+    elif elapsed is None:
         basis_warning = (
             "There is NO prior snapshot, so every *_this_week field is null. Do "
             "not describe week-over-week movement at all; write from the "
@@ -186,7 +211,11 @@ def build_prompt(group_id):
     # Saturdays will tell") against a board where every pick has already
     # resolved, which is a false claim assembled out of true numbers.
     season_over = packet.get("season_complete")
-    if season_over is True:
+    if preseason:
+        season_line = (
+            "The season has not started. Games remain to be played — all of "
+            "them — and every pick is unresolved.")
+    elif season_over is True:
         season_line = (
             "THE SEASON IS OVER — every game on the schedule has been played and "
             "nothing is left to decide. Do not write forward-looking prose: no "
@@ -221,6 +250,69 @@ def build_prompt(group_id):
                         "this week, so any of them may support a comparison — "
                         "provided the numbers actually back it.")
 
+    # The two beats. Beat 2 is the recurring coda and it SWAPS in preseason:
+    # "Bad Beat of the Week" needs a pick that died, and in Week 0 nothing has
+    # died. "Worst Pick on the Board" keeps the coda's DNA — one target, direct
+    # second-person address, mock gravity aimed at a very small pool — but its
+    # charge is disagreement with SP+ rather than a death. The target is picked
+    # by Python (lowest market_gap), never by the model, exactly as
+    # bad_beat_candidates is.
+    if preseason:
+        beat1_line = (
+            "  Beat 1 - One Big Thing (~250-300 words), built from the "
+            "HIGHEST-RANKED storyline in the packet that you can tell as one "
+            "story. The storylines are pre-ranked by a scorer; prefer a "
+            "collision over a concentration over a market_defiance over an "
+            "envelope when scores are close. It is ONE story, fully told. NEVER "
+            "a roundup: do not tour all four managers in sequence. A manager who "
+            "is not the story's subject may be named only in service of that one "
+            "story - as the other side of a collision, for instance.")
+        w = packet.get("worst_pick_on_the_board") or {}
+        beat2_line = (
+            "  Beat 2 - Worst Pick on the Board (~75-100 words), the preseason "
+            "coda, from the packet's `worst_pick_on_the_board` block. That pick "
+            "was chosen by computation - the lowest market_gap on the board - so "
+            "write about THAT pick and no other, and address its manager "
+            "directly by first name in the second person"
+            + (f" ({w.get('name')}, on {w.get('team')})." if w else ".")
+            + " Same DNA as the usual Bad Beat coda: one target, mock gravity "
+            "aimed at a very small pool, warmth underneath. But nothing has been "
+            "played, so the pick has NOT died and you may not describe it dying, "
+            "backdooring, or missing by a half-win. The entire charge is that "
+            "SP+ disagrees with the bet by the number in the packet.")
+    else:
+        beat1_line = (
+            "  Beat 1 — One Big Thing (~250-300 words), built from the "
+            "HIGHEST-RANKED storyline in the packet that you can tell as one "
+            "story. The packet's storylines are pre-ranked; prefer a feud over a "
+            "collapse over an irony over a heater when scores are close.")
+        beat2_line = (
+            "  Beat 2 — Bad Beat of the Week (~75-100 words), from "
+            "bad_beat_candidates. The `how_it_died` text is limited to final "
+            "scores — the pipeline has no play-by-play, so do NOT invent drives, "
+            "onside kicks, or clock situations that are not in the packet.")
+
+    # Week 0 has no results at all, so the template's anti-fabrication guard —
+    # which is written as "you get a final score, a margin, home or away" — is
+    # describing a world that does not exist yet. Name the real universe.
+    if preseason:
+        fabrication_line = (
+            "YOUR ENTIRE FACTUAL UNIVERSE THIS WEEK is what the packet carries: "
+            "which teams were picked, by whom, their frozen Vegas line, the "
+            "over/under direction, SP+ implied expected wins, market_gap, "
+            "strength of schedule (mean opponent SP+ rating and count of top-25 "
+            "opponents), the number of scheduled games, the floor/ceiling "
+            "envelope, p_beat_line and the pool odds. That is ALL. You do not "
+            "know anything about 2026 college football beyond those numbers: no "
+            "rosters, no players, no coaches, no transfers, no injuries, no "
+            "returning starters, no recruiting, no schedule specifics beyond the "
+            "counts, no last-season results, no expectations, no hype. Do not "
+            "characterize any team in any way the packet does not. If you want "
+            "to say why a team is rated where it is, you cannot - say what the "
+            "number is instead.")
+    else:
+        fabrication_line = None
+
     parts = [
         f"GROUP: {group_id}    WEEK: {packet.get('week')}    "
         f"SEASON: {packet.get('season')}",
@@ -229,6 +321,10 @@ def build_prompt(group_id):
         season_line,
         uniform_line,
         stakes_line,
+    ]
+    if fabrication_line:
+        parts.append(fabrication_line)
+    parts += [
         "",
         "=== COLUMN MEMORY (season continuity — established nicknames, feuds, "
         "and character bits. Reuse what is here; coin nothing new unless this "
@@ -246,14 +342,8 @@ def build_prompt(group_id):
         "",
         "=== YOUR ASSIGNMENT ===",
         "File this week's column now, following the template exactly:",
-        "  Beat 1 — One Big Thing (~250-300 words), built from the HIGHEST-RANKED "
-        "storyline in the packet that you can tell as one story. The packet's "
-        "storylines are pre-ranked; prefer a feud over a collapse over an irony "
-        "over a heater when scores are close.",
-        "  Beat 2 — Bad Beat of the Week (~75-100 words), from "
-        "bad_beat_candidates. The `how_it_died` text is limited to final scores — "
-        "the pipeline has no play-by-play, so do NOT invent drives, onside kicks, "
-        "or clock situations that are not in the packet.",
+        beat1_line,
+        beat2_line,
         "  End with the sign-off verbatim.",
         "",
         "Prose only — no headings, no lists, no bullets. Roughly 400 words total. "
@@ -330,8 +420,8 @@ def _backoff(attempt, why):
 
 # --- Modes -------------------------------------------------------------------
 
-def run_dry(group_id):
-    system_text, user_text, packet = build_prompt(group_id)
+def run_dry(group_id, packet_override=None):
+    system_text, user_text, packet = build_prompt(group_id, packet_override)
     preview = "\n".join([
         "=" * 78,
         f"COMMENTARY PROMPT PREVIEW — group {group_id}, week {packet.get('week')}",
@@ -362,13 +452,13 @@ def run_dry(group_id):
     return 0
 
 
-def run_live(group_id):
+def run_live(group_id, packet_override=None):
     utils.load_env_file()
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY not set (env or .env)")
 
-    system_text, user_text, packet = build_prompt(group_id)
+    system_text, user_text, packet = build_prompt(group_id, packet_override)
     week = packet.get("week")
     column = call_openai(system_text, user_text, api_key)
     if not column:
@@ -395,16 +485,19 @@ def main():
     ap.add_argument("--group", required=True, help="group slug (panel/family/church)")
     ap.add_argument("--dry-run", action="store_true",
                     help="build the prompt and write the preview; NO network call")
+    ap.add_argument("--packet", default=None,
+                    help="read the packet from this path instead of the group's "
+                         "week_packet.json (used for the Week 0 preseason packet)")
     args = ap.parse_args()
 
     if args.dry_run:
         # Developer-facing: let it fail loudly.
-        return run_dry(args.group)
+        return run_dry(args.group, args.packet)
 
     # Live: commentary is garnish and must never block the pipeline. SystemExit
     # is caught too — utils.load_json() exits rather than raising.
     try:
-        return run_live(args.group)
+        return run_live(args.group, args.packet)
     except (Exception, SystemExit) as e:  # noqa: BLE001 — deliberate catch-all
         print(f"::warning:: [{args.group}] commentary FAILED "
               f"({type(e).__name__}: {e}); continuing. Standings and the rest of "
