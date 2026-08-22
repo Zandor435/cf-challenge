@@ -21,12 +21,13 @@ must stay cheap and must not care what the other files do at runtime):
      bare `assert`. A test function that records nothing passes unconditionally
      — which is precisely what the eight "passing" projector tests were doing
      before conftest.py's gate existed.
-  3. selftest_10_1.py is NOT named test_*.py. It must stay uncollected: it
-     shells out through fetch_results.py --simulate-failure and exits 4 once the
-     committed cache ages past the 10-day staleness ceiling, so CI runs it last
-     with continue-on-error. Collecting it would move that known, worsening
-     failure inside the blocking pytest step. Its filename is the only thing
-     keeping it out, so the filename is pinned here.
+  3. selftest_10_1.py is NOT named test_*.py. It must stay uncollected: it is
+     a health check of the LIVE committed cache that shells out through
+     fetch_results.py --simulate-failure, and CI runs it as its own blocking
+     step, last. Collecting it would fold a live-data check into the
+     fixture-pinned unit suite and run its subprocesses under every pytest
+     invocation. Its filename is the only thing keeping it out, so the
+     filename is pinned here.
 
 Note this file cannot check itself into correctness — it is subject to rules 1
 and 2 like every other file, and skips only its own name when enumerating.
@@ -111,7 +112,7 @@ def test_no_test_function_is_vacuous():
 
 def test_the_hand_rolled_runner_stays_uncollected():
     """RULE 3: selftest_10_1.py must not be pulled into the blocking pytest step."""
-    print("\n[3] the non-blocking hand-rolled runner stays out of collection")
+    print("\n[3] the hand-rolled live-cache runner stays out of collection")
     runner = SCRIPTS / UNCOLLECTED_RUNNER
     check(f"{UNCOLLECTED_RUNNER} still exists", runner.exists())
     check(f"{UNCOLLECTED_RUNNER} does not match the test_*.py collection pattern",

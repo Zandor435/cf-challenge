@@ -68,13 +68,14 @@ if str(SCRIPTS) not in sys.path:
 
 # selftest_10_1.py defines test_cache(season) / test_resolver() / test_failure_path(season)
 # / test_season_guard(season), but it is NOT a pytest module and must never become one.
-# It shells out through `fetch_results.py --simulate-failure`, which trips the 10-day
-# cache-staleness ceiling and exits 4 once the committed cache ages past it — a live
-# external dependency, not a code defect. CI runs it LAST with continue-on-error so that
-# known, worsening-by-the-day failure cannot redden an otherwise-green suite. Collecting
-# it here would put that red back inside the blocking `pytest` step. Its filename already
-# keeps it out of `test_*.py` collection; this line makes the exclusion deliberate rather
-# than incidental, so widening python_files later cannot quietly pull it in.
+# It is a health check of the LIVE committed cache (this suite pins the frozen 2025
+# contract fixture instead) and shells out through `fetch_results.py --simulate-failure`
+# twice; it skips-with-reason or branches on the cache's age and season state rather
+# than failing on them, and CI runs it as its own blocking step, last. Collecting it
+# here would fold a live-data check into the fixture-pinned suite and run its
+# subprocesses under every pytest invocation. Its filename already keeps it out of
+# `test_*.py` collection; this line makes the exclusion deliberate rather than
+# incidental, so widening python_files later cannot quietly pull it in.
 collect_ignore = ["scripts/selftest_10_1.py"]
 
 

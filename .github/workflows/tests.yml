@@ -76,27 +76,29 @@ jobs:
       - name: sync_personas.py --check (docs/ copy is current)
         run: python scripts/sync_personas.py --check
 
-      # LAST, and the ONLY non-blocking step. selftest_10_1 exercises the
-      # commentary-bypass path via `fetch_results.py --simulate-failure`, which
-      # trips the 10-day cache-staleness ceiling and exits 4 once the committed
-      # cache ages past it — a real external dependency (needs a live CFBD
-      # fetch), not a code defect, and it worsens every day the feed is idle.
-      # It used to run mid-job with fail-fast, so that one aging clock aborted
-      # the run before the §9 gate above ever executed — the check that actually
-      # protects pick data got zero coverage on every push. Ordered last so a
-      # stale cache can no longer mask a genuine failure, and continue-on-error
-      # so its known failure doesn't redden an otherwise-green suite.
+      # LAST, and blocking like everything above it. selftest_10_1 is a health
+      # check of the COMMITTED cache plus the commentary-bypass and season-guard
+      # paths — all offline: `fetch_results.py --simulate-failure` raises before
+      # any client is built. It used to carry continue-on-error because two
+      # facts about a live cache turned it red through no fault of the code:
+      # the 10-day staleness ceiling (exit 4 once the cache aged past it) and,
+      # on a pre-season cache, a schedule census CFBD cannot satisfy until it
+      # posts the conference title games (the 2026 cache on 2026-08-21 held
+      # none). A red CI is told to ignore is a red nobody reads, so both are
+      # handled in the script now: the census SKIPS with its reason printed
+      # until the title games land, and the bypass test asserts whichever
+      # documented branch the cache is in (fresh → exit 0 + ::warning::, stale
+      # → exit 4 naming the ceiling). Everything it reports is a real
+      # assertion, so a failure here is a real regression and fails the job.
+      # Still ordered last so the §9 gate above always gets its turn first.
       #
       # DELIBERATELY NOT CONVERTED, and deliberately not collected. Its inner
       # functions are already named test_cache / test_resolver / test_failure_path
       # / test_season_guard, so the only thing keeping it out of `pytest` is that
       # the FILE is not named test_*.py — conftest.py collect_ignores it too, and
-      # test_suite_collection.py pins the filename so a rename cannot quietly
-      # move this known failure inside the blocking step above.
-      #
-      # NOTE: the step is still reported in the run summary — read it, don't
-      # ignore it; everything above is real and a NEW failure here is a real
-      # regression.
-      - name: selftest_10_1.py (non-blocking — see comment)
-        continue-on-error: true
+      # test_suite_collection.py pins the filename. It reads the LIVE cache (the
+      # unit suite pins the frozen 2025 contract fixture) and shells out to
+      # fetch_results.py twice, which is a different kind of check and is kept
+      # visibly separate on purpose.
+      - name: selftest_10_1.py (cache health + bypass/season-guard paths)
         run: python scripts/selftest_10_1.py
