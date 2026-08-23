@@ -17,22 +17,25 @@
 </head>
 <body>
 
-<!-- EMPTY STATE — the column is not published to the site yet. This page
-     asserts nothing it cannot back: no manager, event, number, or week is
-     written into the markup. The only live value is the masthead week label,
-     read from the group's committed standings.json (meta.as_of_week) by the
-     script at the bottom; it stays blank rather than guess if that fetch
-     fails. When the column pipeline publishes under docs/, the fetch in that
-     script is where the wiring lands. -->
+<!-- TWO STATES, AND THE MARKUP ASSERTS NOTHING IN EITHER.
+     Column absent (the normal state for a group that has not filed one, and
+     for every group before Week 0): the dark-desk teaser below stands, exactly
+     as it did when this page had no wiring at all. Column present: the teaser
+     is replaced by the filed prose from data/<group>/column.json.
+
+     No manager, event, number or week is written into this file. Everything
+     live is filled by the script at the bottom, and every fetch it makes fails
+     to the absent state rather than to a guess. -->
 
 <header class="svp-masthead">
   <div class="svp-masthead-inner">
     <a class="svp-wordmark" href="index.html">CF <span>Challenge</span></a>
     <!-- Every tab in PAGE_NAV is a real page now: PROFILES and ANALYTICS both
-         ship. This strip is hardcoded rather than built from site.js — this
-         page loads no scripts of its own — so it has to be kept in step by
-         hand when a tab is added. The query-carrying block at the bottom of
-         this file lists the same filenames and must be updated with it. -->
+         ship. This strip is hardcoded rather than built from site.js so the
+         page renders its own chrome before any script runs; it has to be kept
+         in step by hand when a tab is added. The query-carrying block at the
+         bottom of this file lists the same filenames and must be updated with
+         it. -->
     <nav class="svp-nav" aria-label="Site sections">
       <a class="nav-btn" href="index.html">Home</a>
       <a class="nav-btn" href="index.html">Standings</a>
@@ -52,25 +55,51 @@
   <!-- "One big thing" is the locked column format — don't change the wording. -->
   <h1 class="svp-headline">One big thing</h1>
 
-  <p class="svp-teaser">The desk is dark until the games start. The first column
+  <!-- BYLINE. Hidden until a column is actually on the page: a columnist's
+       face over an empty desk is the page claiming an author for prose that
+       does not exist. The avatar is resolved through art_slots.json like every
+       other picture on the site, and the figure is dropped entirely if the
+       slot resolves to nothing or the file 404s — the name and the date stand
+       on their own. -->
+  <div class="svp-byline" id="svp-byline" hidden>
+    <img class="svp-byline-avatar" id="svp-byline-avatar" alt="" width="56" height="56" hidden>
+    <div class="svp-byline-text">
+      <span class="svp-byline-name">SVP</span>
+      <span class="svp-byline-meta" id="svp-byline-meta"></span>
+    </div>
+  </div>
+
+  <!-- ABSENT STATE. Present in the markup so it renders with no JavaScript at
+       all, and removed by the script only once real prose replaces it. -->
+  <p class="svp-teaser" id="svp-teaser">The desk is dark until the games start. The first column
   drops after Week&nbsp;0 — until then, the board is the whole story.</p>
+
+  <!-- PRESENT STATE. One <p> per paragraph in column.json; the split is done
+       in Python (docs/output-contract.md), not here. -->
+  <article class="svp-column" id="svp-column" hidden></article>
 
   <hr class="svp-rule">
   <p class="svp-foot-note">Filed weekly. Standings live on the
     <a href="index.html">board</a>.</p>
 </main>
 
+<!-- site.js is definitions only — no top-level side effects — so loading it
+     here costs this page nothing and buys resolveArt(), the canonical group
+     list and the escaping helper. Copying any of those inline is how a second,
+     silently-drifting answer to "which leagues are real" gets created. -->
+<script src="site.js"></script>
 <script>
-  // Presentation only. Two jobs, both fail-soft:
-  //  1. carry ?group= (and ?scoped=1 with it) onto every internal link so the
-  //     league selection survives the round trip. Selecting by the bare
-  //     filename rather than one hardcoded href means a tab added to the nav
-  //     above is covered without touching this.
-  //  2. label the masthead with the group's REAL week, read off the committed
-  //     standings.json the board itself renders from: meta.as_of_week is null
-  //     before the first scored week ("Preseason") and an integer after
-  //     ("Week N"). Any failure leaves the label empty — an empty label is
-  //     honest; a guessed one is the thing this page exists to not do.
+  // Presentation only. Four jobs, all fail-soft, and every failure lands on the
+  // absent state rather than on a guess:
+  //   1. carry ?group= (and ?scoped=1 with it) onto every internal link so the
+  //      league selection survives the round trip. Selecting by the bare
+  //      filename rather than one hardcoded href means a tab added to the nav
+  //      above is covered without touching this.
+  //   2. label the masthead with the group's REAL week, read off the committed
+  //      standings.json the board itself renders from.
+  //   3. render the filed column from data/<group>/column.json, if there is
+  //      one. A 404 is the ordinary state, not an error.
+  //   4. hang the columnist's avatar on the byline, via art_slots.json.
   (function () {
     var q = location.search;
     if (q) {
@@ -81,19 +110,85 @@
       });
     }
 
-    var group = new URLSearchParams(q).get('group') || 'panel';
-    if (!/^[a-z0-9_-]+$/.test(group)) return;
-    var label = document.getElementById('svp-week');
-    if (!label || !window.fetch) return;
-    fetch('data/' + group + '/standings.json', { cache: 'no-store' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) {
-        if (!d || !d.meta) return;
-        var w = d.meta.as_of_week;
-        if (w === null || w === undefined) label.textContent = 'Preseason';
-        else if (Number.isInteger(w)) label.textContent = 'Week ' + (w < 10 ? '0' + w : w);
-      })
-      .catch(function () { /* leave the label empty */ });
+    // currentGroupId() returns null for a ?group= that names no real league —
+    // an unknown group must not silently render The Panel's column under
+    // somebody else's URL, so nothing is fetched at all in that case.
+    var group = (typeof currentGroupId === 'function') ? currentGroupId() : null;
+    if (!group || !window.fetch) return;
+
+    function getJSON(path) {
+      return fetch(path, { cache: 'no-store' }).then(function (r) {
+        return r.ok ? r.json() : null;
+      }).catch(function () { return null; });
+    }
+
+    // 2 — the masthead week. meta.as_of_week is null before the first scored
+    // week ("Preseason") and an integer after ("Week N"). Any failure leaves
+    // the label empty; an empty label is honest, a guessed one is the thing
+    // this page exists to not do.
+    getJSON('data/' + group + '/standings.json').then(function (d) {
+      var label = document.getElementById('svp-week');
+      if (!label || !d || !d.meta) return;
+      var w = d.meta.as_of_week;
+      if (w === null || w === undefined) label.textContent = 'Preseason';
+      else if (Number.isInteger(w)) label.textContent = 'Week ' + (w < 10 ? '0' + w : w);
+    });
+
+    // 3 + 4 — the column and its byline. art_slots.json is fetched alongside
+    // rather than before, because the avatar is decoration on prose: the column
+    // must render whether or not the slot manifest is reachable.
+    Promise.all([
+      getJSON('data/' + group + '/column.json'),
+      getJSON('assets/art_slots.json'),
+    ]).then(function (res) {
+      var doc = res[0];
+      var slots = res[1];
+      var paras = (doc && doc.column && doc.column.paragraphs) || [];
+      // An empty paragraph list is treated exactly as no column: a published
+      // file with nothing in it must not blank the teaser and leave the desk
+      // showing a byline over silence.
+      if (!Array.isArray(paras) || !paras.length) return;
+
+      var article = document.getElementById('svp-column');
+      var teaser = document.getElementById('svp-teaser');
+      if (!article) return;
+      article.innerHTML = paras.map(function (p) {
+        return '<p>' + esc(String(p)) + '</p>';
+      }).join('');
+      article.hidden = false;
+      if (teaser) teaser.hidden = true;
+
+      // The byline's date line: the column's own week, on the same rule the
+      // masthead uses, plus the day it was filed. meta.preseason is the
+      // packet's flag — the page does not decide what week 0 means.
+      var meta = doc.meta || {};
+      var bits = [];
+      bits.push(meta.preseason ? 'Preseason'
+        : (Number.isInteger(meta.week) ? 'Week ' + meta.week : 'Live'));
+      var filed = String(meta.generated_at || '').slice(0, 10);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(filed)) bits.push(filed);
+      var metaEl = document.getElementById('svp-byline-meta');
+      if (metaEl) metaEl.textContent = bits.join(' · ');
+      var byline = document.getElementById('svp-byline');
+      if (byline) byline.hidden = false;
+
+      // The avatar. resolveArt() reads the module-level ART_SLOTS in site.js,
+      // so it has to be seeded first; a missing manifest leaves it {} and
+      // resolveArt returns null, which is the same graceful-absence path as a
+      // group that declares no art. onerror covers the remaining case — a
+      // declared candidate that is not on disk — by removing the image rather
+      // than leaving a broken-image glyph next to the byline.
+      if (slots) ART_SLOTS = slots;
+      var src = (typeof resolveArt === 'function')
+        ? resolveArt(group, 'svp_column_art', meta.week) : null;
+      if (!src) return;
+      var img = document.getElementById('svp-byline-avatar');
+      if (!img) return;
+      img.onerror = function () { img.remove(); };
+      img.alt = 'SVP';
+      img.src = src;
+      img.hidden = false;
+    });
   })();
 </script>
 
