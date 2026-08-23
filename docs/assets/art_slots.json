@@ -58,10 +58,14 @@
      "SHARED BY EVERY GROUP -- the column runs in all four, so the asset",
      "belongs to none of them and lives at output/editorial/svp_fat_01.png",
      "rather than under any group directory. Same path for all four here.",
-     "STAGED, NOT RENDERED: no page script calls resolveArt() for this slot",
-     "yet. The art is ready and the candidate is declared so the wiring is a",
-     "one-line change in the page that eventually carries the column; until",
-     "then nothing requests it and nothing 404s."
+     "RENDERED. svp.html:183 resolves this slot and paints the result into",
+     "the columnist byline beside the filed column. Two graceful-absence",
+     "paths remain and both are deliberate: resolveArt() returns null when",
+     "the manifest did not load or the group declares no art, and an onerror",
+     "handler removes the img when a declared candidate is not on disk, so",
+     "neither leaves a broken-image glyph next to the byline. The byline is",
+     "hidden until real prose is on the page -- a face over an empty desk",
+     "claims an author for a column that does not exist."
     ],
     "mode": "fixed",
     "candidates": ["assets/editorial/svp.webp"]
@@ -151,10 +155,14 @@
      "SHARED BY EVERY GROUP -- the column runs in all four, so the asset",
      "belongs to none of them and lives at output/editorial/svp_fat_01.png",
      "rather than under any group directory. Same path for all four here.",
-     "STAGED, NOT RENDERED: no page script calls resolveArt() for this slot",
-     "yet. The art is ready and the candidate is declared so the wiring is a",
-     "one-line change in the page that eventually carries the column; until",
-     "then nothing requests it and nothing 404s."
+     "RENDERED. svp.html:183 resolves this slot and paints the result into",
+     "the columnist byline beside the filed column. Two graceful-absence",
+     "paths remain and both are deliberate: resolveArt() returns null when",
+     "the manifest did not load or the group declares no art, and an onerror",
+     "handler removes the img when a declared candidate is not on disk, so",
+     "neither leaves a broken-image glyph next to the byline. The byline is",
+     "hidden until real prose is on the page -- a face over an empty desk",
+     "claims an author for a column that does not exist."
     ],
     "mode": "fixed",
     "candidates": ["assets/editorial/svp.webp"]
@@ -230,10 +238,14 @@
      "SHARED BY EVERY GROUP -- the column runs in all four, so the asset",
      "belongs to none of them and lives at output/editorial/svp_fat_01.png",
      "rather than under any group directory. Same path for all four here.",
-     "STAGED, NOT RENDERED: no page script calls resolveArt() for this slot",
-     "yet. The art is ready and the candidate is declared so the wiring is a",
-     "one-line change in the page that eventually carries the column; until",
-     "then nothing requests it and nothing 404s."
+     "RENDERED. svp.html:183 resolves this slot and paints the result into",
+     "the columnist byline beside the filed column. Two graceful-absence",
+     "paths remain and both are deliberate: resolveArt() returns null when",
+     "the manifest did not load or the group declares no art, and an onerror",
+     "handler removes the img when a declared candidate is not on disk, so",
+     "neither leaves a broken-image glyph next to the byline. The byline is",
+     "hidden until real prose is on the page -- a face over an empty desk",
+     "claims an author for a column that does not exist."
     ],
     "mode": "fixed",
     "candidates": ["assets/editorial/svp.webp"]
@@ -302,10 +314,14 @@
      "SHARED BY EVERY GROUP -- the column runs in all four, so the asset",
      "belongs to none of them and lives at output/editorial/svp_fat_01.png",
      "rather than under any group directory. Same path for all four here.",
-     "STAGED, NOT RENDERED: no page script calls resolveArt() for this slot",
-     "yet. The art is ready and the candidate is declared so the wiring is a",
-     "one-line change in the page that eventually carries the column; until",
-     "then nothing requests it and nothing 404s."
+     "RENDERED. svp.html:183 resolves this slot and paints the result into",
+     "the columnist byline beside the filed column. Two graceful-absence",
+     "paths remain and both are deliberate: resolveArt() returns null when",
+     "the manifest did not load or the group declares no art, and an onerror",
+     "handler removes the img when a declared candidate is not on disk, so",
+     "neither leaves a broken-image glyph next to the byline. The byline is",
+     "hidden until real prose is on the page -- a face over an empty desk",
+     "claims an author for a column that does not exist."
     ],
     "mode": "fixed",
     "candidates": ["assets/editorial/svp.webp"]

@@ -49,9 +49,18 @@ PER_GROUP = ("hero_banner", "svp_column_art", "editorial_hero")
 # Which slots a page script actually calls resolveArt() for. Derived from the
 # site source rather than hardcoded, so wiring a slot up flips its status here
 # with no edit to this file -- and forgetting to wire one can never read LIVE.
+#
+# *.html AS WELL AS *.js, and that omission cost this report its accuracy. The
+# SVP byline was wired at 9c8299a in an inline <script> in svp.html:183, which
+# is where a one-page behaviour belongs; scanning only the .js files meant the
+# call was invisible here and all four groups' svp_column_art kept reading
+# STAGED -- "art done, but no page reads the slot yet" -- for a slot the page
+# reads on every load. A derived status that cannot see half the site source
+# is hardcoded with extra steps.
 def _consumed_slots():
     found = set()
-    for f in sorted((ROOT / "docs").glob("*.js")):
+    for f in sorted([*(ROOT / "docs").glob("*.js"),
+                     *(ROOT / "docs").glob("*.html")]):
         src = f.read_text(encoding="utf-8", errors="ignore")
         for slot in PER_MANAGER + PER_GROUP:
             if f"'{slot}'" in src or f'"{slot}"' in src:
