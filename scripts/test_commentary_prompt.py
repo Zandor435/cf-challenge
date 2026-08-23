@@ -718,6 +718,84 @@ def test_regeneration_does_not_cite_itself():
           and "DRAFT" not in user_text)
 
 
+def test_coda_superlative_matches_the_selection_rule():
+    """The prompt must describe the coda the way the packet actually chose it.
+
+    THE SHIPPED BUG. The instruction read "chosen by computation - the lowest
+    market_gap on the board", which was true until the coda-exclusion rule
+    landed. After it, the coda is the lowest gap among the picks the lead did
+    NOT already cover, and on both Week 0 boards a lower gap sat on the lead's
+    own side -- panel Chris/Texas at -1.681 against a -1.044 coda, family
+    John/Miami at -1.223 against -0.898. The prompt was instructing the model
+    to write a superlative the packet contradicts, and both columns wrote it.
+    Same failure family as uniform_profile_fields: true number, invented
+    exclusivity, one level up -- a ranking claim the selection rule never made.
+    """
+    print("\nThe coda superlative matches how the coda was chosen:")
+    base = _seeded_packet()
+    base["preseason"] = True
+    base["comparison"]["weeks_elapsed"] = None
+    base["worst_pick_on_the_board"] = {
+        "manager_id": "jonathan", "name": "Jonathan", "team": "Oregon",
+        "line": 10.5, "direction": "O", "market_gap": -1.044}
+
+    excluded = json.loads(json.dumps(base))
+    excluded["coda_exclusion"] = {"excluded": 8, "collision_forced": False,
+                                  "lead_managers": ["blaine", "chris"],
+                                  "lead_teams": ["Texas"]}
+    with sandbox("panel", excluded):
+        _, user_text, _ = G.build_prompt("panel")
+    check("exclusion ran: the prompt forbids the board-wide superlative",
+          "NOT the lowest on the board and you may not call it that" in user_text)
+    check("exclusion ran: it says how many lower picks were set aside",
+          "8 pick(s) with a lower gap" in user_text)
+    check("exclusion ran: the stale flat claim is gone",
+          "chosen by computation - the lowest market_gap on the board"
+          not in user_text)
+    check("exclusion ran: the coda is still computed, never model-chosen",
+          "chosen by computation, never by you" in user_text)
+
+    clean = json.loads(json.dumps(base))
+    clean["coda_exclusion"] = {"excluded": 0, "collision_forced": False,
+                               "lead_managers": [], "lead_teams": []}
+    with sandbox("panel", clean):
+        _, user_text, _ = G.build_prompt("panel")
+    check("nothing excluded: the superlative IS allowed, and is stated",
+          "the lowest market_gap on the board, and nothing was set aside"
+          in user_text)
+    check("nothing excluded: no prohibition is imposed",
+          "you may not call it that" not in user_text)
+
+    # An older packet with no audit block gets the conservative reading: with
+    # no evidence that nothing was excluded, the superlative is not licensed.
+    absent = json.loads(json.dumps(base))
+    absent.pop("coda_exclusion", None)
+    with sandbox("panel", absent):
+        _, user_text, _ = G.build_prompt("panel")
+    check("no audit block: the prompt still builds",
+          isinstance(user_text, str) and "Worst Pick on the Board" in user_text)
+
+
+def test_packet_bookkeeping_is_not_printable():
+    """narrative_score orders the storylines; it is not a fact about the pool.
+
+    The family column filed "this family clash carries a narrative score of
+    6.338, the highest on the board" -- the scorer's opinion of the story,
+    printed as though it were a result, plus raw field names on the page.
+    """
+    print("\nPacket bookkeeping is banned from the prose:")
+    packet = _seeded_packet()
+    with sandbox("panel", packet):
+        _, user_text, _ = G.build_prompt("panel")
+    tail = user_text.split("=== YOUR ASSIGNMENT ===")[1]
+    check("the ban names narrative_score", "no narrative_score" in tail)
+    check("the ban names moment_size and ranking", "moment_size" in tail
+          and "storyline rank" in tail)
+    check("and it bans raw field names, with the fix demonstrated",
+          "no raw field names" in tail
+          and "the market disagrees by" in tail)
+
+
 def main():
     print("generate_commentary.py \u2014 prompt assembly, dry run, fail-soft")
     test_prompt_shape()
@@ -730,6 +808,8 @@ def main():
     test_persona_material_carries_no_tone_rule()
     test_publish_doc()
     test_regeneration_does_not_cite_itself()
+    test_coda_superlative_matches_the_selection_rule()
+    test_packet_bookkeeping_is_not_printable()
     test_no_prior_season_language()
     test_dry_run()
     test_fail_soft()

@@ -411,13 +411,37 @@ def build_prompt(group_id, packet_override=None):
             "is not the story's subject may be named only in service of that one "
             "story - as the other side of a collision, for instance.")
         w = packet.get("worst_pick_on_the_board") or {}
+        # HOW THE CODA WAS CHOSEN, stated to match what actually happened. This
+        # sentence used to read "the lowest market_gap on the board" flatly, and
+        # that stopped being true when the coda-exclusion rule landed: the coda
+        # is now the lowest gap among the picks the lead did NOT already cover,
+        # and on both Week 0 boards a LOWER gap exists on the lead's own side
+        # (panel: Chris/Texas at -1.681 against the coda's -1.044; family:
+        # John/Miami at -1.223 against -0.898). The prompt was therefore telling
+        # the model to write a superlative the packet contradicts, and both
+        # columns duly wrote it -- persona sacred rule 7 again, one level up:
+        # not a number read off one profile, but a ranking claim the selection
+        # rule never made.
+        excluded = (packet.get("coda_exclusion") or {}).get("excluded") or 0
+        if excluded:
+            how_chosen = (
+                f"It is the lowest market_gap among the picks the One Big Thing "
+                f"did NOT already cover — {excluded} pick(s) with a lower gap "
+                f"were set aside because they share the lead's manager or team. "
+                f"So it is NOT the lowest on the board and you may not call it "
+                f"that, or the worst, or the biggest disagreement anywhere. "
+                f"State its number and make the case from the number.")
+        else:
+            how_chosen = ("It is the lowest market_gap on the board, and nothing "
+                          "was set aside to get there.")
         beat2_line = (
             "  Beat 2 - Worst Pick on the Board (~75-100 words), the preseason "
             "coda, from the packet's `worst_pick_on_the_board` block. That pick "
-            "was chosen by computation - the lowest market_gap on the board - so "
-            "write about THAT pick and no other, and address its manager "
-            "directly by first name in the second person"
+            "was chosen by computation, never by you, so write about THAT pick "
+            "and no other, and address its manager directly by first name in "
+            "the second person"
             + (f" ({w.get('name')}, on {w.get('team')})." if w else ".")
+            + " " + how_chosen
             + " Same DNA as the usual Bad Beat coda: one target, mock gravity "
             "aimed at a very small pool, warmth underneath. But nothing has been "
             "played, so the pick has NOT died and you may not describe it dying, "
@@ -501,6 +525,16 @@ def build_prompt(group_id, packet_override=None):
         "Every number verbatim from the packet; if a number you want is not "
         "there, write around it. Character roasts must cite behavior visible in "
         "manager_profiles, not invented history.",
+        # The packet is an internal artifact and some of its numbers are about
+        # the RANKING, not about the pool. narrative_score exists to order the
+        # storylines for you; printing it ("this clash carries a narrative score
+        # of 6.338, the highest on the board") reports the scorer's opinion of
+        # the story as though it were a fact about the season, and it reads as
+        # machinery on the page. The same goes for naming fields by their key.
+        "Never print the packet's own bookkeeping: no narrative_score, no "
+        "moment_size, no storyline rank or ordering, and no raw field names — "
+        "write \"the market disagrees by 0.669\", never \"a market_gap of "
+        "0.669\". The reader sees a column, not a JSON dump.",
         "Return ONLY the column text. No preamble, no title, no explanation.",
     ]
     return system_text, "\n".join(parts), packet
