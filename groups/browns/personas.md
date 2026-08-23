@@ -130,14 +130,14 @@ absent, so he shows up correctly in the meantime.
 
 ---
 
-## marc
+## mark
 
 - **tone:** roast
-- **display_name:** Marc
+- **display_name:** Mark
 
 **backstory:** *(unwritten)*
 
-Added to the roster 2026-08-22. Nothing about Marc has been written down
+Added to the roster 2026-08-22. Nothing about Mark has been written down
 yet, so every prose field is deliberately empty rather than guessed — `tone`
 is set because sync_personas.py requires it and `roast` is this group's
 register, not a claim about him. Fill this section in and copy the fields

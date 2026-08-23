@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Turn one real photograph into that person's heavy-set college-coach portrait.
 
-    python scripts/make_fatcoach.py --group browns --manager marc \
-        --source "assets/source_photos/marc.jpg" --team Indiana \
+    python scripts/make_fatcoach.py --group browns --manager mark \
+        --source "assets/source_photos/mark.jpg" --team Indiana \
         --patch "a returning national champions patch" [--preview] [--n 2]
 
 WHY THIS EXISTS. Twenty of the portraits this site publishes are the "fat
