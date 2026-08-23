@@ -276,11 +276,83 @@ TOP25_RANK = 25
 MAX_PRESEASON_STORYLINES = 6
 MAX_PER_PRESEASON_TYPE = 2   # as build_week_packet: no type may monopolize
 
+# ...with ONE exemption, and it is structural rather than editorial. Every other
+# preseason type is manufactured by a scorer off a continuous quantity: there is
+# always a lowest market_gap and always a widest envelope, so a cap is the only
+# thing stopping one formula from filling the list. A collision is not scored
+# into existence -- it exists because two managers sat at the same draft and
+# took OPPOSITE sides of one team, and the count is whatever the draft did.
+# Family drafted four (Georgia, Auburn, Baylor, Mississippi State); capping the
+# type at two dropped half of them, and the half dropped was decided by SP+
+# arithmetic rather than by anything that happened in the room. H2H is that
+# group's signature drama, so every collision reaches the column as a candidate.
+# None is uncapped, an int is a cap; unlisted types take MAX_PER_PRESEASON_TYPE.
+PRESEASON_TYPE_CAP = {"collision": None}
+
+# The total budget GROWS to fit the collisions rather than truncating them, so
+# the exemption above is not undone one line later by the overall cap. This many
+# non-collision slots are always preserved on top of them, so a board built
+# entirely of collisions still carries the rest of the angles.
+MIN_NON_COLLISION_SLOTS = 2
+
+# Conference-spread stats describe a manager only when the group WROTE a
+# conference rule for them to describe. Family's min_distinct_conferences is 1
+# (config.json calls the spread advisory and deliberately does not gate on it),
+# so every legal roster satisfies it trivially: a manager holding four
+# conferences did not clear a bar, because there is no bar. The numbers still
+# VARY across that group -- 3 and 4 conferences, 25% and 50% shares -- so
+# uniform_profile_fields cannot catch them, and a varying number is exactly the
+# shape a column reads as a personal trait. Panel gets this for free today:
+# its largest_conference_share is 0.5 for all four managers, so the uniform
+# mechanism already withholds it. This is that same withholding, reached by the
+# other road -- meaningless by rule instead of meaningless by coincidence.
+CONFERENCE_SPREAD_FIELDS = ("conference_spread", "largest_conference_share")
+
+# Persona fields the column may work from. `tone` is deliberately ABSENT: the
+# register is one pinned voice for every group (ARCHITECTURE §12) and the column
+# does not get gentler for anyone. The site's tone gate withholds fields at the
+# DATA layer instead -- John, Rachel and Vic are authored with fatal_flaw,
+# running_gag and rival all null -- so a missing field here means SVP has less
+# material, never that a manager is off limits.
+PERSONA_FIELDS = ("epithet", "tagline", "backstory", "draft_tendency",
+                  "fatal_flaw", "running_gag", "rival")
+
 
 def _fail(msg):
     """Fail loud, no partial write."""
     print(f"::error:: {msg}", file=sys.stderr)
     sys.exit(EXIT_BAD_INPUT)
+
+
+def resolve_groups(spec):
+    """'all' | 'panel' | 'panel,family' -> a validated list of group ids.
+
+    THE SAME SET run_groups.py LOOPS, off the same utils.get_all_group_ids(),
+    so "every group" means one thing in this repo rather than two. An unknown
+    slug fails HERE, naming what is available, instead of surfacing three frames
+    later as utils.load_json exiting on a config.json that does not exist --
+    a typo'd group is the likeliest way to run this wrong.
+
+    Order and duplicates: the caller's order is preserved (so a deliberate
+    panel,family reads in that order), and a repeat is dropped rather than
+    building the same packet twice.
+    """
+    known = utils.get_all_group_ids()
+    if spec.strip() == "all":
+        if not known:
+            _fail("no groups found under groups/ — nothing to build.")
+        return known
+    wanted, seen = [], set()
+    for slug in (t.strip() for t in spec.split(",")):
+        if not slug or slug in seen:
+            continue
+        seen.add(slug)
+        wanted.append(slug)
+    unknown = [g for g in wanted if g not in known]
+    if unknown:
+        _fail(f"unknown group(s) {', '.join(unknown)}; groups/ carries "
+              f"{', '.join(known) or '(none)'}.")
+    return wanted
 
 
 def packet_path(group_id):
@@ -483,6 +555,79 @@ def _collisions(by_mgr, display):
     return out
 
 
+def suppressed_profile_fields(required_conferences):
+    """manager_profiles fields this GROUP'S RULES make meaningless, mapped to
+    why. The second half of the pair uniform_profile_fields opens.
+
+    Both answer the same question -- "may the column write this number as a
+    fact that sets one manager apart?" -- and they answer it for the two
+    different reasons a number can fail to. uniform_profile_fields is empirical:
+    every manager happens to hold the same value this week, so it separates
+    nobody, and it self-maintains because the moment the values diverge it stops
+    listing the field. This one is by rule, and it is the case that mechanism
+    structurally cannot see: family's conference numbers DO vary, so they look
+    like a distinguishing stat from the inside, but the group never wrote a
+    conference rule for them to be a distinction against.
+
+    Keyed by field with a prose reason rather than a bare list, because the
+    prompt has to be able to say WHY it is withholding one -- "this is
+    meaningless here" and "everybody has the same one" are different sentences
+    and produce different prose.
+
+    Returns {} for a group with a real rule (panel: 3), which is the common
+    case and leaves that group's prompt byte-identical.
+    """
+    if required_conferences is None or required_conferences > 1:
+        return {}
+    reason = (f"this group's written minimum is {required_conferences} distinct "
+              f"conference(s), so every legal roster satisfies it trivially and "
+              f"the spread is advisory, not a rule anyone cleared. The numbers "
+              f"vary by accident, not by choice.")
+    return {field: reason for field in CONFERENCE_SPREAD_FIELDS}
+
+
+def persona_material(group_id, display):
+    """Per-manager character material off groups/<group>/personas.json.
+
+    ABSENCE IS NORMAL AT EVERY LEVEL and none of it is an error: the file may
+    not exist (a group with no personas authored), a manager may be missing from
+    it, and a manager who IS in it may carry nulls for most of the fields. John,
+    Rachel and Vic are authored with fatal_flaw, running_gag and rival all null
+    on purpose -- "Delusion: 9" on somebody's father is the wrong note -- and
+    that is a decision about what exists, not a decision about who may be
+    written about. A field that is not here simply is not handed to the column;
+    it never becomes a constraint, and it never becomes a KeyError.
+
+    Null-ish values are DROPPED rather than emitted as null, so the packet says
+    "here is what there is" instead of publishing a checklist of what each
+    manager lacks. A manager with nothing left contributes no entry at all.
+
+    `rival` is resolved from a manager_id to that manager's display name, since
+    an id is not something the column can print, and a rival who is not on this
+    group's roster is dropped rather than printed as a raw slug.
+    """
+    path = utils.GROUPS_DIR / group_id / "personas.json"
+    if not path.exists():
+        return {}
+    managers = (utils.load_json(path).get("managers") or {})
+    out = {}
+    for mid in display:
+        rec = managers.get(mid) or {}
+        block = {}
+        for field in PERSONA_FIELDS:
+            val = rec.get(field)
+            if val is None or (isinstance(val, str) and not val.strip()):
+                continue
+            if field == "rival":
+                val = display.get(val)
+                if not val:
+                    continue          # names somebody outside this roster
+            block[field] = val
+        if block:
+            out[mid] = block
+    return out
+
+
 def _preseason_storylines(by_mgr, display, collisions, concentration, managers):
     """Rank the angles that exist before kickoff. Nothing here is hardcoded to a
     team or a manager: the scores decide the order, and a bigger disagreement
@@ -591,11 +736,17 @@ def _preseason_storylines(by_mgr, display, collisions, concentration, managers):
                                 s["managers"]))
     kept, seen = [], defaultdict(int)
     for story in stories:
-        if seen[story["type"]] >= MAX_PER_PRESEASON_TYPE:
+        cap = PRESEASON_TYPE_CAP.get(story["type"], MAX_PER_PRESEASON_TYPE)
+        if cap is not None and seen[story["type"]] >= cap:
             continue
         seen[story["type"]] += 1
         kept.append(story)
-    return kept[:MAX_PRESEASON_STORYLINES]
+    # Grow the budget to hold every collision plus room for the other angles --
+    # otherwise the uncapped type is silently re-capped by the total. A group
+    # with no collisions gets exactly MAX_PRESEASON_STORYLINES, unchanged.
+    budget = max(MAX_PRESEASON_STORYLINES,
+                 len(collisions) + MIN_NON_COLLISION_SLOTS)
+    return kept[:budget]
 
 
 def build_week0_packet(group_id, baseline_path=None):
@@ -784,6 +935,12 @@ def build_week0_packet(group_id, baseline_path=None):
         "managers": managers,
         "manager_profiles": profiles,
         "uniform_profile_fields": uniform_profile_fields(profiles),
+        # The by-rule half of the same withholding; see suppressed_profile_fields.
+        "suppressed_profile_fields": suppressed_profile_fields(
+            required_conferences),
+        # Character material, not a tone instruction. Absent fields mean less
+        # material, never a manager who is off limits.
+        "manager_personas": persona_material(group_id, display),
     }
 
 
@@ -829,12 +986,14 @@ def main():
                     help="compute and report, write nothing")
     ap.add_argument("--out", default=None, help="output path (default: "
                                                 "data/preseason_baseline_2026.json)")
-    ap.add_argument("--week0-packet", metavar="GROUP", default=None,
-                    help="do not touch the baseline; build that group's Week 0 "
-                         "narrative packet FROM the frozen baseline and write it "
-                         "to output/<group>/week_0_packet.json")
+    ap.add_argument("--week0-packet", metavar="GROUPS", default=None,
+                    help="do not touch the baseline; build these groups' Week 0 "
+                         "narrative packets FROM the frozen baseline and write "
+                         "them to output/<group>/week_0_packet.json. A slug, a "
+                         "comma-separated list, or 'all' (every group under "
+                         "groups/, same set run_groups.py loops)")
     ap.add_argument("--packet-out", default=None,
-                    help="override the Week 0 packet path")
+                    help="override the Week 0 packet path (single group only)")
     args = ap.parse_args()
     out_path = Path(args.out) if args.out else OUTPUT_PATH
 
@@ -842,21 +1001,32 @@ def main():
     # baseline and returns before any of the freeze machinery below can run, so
     # regenerating the packet can never rewrite Deliverable A.
     if args.week0_packet:
-        group_id = args.week0_packet
-        print("=" * 60)
-        print(f"WEEK 0 PACKET — group {group_id} (from the frozen baseline)")
-        print("=" * 60)
-        packet = build_week0_packet(group_id, args.out)
-        report_packet(packet)
-        if args.dry_run:
+        group_ids = resolve_groups(args.week0_packet)
+        if args.packet_out and len(group_ids) > 1:
+            _fail(f"--packet-out names ONE file but --week0-packet resolved to "
+                  f"{len(group_ids)} groups ({', '.join(group_ids)}); each "
+                  f"group's packet would overwrite the last one's.")
+        for group_id in group_ids:
+            print("=" * 60)
+            print(f"WEEK 0 PACKET — group {group_id} (from the frozen baseline)")
+            print("=" * 60)
+            # Every group re-enters here with nothing carried over from the last
+            # one: config, picks, personas and the pool sim are all loaded inside
+            # build_week0_packet, and the only shared read is the frozen baseline,
+            # which is read-only by construction. A loop over groups is exactly
+            # N independent runs (playbook: no shared state between tenants).
+            packet = build_week0_packet(group_id, args.out)
+            report_packet(packet)
+            if args.dry_run:
+                print()
+                print(f"  dry run: nothing written (would write "
+                      f"{args.packet_out or packet_path(group_id)}).")
+                continue
+            ppath = (Path(args.packet_out) if args.packet_out
+                     else packet_path(group_id))
+            utils.save_json_atomic(ppath, packet)
             print()
-            print(f"  dry run: nothing written (would write "
-                  f"{args.packet_out or packet_path(group_id)}).")
-            return
-        ppath = Path(args.packet_out) if args.packet_out else packet_path(group_id)
-        utils.save_json_atomic(ppath, packet)
-        print()
-        print(f"  wrote {ppath}")
+            print(f"  wrote {ppath}")
         return
 
     print("=" * 60)

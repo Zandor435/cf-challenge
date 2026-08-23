@@ -424,6 +424,143 @@ def test_coda_excludes_lead_subject():
               f"{coda['manager_id']}) best={best}")
 
 
+def test_every_collision_reaches_the_column():
+    """Family drafted FOUR head-to-head conflicts; all four must be candidates.
+
+    Georgia 9.5, Auburn 6.5, Baylor 6.5 and Mississippi State 4.5 are each held
+    by two managers on opposite sides -- the only sharing the section-5 gate
+    allows, and the whole reason that group's board is interesting.
+    MAX_PER_PRESEASON_TYPE capped the type at two, so two of the four were
+    dropped, and WHICH two was decided by SP+ arithmetic rather than by anything
+    that happened at the draft.
+
+    Asserted against the REAL committed board, not a fixture, because what can
+    regress is the interaction between three separate limits (the per-type cap,
+    the total budget and the sort), and a fixture would only pin the one under
+    test. Panel rides along as the no-change control: it drafted one collision,
+    so every limit here is a no-op for it.
+    """
+    print("\nEvery head-to-head collision reaches the column:")
+    packet = PB.build_week0_packet("family")
+
+    drafted = {(c["team"], c["line"]) for c in packet["collisions"]}
+    expected = {("Georgia", 9.5), ("Auburn", 6.5), ("Baylor", 6.5),
+                ("Mississippi State", 4.5)}
+    check("the packet detects all four drafted conflicts", drafted == expected,
+          f"detected={sorted(drafted)}")
+
+    told = {p["team"] for s in packet["storylines"] if s["type"] == "collision"
+            for p in s["picks"]}
+    check("all four are storyline CANDIDATES, not just a buried block",
+          told == {t for t, _ in expected}, f"in storylines={sorted(told)}")
+
+    # Uncapping one type must not eat the list: the other angles still file.
+    others = [s["type"] for s in packet["storylines"] if s["type"] != "collision"]
+    check("non-collision angles still make the list",
+          len(others) >= PB.MIN_NON_COLLISION_SLOTS, f"others={others}")
+
+    # Both sides of every conflict come off picks.json, not off a label.
+    picks = {(pk["manager"], pk["team"]): pk["direction"]
+             for pk in utils.load_group("family")[1]}
+    mismatched = [
+        (c["team"], s["manager_id"], s["direction"])
+        for c in packet["collisions"] for s in c["sides"]
+        if picks.get((s["manager_id"], c["team"])) != s["direction"]]
+    check("each side's direction is the manager's ACTUAL pick",
+          not mismatched, f"{mismatched}")
+    check("every conflict has exactly two sides, and they oppose",
+          all(len(c["sides"]) == 2
+              and {s["direction"] for s in c["sides"]} == {"O", "U"}
+              for c in packet["collisions"]))
+
+    # The control: one collision means every limit in this change is inert.
+    panel = PB.build_week0_packet("panel")
+    check("panel is unaffected -- one collision, list still capped at the max",
+          len(panel["storylines"]) <= PB.MAX_PRESEASON_STORYLINES
+          and sum(1 for s in panel["storylines"] if s["type"] == "collision") == 1,
+          f"{[s['type'] for s in panel['storylines']]}")
+
+
+def test_conference_spread_suppressed_where_the_rule_is_advisory():
+    """A stat is only a distinction when the group wrote a rule for it.
+
+    Family's min_distinct_conferences is 1, so every legal roster clears it and
+    the spread measures nothing anyone agreed to -- but the numbers VARY (3 and
+    4 conferences, 25% and 50% shares), so uniform_profile_fields cannot see
+    them, and a varying number is exactly the shape a column reads as a personal
+    trait. Panel wrote a real minimum of 3, so nothing is suppressed there by
+    rule; its largest_conference_share is already withheld by the uniform
+    mechanism instead, which is the pairing under test.
+    """
+    print("\nConference spread is withheld where the rule is advisory:")
+    family = PB.build_week0_packet("family")
+    panel = PB.build_week0_packet("panel")
+
+    check("family suppresses BOTH conference-spread fields",
+          set(family["suppressed_profile_fields"])
+          == set(PB.CONFERENCE_SPREAD_FIELDS),
+          f"{sorted(family['suppressed_profile_fields'])}")
+    check("and says why, rather than shipping a bare list",
+          all(isinstance(v, str) and "advisory" in v
+              for v in family["suppressed_profile_fields"].values()))
+    check("the fields it withholds genuinely VARY (uniform cannot catch them)",
+          any(len({p[f] for p in family["manager_profiles"].values()}) > 1
+              for f in PB.CONFERENCE_SPREAD_FIELDS),
+          f"uniform={family['uniform_profile_fields']}")
+
+    check("panel suppresses nothing by rule -- it wrote a real minimum",
+          panel["suppressed_profile_fields"] == {},
+          f"{panel['suppressed_profile_fields']}")
+    check("panel's share is withheld by the UNIFORM mechanism instead",
+          "largest_conference_share" in panel["uniform_profile_fields"],
+          f"{panel['uniform_profile_fields']}")
+
+    # The rule, not the group name: a written minimum above 1 suppresses nothing.
+    check("the trigger is the written minimum, not the slug",
+          bool(PB.suppressed_profile_fields(1))
+          and not PB.suppressed_profile_fields(3)
+          and PB.suppressed_profile_fields(None) == {})
+
+
+def test_persona_material_tolerates_absence():
+    """Missing persona fields mean less material -- never a crash, never a rule.
+
+    John, Rachel and Vic are authored `straight` with fatal_flaw, running_gag
+    and rival all null, deliberately and permanently. The builder must read that
+    board without raising and without emitting the nulls, because a packet full
+    of "fatal_flaw": null is a checklist of what each manager lacks rather than
+    a description of who they are.
+    """
+    print("\nPersona material survives absent fields:")
+    family = PB.build_week0_packet("family")
+    personas = family["manager_personas"]
+
+    for mid in ("john", "rachel", "vic"):
+        block = personas.get(mid, {})
+        check(f"{mid} still contributes material", bool(block),
+              f"{sorted(block)}")
+        check(f"{mid} carries no null-valued field",
+              all(v not in (None, "") for v in block.values()))
+        check(f"{mid}'s absent fields are absent, not null",
+              not ({"fatal_flaw", "running_gag", "rival"} & set(block)),
+              f"{sorted(block)}")
+
+    check("a roast-tone manager still brings the fields they DO have",
+          {"fatal_flaw", "running_gag", "rival"} <= set(personas.get("gayden", {})),
+          f"{sorted(personas.get('gayden', {}))}")
+    check("rival is resolved to a display name, never a raw manager_id",
+          personas["gayden"]["rival"] == "Gunner",
+          f"{personas['gayden'].get('rival')!r}")
+
+    # No tone constraint reaches the packet: the column does not get gentler.
+    check("tone is NOT published -- one pinned voice for every manager",
+          not any("tone" in block for block in personas.values()))
+
+    # And a group with no personas.json at all is empty, not fatal.
+    check("an absent personas.json yields {} rather than exiting",
+          PB.persona_material("nope-no-such-group", {"a": "A"}) == {})
+
+
 def main():
     print("preseason_baseline.py \u2014 freeze guards, schedule truth, projector reuse")
     test_season_started_guard()
@@ -433,6 +570,9 @@ def main():
     test_frozen_artifact()
     test_uniform_fields_not_forked()
     test_coda_excludes_lead_subject()
+    test_every_collision_reaches_the_column()
+    test_conference_spread_suppressed_where_the_rule_is_advisory()
+    test_persona_material_tolerates_absence()
 
     passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
