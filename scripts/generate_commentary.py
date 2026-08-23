@@ -250,6 +250,33 @@ def build_prompt(group_id, packet_override=None):
                         "this week, so any of them may support a comparison — "
                         "provided the numbers actually back it.")
 
+    # Same failure family as uniform_line, one step further out: there the
+    # column read a real number and invented its exclusivity; here it reads a
+    # board with no history attached and invents the history. Week 0 panel filed
+    # "Chris is betting on a Texas resurgence" and "you're hoping for a
+    # turnaround" -- both describing a 2025 that the packet does not contain and
+    # the pipeline has never fetched. The cache is 2026 only. There is no prior
+    # season in this system, so EVERY trajectory claim is fabricated (sacred
+    # rule 1), and the vocabulary has to be named explicitly because none of
+    # these words look like a factual assertion while you are writing them.
+    prior_season_line = (
+        "NO PRIOR-SEASON LANGUAGE. The packet carries no history — no 2025, no "
+        "last year, no previous record, no earlier expectations — and none is "
+        "available to you. Do not write, or imply by any synonym: resurgence, "
+        "comeback, bounce-back, rebound, turnaround, return to form, "
+        "reversal of fortune, redemption, revenge, rebuild, "
+        "\"back\" in the returning-to-glory sense (back on track, back to "
+        "form, back where they belong), \"again\", \"still\", \"once more\", "
+        "\"finally\", \"no longer\", \"used to\", \"has become\", or any "
+        "construction that places a team or a manager on a trajectory from some "
+        "earlier state. A number in the packet is a fact about NOW, never a "
+        "recovery from or a decline since anything.")
+    if not preseason:
+        prior_season_line += (
+            " The ONE movement you may describe is week-over-week movement that "
+            "the packet itself measures, stated on its own stated basis — and "
+            "that is movement WITHIN this season, never across seasons.")
+
     # The two beats. Beat 2 is the recurring coda and it SWAPS in preseason:
     # "Bad Beat of the Week" needs a pick that died, and in Week 0 nothing has
     # died. "Worst Pick on the Board" keeps the coda's DNA — one target, direct
@@ -320,6 +347,7 @@ def build_prompt(group_id, packet_override=None):
         basis_warning,
         season_line,
         uniform_line,
+        prior_season_line,
         stakes_line,
     ]
     if fabrication_line:

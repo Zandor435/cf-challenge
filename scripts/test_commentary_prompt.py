@@ -420,6 +420,67 @@ def _seeded_packet():
     return _SEEDED
 
 
+def test_no_prior_season_language():
+    """The prompt must ban implied-prior-season trajectory claims.
+
+    Week 0 panel wrote "Chris is betting on a Texas resurgence" and "you're
+    hoping for a turnaround". Neither is a number the column got wrong -- both
+    describe a 2025 season that the packet does not carry and the pipeline has
+    never fetched (the cache is 2026 only). It is sacred rule 1 fabrication
+    wearing sportswriting idiom, and it is invisible at the sentence level,
+    which is why the vocabulary is named explicitly in the prompt rather than
+    left to "do not invent facts".
+    """
+    print("\nPrior-season language suppression:")
+    base_packet = _seeded_packet()
+    with sandbox("panel", base_packet):
+        _, user_text, _ = G.build_prompt("panel")
+
+    check("prior-season: the block is present and titled",
+          "NO PRIOR-SEASON LANGUAGE" in user_text)
+    check("prior-season: it states the packet carries no history",
+          "carries no history" in user_text)
+
+    # Every word the brief named, plus the ones that leak the same claim.
+    for word in ("resurgence", "comeback", "bounce-back", "return to form",
+                 "turnaround", "rebound", "redemption", "rebuild"):
+        check(f"prior-season: '{word}' is named as banned", word in user_text)
+    check("prior-season: the returning-to-glory sense of 'back' is named",
+          "returning-to-glory" in user_text and "back on track" in user_text)
+    check("prior-season: the quiet trajectory words are named too",
+          all(w in user_text for w in ('"again"', '"still"', '"no longer"')))
+    check("prior-season: synonyms are closed off, not just the listed words",
+          "or imply by any synonym" in user_text)
+    check("prior-season: it says a packet number is a fact about NOW",
+          "fact about NOW" in user_text)
+
+    # In-season the block must NOT forbid the movement the packet does measure,
+    # or it would gag the week-over-week story the column exists to tell.
+    live = json.loads(json.dumps(base_packet))
+    live["preseason"] = False
+    live["season_complete"] = False
+    with sandbox("panel", live):
+        _, live_text, _ = G.build_prompt("panel")
+    check("prior-season: in season, week-over-week movement stays permitted",
+          "The ONE movement you may describe" in live_text
+          and "WITHIN this season" in live_text)
+    check("prior-season: and the ban itself still applies in season",
+          "NO PRIOR-SEASON LANGUAGE" in live_text)
+
+    # In preseason nothing has been played at all, so no carve-out is offered.
+    pre = json.loads(json.dumps(base_packet))
+    pre["preseason"] = True
+    with sandbox("panel", pre):
+        _, pre_text, _ = G.build_prompt("panel")
+    # Asserted on the carve-out SENTENCE, not the phrase "week-over-week
+    # movement" -- that also appears in the packet's own comparison basis
+    # ("no prior snapshot - week-over-week movement unknown"), so the phrase
+    # alone would pass here for the wrong reason.
+    check("prior-season: preseason gets no week-over-week carve-out",
+          "NO PRIOR-SEASON LANGUAGE" in pre_text
+          and "The ONE movement you may describe" not in pre_text)
+
+
 def main():
     print("generate_commentary.py \u2014 prompt assembly, dry run, fail-soft")
     test_prompt_shape()
@@ -427,6 +488,7 @@ def main():
     test_stakes()
     test_season_complete()
     test_uniform_fields()
+    test_no_prior_season_language()
     test_dry_run()
     test_fail_soft()
 
