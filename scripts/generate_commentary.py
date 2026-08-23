@@ -158,10 +158,24 @@ def load_memory(group_id):
     return mem
 
 
-def last_column_text(group_id, memory):
+def last_column_text(group_id, memory, skip_week=None):
     """The most recently filed column, for callbacks. Missing file is not an
-    error — a deleted or not-yet-written column just means no callback."""
+    error — a deleted or not-yet-written column just means no callback.
+
+    skip_week EXCLUDES one week's own file, and it is the week being written.
+    Filing a column is idempotent — the same week can be regenerated after a
+    prompt fix, which is exactly what a prompt fix is FOR — and on that path the
+    newest name in memory is the file about to be overwritten. Handing it back
+    as "last published column" tells the model to write callbacks to a draft
+    that is being discarded, and the discarded draft is usually discarded
+    because it was wrong: panel's first Week 0 column carried the prior-season
+    language a6c8aad bans and the coda collision 8e327ce forbids, and feeding it
+    in as an exemplar is the most direct way to get both back.
+    """
+    skip = (f"column_week_{skip_week}.md" if skip_week is not None else None)
     for name in reversed(memory.get("columns", [])):
+        if name == skip:
+            continue
         p = out_dir(group_id) / name
         if p.exists():
             return name, p.read_text(encoding="utf-8")
@@ -183,7 +197,8 @@ def build_prompt(group_id, packet_override=None):
     packet = read_json(packet_override or packet_path(group_id),
                        "week packet (run build_week_packet.py first)")
     memory = load_memory(group_id)
-    last_name, last_text = last_column_text(group_id, memory)
+    last_name, last_text = last_column_text(group_id, memory,
+                                            skip_week=packet.get("week"))
 
     cmp_ = packet.get("comparison", {})
     basis = cmp_.get("basis", "unknown basis")

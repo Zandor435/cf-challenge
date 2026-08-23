@@ -670,6 +670,54 @@ def test_publish_doc():
     check("publish: the document is JSON-serialisable", ok)
 
 
+def test_regeneration_does_not_cite_itself():
+    """A rewritten week must not be handed its own discarded draft as a callback.
+
+    Filing is idempotent: the same week is regenerated after a prompt fix, and
+    on that path the newest name in column_memory is the file about to be
+    overwritten. Panel's first Week 0 column carried the prior-season language
+    a6c8aad bans and the coda collision 8e327ce forbids; feeding it back in as
+    "last published column" is the most direct way to get both returned.
+    """
+    print("\nA regenerated week does not cite itself:")
+    packet = _seeded_packet()
+    week = packet["week"]
+
+    with sandbox("panel", packet) as out:
+        (out / f"column_week_{week}.md").write_text(
+            "SUPERSEDED DRAFT: a Texas resurgence.", encoding="utf-8")
+        (out / f"column_week_{week - 1}.md").write_text(
+            "GENUINELY LAST WEEK.", encoding="utf-8")
+        (out / "column_memory.json").write_text(json.dumps({
+            "group_id": "panel", "nicknames": {}, "feuds": [],
+            "character_bits": {},
+            "columns": [f"column_week_{week - 1}.md", f"column_week_{week}.md"],
+        }), encoding="utf-8")
+        _, user_text, _ = G.build_prompt("panel")
+
+        check("the week being rewritten is not offered back as a callback",
+              "SUPERSEDED DRAFT" not in user_text)
+        check("the genuinely previous column still is",
+              "GENUINELY LAST WEEK." in user_text)
+
+        # And the skip is scoped to that one week, not to callbacks generally.
+        name, _text = G.last_column_text("panel", G.load_memory("panel"))
+        check("without a skip, the newest column is still the newest",
+              name == f"column_week_{week}.md", f"{name}")
+
+    # The season's first column has nothing to skip TO, and says so plainly
+    # rather than falling back to some other week's prose.
+    with sandbox("panel", packet) as out:
+        (out / f"column_week_{week}.md").write_text("DRAFT", encoding="utf-8")
+        (out / "column_memory.json").write_text(json.dumps({
+            "group_id": "panel", "columns": [f"column_week_{week}.md"],
+        }), encoding="utf-8")
+        _, user_text, _ = G.build_prompt("panel")
+    check("a first column reports no callbacks rather than citing its draft",
+          "this is the first column of the season" in user_text
+          and "DRAFT" not in user_text)
+
+
 def main():
     print("generate_commentary.py \u2014 prompt assembly, dry run, fail-soft")
     test_prompt_shape()
@@ -681,6 +729,7 @@ def main():
     test_head_to_head_named_in_prose()
     test_persona_material_carries_no_tone_rule()
     test_publish_doc()
+    test_regeneration_does_not_cite_itself()
     test_no_prior_season_language()
     test_dry_run()
     test_fail_soft()
