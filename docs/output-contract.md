@@ -16,6 +16,55 @@ contract; it is part of the suite. Consumers may rely on every key below being
 present. Producers may add keys, but never remove or rename one here without
 updating this file and the shape test **in the same commit**.
 
+### Auxiliary publishers
+
+The four boards above are what the **engine loop** (`run_groups.py`) writes, and
+that set is closed. Three other scripts publish into the same directory on their
+own cadence — they are not boards, nothing scores off them, and a group may be
+missing any of them entirely. They are listed here because the sentence above
+used to read as "these four files and nothing else", which was already untrue:
+
+| file | producer | overwrite vs accumulate | absent when |
+|------|----------|-------------------------|-------------|
+| `personas.json` | `sync_personas.py` | **overwrite** | no personas authored for the group |
+| `banners.json`  | `build_banners.py` | **overwrite** | no banner set built for the group |
+| `column.json`   | `generate_commentary.py` | **overwrite** | no column filed yet — the normal state before Week 0 |
+
+Every consumer of these three must treat a 404 as an ordinary state and render
+its own empty state, exactly as `svp.html` does for a group with no column.
+
+#### `column.json` — the published column
+
+```json
+{
+  "meta": {
+    "group_id": "family",
+    "season": 2026,
+    "week": 0,
+    "preseason": true,
+    "generated_at": "2026-08-23T16:04:11+00:00",
+    "model": "gpt-4o",
+    "source": "groups/family/output/column_week_0.md"
+  },
+  "column": {
+    "paragraphs": ["...", "..."],
+    "word_count": 412
+  }
+}
+```
+
+- The **newest column only**. The season's filed columns live under
+  `groups/<group>/output/column_week_<N>.md`, which is the source of record —
+  what `column_memory.json` names, what next week's prompt reads back for
+  callbacks, and what a human reviews. `meta.source` names that file.
+- `paragraphs` is the column **pre-split in Python**, blank-line separated with
+  blanks dropped. The page renders one `<p>` per entry and splits nothing
+  itself; `word_count` is likewise computed at write time. Same rule as
+  `analytics.json`: if the page needs a number, it gets a key.
+- `meta.preseason` is the packet's own flag, not a second opinion about what
+  week 0 means. The page labels a preseason column "Preseason" rather than
+  "Week 00", matching `standings.json`'s null `as_of_week`.
+
 Conventions: deltas are signed floats in the pick's O/U direction
 (`O`: `wins - line`; `U`: `line - wins`). Probabilities are floats in `[0,1]`.
 `as_of_week` in `meta` mirrors the `--as-of-week N` flag and is `null` on a live

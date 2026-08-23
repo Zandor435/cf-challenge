@@ -481,6 +481,195 @@ def test_no_prior_season_language():
           and "The ONE movement you may describe" not in pre_text)
 
 
+def test_suppressed_fields():
+    """The by-rule half of the withholding uniform_profile_fields opens.
+
+    uniform_line covers fields that HAPPEN to be equal this week. These are the
+    fields the group's own rules make meaningless, and they are the case the
+    uniform mechanism structurally cannot catch: family's conference numbers
+    vary (3 and 4 conferences, 25% and 50% shares) while measuring nothing
+    anyone agreed to, because that group's written minimum is 1 and every legal
+    roster clears it. A varying number is exactly the shape a column reads as a
+    personal trait, so it has to be named in prose.
+    """
+    print("\nSuppressed-by-rule profile fields in the prompt:")
+    base = _seeded_packet()
+
+    reason = "the written minimum is 1, so the spread is advisory."
+    packet = json.loads(json.dumps(base))
+    packet["suppressed_profile_fields"] = {
+        "conference_spread": reason, "largest_conference_share": reason}
+    with sandbox("family", packet):
+        _, user_text, _ = G.build_prompt("family")
+    check("suppressed: the prompt names them as measuring nothing",
+          "MEASURE NOTHING IN THIS GROUP" in user_text)
+    check("suppressed: both fields are named",
+          "conference_spread" in user_text
+          and "largest_conference_share" in user_text)
+    check("suppressed: the reason travels with them", reason in user_text)
+    # Counted over the INSTRUCTION block only. The packet itself is dumped
+    # verbatim further down and legitimately carries the reason once per field;
+    # what must not repeat is the sentence the model is being instructed with.
+    head = user_text.split("=== COLUMN MEMORY")[0]
+    check("suppressed: a shared reason is printed ONCE, not per field",
+          head.count(reason) == 1, f"count={head.count(reason)}")
+    check("suppressed: unlike a uniform field, it may not be stated group-wide",
+          "not even as a fact about the whole group" in user_text)
+
+    # Distinct reasons must each survive.
+    two = json.loads(json.dumps(base))
+    two["suppressed_profile_fields"] = {"a": "reason one.", "b": "reason two."}
+    with sandbox("family", two):
+        _, user_text, _ = G.build_prompt("family")
+    check("suppressed: distinct reasons are both carried",
+          "reason one." in user_text and "reason two." in user_text)
+
+    # A group with a real rule imposes nothing, and neither does an old packet.
+    for label, mutate in (("empty", lambda d: d.update(
+                              {"suppressed_profile_fields": {}})),
+                          ("absent", lambda d: d.pop(
+                              "suppressed_profile_fields", None))):
+        packet = json.loads(json.dumps(base))
+        mutate(packet)
+        with sandbox("panel", packet):
+            _, user_text, _ = G.build_prompt("panel")
+        check(f"suppressed: {label} -> no prohibition is imposed",
+              "MEASURE NOTHING" not in user_text)
+
+
+def test_head_to_head_named_in_prose():
+    """Collisions are stated in the prompt, not left 12KB down in the JSON.
+
+    The same reasoning as basis_warning and uniform_line: a block buried in the
+    packet is not an instruction. Family drafted four opposite-side conflicts
+    and they are that group's signature drama, so the count and both sides of
+    each are named -- with the directions coming off the packet's own sides,
+    which come off picks.json.
+    """
+    print("\nHead-to-head conflicts named in the prompt:")
+    base = _seeded_packet()
+    base["preseason"] = True
+    base["comparison"]["weeks_elapsed"] = None
+    packet = json.loads(json.dumps(base))
+    packet["collisions"] = [
+        {"team": "Georgia", "line": 9.5, "sides": [
+            {"manager_id": "vic", "name": "Vic", "direction": "O"},
+            {"manager_id": "holly", "name": "Holly", "direction": "U"}]},
+        {"team": "Auburn", "line": 6.5, "sides": [
+            {"manager_id": "devin", "name": "Devin", "direction": "O"},
+            {"manager_id": "rachel", "name": "Rachel", "direction": "U"}]},
+    ]
+    with sandbox("family", packet):
+        _, user_text, _ = G.build_prompt("family")
+    check("h2h: the prompt names the section", "HEAD-TO-HEAD:" in user_text)
+    check("h2h: it states the COUNT", "2 team(s)" in user_text)
+    check("h2h: both teams and lines appear",
+          "Georgia 9.5" in user_text and "Auburn 6.5" in user_text)
+    check("h2h: each side is named with its direction spelled out",
+          "Vic OVER" in user_text and "Holly UNDER" in user_text
+          and "Devin OVER" in user_text and "Rachel UNDER" in user_text)
+
+    # No collisions, and a normal week, both impose nothing.
+    none_ = json.loads(json.dumps(packet))
+    none_["collisions"] = []
+    with sandbox("family", none_):
+        _, user_text, _ = G.build_prompt("family")
+    check("h2h: no collisions -> the line is absent",
+          "HEAD-TO-HEAD:" not in user_text)
+
+    live = json.loads(json.dumps(packet))
+    live["preseason"] = False
+    with sandbox("family", live):
+        _, user_text, _ = G.build_prompt("family")
+    check("h2h: a played week is unchanged (the line is preseason-only)",
+          "HEAD-TO-HEAD:" not in user_text)
+
+
+def test_persona_material_carries_no_tone_rule():
+    """Persona material reaches the prompt, and absence is never a constraint.
+
+    John, Rachel and Vic carry no fatal_flaw, running_gag or rival -- authored
+    that way on purpose. That means SVP has less material about them; it must
+    not mean SVP is instructed to go easier on them. The register is one pinned
+    voice for every group and every manager (ARCHITECTURE S12).
+    """
+    print("\nPersona material and the absence of a tone rule:")
+    base = _seeded_packet()
+    packet = json.loads(json.dumps(base))
+    packet["manager_personas"] = {
+        "john": {"epithet": "The Counselor",
+                 "backstory": "McComb, Mississippi.",
+                 "draft_tendency": "Backed Ole Miss."},
+        "gayden": {"epithet": "The Backpass Assassin",
+                   "fatal_flaw": "No casual setting.",
+                   "running_gag": "Michael Bradley.",
+                   "rival": "Gunner"},
+    }
+    with sandbox("family", packet):
+        _, user_text, _ = G.build_prompt("family")
+    check("personas: the section is present",
+          "MANAGER PERSONAS" in user_text)
+    check("personas: a manager with few fields still reaches the column",
+          "The Counselor" in user_text and "McComb, Mississippi." in user_text)
+    check("personas: a manager with many keeps all of them",
+          "No casual setting." in user_text and "Michael Bradley." in user_text
+          and "Gunner" in user_text)
+    check("personas: fewer fields is stated as less material, not soft handling",
+          "not owed a softer column" in user_text
+          and "Same voice for everyone" in user_text)
+    check("personas: no tone/register instruction is derived from the fields",
+          "tone" not in user_text.split("MANAGER PERSONAS")[1].split(
+              "=== COLUMN MEMORY")[0].lower())
+
+    for label, mutate in (("empty", lambda d: d.update({"manager_personas": {}})),
+                          ("absent", lambda d: d.pop("manager_personas", None))):
+        packet = json.loads(json.dumps(base))
+        mutate(packet)
+        with sandbox("family", packet):
+            _, user_text, _ = G.build_prompt("family")
+        check(f"personas: {label} -> the section is simply omitted",
+              "MANAGER PERSONAS" not in user_text and len(user_text) > 0)
+
+
+def test_publish_doc():
+    """The site's copy computes nothing: paragraphs and the count are made here."""
+    print("\nPublished column.json shape:")
+    packet = _seeded_packet()
+    packet["preseason"] = True
+    column = "First para, two sentences.\n\nSecond para.\r\n\r\nThird para.\n"
+    doc = G.publish_doc("family", packet, column)
+
+    check("publish: meta identifies the group, season and week",
+          doc["meta"]["group_id"] == "family"
+          and doc["meta"]["season"] == packet["season"]
+          and doc["meta"]["week"] == packet["week"], f"{doc['meta']}")
+    check("publish: the preseason flag is the packet's, not a second opinion",
+          doc["meta"]["preseason"] is True)
+    check("publish: it names the source .md so the two files stay traceable",
+          doc["meta"]["source"].endswith(
+              f"column_week_{packet['week']}.md"), doc["meta"]["source"])
+    check("publish: prose is pre-split into paragraphs",
+          doc["column"]["paragraphs"] ==
+          ["First para, two sentences.", "Second para.", "Third para."],
+          f"{doc['column']['paragraphs']}")
+    check("publish: CRLF does not produce a phantom paragraph",
+          all(p.strip() == p and p for p in doc["column"]["paragraphs"]))
+    check("publish: the word count is computed here, not in JS",
+          doc["column"]["word_count"] == len(column.split()),
+          f"{doc['column']['word_count']}")
+    check("publish: the target is docs/data/<group>/column.json",
+          G.publish_path("family") == utils.WEB_DATA_DIR / "family" / "column.json",
+          str(G.publish_path("family")))
+
+    # JSON-serialisable, because it is written straight to the web root.
+    try:
+        json.dumps(doc)
+        ok = True
+    except TypeError as e:
+        ok, _ = False, e
+    check("publish: the document is JSON-serialisable", ok)
+
+
 def main():
     print("generate_commentary.py \u2014 prompt assembly, dry run, fail-soft")
     test_prompt_shape()
@@ -488,6 +677,10 @@ def main():
     test_stakes()
     test_season_complete()
     test_uniform_fields()
+    test_suppressed_fields()
+    test_head_to_head_named_in_prose()
+    test_persona_material_carries_no_tone_rule()
+    test_publish_doc()
     test_no_prior_season_language()
     test_dry_run()
     test_fail_soft()

@@ -11,6 +11,12 @@ live mode, posts it to OpenAI:
   groups/<group>/output/column_memory.json        season-long continuity
   groups/<group>/output/column_week_<N>.md        last week's column, for callbacks
 
+Live mode writes TWO files, and they are not redundant: the .md above is the
+source of record (what memory names, what next week reads back for callbacks,
+what a human reviews), and docs/data/<group>/column.json is the published form
+the site renders — same text, pre-split into paragraphs and word-counted here
+because the site computes nothing.
+
 Persona: DECIDED — a Scott Van Pelt parody, a SINGLE pinned voice across all
 three groups (ARCHITECTURE §12, landed 2026-07-27). Rome / Herbstreit / Berman
 were dropped; do not reopen. The voice lives in the template and is passed
@@ -40,6 +46,8 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from collections import defaultdict
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -87,6 +95,24 @@ def preview_path(group_id):
 
 def column_path(group_id, week):
     return out_dir(group_id) / f"column_week_{week}.md"
+
+
+def publish_path(group_id):
+    """The site's copy: docs/data/<group_id>/column.json — OVERWRITE.
+
+    Two files, and they are not redundant. The .md under groups/<group>/output/
+    is the SOURCE: it is what column_memory names, what next week's prompt reads
+    back for callbacks, and what a human reviews before anything ships. This is
+    the PUBLISHED form — the newest column only, pre-split into paragraphs and
+    word-counted in Python, because the site renders JSON and computes nothing
+    (playbook P2 #12). Writing it from here rather than from a separate publish
+    step keeps the two from ever describing different columns.
+
+    docs/data/<group>/ already carries more than the four contract boards
+    (personas.json, banners.json); this joins them as an auxiliary publisher and
+    is documented alongside them in docs/output-contract.md.
+    """
+    return utils.WEB_DATA_DIR / group_id / "column.json"
 
 
 # --- Loaders (raise; never sys.exit — the live guard needs a catchable error) --
@@ -250,6 +276,81 @@ def build_prompt(group_id, packet_override=None):
                         "this week, so any of them may support a comparison — "
                         "provided the numbers actually back it.")
 
+    # The by-rule half of the same withholding. uniform_line covers the fields
+    # that happen to be equal this week; these are the fields this GROUP'S RULES
+    # make meaningless, and they are the case uniform_line structurally cannot
+    # catch — family's conference numbers VARY (3 and 4 conferences, 25% and 50%
+    # shares) while measuring nothing anyone agreed to, because the group's
+    # written minimum is 1 and every legal roster clears it. A varying number is
+    # exactly the shape a column reads as a personal trait, so it has to be named
+    # in prose for the same reason uniform_line is: a dict buried in 12KB of
+    # JSON is not an instruction.
+    suppressed = packet.get("suppressed_profile_fields") or {}
+    if suppressed:
+        # Fields sharing a reason are listed against it once. Two conference
+        # fields withheld for the identical reason printed that whole sentence
+        # twice, which reads as two separate rules and is simply worse prose in
+        # a prompt whose entire job is being read carefully.
+        by_reason = defaultdict(list)
+        for field, reason in sorted(suppressed.items()):
+            by_reason[reason].append(field)
+        why = " ".join(f"{', '.join(fields)}: {reason}"
+                       for reason, fields in by_reason.items())
+        suppressed_line = (
+            f"THESE manager_profiles FIELDS MEASURE NOTHING IN THIS GROUP and "
+            f"are off limits entirely — {why} Do not cite them, do not compare "
+            f"managers on them, and do not praise or fault anyone for them — "
+            f"not even as a fact about the whole group. They are in the packet "
+            f"because the arithmetic produces them, not because they mean "
+            f"anything here.")
+    else:
+        suppressed_line = None
+
+    # HEAD-TO-HEAD, named in prose for the same reason. `collisions` is the one
+    # preseason block that is not a scorer's output: it exists because two
+    # managers sat at the same draft and took OPPOSITE sides of one team, and it
+    # is the rarest thing a board can carry. Family drafted four of them and
+    # they are that group's signature drama, so the count and the sides are
+    # stated here rather than left to be noticed 12KB down.
+    collisions = packet.get("collisions") or []
+    if preseason and collisions:
+        listed = "; ".join(
+            "{team} {line:g} — {sides}".format(
+                team=c.get("team"), line=float(c.get("line", 0)),
+                sides=" vs ".join(
+                    f"{s.get('name')} {'OVER' if s.get('direction') == 'O' else 'UNDER'}"
+                    for s in (c.get("sides") or [])))
+            for c in collisions)
+        h2h_line = (
+            f"HEAD-TO-HEAD: {len(collisions)} team(s) on this board are held by "
+            f"two managers on OPPOSITE sides — {listed}. Each is one number "
+            f"settling two bets in opposite directions, so one of those two "
+            f"managers is wrong by construction. These are the most direct "
+            f"conflicts the draft produced and the packet's `collisions` block "
+            f"carries every number for them.")
+    else:
+        h2h_line = None
+
+    # Character material, from the packet's manager_personas. Sacred rule 6 asks
+    # for roasts that cite behavior rather than invented history, and until now
+    # the only character source in the prompt was column_memory's hand-curated
+    # bits — which are continuity, not biography. THE FIELDS PRESENT VARY BY
+    # MANAGER AND THAT IS NOT A TONE SIGNAL: John, Rachel and Vic are authored
+    # with fatal_flaw, running_gag and rival all null, so those fields simply do
+    # not exist to be handed over. Less material, not a gentler column — the
+    # gravity is the respect (persona template, "Group parameter").
+    personas = packet.get("manager_personas") or {}
+    if personas:
+        persona_line = (
+            "=== MANAGER PERSONAS (authored character material — who these "
+            "people are. Use it the way you use manager_profiles: as evidence, "
+            "not as a script. Managers carry DIFFERENT fields, and a manager "
+            "with fewer of them is not off limits and is not owed a softer "
+            "column — there is simply less on file. Same voice for everyone.) "
+            "===")
+    else:
+        persona_line = None
+
     # Same failure family as uniform_line, one step further out: there the
     # column read a real number and invented its exclusivity; here it reads a
     # board with no history attached and invents the history. Week 0 panel filed
@@ -350,8 +451,15 @@ def build_prompt(group_id, packet_override=None):
         prior_season_line,
         stakes_line,
     ]
+    if suppressed_line:
+        parts.append(suppressed_line)
+    if h2h_line:
+        parts.append(h2h_line)
     if fabrication_line:
         parts.append(fabrication_line)
+    if persona_line:
+        parts += ["", persona_line,
+                  json.dumps(personas, indent=2, ensure_ascii=False)]
     parts += [
         "",
         "=== COLUMN MEMORY (season continuity — established nicknames, feuds, "
@@ -446,6 +554,39 @@ def _backoff(attempt, why):
     time.sleep(wait)
 
 
+# --- Publish -----------------------------------------------------------------
+
+def publish_doc(group_id, packet, column):
+    """The site's shape for one filed column. Everything the page shows is
+    computed HERE — the site renders JSON and computes nothing (playbook P2 #12).
+
+    `paragraphs` rather than one blob: the page needs <p> elements, and splitting
+    prose in JS is the kind of "small" computation that ends up owning the
+    column's typography. Blank-line separated, blanks dropped, which is exactly
+    the shape the model is asked to return (prose only, no headings, no lists).
+    """
+    paragraphs = [p.strip() for p in column.replace("\r\n", "\n").split("\n\n")]
+    paragraphs = [p for p in paragraphs if p]
+    return {
+        "meta": {
+            "group_id": group_id,
+            "season": packet.get("season"),
+            "week": packet.get("week"),
+            # The site labels a Week 0 column "Preseason", not "Week 00", and
+            # this is the same flag the prompt branches on rather than a second
+            # opinion about what week 0 means.
+            "preseason": packet.get("preseason") is True,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "model": OPENAI_MODEL,
+            "source": f"groups/{group_id}/output/column_week_{packet.get('week')}.md",
+        },
+        "column": {
+            "paragraphs": paragraphs,
+            "word_count": len(column.split()),
+        },
+    }
+
+
 # --- Modes -------------------------------------------------------------------
 
 def run_dry(group_id, packet_override=None):
@@ -496,6 +637,11 @@ def run_live(group_id, packet_override=None):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(column + "\n", encoding="utf-8")
     print(f"  -> wrote {path}")
+
+    # Publish the same text the site renders. Written from the string that was
+    # just filed, never re-read off disk, so the two files cannot describe
+    # different columns.
+    utils.save_json_atomic(publish_path(group_id), publish_doc(group_id, packet, column))
 
     # Append to memory LAST, and only the filename — the curated keys are
     # round-tripped untouched.
