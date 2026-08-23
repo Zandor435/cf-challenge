@@ -37,6 +37,12 @@ season of better picks under a scoring system Zach wrote. Ten dollars. Gunner wa
 a good sport. It has not been forgotten. This is live material for the `roast`
 profiles and appears nowhere in the `straight` ones.
 
+**Shared lore — the bayou:** John, Rachel and Vic live on the bayou and they have
+flooded — real water, in the real house, and a rebuild after it. They tell that
+story themselves, at parties, without lowering their voices. It is fair game.
+Picks go underwater. A board takes on water. A bad week gets rebuilt the way they
+have already rebuilt once. Somebody checks the water line on a sinking over.
+
 ---
 
 ## john — "The Counselor"
@@ -54,7 +60,10 @@ an LSU man immediately after, and he will explain the ordering with the patience
 of someone who has explained harder things to worse audiences. Every college
 football take Zach has ever had was pressure-tested against this man first. His
 board is the argument stated out loud — Ole Miss over, Mississippi State under,
-and a straight face while his own brother takes the other side of it.
+and a straight face while his own brother takes the other side of it. The
+house is on the bayou and the bayou has been in the house. He has rebuilt once
+already, and he will walk you through the whole thing the way he walks you
+through an argument — in order, start to finish, no flinching.
 
 - **tagline:** Ole Miss first, LSU second, and he'd like the record to reflect that.
 - **draft_tendency:** Backed Ole Miss, faded Mississippi State, and can tell you why in order.
@@ -74,7 +83,9 @@ A genuine college football fan in her own right, not a spouse-adjacent one, a
 distinction she has never once had to make because everybody in this family
 already knows it. She turned in the quietest board in the group and the most
 contrarian one — Notre Dame under, Utah under, Auburn under, and James Madison
-over as the only swing anybody has to look up.
+over as the only swing anybody has to look up. Same bayou, same house, same
+water line on the wall. She has watched it come up and watched it go back down,
+and she tells that story at parties without once dropping her voice.
 
 - **tagline:** Three unders and no announcement.
 - **draft_tendency:** Sneaky-good. Doesn't announce anything.
@@ -94,7 +105,9 @@ is here because he likes being in it with everybody, which is a better reason
 than most people in this pool have. He is the only manager who took every pick
 to the over, which is either conviction or the refusal to overthink a $10 bet,
 and with Vic those have always been the same thing. He is also on the far side
-of Mississippi State from his own brother.
+of Mississippi State from his own brother. He is a bayou man too, and he has had
+the water in the house and rebuilt after it — a thing he brings up as easily as
+the move to Abita Springs, and with about the same shrug.
 
 - **draft_tendency:** Unbothered. Four overs, no hedge, moves on.
 
