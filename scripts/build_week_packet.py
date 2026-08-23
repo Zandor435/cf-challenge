@@ -885,6 +885,94 @@ def build_bad_beats(cur, cache, lo_week, hi_week):
     return out[:MAX_BAD_BEATS]
 
 
+
+# --- Coda / lead subject separation ------------------------------------------
+#
+# THE RULE: the coda -- "Bad Beat of the Week" in season, "Worst Pick on the
+# Board" in preseason -- must not be about the same subject as the One Big Thing
+# lead. It is the column's second beat and its whole job is to widen the frame:
+# a coda that re-targets the manager (or the team) the lead just spent 300 words
+# on reads as one story told twice, and the direct-address roast lands on
+# someone the reader has already watched get worked over.
+#
+# WHY PYTHON AND NOT THE PROMPT: Week 0 panel filed exactly this. The lead was
+# the Blaine/Chris feud over Texas 9.5; the coda was Chris, on Texas. Both beats
+# were individually correct against the packet and the model had no instruction
+# it was breaking -- the collision is only visible when you hold the two
+# selections side by side, which is a property of the PACKET, not of any one
+# sentence. So the pool is filtered before the model ever sees it, the same way
+# the coda target itself is computed and never chosen by the model.
+
+def storyline_subject(story):
+    """(managers, teams) the storyline is ABOUT -- the keys a coda must avoid.
+
+    Both dimensions, not just the manager: a feud is keyed by its team and held
+    by two managers, so manager-only exclusion would still allow the Week 0
+    failure (lead = Blaine/Chris on Texas, coda = Chris on Texas) through on the
+    team. Teams come off the storyline's own `picks`, which for a manager-keyed
+    story (collapse, heater, envelope) is that manager's board -- correctly, since
+    those are the picks the lead just discussed.
+    """
+    if not story:
+        return set(), set()
+    managers = {m for m in (story.get("managers") or []) if m}
+    teams = {pk.get("team") for pk in (story.get("picks") or []) if pk.get("team")}
+    return managers, teams
+
+
+def subject_overlap(candidate, managers, teams):
+    """How many subject dimensions a coda candidate shares with the lead (0-2)."""
+    return ((1 if candidate.get("manager_id") in managers else 0)
+            + (1 if candidate.get("team") in teams else 0))
+
+
+def exclude_lead_subject(candidates, lead, label="bad-beat", group_id=None):
+    """Drop coda candidates that collide with the lead's subject.
+
+    Returns (kept, report). `candidates` must already be in selection order --
+    this filters, it never re-ranks, so whatever the caller's ordering meant
+    (ugliest-first for bad beats) still means it afterwards.
+
+    Three outcomes, and the third is why this never raises:
+      1. some candidates survive  -> return them, ordering intact.
+      2. NONE survive but the pool was non-empty -> every candidate collides.
+         Return the LOWEST-overlap candidate (a shared manager alone beats a
+         shared manager AND team), warn loudly, and record it. A degraded coda
+         is recoverable; a crashed packet on a Saturday night is not.
+      3. the pool was empty to begin with -> nothing to do, no warning. A week
+         with no bad beats is normal and already handled downstream.
+    """
+    managers, teams = storyline_subject(lead)
+    if not candidates:
+        return [], {"excluded": 0, "collision_forced": False,
+                    "lead_managers": sorted(managers), "lead_teams": sorted(teams)}
+
+    scored = [(subject_overlap(c, managers, teams), i, c)
+              for i, c in enumerate(candidates)]
+    kept = [c for ov, _, c in scored if ov == 0]
+    report = {
+        "excluded": len(candidates) - len(kept),
+        "collision_forced": False,
+        "lead_managers": sorted(managers),
+        "lead_teams": sorted(teams),
+    }
+    if kept:
+        return kept, report
+
+    # Everything collides. Lowest overlap wins; original order breaks the tie.
+    best_ov, _, best = min(scored, key=lambda t: (t[0], t[1]))
+    report["collision_forced"] = True
+    report["forced_overlap"] = best_ov
+    tag = f"[{group_id}] " if group_id else ""
+    print(f"::warning:: {tag}every {label} candidate collides with the One Big "
+          f"Thing subject (managers={sorted(managers) or '-'}, "
+          f"teams={sorted(teams) or '-'}); falling back to the lowest-overlap "
+          f"candidate ({best.get('manager_id')} on {best.get('team')}, "
+          f"overlap {best_ov}/2). The column will repeat a subject across both "
+          f"beats -- this is the degraded path, not the intended one.")
+    return [best], report
+
+
 # --- Manager profiles --------------------------------------------------------
 
 def build_profiles(cur, picks):
@@ -1030,6 +1118,12 @@ def build_packet(group_id, cli_week=None):
 
     lo = prior_week if prior_week is not None else 0
     bad_beats = build_bad_beats(cur, cache, lo, week)
+    # The coda may not re-target the lead's subject. stories[0] IS the lead --
+    # the prompt tells the column to build Beat 1 from the highest-ranked
+    # storyline -- so the pool is filtered against it before the model sees it.
+    bad_beats, coda_exclusion = exclude_lead_subject(
+        bad_beats, stories[0] if stories else None,
+        label="bad-beat", group_id=group_id)
     profiles = build_profiles(cur, picks)
 
     return {
@@ -1055,6 +1149,9 @@ def build_packet(group_id, cli_week=None):
         "race": race,
         "storylines": stories,
         "bad_beat_candidates": bad_beats,
+        # Audit trail for the rule above: which lead subject was excluded, how
+        # many candidates it cost, and whether the degraded path was taken.
+        "coda_exclusion": coda_exclusion,
         "manager_profiles": profiles,
         # Which of the above distinguish NOBODY this week (persona rule 7).
         "uniform_profile_fields": uniform_profile_fields(profiles),

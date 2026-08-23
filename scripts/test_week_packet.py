@@ -852,6 +852,108 @@ def test_packet_schema():
             validate_packet(B.build_packet(group), group)
 
 
+def test_coda_subject_exclusion():
+    """The coda may not re-target the One Big Thing lead's subject.
+
+    Week 0 panel shipped the failure this closes: Beat 1 was the Blaine/Chris
+    feud over Texas 9.5, Beat 2 was Chris, on Texas. Both beats were correct
+    against the packet in isolation -- the collision only exists between them,
+    which is why the pool is filtered in Python rather than asked for in the
+    prompt. Covers the three paths: normal exclusion, exhausted pool, and the
+    live case.
+    """
+    print("\nCoda subject exclusion:")
+    X = B.exclude_lead_subject
+
+    feud = {"type": "feud", "managers": ["blaine", "chris"],
+            "picks": [{"manager_id": "blaine", "team": "Texas"},
+                      {"manager_id": "chris", "team": "Texas"}]}
+
+    mgr, teams = B.storyline_subject(feud)
+    check("subject: both feuding managers are the subject",
+          mgr == {"blaine", "chris"}, f"got {mgr}")
+    check("subject: the contested team is the subject too",
+          teams == {"Texas"}, f"got {teams}")
+    check("subject: a missing storyline yields no subject (no crash)",
+          B.storyline_subject(None) == (set(), set()))
+
+    # --- 1. normal exclusion -------------------------------------------------
+    pool = [
+        {"manager_id": "chris", "team": "Texas"},      # both dimensions collide
+        {"manager_id": "blaine", "team": "Iowa"},      # manager collides
+        {"manager_id": "jonathan", "team": "Texas"},   # team collides
+        {"manager_id": "jonathan", "team": "Oregon"},  # clean
+        {"manager_id": "zach", "team": "Miami"},       # clean
+    ]
+    kept, rep = X(pool, feud)
+    check("exclusion: the exact Week 0 collision (chris/Texas) is dropped",
+          {"chris"} not in [{c["manager_id"]} for c in kept],
+          f"kept {[(c['manager_id'], c['team']) for c in kept]}")
+    check("exclusion: a shared MANAGER alone is enough to drop (blaine/Iowa)",
+          not any(c["manager_id"] == "blaine" for c in kept))
+    check("exclusion: a shared TEAM alone is enough to drop (jonathan/Texas)",
+          not any(c["team"] == "Texas" for c in kept))
+    check("exclusion: clean candidates survive",
+          [(c["manager_id"], c["team"]) for c in kept]
+          == [("jonathan", "Oregon"), ("zach", "Miami")],
+          f"kept {[(c['manager_id'], c['team']) for c in kept]}")
+    check("exclusion: selection ORDER is preserved, never re-ranked",
+          kept[0]["team"] == "Oregon", f"first={kept[0]}")
+    check("exclusion: the report counts what it cost", rep["excluded"] == 3,
+          f"got {rep['excluded']}")
+    check("exclusion: the clean path is not flagged as forced",
+          rep["collision_forced"] is False)
+
+    # --- 2. exhausted pool -> lowest-overlap fallback + loud warning ---------
+    all_collide = [
+        {"manager_id": "chris", "team": "Texas"},    # overlap 2
+        {"manager_id": "blaine", "team": "Iowa"},    # overlap 1
+        {"manager_id": "chris", "team": "Utah"},     # overlap 1, later
+    ]
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        kept, rep = X(all_collide, feud, label="bad-beat", group_id="panel")
+    out = buf.getvalue()
+    check("fallback: never crashes when everything collides", len(kept) == 1,
+          f"got {kept}")
+    check("fallback: picks the LOWEST-overlap candidate, not the first",
+          (kept[0]["manager_id"], kept[0]["team"]) == ("blaine", "Iowa"),
+          f"got {kept[0]}")
+    check("fallback: ties on overlap break by original order",
+          kept[0]["team"] == "Iowa")
+    check("fallback: the degraded path is recorded",
+          rep["collision_forced"] is True and rep["forced_overlap"] == 1,
+          f"got {rep}")
+    check("fallback: and warns LOUDLY -- never a silent collision",
+          "::warning::" in out and "collides" in out, f"stdout={out!r}")
+    check("fallback: the warning names the group", "[panel]" in out,
+          f"stdout={out!r}")
+
+    # --- 3. degenerate inputs ------------------------------------------------
+    kept, rep = X([], feud)
+    check("empty pool: returns empty, no warning, no crash",
+          kept == [] and rep["excluded"] == 0 and not rep["collision_forced"])
+    pool2 = [{"manager_id": "chris", "team": "Texas"}]
+    kept, rep = X(pool2, None)
+    check("no lead: nothing to exclude, pool passes through untouched",
+          kept == pool2 and rep["excluded"] == 0, f"got {kept}")
+
+
+def test_coda_exclusion_in_packet():
+    """The live packet must actually CARRY the filtered pool and its audit trail
+    -- a helper nobody calls fixes nothing."""
+    print("\nCoda exclusion is wired into the packet:")
+    src = Path(B.__file__).read_text(encoding="utf-8")
+    check("packet: build_packet calls the exclusion before emitting",
+          "exclude_lead_subject(" in src.split("def build_packet")[1],
+          "build_packet never calls exclude_lead_subject")
+    check("packet: bad_beat_candidates is the FILTERED list",
+          '"bad_beat_candidates": bad_beats,' in src
+          and "bad_beats, coda_exclusion = exclude_lead_subject(" in src)
+    check("packet: the audit trail ships with it",
+          '"coda_exclusion": coda_exclusion,' in src)
+
+
 def main():
     print("build_week_packet.py \u2014 packet contract, feud detection, fail-loud")
     test_helpers()
@@ -868,6 +970,8 @@ def main():
     test_preseason()
     test_fail_loud()
     test_packet_schema()
+    test_coda_subject_exclusion()
+    test_coda_exclusion_in_packet()
 
     passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")

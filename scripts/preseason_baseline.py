@@ -66,7 +66,7 @@ import projector
 # as build_week_packet" comment -- which is exactly how two implementations
 # drift while both look authoritative. build_week_packet imports only utils, so
 # there is no cycle, and its module level is constants plus a guarded main().
-from build_week_packet import uniform_profile_fields
+from build_week_packet import uniform_profile_fields, exclude_lead_subject
 
 REFERENCE_PATH = utils.DATA_DIR / "team_win_totals_2026.json"
 OUTPUT_PATH = utils.DATA_DIR / "preseason_baseline_2026.json"
@@ -686,22 +686,6 @@ def build_week0_packet(group_id, baseline_path=None):
         } for m in managers],
     }
 
-    all_rows = [r for rows in by_mgr.values() for r in rows]
-    worst = min(all_rows, key=lambda r: (r["market_gap"], r["team"]))
-    worst_pick = {
-        "manager_id": worst["manager_id"],
-        "name": display.get(worst["manager_id"], worst["manager_id"]),
-        "team": worst["team"],
-        "line": worst["line"],
-        "direction": worst["direction"],
-        "implied_expected_wins": worst["implied_expected_wins"],
-        "market_gap": worst["market_gap"],
-        "p_beat_line": worst["p_beat_line"],
-        "games_scheduled": worst["games_scheduled"],
-        "selected_by": ("lowest market_gap on the board — computed here, never "
-                        "chosen by the model"),
-    }
-
     profiles = {}
     for mid, rows in by_mgr.items():
         overs = sum(1 for r in rows if r["direction"] == "O")
@@ -721,6 +705,36 @@ def build_week0_packet(group_id, baseline_path=None):
 
     storylines = _preseason_storylines(by_mgr, display, collisions,
                                        concentration, managers)
+
+    # THE CODA RULE (see build_week_packet.exclude_lead_subject). Selected AFTER
+    # the storylines, not before, because it must know what the lead is about:
+    # storylines[0] is Beat 1, and the Worst Pick coda may not re-target its
+    # manager or its team. Week 0 panel shipped exactly that collision -- lead
+    # was the Blaine/Chris feud over Texas, coda was Chris on Texas.
+    #
+    # Candidates are every pick in market_gap order (worst first), so the filter
+    # preserves "lowest market_gap" as the selection rule and simply skips the
+    # ones the lead already spent its words on.
+    ranked_rows = sorted((r for rows in by_mgr.values() for r in rows),
+                         key=lambda r: (r["market_gap"], r["team"]))
+    coda_rows, coda_exclusion = exclude_lead_subject(
+        ranked_rows, storylines[0] if storylines else None,
+        label="worst-pick", group_id=group_id)
+    worst = coda_rows[0]
+    worst_pick = {
+        "manager_id": worst["manager_id"],
+        "name": display.get(worst["manager_id"], worst["manager_id"]),
+        "team": worst["team"],
+        "line": worst["line"],
+        "direction": worst["direction"],
+        "implied_expected_wins": worst["implied_expected_wins"],
+        "market_gap": worst["market_gap"],
+        "p_beat_line": worst["p_beat_line"],
+        "games_scheduled": worst["games_scheduled"],
+        "selected_by": ("lowest market_gap on the board that does NOT share a "
+                        "manager or team with the One Big Thing lead — computed "
+                        "here, never chosen by the model"),
+    }
 
     return {
         "group_id": group_id,
@@ -762,6 +776,9 @@ def build_week0_packet(group_id, baseline_path=None):
         # is worst_pick_on_the_board instead.
         "bad_beat_candidates": [],
         "worst_pick_on_the_board": worst_pick,
+        # Audit trail for the coda rule: the lead subject that was excluded,
+        # how many candidates it cost, and whether the degraded path was taken.
+        "coda_exclusion": coda_exclusion,
         "collisions": collisions,
         "concentration": concentration,
         "managers": managers,

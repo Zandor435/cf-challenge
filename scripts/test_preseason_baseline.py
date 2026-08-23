@@ -359,6 +359,71 @@ def test_uniform_fields_not_forked():
               f"preseason={left} live={right}")
 
 
+def test_coda_excludes_lead_subject():
+    """Week 0's shipped bug, pinned against the REAL committed panel board.
+
+    The column filed the Blaine/Chris feud over Texas 9.5 as Beat 1 and then
+    made Chris, on Texas, the Worst Pick coda -- the same subject twice. Nothing
+    in the packet forbade it: Chris's Texas over genuinely was the lowest
+    market_gap on the board, so the coda's own selection rule pointed straight
+    at the manager the lead had just spent 300 words on.
+
+    This asserts against the live committed picks rather than a fixture, because
+    the fixture version of this test is already in test_week_packet.py and what
+    could regress HERE is the wiring: selecting worst_pick before the storylines
+    exist, or forgetting to pass storylines[0] in.
+    """
+    print("\nCoda excludes the One Big Thing subject:")
+    packet = PB.build_week0_packet("panel")
+
+    lead = packet["storylines"][0]
+    coda = packet["worst_pick_on_the_board"]
+    excl = packet["coda_exclusion"]
+    lead_mgrs, lead_teams = set(excl["lead_managers"]), set(excl["lead_teams"])
+
+    check("the lead is still the Blaine/Chris collision over Texas",
+          lead["type"] == "collision"
+          and set(lead["managers"]) == {"blaine", "chris"}
+          and {p["team"] for p in lead["picks"]} == {"Texas"},
+          f"lead={lead['type']} {lead['managers']}")
+
+    # The regression itself, stated two ways so the failure message is obvious
+    # whichever dimension breaks.
+    check("the coda's MANAGER is not the lead's",
+          coda["manager_id"] not in lead_mgrs,
+          f"coda manager={coda['manager_id']} lead={sorted(lead_mgrs)}")
+    check("the coda's TEAM is not the lead's",
+          coda["team"] not in lead_teams,
+          f"coda team={coda['team']} lead={sorted(lead_teams)}")
+    check("specifically: the coda is NOT chris on Texas (the shipped bug)",
+          not (coda["manager_id"] == "chris" and coda["team"] == "Texas"),
+          f"coda={coda['manager_id']} on {coda['team']}")
+
+    # It must still be a real, computed choice -- not just "anything but Chris".
+    check("the coda is still chosen by market_gap, never by the model",
+          "market_gap" in coda["selected_by"]
+          and "never chosen by the model" in coda["selected_by"],
+          f"selected_by={coda['selected_by']!r}")
+    check("the exclusion actually cost candidates (it is not a no-op)",
+          excl["excluded"] > 0, f"excluded={excl['excluded']}")
+    check("the clean path was taken -- no forced collision on this board",
+          excl["collision_forced"] is False, f"{excl}")
+
+    # And the coda is genuinely the worst SURVIVING pick, not an arbitrary one:
+    # re-derive the choice off the packet's own board and demand the same answer.
+    survivors = [(r["market_gap"], r["team"], m["manager_id"])
+                 for m in packet["managers"] for r in m["picks"]
+                 if m["manager_id"] not in lead_mgrs and r["team"] not in lead_teams]
+    check("there were non-colliding picks to choose from", bool(survivors),
+          f"{len(survivors)} survivor(s)")
+    if survivors:
+        best = min(survivors)
+        check("the coda is the LOWEST market_gap among non-colliding picks",
+              (coda["market_gap"], coda["team"], coda["manager_id"]) == best,
+              f"coda=({coda['market_gap']}, {coda['team']}, "
+              f"{coda['manager_id']}) best={best}")
+
+
 def main():
     print("preseason_baseline.py \u2014 freeze guards, schedule truth, projector reuse")
     test_season_started_guard()
@@ -367,6 +432,7 @@ def main():
     test_projector_reuse()
     test_frozen_artifact()
     test_uniform_fields_not_forked()
+    test_coda_excludes_lead_subject()
 
     passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
