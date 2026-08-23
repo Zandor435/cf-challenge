@@ -48,6 +48,13 @@
        league's numbers under this URL. -->
   <section class="load-error" id="load-error" hidden></section>
 
+  <!-- Masthead banner. Filled by renderBanner() with ONE image picked at
+       random from data/<group>/banners.json, or left empty and hidden if that
+       manifest 404s — which is every league but panel today. Stays above
+       .mgr-intro so the art sits between the site masthead and the page
+       title. -->
+  <div class="mgr-banner-slot" id="mgr-banner" hidden></div>
+
   <section class="mgr-intro" id="mgr-intro" hidden></section>
 
   <div id="mgr-list"></div>

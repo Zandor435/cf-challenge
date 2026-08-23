@@ -825,6 +825,42 @@ a { color: inherit; }
 
 .mgr-page { max-width: 1080px; margin: 0 auto; padding: 24px 20px 60px; }
 
+/* ---- masthead banner ---- */
+/* One image, picked at random per page load by renderBanner() in managers.js.
+   Panel is the only league with a banner manifest today; the rest emit nothing
+   here and this block never applies to them.
+
+   BLEEDS TO THE PAGE BOX, not the viewport. The negative margins cancel
+   .mgr-page's own `24px 20px` padding exactly, so the art meets the site
+   masthead's accent rule above it and the content edges beside it — those two
+   numbers track .mgr-page's padding and must change with it. Past 1080px the
+   band is the page's width rather than the window's, which is what keeps it
+   part of the masthead composition instead of a separate full-width header.
+
+   NO BORDER of its own: .svp-masthead already closes with a 4px accent rule
+   directly above, and .mgr-intro opens with a 3px rule directly below. A third
+   rule between them is the one thing this composition does not need.
+
+   HEIGHT IS RESERVED, not guessed: managers.js sets `aspect-ratio` inline from
+   the manifest's real pixel dimensions before the <img> exists, so the roster
+   under an eager, above-the-fold banner never gets pushed down on load. The
+   dark ground is what shows in that box until the image paints. */
+.mgr-banner-slot {
+  margin: -24px -20px 22px;
+  overflow: hidden;
+  background: var(--ink-panel);
+}
+.mgr-banner-slot img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+}
+/* There is no motion here to reduce — no transition, no animation, no
+   auto-advance. This is a fence, not a fix: it keeps any later blanket rule in
+   this file (a global img transition, a fade-in utility) from quietly
+   animating a banner that is meant to simply be there on arrival. */
+@media (prefers-reduced-motion: reduce) {
+  .mgr-banner-slot, .mgr-banner-slot img { transition: none; animation: none; }
+}
+
 /* ---- page intro ---- */
 .mgr-intro { border-bottom: 3px solid var(--text); padding-bottom: 14px; margin-bottom: 8px; }
 .mgr-intro-kicker {
