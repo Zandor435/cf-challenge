@@ -375,18 +375,50 @@ def build_prompt(group_id, packet_override=None):
     # season in this system, so EVERY trajectory claim is fabricated (sacred
     # rule 1), and the vocabulary has to be named explicitly because none of
     # these words look like a factual assertion while you are writing them.
+    #
+    # REWRITTEN 2026-08-23, because the list version above did not hold. It
+    # reached the model intact -- the assembled panel prompt carries the block
+    # and every term in it exactly once, verified -- and the model wrote "once
+    # again in the fray" anyway, in two independent generations, in both
+    # groups. The failure is diagnosable from the sentence it produced: the old
+    # block named the WORDS but justified them as a CONCEPT ("any construction
+    # that places a team on a trajectory"), so the model applied the concept
+    # test, found that "once again" there means "as usual" rather than "unlike
+    # last season", and passed itself. A ban the writer gets to adjudicate is
+    # not a ban. So this one is a string test with no interpretive step, and it
+    # spends its words on the cases where the word is innocent -- those are the
+    # ones that get written, precisely because they do not feel like a
+    # violation while you are writing them.
     prior_season_line = (
         "NO PRIOR-SEASON LANGUAGE. The packet carries no history — no 2025, no "
         "last year, no previous record, no earlier expectations — and none is "
-        "available to you. Do not write, or imply by any synonym: resurgence, "
-        "comeback, bounce-back, rebound, turnaround, return to form, "
-        "reversal of fortune, redemption, revenge, rebuild, "
-        "\"back\" in the returning-to-glory sense (back on track, back to "
-        "form, back where they belong), \"again\", \"still\", \"once more\", "
-        "\"finally\", \"no longer\", \"used to\", \"has become\", or any "
-        "construction that places a team or a manager on a trajectory from some "
-        "earlier state. A number in the packet is a fact about NOW, never a "
-        "recovery from or a decline since anything.")
+        "available to you, so every claim about a trajectory is invented.\n"
+        "  THESE ARE BANNED AS WORDS, NOT AS THEMES: again, still, once more, "
+        "finally, no longer, used to, has become, back (in any returning "
+        "sense: back on track, back to form, back where they belong), return, "
+        "returning, resurgence, comeback, bounce-back, rebound, turnaround, "
+        "return to form, reversal of fortune, redemption, revenge, rebuild.\n"
+        "  FORBIDDEN IN EVERY GRAMMATICAL CONTEXT, including the ones carrying "
+        "no historical meaning at all. Do not stop to decide whether a "
+        "particular use is \"really\" about the past — if the word is in the "
+        "sentence, the sentence is wrong. Specifically banned, all of which "
+        "read as harmless: \"is once again in the fray\" (means \"as usual\" "
+        "— still banned); \"the waters have risen again\" (a metaphor about "
+        "weather — still banned); \"in the Big Ten again this year\" (names no "
+        "season — still banned); \"a returning starter\", \"the returning "
+        "coach\" (describes a roster, not a trajectory — still banned); \"he "
+        "is still the favorite\", \"the numbers still favor him\" (about now, "
+        "not about before — still banned).\n"
+        "  These are not hypotheticals. Every one of the following shipped in a "
+        "real column and every one was wrong: \"is once again in the fray\", "
+        "\"the waters have risen again\", \"betting on a Texas resurgence\", "
+        "\"you're hoping for a turnaround\".\n"
+        "  IF YOU WRITE ONE, DELETE THE SENTENCE. Do not hedge it, do not "
+        "soften it, and do not swap in a near-synonym that means the same "
+        "thing — a synonym is the same violation with better manners. If the "
+        "sentence cannot be rewritten without the word, it is not a sentence "
+        "you can file: cut it and move on. A column one sentence shorter is "
+        "correct. A column carrying one of these words is not.")
     if not preseason:
         prior_season_line += (
             " The ONE movement you may describe is week-over-week movement that "
@@ -525,16 +557,52 @@ def build_prompt(group_id, packet_override=None):
         "Every number verbatim from the packet; if a number you want is not "
         "there, write around it. Character roasts must cite behavior visible in "
         "manager_profiles, not invented history.",
-        # The packet is an internal artifact and some of its numbers are about
-        # the RANKING, not about the pool. narrative_score exists to order the
-        # storylines for you; printing it ("this clash carries a narrative score
-        # of 6.338, the highest on the board") reports the scorer's opinion of
-        # the story as though it were a fact about the season, and it reads as
-        # machinery on the page. The same goes for naming fields by their key.
-        "Never print the packet's own bookkeeping: no narrative_score, no "
-        "moment_size, no storyline rank or ordering, and no raw field names — "
-        "write \"the market disagrees by 0.669\", never \"a market_gap of "
-        "0.669\". The reader sees a column, not a JSON dump.",
+        # HOUSE STYLE, and it lives HERE rather than up with the factual
+        # constraints on purpose. The prior-season ban sits 18% into a 55KB
+        # prompt with ~36KB of packet JSON between it and this assignment, and
+        # it did not hold; these three rules keep getting broken the same way,
+        # so they are stated at the point the model is actually told to write.
+        #
+        # One block, not three. "Don't print narrative_score", "don't name the
+        # packet" and "don't print a raw field name" are the same rule seen
+        # from three sides -- the reader has never seen the artifact -- and
+        # three separate statements of one rule is how they drift apart.
+        "HOUSE STYLE, and these are the three the column keeps getting wrong:",
+        "  1. NEVER NAME AN INTERNAL DATA STRUCTURE. The reader has never seen "
+        "the packet and does not know one exists. Banned as reader-facing "
+        "words: packet, cache, manifest, baseline, schema, storyline, "
+        "storyline pool, narrative score, coda, coda candidate, bad-beat "
+        "candidate, uniform profile fields, manager profiles, character bits, "
+        "column memory. Panel wk0 filed \"The packet gives Blaine a 0.86467 "
+        "chance\" and the reader has no idea what the packet is. Attribute a "
+        "number to \"the model\", \"our projection\", \"SP+\", \"the "
+        "numbers\" — or to nothing at all, and simply state it.",
+        "  2. NEVER PRINT A RAW FIELD NAME OR THE PACKET'S OWN BOOKKEEPING. "
+        "Write \"the market disagrees by 0.669\", never \"a market_gap of "
+        "0.669\". narrative_score and moment_size exist to ORDER the material "
+        "for you and are not facts about the season: \"this clash carries a "
+        "narrative score of 6.338, the highest on the board\" reports the "
+        "scorer's opinion as though it were a result. Neither they nor the "
+        "storyline ordering ever reach the page.",
+        "  3. PROBABILITIES ARE ROUNDED PERCENTAGES. In the packet a "
+        "probability is a decimal between 0 and 1; on the page it is a "
+        "whole-number percent. 0.86467 is 86%. 0.13533 is 14%. The decimal "
+        "form never appears. One decimal place is allowed only where the half "
+        "genuinely carries the point — family wk0's \"The implied odds give "
+        "him a 66.5% chance\" is the target — and two or more decimals are "
+        "never correct. THIS IS THE ONE EXCEPTION to printing numbers "
+        "verbatim: rounding a probability into a percentage is required, not "
+        "permitted, and it does not license rounding anything else.",
+        # LAST LINE, deliberately. The measurement above is the whole argument:
+        # a rule stated once at 18% of a 55KB prompt did not survive to the
+        # output, twice. This costs one sentence and puts the check after
+        # everything else the model has been asked to hold.
+        "Before you return it, read the column back and check three things: no "
+        "banned prior-season word is in it (again, still, once more, finally, "
+        "no longer, used to, back, return, returning, resurgence, comeback, "
+        "bounce-back, rebound, turnaround, redemption, revenge, rebuild) — "
+        "delete any sentence that carries one; no internal structure is named; "
+        "every probability is a rounded percentage, not a decimal.",
         "Return ONLY the column text. No preamble, no title, no explanation.",
     ]
     return system_text, "\n".join(parts), packet

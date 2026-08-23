@@ -445,14 +445,15 @@ def test_no_prior_season_language():
     for word in ("resurgence", "comeback", "bounce-back", "return to form",
                  "turnaround", "rebound", "redemption", "rebuild"):
         check(f"prior-season: '{word}' is named as banned", word in user_text)
-    check("prior-season: the returning-to-glory sense of 'back' is named",
-          "returning-to-glory" in user_text and "back on track" in user_text)
+    check("prior-season: the returning sense of 'back' is named",
+          "in any returning sense" in user_text
+          and "back on track" in user_text)
     check("prior-season: the quiet trajectory words are named too",
-          all(w in user_text for w in ('"again"', '"still"', '"no longer"')))
+          all(w in user_text for w in ("again", "still", "no longer")))
     check("prior-season: synonyms are closed off, not just the listed words",
-          "or imply by any synonym" in user_text)
-    check("prior-season: it says a packet number is a fact about NOW",
-          "fact about NOW" in user_text)
+          "swap in a near-synonym" in user_text)
+    check("prior-season: it states that no history is available at all",
+          "every claim about a trajectory is invented" in user_text)
 
     # In-season the block must NOT forbid the movement the packet does measure,
     # or it would gag the week-over-week story the column exists to tell.
@@ -776,24 +777,136 @@ def test_coda_superlative_matches_the_selection_rule():
           isinstance(user_text, str) and "Worst Pick on the Board" in user_text)
 
 
-def test_packet_bookkeeping_is_not_printable():
-    """narrative_score orders the storylines; it is not a fact about the pool.
+def test_prior_season_ban_is_a_word_test():
+    """The ban must be enforceable without the writer adjudicating intent.
 
-    The family column filed "this family clash carries a narrative score of
-    6.338, the highest on the board" -- the scorer's opinion of the story,
-    printed as though it were a result, plus raw field names on the page.
+    THE DIAGNOSIS. The list version of this block reached the model intact --
+    the assembled panel prompt carried it and every term in it exactly once --
+    and the model wrote "once again in the fray" anyway, twice, in two
+    independent generations across both groups. So it was never an assembly
+    bug. The block named the WORDS but justified them as a CONCEPT ("any
+    construction that places a team on a trajectory"), which hands the writer
+    a test it can pass itself: "once again" there means "as usual", not
+    "unlike last season", so the concept test clears it and the word ships.
+
+    The fix is a string test with no interpretive step, and these checks pin
+    the three properties that make it one: the words are banned AS WORDS, the
+    innocent grammatical contexts are named as still banned, and there is a
+    rejection clause so "I could not rephrase it" has a defined answer that is
+    not a hedge.
     """
-    print("\nPacket bookkeeping is banned from the prose:")
-    packet = _seeded_packet()
-    with sandbox("panel", packet):
+    print("\nThe prior-season ban is a word test, not a theme test:")
+    with sandbox("panel", _seeded_packet()):
+        _, user_text, _ = G.build_prompt("panel")
+
+    check("banned AS WORDS, explicitly, not as themes",
+          "BANNED AS WORDS, NOT AS THEMES" in user_text)
+    check("and in every grammatical context",
+          "FORBIDDEN IN EVERY GRAMMATICAL CONTEXT" in user_text)
+    check("the model is told NOT to adjudicate whether a use is really historical",
+          "Do not stop to decide whether a particular use is" in user_text
+          and "if the word is in the sentence, the sentence is wrong" in user_text)
+
+    # The innocent contexts are the ones that actually get written, so each is
+    # named as still banned rather than left to inference.
+    for label, phrase in (
+            ("the 'as usual' idiom", "is once again in the fray"),
+            ("a weather metaphor", "the waters have risen again"),
+            ("a use naming no season", "in the Big Ten again this year"),
+            ("a roster description", "a returning starter"),
+            ("a present-tense 'still'", "he is still the favorite")):
+        check(f"innocent context named as still banned — {label}",
+              phrase in user_text, phrase)
+
+    # `return`/`returning` were not on the old list at all and are the exact
+    # gap the brief called out.
+    check("'return' and 'returning' are on the list",
+          "return, " in user_text and "returning," in user_text)
+
+    check("the rejection clause exists and is deletion, not hedging",
+          "IF YOU WRITE ONE, DELETE THE SENTENCE" in user_text
+          and "Do not hedge it" in user_text)
+    check("a shorter column is stated as the correct outcome",
+          "A column one sentence shorter is correct" in user_text)
+
+    # Stated once at 18% of a 55KB prompt is what failed. The self-check is at
+    # the very end, after the packet dump and after the assignment.
+    # Asserted on the self-check SENTENCE, not on a trailing window: "again"
+    # appears in several nearby instructions, so a window test would pass here
+    # for the wrong reason.
+    selfcheck = user_text[user_text.rindex("Before you return it"):]
+    selfcheck = selfcheck[:selfcheck.index("Return ONLY")]
+    check("the banned words are restated in the closing self-check",
+          "banned prior-season word" in selfcheck
+          and all(w in selfcheck for w in
+                  ("again", "still", "returning", "resurgence", "turnaround")),
+          f"selfcheck={selfcheck[:100]!r}")
+    check("and the self-check prescribes deletion, matching the block above",
+          "delete any sentence that carries one" in selfcheck)
+    check("the self-check is the LAST instruction before the return line",
+          user_text.rindex("read the column back")
+          < user_text.rindex("Return ONLY the column text"))
+
+
+def test_house_style_structures_and_percentages():
+    """Panel wk0: "The packet gives Blaine a 0.86467 chance" -- two faults.
+
+    The reader has never seen the packet and does not know one exists, and a
+    probability is a decimal in the artifact but a percentage on the page.
+    Family got the same construction right one column over, so the target is
+    quoted rather than described.
+
+    Consolidated with the narrative_score/raw-field-name ban rather than filed
+    beside it: "don't name the packet", "don't print a field name" and "don't
+    print narrative_score" are one rule seen from three sides, and three
+    statements of one rule is how they drift apart.
+    """
+    print("\nHouse style -- internal structures and probability rendering:")
+    with sandbox("panel", _seeded_packet()):
         _, user_text, _ = G.build_prompt("panel")
     tail = user_text.split("=== YOUR ASSIGNMENT ===")[1]
-    check("the ban names narrative_score", "no narrative_score" in tail)
-    check("the ban names moment_size and ranking", "moment_size" in tail
-          and "storyline rank" in tail)
-    check("and it bans raw field names, with the fix demonstrated",
-          "no raw field names" in tail
-          and "the market disagrees by" in tail)
+
+    check("the block is present and stated at the assignment, not in the header",
+          "HOUSE STYLE" in tail)
+
+    # 1 -- internal structures.
+    check("naming an internal data structure is banned outright",
+          "NEVER NAME AN INTERNAL DATA STRUCTURE" in tail)
+    for word in ("packet", "cache", "manifest", "baseline", "storyline",
+                 "coda", "character bits", "column memory"):
+        check(f"structure named as unprintable — {word}", word in tail)
+    check("the shipped failure is quoted",
+          "The packet gives Blaine a 0.86467 chance" in tail)
+    check("permitted attributions are offered, so there is somewhere to go",
+          "the model" in tail and "our projection" in tail
+          and "the numbers" in tail)
+
+    # 2 -- raw field names and bookkeeping (the consolidated a6fcac3 rule).
+    check("raw field names still banned, with the fix demonstrated",
+          "NEVER PRINT A RAW FIELD NAME" in tail
+          and "the market disagrees by 0.669" in tail
+          and "a market_gap of" in tail)
+    check("narrative_score and moment_size still banned",
+          "narrative_score" in tail and "moment_size" in tail
+          and "storyline ordering" in tail)
+
+    # 3 -- probabilities.
+    check("probabilities are rounded percentages",
+          "PROBABILITIES ARE ROUNDED PERCENTAGES" in tail)
+    check("both worked examples are given",
+          "0.86467 is 86%" in tail and "0.13533 is 14%" in tail)
+    check("the decimal form is banned outright",
+          "The decimal form never appears" in tail)
+    check("one decimal is allowed only where the half carries the point",
+          "One decimal place is allowed only" in tail
+          and "two or more decimals are never correct" in tail)
+    check("family's correct construction is quoted as the target",
+          "The implied odds give him a 66.5% chance" in tail)
+    # Without this carve-out the rule contradicts sacred rule 1 (numbers
+    # verbatim), and a model handed two conflicting rules follows neither.
+    check("the conflict with print-numbers-verbatim is resolved explicitly",
+          "THIS IS THE ONE EXCEPTION" in tail
+          and "does not license rounding anything else" in tail)
 
 
 def main():
@@ -809,7 +922,8 @@ def main():
     test_publish_doc()
     test_regeneration_does_not_cite_itself()
     test_coda_superlative_matches_the_selection_rule()
-    test_packet_bookkeeping_is_not_printable()
+    test_prior_season_ban_is_a_word_test()
+    test_house_style_structures_and_percentages()
     test_no_prior_season_language()
     test_dry_run()
     test_fail_soft()
