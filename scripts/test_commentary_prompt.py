@@ -909,6 +909,67 @@ def test_house_style_structures_and_percentages():
           and "does not license rounding anything else" in tail)
 
 
+def test_length_guidance_survives_the_bans():
+    """The constraints cost the column 150 words; the target has to be a floor.
+
+    221613d landed three prohibition blocks at once -- the word-level
+    prior-season ban, the house style, the probability rounding -- and the next
+    panel column came back at 252 words against a ~400 target, with Beat 1 at
+    160 against 250-300. Nothing in it was wrong. There was just less of it,
+    which is the predictable reading of a page of bans plus "A column one
+    sentence shorter is correct": the safest column is the short one.
+
+    So the length rule has to do two things the old "Roughly 400 words total"
+    did not. It has to state a FLOOR, not just a rough size, and it has to name
+    what to do with the space a deleted sentence leaves -- because "delete the
+    sentence" without "and write another one" is an instruction to shrink.
+    These checks pin both, plus the per-beat number, plus the transitions line
+    that came from the same reflex one level down.
+    """
+    print("\nLength guidance, positioned so the bans cannot clip the column:")
+    with sandbox("panel", _seeded_packet()):
+        _, user_text, _ = G.build_prompt("panel")
+    tail = user_text.split("=== YOUR ASSIGNMENT ===")[1]
+
+    check("length is stated at the assignment, beside the other constraints",
+          "LENGTH: TARGET 350-450 WORDS TOTAL" in tail)
+    check("Beat 1 carries its own number, named as the One Big Thing",
+          "Beat 1 (the One Big Thing)" in tail and "250-300 of them" in tail)
+
+    # The whole point: the bans stay absolute, and are told not to shorten.
+    check("the bans are explicitly NOT relaxed by the length rule",
+          "Nothing above is relaxed here" in tail
+          and "the prose bans are absolute" in tail)
+    check("...but are told not to clip the column short",
+          "they must not clip the column short" in tail)
+    check("a deleted sentence is replaced, not simply removed",
+          "When a sentence has to go, replace it" in tail
+          and "rather than shortening the column overall" in tail)
+    check("expansion is pointed at prose, not at more numbers",
+          "context, character, what is at stake" in tail
+          and "earns its length in voice, not in stat recitation" in tail)
+    check("the observed failure length is named as a floor breach",
+          "250 words is not a tighter column, it is an unfinished one" in tail)
+
+    # The old rough-size line must be gone, or the prompt carries two targets.
+    check("the superseded 'Roughly 400 words total' line is gone",
+          "Roughly 400 words total" not in user_text)
+
+    # Same reflex, one level down: a constrained writer reaches for scaffolding.
+    check("mechanical transitions are named, with the shipped example quoted",
+          "Write the joins in plain speech" in tail
+          and "fortified by Texas's implications" in tail)
+    check("and it stays one line, not a fourth constraint block",
+          "say the plain thing instead" in tail
+          and tail.count("Write the joins in plain speech") == 1)
+
+    # It has to reach the model AFTER the packet dump, like the other two
+    # blocks -- a length target stated in the header is the one that failed.
+    check("length guidance sits after the packet, in the assignment",
+          user_text.rindex("LENGTH: TARGET")
+          > user_text.rindex("=== WEEK PACKET"))
+
+
 def main():
     print("generate_commentary.py \u2014 prompt assembly, dry run, fail-soft")
     test_prompt_shape()
@@ -924,6 +985,7 @@ def main():
     test_coda_superlative_matches_the_selection_rule()
     test_prior_season_ban_is_a_word_test()
     test_house_style_structures_and_percentages()
+    test_length_guidance_survives_the_bans()
     test_no_prior_season_language()
     test_dry_run()
     test_fail_soft()

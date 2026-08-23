@@ -553,10 +553,35 @@ def build_prompt(group_id, packet_override=None):
         beat2_line,
         "  End with the sign-off verbatim.",
         "",
-        "Prose only — no headings, no lists, no bullets. Roughly 400 words total. "
+        "Prose only — no headings, no lists, no bullets. "
         "Every number verbatim from the packet; if a number you want is not "
         "there, write around it. Character roasts must cite behavior visible in "
         "manager_profiles, not invented history.",
+        # LENGTH, and it is here because the three blocks below took 150 words
+        # off the column. The word-level ban, the house style and the rounding
+        # rule landed together in 221613d and the next panel column came back
+        # at 252 words against ~400, with Beat 1 at 160 against 250-300 --
+        # nothing in it was wrong, there was just less of it. That is the
+        # predictable reading of a page of prohibitions: the safest column is
+        # the short one. So the target is stated as a floor as well as a
+        # ceiling, and the escape route is named, because "delete the
+        # sentence" without "and write another one" is an instruction to
+        # shrink.
+        "LENGTH: TARGET 350-450 WORDS TOTAL, with Beat 1 (the One Big Thing) "
+        "at 250-300 of them. Nothing above is relaxed here — the prose bans "
+        "are absolute — but they must not clip the column short. When a "
+        "sentence has to go, replace it: expand the prose around the picks "
+        "(context, character, what is at stake) rather than shortening the "
+        "column overall. The numbers are already carried for you, so the "
+        "column earns its length in voice, not in stat recitation. A column "
+        "that comes in at 250 words is not a tighter column, it is an "
+        "unfinished one.",
+        # Same failure mode, one level down: a constrained writer reaches for
+        # scaffolding. Week 0 panel filed "fortified by Texas's implications",
+        # which is not a sentence a person says.
+        "Write the joins in plain speech. Constructions like \"fortified by "
+        "Texas's implications\" or \"bolstered by Miami's projections\" read "
+        "as assembled rather than written — say the plain thing instead.",
         # HOUSE STYLE, and it lives HERE rather than up with the factual
         # constraints on purpose. The prior-season ban sits 18% into a 55KB
         # prompt with ~36KB of packet JSON between it and this assignment, and
