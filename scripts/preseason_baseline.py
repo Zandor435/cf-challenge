@@ -61,6 +61,12 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
 import projector
+# The uniform-field rule has ONE implementation, and it lives with the live
+# packet builder. This file used to carry a second copy under a "same contract
+# as build_week_packet" comment -- which is exactly how two implementations
+# drift while both look authoritative. build_week_packet imports only utils, so
+# there is no cycle, and its module level is constants plus a guarded main().
+from build_week_packet import uniform_profile_fields
 
 REFERENCE_PATH = utils.DATA_DIR / "team_win_totals_2026.json"
 OUTPUT_PATH = utils.DATA_DIR / "preseason_baseline_2026.json"
@@ -592,19 +598,6 @@ def _preseason_storylines(by_mgr, display, collisions, concentration, managers):
     return kept[:MAX_PRESEASON_STORYLINES]
 
 
-def _uniform_fields(profiles):
-    """Same contract as build_week_packet.uniform_profile_fields: the scalar
-    profile fields holding one value for the whole room, which therefore
-    distinguish nobody (persona sacred rule 7)."""
-    if len(profiles) < 2:
-        return {}
-    rows = list(profiles.values())
-    first = rows[0]
-    return {k: v for k, v in first.items()
-            if isinstance(v, (int, float, bool))
-            and all(r.get(k) == v for r in rows[1:])}
-
-
 def build_week0_packet(group_id, baseline_path=None):
     season = utils.assert_season_matches_cache()
     cache = utils.load_cache(season)
@@ -773,7 +766,7 @@ def build_week0_packet(group_id, baseline_path=None):
         "concentration": concentration,
         "managers": managers,
         "manager_profiles": profiles,
-        "uniform_profile_fields": _uniform_fields(profiles),
+        "uniform_profile_fields": uniform_profile_fields(profiles),
     }
 
 

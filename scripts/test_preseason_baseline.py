@@ -296,6 +296,69 @@ def test_frozen_artifact():
           f"mean |delta| = {sum(abs(d) for d in deltas) / len(deltas):.3f}")
 
 
+def test_uniform_fields_not_forked():
+    """The uniform-field rule has exactly ONE implementation (de-fork guard).
+
+    preseason_baseline.py used to carry its own _uniform_fields under a "same
+    contract as build_week_packet.uniform_profile_fields" comment. Two bodies
+    behind one contract is the drift setup the playbook's one-engine rule exists
+    to stop: the Week 0 packet and the live packet would start disagreeing about
+    which fields distinguish nobody, and the prompt's persona-rule-7 guard would
+    silently protect one path and not the other.
+
+    Three layers, because each catches a different way of re-forking:
+      1. IDENTITY   — the two names resolve to the SAME function object. Fails
+                      the moment anyone re-defines a local copy.
+      2. SOURCE     — no second `def ...uniform...` body in preseason_baseline.
+                      Catches a copy under a fresh name that identity would miss.
+      3. BEHAVIOUR  — both entry points return byte-identical output on one
+                      shared fixture set, including the edge cases (<2 managers,
+                      non-scalar values, a field that varies by one manager).
+    """
+    import build_week_packet as BWP
+
+    check("the two entry points are the SAME function object",
+          PB.uniform_profile_fields is BWP.uniform_profile_fields,
+          f"preseason={PB.uniform_profile_fields!r} live={BWP.uniform_profile_fields!r}")
+
+    src = Path(PB.__file__).read_text(encoding="utf-8")
+    dupes = [ln.strip() for ln in src.splitlines()
+             if ln.startswith("def ") and "uniform" in ln]
+    check("preseason_baseline defines no uniform-field function of its own",
+          not dupes, "; ".join(dupes))
+
+    # Same fixtures through both names. Byte-identical, not merely equal-ish:
+    # json.dumps pins key order and value types, so a copy that returned
+    # {'x': 1.0} where the original returns {'x': 1} would still be caught.
+    fixtures = {
+        "all four share every field": {
+            "a": {"picks_alive": 0, "conference_spread": 4},
+            "b": {"picks_alive": 0, "conference_spread": 4},
+            "c": {"picks_alive": 0, "conference_spread": 4},
+            "d": {"picks_alive": 0, "conference_spread": 4},
+        },
+        "one manager breaks one field": {
+            "a": {"picks_alive": 0, "conference_spread": 4},
+            "b": {"picks_alive": 1, "conference_spread": 4},
+        },
+        "nothing shared": {"a": {"picks_alive": 0}, "b": {"picks_alive": 2}},
+        "single manager is trivially uniform -> {}": {"a": {"picks_alive": 0}},
+        "empty": {},
+        "non-scalars are skipped": {
+            "a": {"best_pick": {"team": "Texas"}, "avg_line": None, "n": 3},
+            "b": {"best_pick": {"team": "Texas"}, "avg_line": None, "n": 3},
+        },
+        "bool and int are both scalars": {
+            "a": {"flag": True, "n": 2}, "b": {"flag": True, "n": 2},
+        },
+    }
+    for label, profiles in fixtures.items():
+        left = json.dumps(PB.uniform_profile_fields(profiles), sort_keys=True)
+        right = json.dumps(BWP.uniform_profile_fields(profiles), sort_keys=True)
+        check(f"identical uniform-field output — {label}", left == right,
+              f"preseason={left} live={right}")
+
+
 def main():
     print("preseason_baseline.py \u2014 freeze guards, schedule truth, projector reuse")
     test_season_started_guard()
@@ -303,6 +366,7 @@ def main():
     test_schedule_lengths()
     test_projector_reuse()
     test_frozen_artifact()
+    test_uniform_fields_not_forked()
 
     passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
