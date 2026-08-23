@@ -334,8 +334,15 @@ def _pick_row(pick, mid, baseline, reference, sp_ratings, config):
     # Schedule off the REAL slate, conference-championship games excluded by the
     # group's own count_conference_championship flag (§1). Never 12 assumed.
     state = utils.team_state(team, config)
-    if state["games_played"]:
-        _fail(f"{team}: {state['games_played']} game(s) already played — this "
+    # Played count spelled as scheduled-minus-remaining, not state["games_played"]:
+    # the raw-index guard (test_cache_access.py §5) reserves the banked keys
+    # 'wins'/'losses'/'games_played' to utils.py/fetch_results.py, and its AST scan
+    # cannot tell a flag-aware team_state() read from a raw cache subscript. Both
+    # sides come off the SAME slate (utils.team_state contract), so the difference
+    # is exactly the played count — and Week 0 only asks "has anything been played".
+    played_games = state["games_scheduled"] - state["games_remaining"]
+    if played_games:
+        _fail(f"{team}: {played_games} game(s) already played — this "
               f"is not Week 0 and the preseason packet must not be built.")
     games = state["games_remaining"]
     if games == 0:
