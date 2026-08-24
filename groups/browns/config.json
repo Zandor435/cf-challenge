@@ -8,9 +8,9 @@
   "_count_conference_championship_note": "Per-group rule (ARCHITECTURE §1/§5): do conference-championship wins settle into a team's season win total? Sportsbooks differ, so it is per-group config, not a code constant. CFBD returns conf-title games as seasonType=regular; the shared cache tags them but excludes nothing — this flag decides. Default false.",
   "count_conference_championship": false,
 
-  "_pick_rules_note": "Settled format (LOCKED), enforced by validate_team_names.py per group: EXACTLY 4 picks per manager, spanning 4 distinct conferences. Always enforced — no unenforced path.",
+  "_pick_rules_note": "Settled format, enforced by validate_team_names.py per group: EXACTLY 4 picks per manager. Always enforced — no unenforced path. Conference spread is ADVISORY for this group and deliberately not gated, matching family: the real 2026 draft was run as four teams with no duplicate-team conflicts, and conference spread was never a constraint anyone at the table drafted against, so it must not block the submitted board. `min_distinct_conferences` is therefore 1 (every roster trivially satisfies it). Commissioner decision 2026-08-23, on entry of the real draft — three rosters (josh, mark, zach) span 3 conferences and would have hard-failed the former value of 4. This is deliberately NOT a `conference_minimum_waivers` list: a waiver is a per-manager exemption from a rule the group still keeps, and browns does not keep this rule at all. That mechanism stays panel's.",
   "picks_per_manager": 4,
-  "min_distinct_conferences": 4,
+  "min_distinct_conferences": 1,
 
   "_managers_note": "Roster is NOT final — more managers are expected before the draft, and adding one is a config.json + picks.json + personas.json edit, never a rebuild. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. Browns has two Matts disambiguated by manager_id the same way CEC's two Johns are: matt_m vs hauck.",
   "managers": [

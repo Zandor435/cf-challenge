@@ -3,22 +3,97 @@
     "group_id": "browns",
     "season": 2026,
     "as_of_week": null,
-    "draft_status": "dummy",
-    "generated_at": "2026-08-23T17:25:53.314223+00:00",
+    "draft_status": "final",
+    "generated_at": "2026-08-24T02:36:43.605580+00:00",
     "cache_fetched_at": "2026-08-21T14:51:21.982505+00:00"
   },
   "managers": [
     {
-      "manager_id": "bryan",
-      "display_name": "Bryan",
-      "banked_total": 1.0,
-      "floor": -23.0,
-      "ceiling": 25.0,
+      "manager_id": "matt_m",
+      "display_name": "Matt Merlene",
+      "banked_total": 12.0,
+      "floor": -24.0,
+      "ceiling": 24.0,
       "rank": 1,
       "picks": [
         {
-          "team": "Ohio State",
+          "team": "Texas Tech",
+          "conference": "Big 12",
+          "line": 10.5,
+          "direction": "U",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": 10.5,
+          "floor": -1.5,
+          "ceiling": 10.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "North Carolina",
+          "conference": "ACC",
+          "line": 4.5,
+          "direction": "U",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": 4.5,
+          "floor": -7.5,
+          "ceiling": 4.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Vanderbilt",
+          "conference": "SEC",
+          "line": 5.5,
+          "direction": "U",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": 5.5,
+          "floor": -6.5,
+          "ceiling": 5.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Penn State",
           "conference": "Big Ten",
+          "line": 8.5,
+          "direction": "O",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": -8.5,
+          "floor": -8.5,
+          "ceiling": 3.5,
+          "status": "LIVE"
+        }
+      ]
+    },
+    {
+      "manager_id": "bryan",
+      "display_name": "Bryan",
+      "banked_total": 6.0,
+      "floor": -18.0,
+      "ceiling": 30.0,
+      "rank": 2,
+      "picks": [
+        {
+          "team": "Michigan",
+          "conference": "Big Ten",
+          "line": 8.5,
+          "direction": "U",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": 8.5,
+          "floor": -3.5,
+          "ceiling": 8.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Texas",
+          "conference": "SEC",
           "line": 9.5,
           "direction": "U",
           "banked_wins": 0,
@@ -30,16 +105,189 @@
           "status": "LIVE"
         },
         {
-          "team": "Georgia",
-          "conference": "SEC",
-          "line": 9.5,
+          "team": "Kent State",
+          "conference": "MAC",
+          "line": 3.5,
           "direction": "O",
           "banked_wins": 0,
           "banked_losses": 0,
           "games_remaining": 12,
-          "banked_delta": -9.5,
-          "floor": -9.5,
-          "ceiling": 2.5,
+          "banked_delta": -3.5,
+          "floor": -3.5,
+          "ceiling": 8.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "South Florida",
+          "conference": "American",
+          "line": 8.5,
+          "direction": "O",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": -8.5,
+          "floor": -8.5,
+          "ceiling": 3.5,
+          "status": "LIVE"
+        }
+      ]
+    },
+    {
+      "manager_id": "josh",
+      "display_name": "Josh",
+      "banked_total": 5.0,
+      "floor": -19.0,
+      "ceiling": 29.0,
+      "rank": 3,
+      "picks": [
+        {
+          "team": "Stanford",
+          "conference": "ACC",
+          "line": 3.5,
+          "direction": "O",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": -3.5,
+          "floor": -3.5,
+          "ceiling": 8.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Florida",
+          "conference": "SEC",
+          "line": 7.5,
+          "direction": "U",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": 7.5,
+          "floor": -4.5,
+          "ceiling": 7.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "BYU",
+          "conference": "Big 12",
+          "line": 8.5,
+          "direction": "U",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": 8.5,
+          "floor": -3.5,
+          "ceiling": 8.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Virginia",
+          "conference": "ACC",
+          "line": 7.5,
+          "direction": "O",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": -7.5,
+          "floor": -7.5,
+          "ceiling": 4.5,
+          "status": "LIVE"
+        }
+      ]
+    },
+    {
+      "manager_id": "todd",
+      "display_name": "Todd",
+      "banked_total": 5.0,
+      "floor": -19.0,
+      "ceiling": 28.0,
+      "rank": 4,
+      "picks": [
+        {
+          "team": "Boise State",
+          "conference": "Pac-12",
+          "line": 7.5,
+          "direction": "O",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 11,
+          "banked_delta": -7.5,
+          "floor": -7.5,
+          "ceiling": 3.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "South Florida",
+          "conference": "American",
+          "line": 8.5,
+          "direction": "U",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": 8.5,
+          "floor": -3.5,
+          "ceiling": 8.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "James Madison",
+          "conference": "Sun Belt",
+          "line": 8.5,
+          "direction": "U",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": 8.5,
+          "floor": -3.5,
+          "ceiling": 8.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Iowa State",
+          "conference": "Big 12",
+          "line": 4.5,
+          "direction": "O",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": -4.5,
+          "floor": -4.5,
+          "ceiling": 7.5,
+          "status": "LIVE"
+        }
+      ]
+    },
+    {
+      "manager_id": "mark",
+      "display_name": "Mark",
+      "banked_total": 1.0,
+      "floor": -23.0,
+      "ceiling": 25.0,
+      "rank": 5,
+      "picks": [
+        {
+          "team": "Maryland",
+          "conference": "Big Ten",
+          "line": 5.5,
+          "direction": "U",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": 5.5,
+          "floor": -6.5,
+          "ceiling": 5.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Notre Dame",
+          "conference": "Independent",
+          "line": 11.5,
+          "direction": "U",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": 11.5,
+          "floor": -0.5,
+          "ceiling": 11.5,
           "status": "LIVE"
         },
         {
@@ -56,16 +304,78 @@
           "status": "LIVE"
         },
         {
-          "team": "Baylor",
-          "conference": "Big 12",
-          "line": 6.5,
+          "team": "Indiana",
+          "conference": "Big Ten",
+          "line": 10.5,
+          "direction": "O",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": -10.5,
+          "floor": -10.5,
+          "ceiling": 1.5,
+          "status": "LIVE"
+        }
+      ]
+    },
+    {
+      "manager_id": "hauck",
+      "display_name": "Matt Hauck",
+      "banked_total": -11.0,
+      "floor": -23.0,
+      "ceiling": 25.0,
+      "rank": 6,
+      "picks": [
+        {
+          "team": "Navy",
+          "conference": "American",
+          "line": 7.5,
+          "direction": "O",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": -7.5,
+          "floor": -7.5,
+          "ceiling": 4.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Ohio State",
+          "conference": "Big Ten",
+          "line": 9.5,
+          "direction": "O",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": -9.5,
+          "floor": -9.5,
+          "ceiling": 2.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Miami",
+          "conference": "ACC",
+          "line": 10.5,
           "direction": "U",
           "banked_wins": 0,
           "banked_losses": 0,
           "games_remaining": 12,
-          "banked_delta": 6.5,
-          "floor": -5.5,
-          "ceiling": 6.5,
+          "banked_delta": 10.5,
+          "floor": -1.5,
+          "ceiling": 10.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Kentucky",
+          "conference": "SEC",
+          "line": 4.5,
+          "direction": "O",
+          "banked_wins": 0,
+          "banked_losses": 0,
+          "games_remaining": 12,
+          "banked_delta": -4.5,
+          "floor": -4.5,
+          "ceiling": 7.5,
           "status": "LIVE"
         }
       ]
@@ -73,22 +383,22 @@
     {
       "manager_id": "zach",
       "display_name": "Zach",
-      "banked_total": -2.0,
-      "floor": -26.0,
-      "ceiling": 22.0,
-      "rank": 2,
+      "banked_total": -34.0,
+      "floor": -34.0,
+      "ceiling": 14.0,
+      "rank": 7,
       "picks": [
         {
-          "team": "Wisconsin",
-          "conference": "Big Ten",
+          "team": "Virginia Tech",
+          "conference": "ACC",
           "line": 6.5,
-          "direction": "U",
+          "direction": "O",
           "banked_wins": 0,
           "banked_losses": 0,
           "games_remaining": 12,
-          "banked_delta": 6.5,
-          "floor": -5.5,
-          "ceiling": 6.5,
+          "banked_delta": -6.5,
+          "floor": -6.5,
+          "ceiling": 5.5,
           "status": "LIVE"
         },
         {
@@ -105,44 +415,8 @@
           "status": "LIVE"
         },
         {
-          "team": "Wake Forest",
+          "team": "SMU",
           "conference": "ACC",
-          "line": 5.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -5.5,
-          "floor": -5.5,
-          "ceiling": 6.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Kansas",
-          "conference": "Big 12",
-          "line": 5.5,
-          "direction": "U",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": 5.5,
-          "floor": -6.5,
-          "ceiling": 5.5,
-          "status": "LIVE"
-        }
-      ]
-    },
-    {
-      "manager_id": "josh",
-      "display_name": "Josh",
-      "banked_total": -3.0,
-      "floor": -27.0,
-      "ceiling": 21.0,
-      "rank": 3,
-      "picks": [
-        {
-          "team": "Penn State",
-          "conference": "Big Ten",
           "line": 8.5,
           "direction": "O",
           "banked_wins": 0,
@@ -154,21 +428,8 @@
           "status": "LIVE"
         },
         {
-          "team": "Tennessee",
-          "conference": "SEC",
-          "line": 7.5,
-          "direction": "U",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": 7.5,
-          "floor": -4.5,
-          "ceiling": 7.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Miami",
-          "conference": "ACC",
+          "team": "Oregon",
+          "conference": "Big Ten",
           "line": 10.5,
           "direction": "O",
           "banked_wins": 0,
@@ -177,267 +438,6 @@
           "banked_delta": -10.5,
           "floor": -10.5,
           "ceiling": 1.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Utah",
-          "conference": "Big 12",
-          "line": 8.5,
-          "direction": "U",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": 8.5,
-          "floor": -3.5,
-          "ceiling": 8.5,
-          "status": "LIVE"
-        }
-      ]
-    },
-    {
-      "manager_id": "todd",
-      "display_name": "Todd",
-      "banked_total": -7.0,
-      "floor": -19.0,
-      "ceiling": 29.0,
-      "rank": 4,
-      "picks": [
-        {
-          "team": "Illinois",
-          "conference": "Big Ten",
-          "line": 7.5,
-          "direction": "U",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": 7.5,
-          "floor": -4.5,
-          "ceiling": 7.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Kentucky",
-          "conference": "SEC",
-          "line": 4.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -4.5,
-          "floor": -4.5,
-          "ceiling": 7.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Boston College",
-          "conference": "ACC",
-          "line": 3.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -3.5,
-          "floor": -3.5,
-          "ceiling": 8.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Ohio",
-          "conference": "MAC",
-          "line": 6.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -6.5,
-          "floor": -6.5,
-          "ceiling": 5.5,
-          "status": "LIVE"
-        }
-      ]
-    },
-    {
-      "manager_id": "hauck",
-      "display_name": "Matt Hauck",
-      "banked_total": -15.0,
-      "floor": -27.0,
-      "ceiling": 21.0,
-      "rank": 5,
-      "picks": [
-        {
-          "team": "Michigan",
-          "conference": "Big Ten",
-          "line": 8.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -8.5,
-          "floor": -8.5,
-          "ceiling": 3.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Ole Miss",
-          "conference": "SEC",
-          "line": 7.5,
-          "direction": "U",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": 7.5,
-          "floor": -4.5,
-          "ceiling": 7.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "NC State",
-          "conference": "ACC",
-          "line": 7.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -7.5,
-          "floor": -7.5,
-          "ceiling": 4.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "TCU",
-          "conference": "Big 12",
-          "line": 6.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -6.5,
-          "floor": -6.5,
-          "ceiling": 5.5,
-          "status": "LIVE"
-        }
-      ]
-    },
-    {
-      "manager_id": "mark",
-      "display_name": "Mark",
-      "banked_total": -15.0,
-      "floor": -27.0,
-      "ceiling": 21.0,
-      "rank": 6,
-      "picks": [
-        {
-          "team": "Nebraska",
-          "conference": "Big Ten",
-          "line": 6.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -6.5,
-          "floor": -6.5,
-          "ceiling": 5.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Auburn",
-          "conference": "SEC",
-          "line": 6.5,
-          "direction": "U",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": 6.5,
-          "floor": -5.5,
-          "ceiling": 6.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Louisville",
-          "conference": "ACC",
-          "line": 8.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -8.5,
-          "floor": -8.5,
-          "ceiling": 3.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Arizona State",
-          "conference": "Big 12",
-          "line": 6.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -6.5,
-          "floor": -6.5,
-          "ceiling": 5.5,
-          "status": "LIVE"
-        }
-      ]
-    },
-    {
-      "manager_id": "matt_m",
-      "display_name": "Matt Merlene",
-      "banked_total": -29.0,
-      "floor": -29.0,
-      "ceiling": 19.0,
-      "rank": 7,
-      "picks": [
-        {
-          "team": "Ohio State",
-          "conference": "Big Ten",
-          "line": 9.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -9.5,
-          "floor": -9.5,
-          "ceiling": 2.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Missouri",
-          "conference": "SEC",
-          "line": 6.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -6.5,
-          "floor": -6.5,
-          "ceiling": 5.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Pittsburgh",
-          "conference": "ACC",
-          "line": 7.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -7.5,
-          "floor": -7.5,
-          "ceiling": 4.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Cincinnati",
-          "conference": "Big 12",
-          "line": 5.5,
-          "direction": "O",
-          "banked_wins": 0,
-          "banked_losses": 0,
-          "games_remaining": 12,
-          "banked_delta": -5.5,
-          "floor": -5.5,
-          "ceiling": 6.5,
           "status": "LIVE"
         }
       ]
