@@ -584,21 +584,29 @@ function renderHero(standings, pre) {
   const season = Number.isFinite(Number(meta.season)) ? String(meta.season) : '';
 
   // The sub-line is derived, never invented: the gap to second place, or a tie.
-  let sub;
-  if (pre) {
-    // No leader, no gap, no tie -- with nothing played, all three describe the
-    // draft rather than the season. Say what the totals below actually are.
-    sub = 'Every total below is that manager&rsquo;s lines added up in their picks&rsquo; ' +
-      'directions &mdash; a restatement of the draft, not a result. It becomes a ' +
-      'standing when week 1 is scored.';
-  } else if (mgrs.length > 1) {
-    const gap = round1(leader.banked_total - mgrs[1].banked_total);
-    sub = gap === 0
-      ? `Tied with <b>${esc(mgrs[1].display_name)}</b> at <span class="mono">${fmtSigned(leader.banked_total)}</span> banked.`
-      : `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span> &middot; ` +
-        `<span class="mono">${fmtLine(gap)}</span> clear of <b>${esc(mgrs[1].display_name)}</b>.`;
-  } else {
-    sub = `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span>.`;
+  //
+  // Preseason emits NO sub-line at all. With nothing played there is no leader,
+  // no gap and no tie, so every version of this line describes the draft rather
+  // than the season -- and the two things it could say are already said, once
+  // each: the h1 states the state, and Board 1's preseason note states the
+  // arithmetic. A third telling is not more honest, only longer.
+  //
+  // Absent rather than blank, the same way bannerHTML is absent when a group
+  // has no art. An emitted-but-empty <p class="hero-sub"> would still spend its
+  // line-height on the band, which is the gap this is removing.
+  let subHTML = '';
+  if (!pre) {
+    let sub;
+    if (mgrs.length > 1) {
+      const gap = round1(leader.banked_total - mgrs[1].banked_total);
+      sub = gap === 0
+        ? `Tied with <b>${esc(mgrs[1].display_name)}</b> at <span class="mono">${fmtSigned(leader.banked_total)}</span> banked.`
+        : `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span> &middot; ` +
+          `<span class="mono">${fmtLine(gap)}</span> clear of <b>${esc(mgrs[1].display_name)}</b>.`;
+    } else {
+      sub = `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span>.`;
+    }
+    subHTML = `<p class="hero-sub">${sub}</p>`;
   }
 
   const banner = bannerFor(meta.group_id || currentGroupId(), meta.as_of_week);
@@ -615,7 +623,7 @@ function renderHero(standings, pre) {
       <h1 class="hero-title">${pre
         ? 'Drafted &mdash; <span>no games played</span>'
         : `Current leader: <span>${esc(leader.display_name)}</span>`}</h1>
-      <p class="hero-sub${pre ? ' is-pre' : ''}">${sub}</p>
+      ${subHTML}
     </div>`;
   // Third-tier fallback, same contract as logos and portraits: if the banner
   // 404s or fails to decode, drop the whole block rather than leaving a gap.
