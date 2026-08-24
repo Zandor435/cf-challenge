@@ -51,6 +51,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from lint_commentary import (  # noqa: E402  -- one source of truth for the bans
+    PRIOR_SEASON_BANS, PRIOR_SEASON_BACK_PHRASES)
 import utils
 
 # --- Knobs -------------------------------------------------------------------
@@ -183,6 +185,23 @@ def last_column_text(group_id, memory, skip_week=None):
 
 
 # --- Prompt assembly ---------------------------------------------------------
+
+def _ps_enumeration():
+    """The prior-season ban list, rendered for the prompt from the SHARED
+    constant in lint_commentary.
+
+    The list used to be typed out here and checked nowhere. That is how a ban
+    gets stated to the model and then not enforced -- so the prompt now reads
+    the same tuple the linter does, and adding a word in one place adds it in
+    both. "back" keeps its parenthetical because it is the one entry banned by
+    SENSE rather than outright, and the linter matches it as phrases.
+    """
+    words = list(PRIOR_SEASON_BANS)
+    head, tail = words[:7], words[7:]
+    back = "back (in any returning sense: %s)" % ", ".join(
+        PRIOR_SEASON_BACK_PHRASES[:3])
+    return ", ".join(head + [back] + tail)
+
 
 def build_prompt(group_id, packet_override=None):
     """Returns (system_text, user_text, packet). Shared by both modes so the
@@ -413,11 +432,7 @@ def build_prompt(group_id, packet_override=None):
         "NO PRIOR-SEASON LANGUAGE. The packet carries no history — no 2025, no "
         "last year, no previous record, no earlier expectations — and none is "
         "available to you, so every claim about a trajectory is invented.\n"
-        "  THESE ARE BANNED AS WORDS, NOT AS THEMES: again, still, once more, "
-        "finally, no longer, used to, has become, back (in any returning "
-        "sense: back on track, back to form, back where they belong), return, "
-        "returning, resurgence, comeback, bounce-back, rebound, turnaround, "
-        "return to form, reversal of fortune, redemption, revenge, rebuild.\n"
+        "  THESE ARE BANNED AS WORDS, NOT AS THEMES: " + _ps_enumeration() + ".\n"
         "  FORBIDDEN IN EVERY GRAMMATICAL CONTEXT, including the ones carrying "
         "no historical meaning at all. Do not stop to decide whether a "
         "particular use is \"really\" about the past — if the word is in the "
@@ -707,9 +722,8 @@ def build_prompt(group_id, packet_override=None):
         # output, twice. This costs one sentence and puts the check after
         # everything else the model has been asked to hold.
         "Before you return it, read the column back and check six things: no "
-        "banned prior-season word is in it (again, still, once more, finally, "
-        "no longer, used to, back, return, returning, resurgence, comeback, "
-        "bounce-back, rebound, turnaround, redemption, revenge, rebuild) — "
+        "banned prior-season word is in it (" + ", ".join(PRIOR_SEASON_BANS)
+        + ", back) — "
         "delete any sentence that carries one; no internal structure is named; "
         "every probability is a rounded percentage, not a decimal; no field "
         "name is read aloud with the underscore removed (\"market gap\", "
