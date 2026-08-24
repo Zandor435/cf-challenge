@@ -52,6 +52,24 @@ business. Penn State over 8.5 is the listing, and he believes in the listing.
   mostly selling is nothing happening.
 - **fatal_flaw:** Cannot tell the difference between a thing being cheap and a thing being bad —
   a fine instinct in real estate, an expensive one here.
+- **archetype:** The Realtor
+- **thesis:** Newly licensed. Currently selling you on his picks.
+- **layout:** `sideline`
+- **theme:** accent `#FF6600` · accent_secondary `#311D00` · paper — · ink —
+- **dossier:**
+  - role: The Realtor
+  - nicknames: The Realtor
+  - known_for: Drumming up business in the group WhatsApp.
+  - hometown: Ohio
+  - college: —
+  - drafted: —
+  - status: Newly Licensed
+- **modules:**
+  - draft_tendency — label "Draft tendency" · headline "Three Unders and a Listing" · art —
+  - fatal_flaw — label "Fatal flaw" · headline "Cheap vs. Bad" · art —
+  - running_gag — label "Running gag" · headline "The Hustle" · art —
+- **pull_quote:** "He has never once complained about this, which is the most damning part." — (about Matt M)
+- **footer:** Sells the under. / Believes the over.
 
 ---
 
@@ -87,6 +105,24 @@ bet, it is a hope, and he does not drink hope.
 - **running_gag:** The receipts. He has them, he knows he has them, and he will produce them.
 - **draft_tendency:** Curated. Treats a draft board like a tasting flight.
 - **fatal_flaw:** Confuses a number being disrespectful with a number being wrong.
+- **archetype:** The Host
+- **thesis:** Ohio born. Ohio State made. Has the receipts.
+- **layout:** `sideline`
+- **theme:** accent `#BB0000` · accent_secondary `#666666` · paper — · ink —
+- **dossier:**
+  - role: The Host
+  - nicknames: The Host
+  - known_for: Hosting the game. Having the receipts. Producing them unprompted.
+  - hometown: Ohio
+  - college: Ohio State
+  - drafted: —
+  - status: Diplomatic Immunity (expired)
+- **modules:**
+  - draft_tendency — label "Draft tendency" · headline "The Tasting Flight" · art —
+  - fatal_flaw — label "Fatal flaw" · headline "Disrespect ≠ Wrong" · art —
+  - running_gag — label "Running gag" · headline "The Receipts" · art —
+- **pull_quote:** "A four-and-a-half win floor in the SEC is not a projection, it is an insult." — Hauck
+- **footer:** Has the receipts. / Will produce them.
 
 ---
 
@@ -125,6 +161,24 @@ every snap of it for exactly opposite reasons.
 - **fatal_flaw:** Will always take the clever side of a trade, including the times the obvious
   side was the correct one.
 - **rival:** `zach`
+- **archetype:** Private Equity
+- **thesis:** Youngest at the table. Best player at it. Has ferns.
+- **layout:** `sideline`
+- **theme:** accent `#232D4B` · accent_secondary `#E57200` · paper — · ink —
+- **dossier:**
+  - role: Private Equity
+  - nicknames: PE, The Fern Guy
+  - known_for: Winning. Also: ferns.
+  - hometown: Charlottesville, VA
+  - college: —
+  - drafted: —
+  - status: Engaged to Samantha
+- **modules:**
+  - draft_tendency — label "Draft tendency" · headline "The Leveraged Buyout" · art —
+  - fatal_flaw — label "Fatal flaw" · headline "Always Takes the Clever Side" · art —
+  - running_gag — label "Running gag" · headline "The Ferns" · art —
+- **pull_quote:** "Two names sold at the top, two small caps bought at the bottom." — (about Bryan's board)
+- **footer:** Shorted Michigan. / Bought Kent State.
 
 ---
 
@@ -160,6 +214,24 @@ pick he cannot be relaxed about. He intends to be relaxed about it anyway.
 - **draft_tendency:** Doesn't overthink. Picks and moves on.
 - **fatal_flaw:** Holds two opposite theories about group-of-five football at the same time and
   has never once been troubled by it.
+- **archetype:** Atlas
+- **thesis:** Most relaxed man in the group. Largest dog anyone here has met.
+- **layout:** `sideline`
+- **theme:** accent `#A73C3C` · accent_secondary `#3D3D3D` · paper — · ink —
+- **dossier:**
+  - role: Atlas
+  - nicknames: Atlas (that's the dog)
+  - known_for: The unbotherable calm.
+  - hometown: —
+  - college: —
+  - drafted: —
+  - status: Relaxed
+- **modules:**
+  - draft_tendency — label "Draft tendency" · headline "Picks and Moves On" · art —
+  - fatal_flaw — label "Fatal flaw" · headline "Two Theories, One Man" · art —
+  - running_gag — label "Running gag" · headline "The Dog. The Rivian." · art —
+- **pull_quote:** "The most relaxed man in the group has been handed the one pick he cannot be relaxed about." — (about Todd and the USF head-to-head)
+- **footer:** Doesn't overthink. / Doesn't have to.
 
 ---
 
@@ -196,6 +268,24 @@ a toll you pay in November.
 - **fatal_flaw:** Built the model, trusts the model, and drafted the four teams the model liked
   best — which is either rigor or a closed loop, and he cannot tell you which.
 - **rival:** `bryan`
+- **archetype:** The Commissioner
+- **thesis:** Built the model. Trusts the model. Four overs.
+- **layout:** `sideline`
+- **theme:** accent `#CEB888` · accent_secondary `#461D7C` · paper — · ink —
+- **dossier:**
+  - role: The Commissioner
+  - nicknames: Fat Zach, Head Coach
+  - known_for: Building a second game because he's bad at the first one.
+  - hometown: Charlottesville, VA
+  - college: Wake Forest
+  - drafted: —
+  - status: Commissioner / Poker Donor
+- **modules:**
+  - draft_tendency — label "Draft tendency" · headline "The Model's Number" · art —
+  - fatal_flaw — label "Fatal flaw" · headline "The Closed Loop" · art —
+  - running_gag — label "Running gag" · headline "Loses at Poker" · art —
+- **pull_quote:** "He says the numbers told him to. He wrote the numbers." — (about Zach's four overs)
+- **footer:** Built the model. / Drafted the model's picks.
 
 ---
 
@@ -226,6 +316,24 @@ believing something, and Josh is definitely one of those.
   will not be able to explain what that something is.
 - **fatal_flaw:** Will absolutely check his picks between Tinder swipes and call that
   research.
+- **archetype:** The Sommelier
+- **thesis:** Vineyard. VR treadmill. Stanford over 3.5.
+- **layout:** `sideline`
+- **theme:** accent `#8C1515` · accent_secondary `#B6B1A9` · paper — · ink —
+- **dossier:**
+  - role: The Sommelier
+  - nicknames: The Sommelier, The Turnaround
+  - known_for: The VR treadmill and the Stanford pick.
+  - hometown: Charlottesville, VA
+  - college: —
+  - drafted: —
+  - status: Single, actively dating
+- **modules:**
+  - draft_tendency — label "Draft tendency" · headline "Vibes-Based" · art —
+  - fatal_flaw — label "Fatal flaw" · headline "Tinder and Research" · art —
+  - running_gag — label "Running gag" · headline "The VR Treadmill" · art —
+- **pull_quote:** "Nobody takes Stanford over 3.5 without either knowing something or believing something." — (about Josh)
+- **footer:** Bought the floor. / Believes in the rebuild.
 
 ---
 
@@ -252,6 +360,24 @@ correctly, no sentiment involved. The most honest board in the group.
   other three are spreadsheet.
 - **fatal_flaw:** Two small children and a bread route. The research window is 9pm to whenever
   he falls asleep on the couch.
+- **archetype:** Dave's Bread
+- **thesis:** Indiana class of 2010. The most honest board in the group.
+- **layout:** `sideline`
+- **theme:** accent `#990000` · accent_secondary `#EEEDEB` · paper — · ink —
+- **dossier:**
+  - role: Dave's Bread
+  - nicknames: Dave's Bread, The Believer
+  - known_for: Being the one man whose coach portrait is actually his school.
+  - hometown: Charlottesville, VA
+  - college: Indiana University
+  - drafted: —
+  - status: Two small kids and a bread route
+- **modules:**
+  - draft_tendency — label "Draft tendency" · headline "Homer Where It Counts" · art —
+  - fatal_flaw — label "Fatal flaw" · headline "The Bread Route" · art —
+  - running_gag — label "Running gag" · headline "Actually His School" · art —
+- **pull_quote:** "Indiana over 10.5 is not a reach — it's the one pick on this board where the man actually went to the school." — (about Mark)
+- **footer:** IU class of 2010. / National champ (projected).
 
 ---
 
