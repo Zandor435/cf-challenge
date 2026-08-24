@@ -939,6 +939,84 @@ def test_coda_subject_exclusion():
           kept == pool2 and rep["excluded"] == 0, f"got {kept}")
 
 
+def test_coda_lower_gap_count():
+    """`excluded` counts every drop; `excluded_lower_gap` counts only the drops
+    that actually sit at a lower gap. The prompt sentence says "with a lower
+    gap", so it may only ever quote the second one.
+
+    Panel Week 0 shipped the failure this closes: the packet reported 8 and the
+    prompt said "8 pick(s) with a lower gap were set aside" when exactly ONE
+    of those 8 was lower than the coda's -1.044. The model was handed a false
+    count and hedged a superlative onto it ("the lowest on the board outside
+    Blaine and Chris's tussle").
+    """
+    print("\nCoda lower-gap count:")
+    X = B.exclude_lead_subject
+
+    feud = {"type": "feud", "managers": ["blaine", "chris"],
+            "picks": [{"manager_id": "blaine", "team": "Texas"},
+                      {"manager_id": "chris", "team": "Texas"}]}
+
+    # --- 1. the live panel Week 0 board, in market_gap order -----------------
+    panel = [
+        ("chris", "Texas", -1.681), ("jonathan", "Oregon", -1.044),
+        ("chris", "USC", -0.983), ("jonathan", "Kansas State", -0.839),
+        ("jonathan", "LSU", -0.406), ("blaine", "Boise State", -0.402),
+        ("zach", "James Madison", -0.234), ("chris", "Tennessee", 0.122),
+        ("jonathan", "Ole Miss", 0.339), ("zach", "Virginia Tech", 0.427),
+        ("chris", "Michigan State", 0.458), ("zach", "Wake Forest", 0.616),
+        ("blaine", "Wisconsin", 0.664), ("blaine", "Indiana", 1.110),
+        ("zach", "Notre Dame", 1.483), ("blaine", "Texas", 1.681),
+    ]
+    pool = [{"manager_id": m, "team": t, "market_gap": g} for m, t, g in panel]
+    kept, rep = X(pool, feud)
+
+    check("panel: the coda is still jonathan/Oregon at -1.044",
+          (kept[0]["manager_id"], kept[0]["market_gap"]) == ("jonathan", -1.044),
+          f"got {kept[0]}")
+    check("panel: excluded is unchanged at 8 (all of blaine's and chris's)",
+          rep["excluded"] == 8, f"got {rep['excluded']}")
+    check("panel: excluded_lower_gap is 1, NOT 8 -- only chris/Texas is lower",
+          rep["excluded_lower_gap"] == 1, f"got {rep['excluded_lower_gap']}")
+
+    # --- 2. drops that are all HIGHER count as zero --------------------------
+    higher = [
+        {"manager_id": "jonathan", "team": "Oregon", "market_gap": -2.0},
+        {"manager_id": "blaine", "team": "Iowa", "market_gap": 0.5},
+        {"manager_id": "chris", "team": "Duke", "market_gap": 1.5},
+    ]
+    kept, rep = X(higher, feud)
+    check("higher-only: two dropped, none lower than the kept -2.0",
+          rep["excluded"] == 2 and rep["excluded_lower_gap"] == 0,
+          f"got excluded={rep['excluded']} lower={rep['excluded_lower_gap']}")
+
+    # --- 3. rows with no gap field report None, never a fake 0 ---------------
+    beats = [
+        {"manager_id": "chris", "team": "Texas", "delta_impact": -1.0},
+        {"manager_id": "jonathan", "team": "Oregon", "delta_impact": -1.0},
+    ]
+    kept, rep = X(beats, feud, label="bad-beat")
+    check("no gap field: reports None, so 'no lower picks' != 'no gaps here'",
+          rep["excluded_lower_gap"] is None, f"got {rep['excluded_lower_gap']}")
+
+    # --- 4. empty pool -------------------------------------------------------
+    kept, rep = X([], feud)
+    check("empty pool: both counts are 0, no crash",
+          rep["excluded"] == 0 and rep["excluded_lower_gap"] == 0, f"got {rep}")
+
+    # --- 5. forced collision re-baselines on the pick actually kept ----------
+    allcollide = [
+        {"manager_id": "chris", "team": "Texas", "market_gap": -3.0},
+        {"manager_id": "blaine", "team": "Iowa", "market_gap": -0.5},
+    ]
+    kept, rep = X(allcollide, feud)
+    check("forced: fell back to the lowest-overlap pick (blaine/Iowa)",
+          rep["collision_forced"] and kept[0]["team"] == "Iowa",
+          f"got {kept}")
+    check("forced: the count re-baselines on the FORCED winner (-0.5), so 1",
+          rep["excluded_lower_gap"] == 1, f"got {rep['excluded_lower_gap']}")
+
+
 def test_coda_exclusion_in_packet():
     """The live packet must actually CARRY the filtered pool and its audit trail
     -- a helper nobody calls fixes nothing."""
@@ -971,6 +1049,7 @@ def main():
     test_fail_loud()
     test_packet_schema()
     test_coda_subject_exclusion()
+    test_coda_lower_gap_count()
     test_coda_exclusion_in_packet()
 
     passed, total = sum(1 for r in _res if r[1]), len(_res)

@@ -756,6 +756,41 @@ def test_coda_superlative_matches_the_selection_rule():
     check("exclusion ran: the coda is still computed, never model-chosen",
           "chosen by computation, never by you" in user_text)
 
+    # THE COUNT SPLIT. `excluded` is every subject-collision drop;
+    # `excluded_lower_gap` is the subset actually below the kept pick. The
+    # sentence says "with a lower gap", so it must quote the second. Panel
+    # Week 0 shipped 8 here when the true answer was 1, and the column hedged
+    # a superlative onto the false count.
+    split = json.loads(json.dumps(base))
+    split["coda_exclusion"] = {"excluded": 8, "excluded_lower_gap": 1,
+                               "collision_forced": False,
+                               "lead_managers": ["blaine", "chris"],
+                               "lead_teams": ["Texas"]}
+    with sandbox("panel", split):
+        _, user_text, _ = G.build_prompt("panel")
+    check("count split: the prompt quotes the LOWER-GAP count (1)",
+          "1 pick(s) with a lower gap" in user_text, user_text[-400:])
+    check("count split: the total drop count (8) never reaches the prompt",
+          "8 pick(s) with a lower gap" not in user_text)
+    check("count split: the board-wide superlative is still forbidden",
+          "NOT the lowest on the board and you may not call it that" in user_text)
+
+    # Drops happened but none of them is lower. The superlative must NOT come
+    # back in on that technicality.
+    nolower = json.loads(json.dumps(base))
+    nolower["coda_exclusion"] = {"excluded": 8, "excluded_lower_gap": 0,
+                                 "collision_forced": False,
+                                 "lead_managers": ["blaine", "chris"],
+                                 "lead_teams": ["Texas"]}
+    with sandbox("panel", nolower):
+        _, user_text, _ = G.build_prompt("panel")
+    check("no lower drops: it does not claim any pick was lower",
+          "pick(s) with a lower gap" not in user_text)
+    check("no lower drops: it says picks were set aside, none of them lower",
+          "none of them sits at a lower gap" in user_text)
+    check("no lower drops: the superlative stays banned anyway",
+          "still may not call this the lowest on the board" in user_text)
+
     clean = json.loads(json.dumps(base))
     clean["coda_exclusion"] = {"excluded": 0, "collision_forced": False,
                                "lead_managers": [], "lead_teams": []}

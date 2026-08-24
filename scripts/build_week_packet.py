@@ -926,7 +926,27 @@ def subject_overlap(candidate, managers, teams):
             + (1 if candidate.get("team") in teams else 0))
 
 
-def exclude_lead_subject(candidates, lead, label="bad-beat", group_id=None):
+def _lower_gap_count(dropped, winner, gap_key):
+    """How many DROPPED candidates sit at a lower gap than the one we kept.
+
+    None when the rows do not carry gap_key (the in-season bad-beat pool), so
+    a caller can tell "no lower-gap picks" from "this pool has no gaps".
+    """
+    if not gap_key or winner is None or gap_key not in winner:
+        return None
+    ref = winner.get(gap_key)
+    if ref is None:
+        return None
+    n = 0
+    for c in dropped:
+        g = c.get(gap_key)
+        if g is not None and g < ref:
+            n += 1
+    return n
+
+
+def exclude_lead_subject(candidates, lead, label="bad-beat", group_id=None,
+                         gap_key="market_gap"):
     """Drop coda candidates that collide with the lead's subject.
 
     Returns (kept, report). `candidates` must already be in selection order --
@@ -941,17 +961,34 @@ def exclude_lead_subject(candidates, lead, label="bad-beat", group_id=None):
          is recoverable; a crashed packet on a Saturday night is not.
       3. the pool was empty to begin with -> nothing to do, no warning. A week
          with no bad beats is normal and already handled downstream.
+
+    TWO COUNTS, and they are not the same number. `excluded` is the audit
+    trail: every candidate dropped for sharing the lead's subject.
+    `excluded_lower_gap` is the only one the PROMPT may quote -- the dropped
+    candidates whose gap is actually LOWER than the one we kept. The prompt
+    sentence is "N pick(s) with a lower gap were set aside", and reading
+    `excluded` for it overstated N on every real board (panel Week 0: 8 drops,
+    exactly 1 of them lower than the coda's -1.044). The model was handed a
+    false count and duly hedged a superlative onto it.
+
+    gap_key is None-safe: the in-season bad-beat rows carry no market_gap at
+    all, so the count reports None there rather than inventing a comparison
+    the data cannot support.
     """
     managers, teams = storyline_subject(lead)
     if not candidates:
-        return [], {"excluded": 0, "collision_forced": False,
+        return [], {"excluded": 0, "excluded_lower_gap": 0,
+                    "collision_forced": False,
                     "lead_managers": sorted(managers), "lead_teams": sorted(teams)}
 
     scored = [(subject_overlap(c, managers, teams), i, c)
               for i, c in enumerate(candidates)]
     kept = [c for ov, _, c in scored if ov == 0]
+    dropped = [c for ov, _, c in scored if ov != 0]
+    winner = kept[0] if kept else min(scored, key=lambda t: (t[0], t[1]))[2]
     report = {
         "excluded": len(candidates) - len(kept),
+        "excluded_lower_gap": _lower_gap_count(dropped, winner, gap_key),
         "collision_forced": False,
         "lead_managers": sorted(managers),
         "lead_teams": sorted(teams),
@@ -963,6 +1000,9 @@ def exclude_lead_subject(candidates, lead, label="bad-beat", group_id=None):
     best_ov, _, best = min(scored, key=lambda t: (t[0], t[1]))
     report["collision_forced"] = True
     report["forced_overlap"] = best_ov
+    # The kept pick changed, so the comparison baseline did too.
+    report["excluded_lower_gap"] = _lower_gap_count(
+        [c for c in candidates if c is not best], best, gap_key)
     tag = f"[{group_id}] " if group_id else ""
     print(f"::warning:: {tag}every {label} candidate collides with the One Big "
           f"Thing subject (managers={sorted(managers) or '-'}, "

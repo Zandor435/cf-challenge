@@ -454,15 +454,35 @@ def build_prompt(group_id, packet_override=None):
         # columns duly wrote it -- persona sacred rule 7 again, one level up:
         # not a number read off one profile, but a ranking claim the selection
         # rule never made.
-        excluded = (packet.get("coda_exclusion") or {}).get("excluded") or 0
-        if excluded:
+        # TWO COUNTS (build_week_packet.exclude_lead_subject). `excluded` is
+        # every subject-collision drop; `excluded_lower_gap` is the subset that
+        # actually sits at a lower gap. Only the second one may appear in the
+        # sentence below, because the sentence says "with a lower gap". Panel
+        # Week 0 read `excluded` and told the model 8 when the true answer was
+        # 1, and the column hedged a superlative onto the false count.
+        _ce = packet.get("coda_exclusion") or {}
+        lower = _ce.get("excluded_lower_gap")
+        dropped = _ce.get("excluded") or 0
+        if lower is None:          # packet predates the split; best available
+            lower = dropped
+        if lower:
             how_chosen = (
                 f"It is the lowest market_gap among the picks the One Big Thing "
-                f"did NOT already cover — {excluded} pick(s) with a lower gap "
+                f"did NOT already cover — {lower} pick(s) with a lower gap "
                 f"were set aside because they share the lead's manager or team. "
                 f"So it is NOT the lowest on the board and you may not call it "
                 f"that, or the worst, or the biggest disagreement anywhere. "
                 f"State its number and make the case from the number.")
+        elif dropped:
+            # Picks were set aside, but none of them at a lower gap. Do NOT
+            # invite the superlative back in on the technicality.
+            how_chosen = (
+                "It is the lowest market_gap among the picks the One Big Thing "
+                "did NOT already cover. Picks were set aside for sharing the "
+                "lead's manager or team; none of them sits at a lower gap. You "
+                "still may not call this the lowest on the board, the worst, or "
+                "the biggest disagreement anywhere. State its number and make "
+                "the case from the number.")
         else:
             how_chosen = ("It is the lowest market_gap on the board, and nothing "
                           "was set aside to get there.")
