@@ -76,6 +76,19 @@
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' seed='5' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='3.2' intercept='-0.55'/%3E%3CfeFuncG type='linear' slope='3.2' intercept='-0.55'/%3E%3CfeFuncB type='linear' slope='3.2' intercept='-0.55'/%3E%3CfeFuncA type='linear' slope='0' intercept='1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23d)'/%3E%3C/svg%3E");
   --tx-torn:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='800' preserveAspectRatio='none'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.05' numOctaves='4' seed='9'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='34' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Crect x='0' y='-40' width='566' height='880' fill='%23fff' filter='url(%23t)'/%3E%3C/svg%3E");
+  /* THE SAME TEAR, MIRRORED, for the portraits that sit on the right.
+     --tx-torn is not symmetric and cannot be: its rect stops 34px short of
+     the 600-wide viewBox, so the ragged edge is on the RIGHT and the left
+     edge is solid. That is correct for a left-hand portrait, where the torn
+     side is the one meeting the copy and the solid side bleeds off the page.
+     Mirrored, it is exactly wrong — see the rule under the SIDELINE mirror.
+
+     Same seed, same displacement, wrapped in a flipped group rather than
+     redrawn with the rect shifted to x='34'. Flipping reuses the identical
+     noise field, so the two tears are one texture seen from either side
+     instead of two textures that happen to look similar. */
+  --tx-torn-left:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='800' preserveAspectRatio='none'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.05' numOctaves='4' seed='9'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='34' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Cg transform='translate(600,0)%20scale(-1,1)'%3E%3Crect x='0' y='-40' width='566' height='880' fill='%23fff' filter='url(%23t)'/%3E%3C/g%3E%3C/svg%3E");
   /* A dot screen. Pure CSS rather than SVG because it has to take the
      profile's accent at use-time, which a data URI cannot do. */
   --tx-halftone:
@@ -261,7 +274,11 @@ body.pf-body-ground {
      accent in the layout stays the loudest colour on the page. */
   filter: saturate(.86) contrast(1.06);
 }
-/* Opaque rectangular art gets the synthetic torn edge. */
+/* Opaque rectangular art gets the synthetic torn edge. ASYMMETRIC: --tx-torn
+   tears the RIGHT edge only, which is the copy-facing edge of a left-hand
+   portrait. The mirror of this rule lives with the SIDELINE mirror, because
+   which edge faces the copy is a fact about the composition, not about the
+   art. */
 .pf-portrait:not(.is-cut) img {
   -webkit-mask-image: var(--tx-torn);
   mask-image: var(--tx-torn);
@@ -414,63 +431,120 @@ body.pf-body-ground {
 
 /* ==========================================================================
    BLOCK 4 — PICKS
-   Editorial table, not a data grid: heavy top rule, tiny column labels,
-   generous row height, the number carrying the weight.
-   --pf-pick-cols is set per render so the live-season Δ column can appear
-   without a second table implementation.
+   A wrapping strip of inline units, not a table. One heavy rule under the
+   label, then the picks set as type: mark, team, conference, line, call.
+   The live-season delta appends to each unit rather than opening a column,
+   so the season needs no second implementation.
    ========================================================================== */
-/* A CONTAINER, not a viewport consumer. The picks table folds when ITS OWN
-   column gets narrow, which is the only thing that actually matters — and it
-   gets narrow in three unrelated situations: a phone, the PROGRAM variant's
-   410px side column, and HEADLINER's secondary column. Keying the fold to the
-   viewport handled the first and cramped the other two, squeezing the team
-   name into ~100px beside 308px of fixed columns at a 1800px viewport.
-   One container query replaces three viewport rules and cannot disagree with
-   itself. */
-.pf-picks {
-  margin-top: 34px;
-  container-type: inline-size;
-  container-name: picks;
+.pf-picks { margin-top: 30px; }
+/* The label and the conference spread share one line. `margin-left: auto`
+   pushes the spread to the far edge so the two read as label and annotation
+   rather than as a sentence, and both wrap out of each other's way on a
+   phone instead of colliding. */
+.pf-picks-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
 }
-.pf-picks-head { display: flex; align-items: baseline; gap: 12px; }
-.pf-table { margin-top: 12px; border-top: 3px solid var(--profile-ink); }
-.pf-row {
-  display: grid;
-  grid-template-columns: var(--pf-pick-cols, minmax(0, 1fr) 92px 96px 90px);
-  gap: 14px;
-  align-items: center;
-  padding: 15px 0;
-  border-bottom: 1px solid var(--pf-rule);
-}
-.pf-row.is-head {
-  padding: 9px 0;
-  border-bottom: 1px solid var(--pf-rule);
-}
-.pf-row.is-head span {
-  font-family: var(--display);
-  font-weight: 700;
+.pf-picks-confs {
+  margin-left: auto;
+  font-family: var(--mono);
   font-size: .62rem;
-  letter-spacing: .18em;
+  letter-spacing: .04em;
   text-transform: uppercase;
   color: #8a7f6d;
 }
+
+/* ---- THE PICK STRIP -----------------------------------------------------
+   Each pick is one inline unit and the units wrap like type. This replaced a
+   four-column table that cost 325px per manager — 2,278px across the seven
+   browns profiles, 28% of that page — to print four facts per pick that the
+   home board and the picks page both carry in full. On the page whose subject
+   is the person, the picks are a reference line, not the exhibit.
+
+   NO BOX PER PICK. Bordered pills would have read as a filter bar, which is
+   the one thing this page must never look like; separation comes from a wide
+   column gap against a tight inner gap (18px vs 7px), so the eye groups each
+   unit without any chrome drawn to make it.
+
+   THE CONTAINER QUERY IS GONE WITH THE TABLE. The old fold existed because a
+   fixed-column table had to re-stack inside PROGRAM's 410px side column and
+   HEADLINER's secondary column, which a viewport breakpoint could not see.
+   Wrapping content re-flows into any width by itself, so three compositions
+   and a phone are now served by the same rule and there is nothing left to
+   disagree. */
+.pf-pickstrip {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 12px 0 0;
+  border-top: 2px solid var(--profile-ink);
+  display: flex;
+  flex-wrap: wrap;
+  /* row-gap carries the wrapped lines; column-gap is what separates one pick
+     from the next and is deliberately more than double the inner gap. */
+  gap: 10px 18px;
+}
+.pf-pick {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+}
 /* A settled pick dims. Opacity only — the status is also stated in text in
    the row, so this is never the sole carrier of the fact. */
-.pf-row.is-dead { opacity: .5; }
+.pf-pick.is-dead { opacity: .5; }
 
-.pf-team { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.pf-team-name {
+.pf-pick-team {
   font-family: var(--display);
   font-weight: 700;
-  font-size: 1.16rem;
+  font-size: .94rem;
   letter-spacing: .005em;
   overflow-wrap: anywhere;
 }
+.pf-pick-line {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: .94rem;
+  font-weight: 600;
+}
+.pf-pick-delta {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: .8rem;
+  font-weight: 600;
+}
+.pf-pick-delta.pos { color: #1f7a2e; }
+.pf-pick-delta.neg { color: #b3231c; }
+
+/* The call. Still a WORD, and still filled for OVER against outlined for
+   UNDER, so the two are distinguishable by SHAPE as well as by the word and
+   the colour — never colour alone. Shrinking it to O/U would have saved about
+   26px a pick and put the one field a reader cannot infer behind a legend.
+   `align-self: center` because the rest of the unit is baseline-aligned and a
+   bordered block has no useful baseline to sit on. */
+.pf-pick-call {
+  align-self: center;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: .56rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 3px 6px;
+  border: 1.5px solid var(--profile-ink);
+  line-height: 1;
+  white-space: nowrap;
+}
+.pf-pick-call.over { background: var(--profile-ink); color: var(--profile-paper); }
+.pf-pick-call.under { background: transparent; color: var(--profile-ink); }
+
 /* The team mark. A local logo when one exists; otherwise a monogram chip in
-   the team's own primary colour — never a grey placeholder box. */
+   the team's own primary colour — never a grey placeholder box. Sized to the
+   strip: it is an identifier at a glance, not an illustration. */
 .pf-mark {
   flex: 0 0 auto;
-  width: 34px; height: 34px;
+  align-self: center;
+  width: 20px; height: 20px;
   display: grid;
   place-items: center;
   border-radius: 2px;
@@ -481,89 +555,10 @@ body.pf-body-ground {
   color: var(--pf-team-ink, #fff);
   font-family: var(--display);
   font-weight: 900;
-  font-size: .68rem;
-  letter-spacing: .02em;
+  font-size: .46rem;
+  letter-spacing: .01em;
 }
 .pf-mark img { width: 100%; height: 100%; object-fit: contain; }
-
-.pf-conf {
-  font-family: var(--mono);
-  font-size: .72rem;
-  letter-spacing: .02em;
-  color: #6f6355;
-}
-.pf-line {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 1.24rem;
-  font-weight: 500;
-}
-.pf-delta {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 1rem;
-  font-weight: 600;
-  text-align: right;
-}
-.pf-delta.pos { color: #1f7a2e; }
-.pf-delta.neg { color: #b3231c; }
-
-/* The call. A hard-edged block, filled for OVER and outlined for UNDER, so
-   the two are distinguishable by SHAPE as well as by the word and the
-   colour — never colour alone. */
-.pf-call {
-  justify-self: start;
-  font-family: var(--display);
-  font-weight: 900;
-  font-size: .68rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  padding: 6px 11px;
-  border: 2px solid var(--profile-ink);
-  line-height: 1;
-}
-.pf-call.over { background: var(--profile-ink); color: var(--profile-paper); }
-.pf-call.under { background: transparent; color: var(--profile-ink); }
-
-/* ---- THE FOLD -----------------------------------------------------------
-   Two rows per pick: team and call on top, the reference numbers underneath in
-   a three-up strip. Nothing is dropped and nothing overflows.
-
-   The header row is dropped and each cell announces itself from its own
-   data-label instead. That is why the cells are emitted FLAT rather than
-   wrapped in a meta container — one set of grid children serves both
-   compositions, so there is no second markup path to keep in sync. */
-@container picks (max-width: 560px) {
-  .pf-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    padding: 15px 0;
-  }
-  .pf-row.is-head { display: none; }
-  .pf-team  { grid-column: 1 / 3; grid-row: 1; }
-  .pf-call  { grid-column: 3; grid-row: 1; justify-self: end; align-self: center; }
-  .pf-conf  { grid-column: 1; grid-row: 2; }
-  .pf-line  { grid-column: 2; grid-row: 2; }
-  .pf-delta { grid-column: 3; grid-row: 2; text-align: right; }
-
-  /* Micro-labels are set at .62rem and never smaller — below that they stop
-     being readable and start being texture. */
-  .pf-conf::before,
-  .pf-line::before,
-  .pf-delta::before {
-    content: attr(data-label);
-    display: block;
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: .62rem;
-    letter-spacing: .16em;
-    text-transform: uppercase;
-    color: #8a7f6d;
-    margin-bottom: 5px;
-  }
-  .pf-line { font-size: 1.06rem; }
-  .pf-team-name { font-size: 1.08rem; }
-}
 
 .pf-picks-empty {
   font-family: var(--body);
@@ -575,7 +570,7 @@ body.pf-body-ground {
 
 /* ==========================================================================
    BLOCK 5 — SCOUTING REPORT
-   Narrower measure than the picks table above it. The width change is the
+   Narrower measure than the pick strip above it. The width change is the
    signal that this is reading matter, not reference matter.
    ========================================================================== */
 .pf-scouting { margin-top: 40px; }
@@ -946,6 +941,65 @@ body.pf-body-ground {
     margin-left: 0;
     margin-right: -20px;
   }
+
+  /* THE COPY COLUMN'S GUTTER, which the mirror above does not carry over.
+     The card itself has no horizontal padding — a left-aligned profile gets
+     its gutter from the grid, because the copy sits in track 2 and the 370px
+     portrait plus the 46px column-gap hold it 416px inside the card's paper.
+     Mirroring moves the copy into track 1, where there is nothing to its left,
+     so that gutter went to ZERO: every line of Chris's scouting report, and
+     his nameplate with it, started hard on the paper's edge and read as
+     falling off the page.
+
+     Measured rather than eyeballed: at 1440 the card's paper begins ~92px
+     from the viewport, and the copy began 92px from it too — 0px inside its
+     own ground, against 416px on an unmirrored section.
+
+     46px, i.e. the column-gap, and not a new number. It is the gutter this
+     composition already puts between the portrait and the copy, so a mirrored
+     section is inset by exactly one gutter and the two alignments read as the
+     same layout seen from either side. Padding on the wrapper rather than
+     margin on the blocks: `.pf-col-main` is a `minmax(0, 1fr)` track, so the
+     padding comes out of the copy measure instead of widening the grid — and
+     it applies once, to every block the column holds, rather than once per
+     block with a list that goes stale the next time a block is added.
+
+     Left only. The right edge stays flush against the column-gap and the
+     portrait beyond it, which is the same relationship an unmirrored profile
+     has and is not the edge that broke. */
+  .pf--sideline.pf--align-right .pf-col-main { padding-left: 46px; }
+
+  /* THE TEAR HAS TO MIRROR WITH THE COLUMN, and it was the one part of this
+     composition that did not.
+
+     The torn edge is the portrait's INNER edge — the one that meets the copy
+     and dissolves the art into the paper. The outer edge is a clean bleed off
+     the page and is meant to stay clean. --tx-torn hard-codes that as "ragged
+     on the right", which is only the inner edge while the portrait is on the
+     left. Mirrored, every right-hand portrait tore into the page margin where
+     the effect is invisible and presented a hard rectangular edge to the
+     copy — the exact inverse of the intended reading, and the reason a
+     right-aligned section looked like a photograph pasted next to the text
+     rather than torn into it.
+
+     Only bites `:not(.is-cut)` art, i.e. the opaque rectangular cuts that get
+     the SYNTHETIC tear. Art that is already ragged in the pixels carries its
+     own direction and is handled upstream: managers.js asks for the
+     `profile_page_hero_left` slot on mirrored sections, so those files are
+     torn on the correct side before they reach the page. That covers the six
+     mirrored .is-cut managers; it is the four mirrored family photographs,
+     which are deliberately never given a cut asset, that were left with the
+     wrong-side tear.
+
+     Scoped to the desktop mirror on purpose. Below 900px the columns collapse
+     to one and the portrait spans the full width, where there is no
+     copy-facing edge to speak of — mirroring the mask there would make the
+     four family portraits tear the opposite way from the other twenty on a
+     phone, for no reason a reader could see. */
+  .pf--sideline.pf--align-right .pf-portrait:not(.is-cut) img {
+    -webkit-mask-image: var(--tx-torn-left);
+    mask-image: var(--tx-torn-left);
+  }
 }
 
 /* ---- HEADLINER — full-bleed art, name overlapping the image edge -------- */
@@ -1114,10 +1168,9 @@ body.pf-body-ground {
   .pf-name { font-size: clamp(3rem, 17vw, 5rem); }
   .pf-thesis { font-size: .95rem; margin-top: 14px; }
 
-  /* The picks table's fold is NOT here — it is a container query on .pf-picks
-     (see THE FOLD above), because the table has to fold whenever its own
-     column is narrow, not whenever the viewport is. On a phone the column is
-     narrow, so the same rule fires and nothing extra is needed. */
+  /* Nothing here for the picks. They are a wrapping strip now and re-flow
+     into whatever width they are given, which is what retired the container
+     query that used to fold the table. */
 
   .pf-band {
     grid-template-columns: 1fr;

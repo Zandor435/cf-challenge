@@ -90,7 +90,16 @@
       "rival": null,
       "color": "#cfb87c",
       "silhouette_cues": "sunglasses + chain. Shares gold with Zach — needs a contrasting ground to separate in art.",
-      "_creative_note": "2026-08-22: `layout` ONLY -- see the note on zach. Chris sits fourth in standings order and takes PROGRAM so the page closes on a centred composition rather than a fourth left-weighted one. His asset carries a baked Colorado scoreboard and 'AIN'T JUST FAST. IT'S FAT PRIME', so a cropping variant is not available to him. 2026-08-23 (ALTERNATING SIDELINE): every manager in every league now renders SIDELINE, and the variation that used to come from picking a different variant per person now comes from which SIDE the portrait sits on. The side is pinned to this manager's POSITION IN THIS FILE -- published as profile_order by sync_personas.py -- so position 1 is portrait-left, position 2 portrait-right, and so on. Pinned to the list and NOT to standings rank on purpose: a manager's layout must not flip mid-season because they won a game. Reordering the managers in this file is therefore a LAYOUT edit. This entry read 'program' before the sweep.",
+      "_creative_note": "2026-08-22: `layout` ONLY -- see the note on zach. Chris sits fourth in standings order and takes PROGRAM so the page closes on a centred composition rather than a fourth left-weighted one. His asset carries a baked Colorado scoreboard and 'AIN'T JUST FAST. IT'S FAT PRIME', so a cropping variant is not available to him. 2026-08-23 (ALTERNATING SIDELINE): every manager in every league now renders SIDELINE, and the variation that used to come from picking a different variant per person now comes from which SIDE the portrait sits on. The side is pinned to this manager's POSITION IN THIS FILE -- published as profile_order by sync_personas.py -- so position 1 is portrait-left, position 2 portrait-right, and so on. Pinned to the list and NOT to standings rank on purpose: a manager's layout must not flip mid-season because they won a game. Reordering the managers in this file is therefore a LAYOUT edit. This entry read 'program' before the sweep. 2026-08-24 (DOSSIER): populated from prose already in this file, so the card renders for all four panel managers instead of Blaine alone. REAL, i.e. stated in the backstory verbatim: hometown (\"Shreveport-born\"), college (\"LSU-made\" -- NOT `team`, which is his drafted CFB side and is Colorado), known_for (the Paris residency and the French-collegiate-football bit, which is also the running gag), status (\"he stays above the fray\", which fatal_flaw then turns on him). DERIVED but not invented: role \"The Critic\" compresses \"says little, judges everything, and files a full review afterward\"; the second nickname is the backstory's \"formerly elite Yelper\". role deliberately does not restate the epithet -- Le Docteur is already printed one row below under Nicknames.",
+      "dossier": {
+        "role": "The Critic",
+        "nicknames": ["Le Docteur", "The Elite Yelper"],
+        "known_for": "Two years in Paris, and the storied tradition of French collegiate football.",
+        "hometown": "Shreveport, LA",
+        "college": "LSU",
+        "drafted": null,
+        "status": "Above the fray"
+      },
       "layout": "sideline"
     },
     "jonathan": {
@@ -112,7 +121,16 @@
       "rival": null,
       "color": "#c30020",
       "silhouette_cues": "visor (Spurrier persona). Eye patch is foreground-only — never at depth.",
-      "_creative_note": "2026-08-22: `layout` ONLY -- see the note on zach. Stated explicitly rather than left to the default, even though the default IS sideline: the alternating rhythm down this page is deliberate, and leaving it implicit means a future change to DEFAULT_LAYOUT silently reshuffles the scroll.",
+      "_creative_note": "2026-08-22: `layout` ONLY -- see the note on zach. Stated explicitly rather than left to the default, even though the default IS sideline: the alternating rhythm down this page is deliberate, and leaving it implicit means a future change to DEFAULT_LAYOUT silently reshuffles the scroll. 2026-08-24 (DOSSIER): populated from prose already in this file. REAL: known_for is the backstory's closing sentence; status is \"the man works on the actual rocket\"; the second nickname is \"a genuine space nerd\". hometown is NULL ON PURPOSE -- the backstory places him at NASA in Huntsville, which is where he WORKS and is not a claim about where he is from, and Blaine's entry already flagged current-base-as-hometown as the field most likely to be wrong. college is null for the same reason: `team` is Texas Tech because he drafted Texas Tech, and nothing here says he attended it. \"Little Jonno\" is deliberately NOT a nickname here -- it belongs to Jonathan Giles, the player, not to Jonathan.",
+      "dossier": {
+        "role": "The Engineer",
+        "nicknames": ["The Rocket Scientist", "Space Nerd"],
+        "known_for": "Calculating a launch window to the second, then drafting a receiver who will not last to November.",
+        "hometown": null,
+        "college": null,
+        "drafted": null,
+        "status": "Still working the actual rocket"
+      },
       "layout": "sideline"
     },
     "zach": {
@@ -133,7 +151,16 @@
       "rival": null,
       "color": "#ceb888",
       "silhouette_cues": "backwards Wake Forest gold cap",
-      "_creative_note": "2026-08-22: `layout` ONLY. No prose, no dossier, no footer was authored here -- everything this section renders is the persona content that already existed. The variant is a design decision about the SCROLL, not a claim about Zach: four sections all set in SIDELINE read as four identical stamps down the page, so the panel alternates sideline/program. PROGRAM and SIDELINE are the two variants that display the art at its own aspect ratio; HEADLINER and DOSSIER crop to a fixed height, and every panel asset carries baked-in lettering that must never be cropped. 2026-08-23 (ALTERNATING SIDELINE): every manager in every league now renders SIDELINE, and the variation that used to come from picking a different variant per person now comes from which SIDE the portrait sits on. The side is pinned to this manager's POSITION IN THIS FILE -- published as profile_order by sync_personas.py -- so position 1 is portrait-left, position 2 portrait-right, and so on. Pinned to the list and NOT to standings rank on purpose: a manager's layout must not flip mid-season because they won a game. Reordering the managers in this file is therefore a LAYOUT edit. This entry read 'program' before the sweep.",
+      "_creative_note": "2026-08-22: `layout` ONLY. No prose, no dossier, no footer was authored here -- everything this section renders is the persona content that already existed. The variant is a design decision about the SCROLL, not a claim about Zach: four sections all set in SIDELINE read as four identical stamps down the page, so the panel alternates sideline/program. PROGRAM and SIDELINE are the two variants that display the art at its own aspect ratio; HEADLINER and DOSSIER crop to a fixed height, and every panel asset carries baked-in lettering that must never be cropped. 2026-08-23 (ALTERNATING SIDELINE): every manager in every league now renders SIDELINE, and the variation that used to come from picking a different variant per person now comes from which SIDE the portrait sits on. The side is pinned to this manager's POSITION IN THIS FILE -- published as profile_order by sync_personas.py -- so position 1 is portrait-left, position 2 portrait-right, and so on. Pinned to the list and NOT to standings rank on purpose: a manager's layout must not flip mid-season because they won a game. Reordering the managers in this file is therefore a LAYOUT edit. This entry read 'program' before the sweep. 2026-08-24 (DOSSIER): populated from prose already in this file. REAL: college (\"came back a Demon Deacon\"), known_for (the scoring engine / projection model / AI art department line), status (\"he wrote the website that displays it\"), and the second nickname (\"a spreadsheet problem\"). hometown \"Baton Rouge, LA\" is DERIVED from \"by way of Baton Rouge ... came back\" -- the strongest reading of the sentence, and the one field here worth a second look. Note that college and `team` coincide at Wake Forest by coincidence, not by rule; see jonathan, where they must not be conflated. role \"The Architect\" avoids restating The Commissioner, which prints one row below.",
+      "dossier": {
+        "role": "The Architect",
+        "nicknames": ["The Commissioner", "The Spreadsheet Problem"],
+        "known_for": "Building a scoring engine, a projection model and an AI art department for a bet you could settle with a handshake.",
+        "hometown": "Baton Rouge, LA",
+        "college": "Wake Forest",
+        "drafted": null,
+        "status": "Wrote the website that displays it"
+      },
       "layout": "sideline"
     }
   },
