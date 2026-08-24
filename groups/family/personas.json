@@ -17,11 +17,11 @@
       "color": null,
       "silhouette_cues": null,
 
-      "_creative_note": "2026-08-22: the STRAIGHT-REGISTER stress test for the editorial profile system, and the reason it exists. Everything here is drawn from the backstory already in this file -- McComb, the Ole Miss/LSU Law ordering, the Attorney General's office, pressure-testing Zach's takes, the board being the argument stated out loud. NOTHING was invented, and nothing here is a joke at his expense. That is the register, not a limitation of it: a straight profile has to be a finished editorial page in its own right, not a roast page with the jokes removed. Note what is ABSENT and cannot be added: modules.fatal_flaw and modules.running_gag would both be REJECTED at build time here, because the flat fields they decorate are null under the straight register -- the schema will not let a headline exist over a withheld body. The footer is affectionate and factual rather than a punchline.",
+      "_creative_note": "2026-08-22: the STRAIGHT-REGISTER stress test for the editorial profile system, and the reason it exists. Everything here is drawn from the backstory already in this file -- McComb, the Ole Miss/LSU Law ordering, the Attorney General's office, pressure-testing Zach's takes, the board being the argument stated out loud. NOTHING was invented, and nothing here is a joke at his expense. That is the register, not a limitation of it: a straight profile has to be a finished editorial page in its own right, not a roast page with the jokes removed. Note what is ABSENT and cannot be added: modules.fatal_flaw and modules.running_gag would both be REJECTED at build time here, because the flat fields they decorate are null under the straight register -- the schema will not let a headline exist over a withheld body. The footer is affectionate and factual rather than a punchline. 2026-08-23 (ALTERNATING SIDELINE): every manager in every league now renders SIDELINE, and the variation that used to come from picking a different variant per person now comes from which SIDE the portrait sits on. The side is pinned to this manager's POSITION IN THIS FILE -- published as profile_order by sync_personas.py -- so position 1 is portrait-left, position 2 portrait-right, and so on. Pinned to the list and NOT to standings rank on purpose: a manager's layout must not flip mid-season because they won a game. Reordering the managers in this file is therefore a LAYOUT edit. This entry read 'program' before the sweep.",
 
       "archetype": "The Counselor",
       "thesis": "Ole Miss first, LSU second, and he'd like the record to reflect that.",
-      "layout": "program",
+      "layout": "sideline",
       "theme": {
         "accent": "#14213d",
         "accent_secondary": "#8a1538",

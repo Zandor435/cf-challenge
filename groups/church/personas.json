@@ -45,11 +45,11 @@
       "color": null,
       "silhouette_cues": null,
 
-      "_creative_note": "2026-08-22: the WARM-REGISTER stress test. Warm is the register that proves the tone gate is not a two-state switch: David gets a running gag and a rival module -- both affectionate, both about picks rather than about him -- and NO fatal flaw, because warm withholds it. All content below is drawn from the backstory already in this file: the Spiders, Georgia by way of his son, the CPA career, being here for the material. modules.fatal_flaw is deliberately absent and would be REJECTED at build time, because the flat field it decorates is null under this register.",
+      "_creative_note": "2026-08-22: the WARM-REGISTER stress test. Warm is the register that proves the tone gate is not a two-state switch: David gets a running gag and a rival module -- both affectionate, both about picks rather than about him -- and NO fatal flaw, because warm withholds it. All content below is drawn from the backstory already in this file: the Spiders, Georgia by way of his son, the CPA career, being here for the material. modules.fatal_flaw is deliberately absent and would be REJECTED at build time, because the flat field it decorates is null under this register. 2026-08-23 (ALTERNATING SIDELINE): every manager in every league now renders SIDELINE, and the variation that used to come from picking a different variant per person now comes from which SIDE the portrait sits on. The side is pinned to this manager's POSITION IN THIS FILE -- published as profile_order by sync_personas.py -- so position 1 is portrait-left, position 2 portrait-right, and so on. Pinned to the list and NOT to standings rank on purpose: a manager's layout must not flip mid-season because they won a game. Reordering the managers in this file is therefore a LAYOUT edit. This entry read 'headliner' before the sweep.",
 
       "archetype": "The Spider",
       "thesis": "Spent a career around numbers. Will not be taking these ones seriously.",
-      "layout": "headliner",
+      "layout": "sideline",
       "theme": {
         "accent": "#8a1538",
         "accent_secondary": "#14110f",

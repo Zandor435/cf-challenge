@@ -100,6 +100,39 @@ const LAYOUT_TEMPLATES = {
 };
 const DEFAULT_LAYOUT = 'sideline';
 
+// ---------------------------------------------------------------------------
+// WHICH SIDE THE PORTRAIT SITS ON.
+//
+// Every manager in every league renders SIDELINE now, so the rhythm down the
+// page can no longer come from switching variants. It comes from switching
+// SIDES: position 1 puts the portrait left, position 2 right, position 3 left,
+// and so on. `pf--align-right` is the only thing that says so; profile.css
+// flips the grid and the bleed margin off that one class and the DOM order of
+// the two columns never changes, which is what keeps the reading order — and
+// therefore the tab order and the screen-reader order — identical on both
+// sides.
+//
+// PINNED TO profile_order, WHICH IS NOT THIS PAGE'S ORDER. The page renders in
+// STANDINGS order; profile_order is the manager's index in
+// groups/<group>/personas.json, published by sync_personas.py. Those two lists
+// disagree, and pinning to the persona list is the deliberate choice: a
+// manager's side must not flip mid-season because they won or lost a game.
+//
+// The consequence, stated plainly because it is visible: except where the two
+// orders happen to line up, the sides down the page do NOT read
+// left/right/left. Two managers who sit next to each other in the standings
+// can both be portrait-left. That is the cost of a stable side, and it is the
+// side that was specified as the thing to protect.
+//
+// FALLBACK to the rank index when profile_order is absent — an older published
+// personas.json, or a manager with no persona record at all. Alternating off
+// something is better than every profile silently collapsing to the left.
+function alignRight(persona, index) {
+  const order = (persona && Number.isInteger(persona.profile_order))
+    ? persona.profile_order : index;
+  return order % 2 === 1;
+}
+
 // The icon per module BLOCK — never per person. This file cannot know that a
 // particular manager's gag is about Texas, and a per-person mark would be the
 // first `if (manager === ...)` in a file that has none.
@@ -506,6 +539,14 @@ function profile(m, persona, ctx, index) {
   let layout = (p && has(p.layout) && LAYOUT_TEMPLATES[p.layout]) ? p.layout : DEFAULT_LAYOUT;
   if (!portrait.hasArt && layout !== 'dossier') layout = 'dossier';
 
+  // The alternation is SIDELINE's, and only SIDELINE's. DOSSIER — which is
+  // where a manager with no art lands — is a full-width composition with no
+  // portrait column to put on either side, so tagging it would be a class that
+  // describes nothing. See alignRight() for why the position comes from the
+  // persona list rather than from this page's order.
+  const alignCls = (layout === 'sideline' && alignRight(p, index))
+    ? ' pf--align-right' : '';
+
   const blocks = {
     portrait: portrait.html,
     headline: blockHeadline(m, p),
@@ -524,7 +565,7 @@ function profile(m, persona, ctx, index) {
   const fallbackColor = p && has(p.color) ? p.color
     : (ctx.colors[m.manager_id] || null);
 
-  return `<article class="pf pf--${esc(layout)}${portrait.hasArt ? '' : ' has-no-art'}"
+  return `<article class="pf pf--${esc(layout)}${alignCls}${portrait.hasArt ? '' : ' has-no-art'}"
     id="${esc(m.manager_id)}"
     aria-labelledby="${esc(m.manager_id)}-name"${themeVars(p, fallbackColor)}>
     ${LAYOUT_TEMPLATES[layout](blocks)}
@@ -757,6 +798,10 @@ async function main() {
       if (card) {
         card.classList.add('has-no-art');
         Object.keys(LAYOUT_TEMPLATES).forEach((k) => card.classList.remove(`pf--${k}`));
+        // The side goes with the variant. A DOSSIER still carrying
+        // pf--align-right is a class describing a portrait column that no
+        // longer exists — see the note on alignCls in profile().
+        card.classList.remove('pf--align-right');
         card.classList.add('pf--dossier');
       }
     };

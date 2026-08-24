@@ -821,6 +821,33 @@ body.pf-body-ground {
      asymmetry that keeps the composition from reading as two tidy columns. */
   .pf--sideline .pf-col-aside { margin-left: -20px; }
   .pf--sideline .pf-portrait { margin-bottom: 0; }
+
+  /* ---- the mirror -------------------------------------------------------
+     Portrait RIGHT, editorial LEFT. Set by managers.js from the manager's
+     position in groups/<g>/personas.json (odd positions mirror), so the scroll
+     alternates without a second variant and without a second block order.
+
+     GRID PLACEMENT, NOT `direction` AND NOT `order`. The two column wrappers
+     stay in the same DOM order on both sides — aside first, main second —
+     because that order is the reading order, the tab order and the
+     screen-reader order, and a composition should never buy its rhythm by
+     scrambling those. Only the track each wrapper is placed into changes, so
+     a mirrored profile is the same document with the columns swapped.
+
+     Explicit `grid-row: 1` on both: without it the auto-placement algorithm
+     puts the second-named-but-first-column child on row 2 and the profile
+     renders as two stacked full-width blocks. */
+  .pf--sideline.pf--align-right {
+    grid-template-columns: minmax(0, 1fr) 370px;
+  }
+  .pf--sideline.pf--align-right .pf-col-aside { grid-column: 2; grid-row: 1; }
+  .pf--sideline.pf--align-right .pf-col-main  { grid-column: 1; grid-row: 1; }
+  /* The asymmetric bleed mirrors with the column: the portrait still breaks
+     out past the card into the page margin, now on the other edge. */
+  .pf--sideline.pf--align-right .pf-col-aside {
+    margin-left: 0;
+    margin-right: -20px;
+  }
 }
 
 /* ---- HEADLINER — full-bleed art, name overlapping the image edge -------- */

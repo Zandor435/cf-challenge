@@ -9,7 +9,10 @@
   "tone withholds fields per register: straight nulls fatal_flaw,",
   "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing.",
   "A withheld field takes its modules[<field>] block with it, so a",
-  "withheld block can never render as a headline with no body."
+  "withheld block can never render as a headline with no body.",
+  "profile_order is DERIVED, not authored: it is each manager's index",
+  "in groups/browns/personas.json, and managers.js alternates the sideline",
+  "layout off it so a manager's side cannot move when their rank does."
  ],
  "$version": 1,
  "group_id": "browns",
@@ -33,7 +36,8 @@
    "footer": null,
    "theme": null,
    "layout": null,
-   "assets": null
+   "assets": null,
+   "profile_order": 0
   },
   "hauck": {
    "tone": "roast",
@@ -54,7 +58,8 @@
    "footer": null,
    "theme": null,
    "layout": null,
-   "assets": null
+   "assets": null,
+   "profile_order": 1
   },
   "bryan": {
    "tone": "roast",
@@ -75,7 +80,8 @@
    "footer": null,
    "theme": null,
    "layout": null,
-   "assets": null
+   "assets": null,
+   "profile_order": 2
   },
   "todd": {
    "tone": "roast",
@@ -96,7 +102,8 @@
    "footer": null,
    "theme": null,
    "layout": null,
-   "assets": null
+   "assets": null,
+   "profile_order": 3
   },
   "zach": {
    "tone": "roast",
@@ -117,7 +124,8 @@
    "footer": null,
    "theme": null,
    "layout": null,
-   "assets": null
+   "assets": null,
+   "profile_order": 4
   },
   "josh": {
    "tone": "roast",
@@ -138,7 +146,8 @@
    "footer": null,
    "theme": null,
    "layout": null,
-   "assets": null
+   "assets": null,
+   "profile_order": 5
   },
   "marc": {
    "tone": "roast",
@@ -159,7 +168,8 @@
    "footer": null,
    "theme": null,
    "layout": null,
-   "assets": null
+   "assets": null,
+   "profile_order": 6
   }
  }
 }

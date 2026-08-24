@@ -263,12 +263,54 @@ def test_every_source_persona_validates():
     check("every group's personas were audited", seen >= 20, f"{seen} managers")
 
 
+def test_every_profile_is_sideline():
+    """ONE VARIANT ACROSS ALL FOUR LEAGUES, and the alternation that replaced it.
+
+    The scroll's rhythm used to come from switching layout variants per person
+    (panel alternated sideline/program, church's david took headliner). It now
+    comes from which SIDE the sideline portrait sits on, which means the
+    variant has to be uniform or the alternation reads as noise on top of
+    noise. DEFAULT_LAYOUT is already 'sideline', so an ABSENT key is correct
+    and is not what this guards -- a re-declared 'program' or 'headliner' is.
+
+    The second half is the one that would actually break silently: the side is
+    each manager's INDEX in groups/<g>/personas.json, so two managers sharing
+    an index, or an index the published file disagrees with, would put two
+    profiles on the same side with nothing to show for it.
+    """
+    seen = 0
+    for src_path in sorted(GROUPS_DIR.glob("*/personas.json")):
+        gid = src_path.parent.name
+        doc = json.loads(src_path.read_text(encoding="utf-8"))
+        mgrs = doc.get("managers", {})
+        for mid, rec in mgrs.items():
+            seen += 1
+            got = rec.get("layout")
+            check(f"{gid}/{mid} is sideline (or unset, which means sideline)",
+                  got in (None, "sideline"), f"layout is {got!r}")
+
+        # profile_order must be the source file's key order, exactly, and the
+        # published copy must agree with it. sync_personas.py derives it, so a
+        # disagreement here means the docs/ copy is stale in a way --check
+        # would catch too -- but this names the field, which --check does not.
+        pub_path = ROOT / "docs" / "data" / gid / "personas.json"
+        if not pub_path.exists():
+            continue
+        pub = json.loads(pub_path.read_text(encoding="utf-8")).get("managers", {})
+        expect = {mid: i for i, mid in enumerate(mgrs)}
+        got = {mid: rec.get("profile_order") for mid, rec in pub.items()}
+        check(f"{gid}: published profile_order matches the persona file's order",
+              got == expect, f"expected {expect}, got {got}")
+    check("every group's layouts were audited", seen >= 20, f"{seen} managers")
+
+
 def main():
     test_every_new_field_is_optional()
     test_malformed_fields_fail_loud()
     test_tone_gate_strips_modules()
     test_private_fields_never_published()
     test_every_source_persona_validates()
+    test_every_profile_is_sideline()
 
     passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
