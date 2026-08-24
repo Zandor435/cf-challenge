@@ -86,12 +86,18 @@ function realWorldSeason(d = new Date()) {
 // ---------- contrast fitting ----------------------------------------------
 // Team colors are picked for helmets, not for legibility on a white card.
 // Measured: Colorado #cfb87c and Wake Forest #ceb888 both sit at 1.94:1 against
-// white and effectively disappear; Texas Tech #c30020 is only 2.65:1 on the dark
-// hero. So each identity carries TWO fitted variants -- one per ground -- rather
-// than the raw hex, keeping the team's hue while clearing WCAG's 3:1 non-text
-// threshold. The raw value is kept for large fills, where contrast is moot.
+// white and effectively disappear. So an identity carries a fitted variant
+// rather than the raw hex, keeping the team's hue while clearing WCAG's 3:1
+// non-text threshold. The raw value is kept for large fills, where contrast is
+// moot.
+//
+// A second variant, fitted against the #1e1e1e ground of the hero band's
+// manager strip, used to be built alongside it: Texas Tech #c30020 only reaches
+// 2.65:1 there, so white-fitted values were not safe to reuse. That strip is
+// gone and every avatar now sits on a white card. fitContrast() still takes the
+// ground as an argument, so a dark surface that needs avatars again fits its
+// own value; it must not borrow the white-fitted one.
 const LIGHT_GROUND = '#ffffff';
-const DARK_GROUND = '#1e1e1e';
 const MIN_CONTRAST = 3;
 
 function hexToRgb(h) {
@@ -170,7 +176,6 @@ function buildManagerIdentity(managers, groupId, week) {
       || MANAGER_PALETTE[ids.indexOf(m.manager_id) % MANAGER_PALETTE.length];
     map[m.manager_id] = {
       color: fitContrast(seed, LIGHT_GROUND, MIN_CONTRAST),
-      colorDark: fitContrast(seed, DARK_GROUND, MIN_CONTRAST),
       teamColor: seed,
       team: (entry && entry.team) || null,
       initials: initialsOf(m.display_name),
@@ -286,7 +291,7 @@ function wireImageFallbacks(root) {
 // Size comes from a CSS class (avatar-sm/md/lg), not an inline pixel value, so
 // the responsive rules can shrink avatars without fighting inline styles.
 function avatar(ident, sizeClass, cls) {
-  const vars = `--mc:${ident.color};--mcd:${ident.colorDark || ident.color}`;
+  const vars = `--mc:${ident.color}`;
   const shell = `class="avatar ${sizeClass} ${cls || ''}`;
   const initials = `<span>${esc(ident.initials)}</span>`;
   if (!ident.face) {

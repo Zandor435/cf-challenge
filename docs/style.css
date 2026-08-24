@@ -223,11 +223,11 @@ a { color: inherit; }
   font-family: var(--display); font-weight: 900; color: var(--mc);
   line-height: 1; user-select: none;
 }
-.avatar.on-dark > span { background: #1e1e1e; }
-/* --mc is fitted for the white cards; --mcd for the dark hero panel. Texas Tech
-   #c30020 only reaches 2.65:1 on #1e1e1e raw, so the hero needs its own value. */
-.avatar.on-dark { border-color: var(--mcd, var(--mc)); }
-.avatar.on-dark > span { color: var(--mcd, var(--mc)); }
+/* A dark-ground variant used to sit here, for the avatars in the hero band's
+   manager strip. The strip is gone and every avatar the page emits now sits on
+   a white card, so --mc is the only fitted value left. If a dark surface ever
+   gets avatars again, fit a second value against THAT ground — do not reuse
+   --mc, which is fitted for white and measured as low as 2.65:1 on #1e1e1e. */
 .avatar-lg { width: 56px; height: 56px; font-size: 20px; }
 .avatar-md { width: 40px; height: 40px; font-size: 14px; }
 .avatar-sm { width: 28px; height: 28px; font-size: 10px; }
@@ -322,11 +322,10 @@ a { color: inherit; }
   color: #fff; text-transform: uppercase; margin-bottom: 6px;
 }
 .hero-title span { color: var(--accent); }
+/* Only rendered in season now — renderHero() emits no sub-line before kickoff,
+   so the lightened, measure-capped preseason variant that used to sit here went
+   with it. What is left is the half-line of stats this rule was written for. */
 .hero-sub { font-size: .86rem; color: var(--text-faint); line-height: 1.5; }
-/* The preseason sub-line is the headline's own correction, not a footnote about
-   it, so it comes off --text-faint. Measure is capped because it is a sentence
-   rather than the usual half-line of stats. */
-.hero-sub.is-pre { color: #d9d9d9; max-width: 62ch; }
 .hero-sub b { color: #fff; font-weight: 600; }
 .hero-sub .mono { font-weight: 600; color: #fff; }
 .hero-sub .hero-pos { color: var(--accent); }
