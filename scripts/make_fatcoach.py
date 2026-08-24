@@ -100,6 +100,19 @@ NO_FURNITURE = (
 # wordmark on a Kentucky-blue polo inside a Kentucky stadium. Naming the
 # offender is far more reliable than trusting the positive prompt to crowd it
 # out, and it is opt-in, so no existing call site changes behaviour.
+# Lifts the "only insignia" sentence so the named team may dress the whole
+# scene. The spelling clause is not optional decoration: every garbled render
+# in the hauck batch failed on LETTERING, not on color or composition, and
+# more permitted text means more surface for that failure.
+TEAM_MARKS = (
+    " The team's OWN wordmark and logo may also appear where they really "
+    "would: on the credential, on the play-call sheet, on sideline signage, "
+    "and on the stadium backdrop behind him. Every mark in the frame must "
+    "belong to that one team. EVERY PIECE OF LETTERING MUST BE SPELLED "
+    "CORRECTLY and be cleanly legible -- no invented words, no garbled or "
+    "approximated team name, no dummy text."
+)
+
 EXCLUSION = (
     " ABSOLUTELY FORBIDDEN anywhere in this picture: {names}. None of these "
     "may appear on his apparel, on a patch, on the credential, on the "
@@ -110,7 +123,7 @@ EXCLUSION = (
 )
 
 
-def build_prompt(color_word, hexc, patch, exclude=None):
+def build_prompt(color_word, hexc, patch, exclude=None, team_marks=False):
     text = SCENE.format(color=color_word) + f" The team color is {hexc}."
     text += IDENTITY_LOCK + BUILD_CHANGE
     if patch:
@@ -118,8 +131,14 @@ def build_prompt(color_word, hexc, patch, exclude=None):
         # vague "add a patch" lands as noise on the chest or not at all.
         text += (f" ON HIS LEFT CHEST, over the heart, he wears {patch} -- a "
                  f"single embroidered patch, clearly legible, sitting flat on "
-                 f"the fabric like real team-issued embroidery. It is the ONLY "
-                 f"lettering or insignia anywhere in the picture.")
+                 f"the fabric like real team-issued embroidery.")
+        # The default keeps the chest patch as the sole mark, which is what
+        # stops a team name in the prompt from spraying invented signage
+        # across the frame. team_marks lifts exactly that sentence -- and
+        # nothing else -- for the case where the dressed set IS the point.
+        text += (TEAM_MARKS if team_marks else
+                 " It is the ONLY lettering or insignia anywhere in the "
+                 "picture.")
     else:
         text += NO_FURNITURE
     if exclude:
@@ -137,6 +156,10 @@ def main():
     ap.add_argument("--hex", default=None, help="literal #RRGGBB instead of --team")
     ap.add_argument("--patch", default=None,
                     help='e.g. "a returning national champions patch"')
+    ap.add_argument("--team-marks", action="store_true",
+                    help="let the named team's marks dress the scene "
+                         "(backdrop, signage, credential), not just the chest "
+                         "patch; adds a spelling guard. Default off.")
     ap.add_argument("--exclude", default=None,
                     help="comma-joined things that must NOT appear, e.g. "
                          '"JMU, James Madison, purple". Opt-in; see EXCLUSION')
@@ -167,7 +190,7 @@ def main():
     else:
         ap.error("one of --team or --hex is required")
 
-    prompt = build_prompt(word, hexc, a.patch, a.exclude)
+    prompt = build_prompt(word, hexc, a.patch, a.exclude, a.team_marks)
     out_dir = Path(a.out) if a.out else ROOT / "output" / "personas" / a.group
     if not out_dir.is_absolute():
         out_dir = ROOT / out_dir
