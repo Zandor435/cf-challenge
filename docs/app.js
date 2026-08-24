@@ -564,13 +564,18 @@ function bannerFor(groupId, week) {
   return list.indexOf(groupId) >= 0 ? `assets/banners/${groupId}.webp` : null;
 }
 
-// `pre` reframes the headline, and only the headline. The manager strip below
-// it keeps every number the engine emitted, in the order the engine ranked
-// them: re-sorting a preseason board would be this page inventing an ordering
-// to replace the one it was given, which is a worse lie than the one being
-// fixed. What changes is the CLAIM -- a card-sub note cannot defuse an h1 that
-// reads "Current leader", so before kickoff the h1 stops saying it.
-function renderHero(standings, ident, pre) {
+// `pre` reframes the headline, and only the headline. Nothing here is
+// recomputed or re-ranked for it: re-sorting a preseason board would be this
+// page inventing an ordering to replace the one it was given, which is a worse
+// lie than the one being fixed. What changes is the CLAIM -- a card-sub note
+// cannot defuse an h1 that reads "Current leader", so before kickoff the h1
+// stops saying it.
+//
+// The hero carried a per-manager avatar strip (name + banked total) until it
+// was cut: every figure in it was already in the standings board directly
+// below, so it was a second, smaller copy of the same table. The band is now
+// banner + headline + one derived sub-line and nothing else.
+function renderHero(standings, pre) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   if (!mgrs.length) return;
   const meta = standings.meta || {};
@@ -611,18 +616,7 @@ function renderHero(standings, ident, pre) {
         ? 'Drafted &mdash; <span>no games played</span>'
         : `Current leader: <span>${esc(leader.display_name)}</span>`}</h1>
       <p class="hero-sub${pre ? ' is-pre' : ''}">${sub}</p>
-    </div>
-    <div class="hero-mgrs">` +
-      mgrs.map((m) => {
-        const id = ident[m.manager_id];
-        const neg = m.banked_total < 0;
-        return `<div class="hero-mgr">
-          ${avatar(id, 'avatar-lg', 'on-dark')}
-          <div class="hero-mgr-name">${esc(m.display_name)}</div>
-          <div class="hero-mgr-total mono${neg ? ' neg' : ''}">${fmtSigned(m.banked_total)}</div>
-        </div>`;
-      }).join('') +
-    `</div>`;
+    </div>`;
   // Third-tier fallback, same contract as logos and portraits: if the banner
   // 404s or fails to decode, drop the whole block rather than leaving a gap.
   const bimg = $('hero').querySelector('.hero-banner img');
@@ -1041,8 +1035,10 @@ async function main() {
   const pre = isPreseasonStandings(standings);
 
   wireLightbox();
-  renderHero(standings, ident, pre);
-  wireImageFallbacks($('hero'));
+  // No wireImageFallbacks() here: the hero holds no .avatar-img or .team-logo
+  // now that the manager strip is gone, and its banner carries its own error
+  // handler inside renderHero.
+  renderHero(standings, pre);
   renderBoard1(standings, ident, moves, pre);          // Home tab — compact
   renderStandingsDetail(standings, ident, moves, pre); // Standings tab — full detail
   renderScoreboard(standings, ident, pre);

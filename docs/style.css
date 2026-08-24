@@ -331,10 +331,11 @@ a { color: inherit; }
 .hero-sub .mono { font-weight: 600; color: #fff; }
 .hero-sub .hero-pos { color: var(--accent); }
 
-/* Kickoff banner. .hero becomes `1fr auto` at >=900px, so the banner MUST span
-   both tracks explicitly or it lands in column 1 and the headline overlaps it.
-   Negative margins cancel .hero's padding so the art meets the panel edges --
-   and .hero changes that padding per breakpoint, so these must follow it. */
+/* Kickoff banner. .hero is a single column now that the manager strip is gone,
+   but the explicit span stays: it costs nothing on `1fr` and is what kept the
+   art off the headline back when the band was two tracks. Negative margins
+   cancel .hero's padding so the art meets the panel edges -- and .hero changes
+   that padding per breakpoint, so these must follow it. */
 .hero-banner {
   grid-column: 1 / -1;
   margin: -24px -24px 4px; overflow: hidden;
@@ -344,17 +345,6 @@ a { color: inherit; }
   display: block; width: 100%; height: auto;
   max-height: 260px; object-fit: cover; object-position: center 38%;
 }
-
-.hero-mgrs { display: flex; flex-wrap: wrap; gap: 16px 20px; }
-.hero-mgr { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 66px; }
-.hero-mgr-name {
-  font-family: var(--display); font-weight: 900; font-size: .74rem;
-  color: #fff; letter-spacing: .04em; text-transform: uppercase;
-  text-align: center; line-height: 1.1;
-  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.hero-mgr-total { font-size: .68rem; color: var(--accent); }
-.hero-mgr-total.neg { color: #FF6B6B; }
 
 /* ---------- Board 1 — Standings ------------------------------------------ */
 .standings { margin-top: 14px; }
@@ -782,7 +772,9 @@ a { color: inherit; }
 }
 
 @media (min-width: 900px) {
-  .hero { grid-template-columns: 1fr auto; padding: 28px 32px; }
+  /* Single column at every width now — the `1fr auto` second track existed
+     only to seat the manager strip beside the headline. */
+  .hero { padding: 28px 32px; }
   .hero-banner { margin: -28px -32px 6px; }
   .hero-title { font-size: 2.3rem; }
   .sb-cols { grid-template-columns: 1fr 1fr; }
