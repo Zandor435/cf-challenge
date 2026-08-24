@@ -86,12 +86,18 @@ function realWorldSeason(d = new Date()) {
 // ---------- contrast fitting ----------------------------------------------
 // Team colors are picked for helmets, not for legibility on a white card.
 // Measured: Colorado #cfb87c and Wake Forest #ceb888 both sit at 1.94:1 against
-// white and effectively disappear; Texas Tech #c30020 is only 2.65:1 on the dark
-// hero. So each identity carries TWO fitted variants -- one per ground -- rather
-// than the raw hex, keeping the team's hue while clearing WCAG's 3:1 non-text
-// threshold. The raw value is kept for large fills, where contrast is moot.
+// white and effectively disappear. So an identity carries a fitted variant
+// rather than the raw hex, keeping the team's hue while clearing WCAG's 3:1
+// non-text threshold. The raw value is kept for large fills, where contrast is
+// moot.
+//
+// A second variant, fitted against the #1e1e1e ground of the hero band's
+// manager strip, used to be built alongside it: Texas Tech #c30020 only reaches
+// 2.65:1 there, so white-fitted values were not safe to reuse. That strip is
+// gone and every avatar now sits on a white card. fitContrast() still takes the
+// ground as an argument, so a dark surface that needs avatars again fits its
+// own value; it must not borrow the white-fitted one.
 const LIGHT_GROUND = '#ffffff';
-const DARK_GROUND = '#1e1e1e';
 const MIN_CONTRAST = 3;
 
 function hexToRgb(h) {
@@ -170,7 +176,6 @@ function buildManagerIdentity(managers, groupId, week) {
       || MANAGER_PALETTE[ids.indexOf(m.manager_id) % MANAGER_PALETTE.length];
     map[m.manager_id] = {
       color: fitContrast(seed, LIGHT_GROUND, MIN_CONTRAST),
-      colorDark: fitContrast(seed, DARK_GROUND, MIN_CONTRAST),
       teamColor: seed,
       team: (entry && entry.team) || null,
       initials: initialsOf(m.display_name),
@@ -286,7 +291,7 @@ function wireImageFallbacks(root) {
 // Size comes from a CSS class (avatar-sm/md/lg), not an inline pixel value, so
 // the responsive rules can shrink avatars without fighting inline styles.
 function avatar(ident, sizeClass, cls) {
-  const vars = `--mc:${ident.color};--mcd:${ident.colorDark || ident.color}`;
+  const vars = `--mc:${ident.color}`;
   const shell = `class="avatar ${sizeClass} ${cls || ''}`;
   const initials = `<span>${esc(ident.initials)}</span>`;
   if (!ident.face) {
@@ -564,13 +569,18 @@ function bannerFor(groupId, week) {
   return list.indexOf(groupId) >= 0 ? `assets/banners/${groupId}.webp` : null;
 }
 
-// `pre` reframes the headline, and only the headline. The manager strip below
-// it keeps every number the engine emitted, in the order the engine ranked
-// them: re-sorting a preseason board would be this page inventing an ordering
-// to replace the one it was given, which is a worse lie than the one being
-// fixed. What changes is the CLAIM -- a card-sub note cannot defuse an h1 that
-// reads "Current leader", so before kickoff the h1 stops saying it.
-function renderHero(standings, ident, pre) {
+// `pre` reframes the headline, and only the headline. Nothing here is
+// recomputed or re-ranked for it: re-sorting a preseason board would be this
+// page inventing an ordering to replace the one it was given, which is a worse
+// lie than the one being fixed. What changes is the CLAIM -- a card-sub note
+// cannot defuse an h1 that reads "Current leader", so before kickoff the h1
+// stops saying it.
+//
+// The hero carried a per-manager avatar strip (name + banked total) until it
+// was cut: every figure in it was already in the standings board directly
+// below, so it was a second, smaller copy of the same table. The band is now
+// banner + headline + one derived sub-line and nothing else.
+function renderHero(standings, pre) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   if (!mgrs.length) return;
   const meta = standings.meta || {};
@@ -579,21 +589,29 @@ function renderHero(standings, ident, pre) {
   const season = Number.isFinite(Number(meta.season)) ? String(meta.season) : '';
 
   // The sub-line is derived, never invented: the gap to second place, or a tie.
-  let sub;
-  if (pre) {
-    // No leader, no gap, no tie -- with nothing played, all three describe the
-    // draft rather than the season. Say what the totals below actually are.
-    sub = 'Every total below is that manager&rsquo;s lines added up in their picks&rsquo; ' +
-      'directions &mdash; a restatement of the draft, not a result. It becomes a ' +
-      'standing when week 1 is scored.';
-  } else if (mgrs.length > 1) {
-    const gap = round1(leader.banked_total - mgrs[1].banked_total);
-    sub = gap === 0
-      ? `Tied with <b>${esc(mgrs[1].display_name)}</b> at <span class="mono">${fmtSigned(leader.banked_total)}</span> banked.`
-      : `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span> &middot; ` +
-        `<span class="mono">${fmtLine(gap)}</span> clear of <b>${esc(mgrs[1].display_name)}</b>.`;
-  } else {
-    sub = `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span>.`;
+  //
+  // Preseason emits NO sub-line at all. With nothing played there is no leader,
+  // no gap and no tie, so every version of this line describes the draft rather
+  // than the season -- and the two things it could say are already said, once
+  // each: the h1 states the state, and Board 1's preseason note states the
+  // arithmetic. A third telling is not more honest, only longer.
+  //
+  // Absent rather than blank, the same way bannerHTML is absent when a group
+  // has no art. An emitted-but-empty <p class="hero-sub"> would still spend its
+  // line-height on the band, which is the gap this is removing.
+  let subHTML = '';
+  if (!pre) {
+    let sub;
+    if (mgrs.length > 1) {
+      const gap = round1(leader.banked_total - mgrs[1].banked_total);
+      sub = gap === 0
+        ? `Tied with <b>${esc(mgrs[1].display_name)}</b> at <span class="mono">${fmtSigned(leader.banked_total)}</span> banked.`
+        : `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span> &middot; ` +
+          `<span class="mono">${fmtLine(gap)}</span> clear of <b>${esc(mgrs[1].display_name)}</b>.`;
+    } else {
+      sub = `Banked <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span>.`;
+    }
+    subHTML = `<p class="hero-sub">${sub}</p>`;
   }
 
   const banner = bannerFor(meta.group_id || currentGroupId(), meta.as_of_week);
@@ -610,19 +628,8 @@ function renderHero(standings, ident, pre) {
       <h1 class="hero-title">${pre
         ? 'Drafted &mdash; <span>no games played</span>'
         : `Current leader: <span>${esc(leader.display_name)}</span>`}</h1>
-      <p class="hero-sub${pre ? ' is-pre' : ''}">${sub}</p>
-    </div>
-    <div class="hero-mgrs">` +
-      mgrs.map((m) => {
-        const id = ident[m.manager_id];
-        const neg = m.banked_total < 0;
-        return `<div class="hero-mgr">
-          ${avatar(id, 'avatar-lg', 'on-dark')}
-          <div class="hero-mgr-name">${esc(m.display_name)}</div>
-          <div class="hero-mgr-total mono${neg ? ' neg' : ''}">${fmtSigned(m.banked_total)}</div>
-        </div>`;
-      }).join('') +
-    `</div>`;
+      ${subHTML}
+    </div>`;
   // Third-tier fallback, same contract as logos and portraits: if the banner
   // 404s or fails to decode, drop the whole block rather than leaving a gap.
   const bimg = $('hero').querySelector('.hero-banner img');
@@ -763,10 +770,14 @@ function renderBoard1(standings, ident, moves, pre) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   const meta = standings.meta || {};
   $('board1-week').textContent = weekLabel(meta.as_of_week, pre);
+  // One line, not two. The static .card-sub describes a board with results in
+  // it, which before kickoff there are none of, so it steps aside rather than
+  // stacking above a correction that contradicts it. In season the note hides
+  // and the sub comes back — never both at once.
+  (pre ? hide : show)($('board1-sub'));
   preseasonNote('board1-preseason', pre,
-    'Preseason &mdash; nothing has been played, so every banked total is just that ' +
-    'manager&rsquo;s lines added up in their picks&rsquo; directions. This orders the ' +
-    'league by how many Unders someone drafted, not by how anyone is doing.');
+    'Preseason totals are just each manager&rsquo;s picks added up in their chosen ' +
+    'direction &mdash; arithmetic, not results. Real scoring starts Week 1.');
 
   const head = `<div class="mgr-head mgr-head-c">
     <span>Rank</span><span></span><span>Manager</span><span>Banked</span>
@@ -1041,8 +1052,10 @@ async function main() {
   const pre = isPreseasonStandings(standings);
 
   wireLightbox();
-  renderHero(standings, ident, pre);
-  wireImageFallbacks($('hero'));
+  // No wireImageFallbacks() here: the hero holds no .avatar-img or .team-logo
+  // now that the manager strip is gone, and its banner carries its own error
+  // handler inside renderHero.
+  renderHero(standings, pre);
   renderBoard1(standings, ident, moves, pre);          // Home tab — compact
   renderStandingsDetail(standings, ident, moves, pre); // Standings tab — full detail
   renderScoreboard(standings, ident, pre);
