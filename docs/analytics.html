@@ -10,9 +10,10 @@
      an SVG icon request a file that exists instead of 404ing on /favicon.ico. -->
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Self-hosted webfonts (was a fonts.googleapis.com stylesheet + two
+     preconnects). Declared before style.css so the faces exist by the time the
+     --display/--body/--mono tokens are read. See the header of fonts.css. -->
+<link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="style.css">
 <!-- No new design language: analytics.css adds the per-cell class names this
      page's three column sets need for the narrow fold, and reads style.css's
