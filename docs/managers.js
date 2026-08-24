@@ -572,6 +572,45 @@ function profile(m, persona, ctx, index) {
   </article>`;
 }
 
+// ---------- contents -------------------------------------------------------
+// The jump strip under the page title. One line, names only, every manager
+// linked to their own section — this page can run to eight full-bleed
+// chapters, and without it reaching the seventh means scrolling past six.
+//
+// DRAFT ORDER, i.e. profile_order, i.e. each manager's position in
+// groups/<group>/personas.json. The same list the alternating layout is
+// pinned to, for the same reason: a contents line that reshuffles itself
+// every time somebody wins a game is a contents line nobody can learn.
+//
+// AND SO IT DOES NOT MATCH THE ORDER OF THE PAGE, which renders in STANDINGS
+// order. Stated plainly because it is the one thing about this strip a reader
+// could be surprised by: the names read left-to-right in draft order, and the
+// sections below them read top-to-bottom in rank order. Deriving the strip
+// from `mgrs` as handed in (already rank-sorted) is the one-line change if
+// that trade ever reads the wrong way round.
+//
+// Separators are drawn in CSS, never put in the markup: a screen reader
+// should hear four names, not four names and three pipes.
+function renderContents(mgrs, personas) {
+  const el = $('mgr-contents');
+  if (!el || mgrs.length < 2) return;      // one manager is not a contents page
+
+  // Fall back to the rank position when profile_order is absent, exactly as
+  // the layout alternation does — the two must not be able to disagree about
+  // where a manager sits.
+  const pos = {};
+  mgrs.forEach((m, i) => {
+    const p = personas[m.manager_id];
+    pos[m.manager_id] = (p && Number.isInteger(p.profile_order)) ? p.profile_order : i;
+  });
+
+  const ordered = mgrs.slice().sort((a, b) => pos[a.manager_id] - pos[b.manager_id]);
+  el.innerHTML = `<ul class="pf-contents-list">${ordered.map((m) =>
+    `<li><a href="#${esc(encodeURIComponent(m.manager_id))}">${esc(m.display_name)}</a></li>`
+  ).join('')}</ul>`;
+  show(el);
+}
+
 // ---------- nav ------------------------------------------------------------
 // Same PAGE_NAV as the home page. Entries whose page is unbuilt (kind 'soon')
 // are omitted rather than linked at nothing. The current page is marked, not
@@ -768,6 +807,8 @@ async function main() {
      <p class="pf-intro-sub">${mgrs.length} manager${mgrs.length === 1 ? '' : 's'}, ` +
     `in standings order &middot; ${esc(wk)}</p>`;
   show($('mgr-intro'));
+
+  renderContents(mgrs, personas);
 
   const ctx = {
     groupId,
