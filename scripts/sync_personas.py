@@ -159,6 +159,24 @@ def build_payload(group_id, config, personas, colors):
     cfg_names = {m["manager_id"]: m.get("display_name") for m in config.get("managers", [])}
     per = personas.get("managers", {})
 
+    # THE PERSONA FILE'S OWN ORDER, published as profile_order.
+    #
+    # WHY IT IS NOT THE ORDER OF THIS OUTPUT. The published record is keyed in
+    # config.json order, and the page renders in STANDINGS order -- neither of
+    # which is a position an editor controls. managers.js alternates the
+    # sideline layout (portrait left / portrait right) off this number, and the
+    # requirement it has to satisfy is that a manager's side never moves
+    # because they won or lost a game. So the index is taken from the one list
+    # that only ever changes when somebody edits it: the key order of
+    # groups/<g>/personas.json.
+    #
+    # That makes JSON key order load-bearing in this one file. Python preserves
+    # it on load and json.dumps preserves it on write, so the round trip is
+    # safe -- but a tool that re-serialises personas.json alphabetically would
+    # silently reshuffle which managers sit on which side, and would not fail
+    # any test. Reorder that file only on purpose.
+    persona_order = list(per.keys())
+
     missing = [i for i in cfg_ids if i not in per]
     extra = [i for i in per if i not in cfg_ids]
     if missing:
@@ -236,6 +254,11 @@ def build_payload(group_id, config, personas, colors):
                     g=group_id, m=mid, r=rival)
             )
 
+        # Position in groups/<g>/personas.json -- see persona_order above. Not
+        # an authored field: it is derived from the source file's shape, so it
+        # is set after the projection rather than listed in SITE_FIELDS.
+        rec["profile_order"] = persona_order.index(mid)
+
         out[mid] = rec
 
     return {
@@ -250,6 +273,9 @@ def build_payload(group_id, config, personas, colors):
             "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing.",
             "A withheld field takes its modules[<field>] block with it, so a",
             "withheld block can never render as a headline with no body.",
+            "profile_order is DERIVED, not authored: it is each manager's index",
+            "in groups/{g}/personas.json, and managers.js alternates the sideline".format(g=group_id),
+            "layout off it so a manager's side cannot move when their rank does.",
         ],
         "$version": 1,
         "group_id": group_id,

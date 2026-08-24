@@ -24,8 +24,28 @@ synthesised here. Overwriting it would be a downgrade.
 DETERMINISTIC. The tear is seeded from the manager id, so re-running produces
 byte-identical output and a rebuild never silently reshuffles everyone's art.
 
+WHICH EDGE. The tear opens toward the copy, so it follows the layout: a
+portrait-LEFT profile tears on the RIGHT (the default, and every file published
+today), and a portrait-RIGHT profile has to tear on the LEFT or the ragged edge
+runs into the page margin instead of into the column it is supposed to break
+into. Which managers sit on which side is profile_order in
+groups/<g>/personas.json -- odd positions mirror. See docs/managers.js.
+
     python scripts/build_profile_heroes.py [--force]
+    python scripts/build_profile_heroes.py --side left --only panel/chris         --out-root output/profile_heroes_left
+
+THE LEFT TEAR IS THE RIGHT TEAR, MIRRORED -- same seed, same profile, same
+flecks, flipped. Not a fresh random edge: the two cuts of one portrait have to
+be the same treatment or the page reads as two different art directions, and a
+second seed would also mean the before/after sheet is comparing two variables
+at once. Only the ALPHA is flipped. The photograph is never mirrored -- that
+would hand somebody a reversed face and a reversed jersey.
+
+--out-root stages the build somewhere other than docs/ (repo-root output/ is
+gitignored), which is what a pass that is held for review wants: nothing the
+live page resolves changes until a file is copied into docs/ on purpose.
 """
+import argparse
 import glob
 import hashlib
 import os
@@ -48,8 +68,12 @@ def smooth(x, sigma):
     return np.convolve(np.pad(x, radius, mode="edge"), k, mode="valid")
 
 
-def tear_alpha(w, h, seed):
-    """Alpha for a right-edge paint tear. Straight everywhere else."""
+def tear_alpha(w, h, seed, side="right"):
+    """Alpha for a single-edge paint tear. Straight everywhere else.
+
+    side="left" returns the same tear mirrored -- see the module docstring for
+    why it is a flip rather than a second seed.
+    """
     rng = np.random.default_rng(seed)
     depth = w * DEPTH_FRAC
 
@@ -75,12 +99,22 @@ def tear_alpha(w, h, seed):
     keep = (rng.random((h, w)) < 0.22 * np.exp(-3.4 * beyond)) & (beyond > 0)
     keep &= rng.random((h, w)) < 0.5
     a = np.maximum(a, keep.astype(np.float32))
+    if side == "left":
+        a = np.fliplr(a)
     return (a * 255).astype(np.uint8)
 
 
-def build(path, group, mid, force):
+def build(path, group, mid, force, side="right", out_root=None):
     stem = os.path.basename(path)[:-5]
-    out = os.path.join(os.path.dirname(path), stem + "-ripped.webp")
+    # The left cut is a SECOND FILE, never a replacement: the right cut stays
+    # exactly as it is for every portrait-left manager, and a portrait that
+    # moves sides is a manifest edit rather than a re-render.
+    suffix = "-ripped.webp" if side == "right" else "-ripped-left.webp"
+    out_dir = os.path.dirname(path)
+    if out_root:
+        out_dir = os.path.join(out_root, group)
+        os.makedirs(out_dir, exist_ok=True)
+    out = os.path.join(out_dir, stem + suffix)
     if os.path.exists(out) and not force:
         print("  skip (exists) %s" % os.path.basename(out))
         return False
@@ -90,8 +124,11 @@ def build(path, group, mid, force):
         im = im.resize((round(im.width * scale), round(im.height * scale)),
                        Image.LANCZOS)
     w, h = im.size
+    # SEEDED WITHOUT THE SIDE. The left cut has to be the mirror of this
+    # manager's own right cut, so it must draw the same tear -- folding `side`
+    # into the seed would make them two unrelated edges.
     seed = int(hashlib.sha256(("%s/%s" % (group, stem)).encode()).hexdigest()[:8], 16)
-    rgba = np.dstack([np.asarray(im), tear_alpha(w, h, seed)])
+    rgba = np.dstack([np.asarray(im), tear_alpha(w, h, seed, side)])
     Image.fromarray(rgba, "RGBA").save(out, "WEBP", quality=88, method=6)
     print("  wrote %-26s %dx%d ar=%.3f" % (os.path.basename(out), w, h, w / h))
     return True
@@ -135,27 +172,71 @@ def write_manifest():
     print("\nmanifest: %s (%d images)" % (dest, len(out)))
 
 
+def parse_args(argv):
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--force", action="store_true",
+                    help="re-render files that already exist")
+    ap.add_argument("--side", choices=("right", "left"), default="right",
+                    help="which edge tears. right (default) is the published "
+                         "cut; left is for portrait-RIGHT profiles.")
+    ap.add_argument("--only", action="append", default=None, metavar="GROUP/ID",
+                    help="restrict to these managers, e.g. --only panel/chris. "
+                         "Matches the file stem too, so browns/todd picks up "
+                         "todd_01 and todd_02. Repeatable.")
+    ap.add_argument("--out-root", default=None, metavar="DIR",
+                    help="write under DIR/<group>/ instead of beside the source "
+                         "in docs/. Use it to stage a pass held for review; the "
+                         "manifest is then NOT rewritten, because nothing the "
+                         "live page resolves has changed.")
+    return ap.parse_args(argv)
+
+
+def wanted(only, group, mid, stem):
+    """--only matches a manager id OR a file stem, so browns/todd takes both of
+    todd's variants without naming each one."""
+    if not only:
+        return True
+    keys = {"%s/%s" % (group, mid), "%s/%s" % (group, stem), mid, stem}
+    return any(k in keys for k in only)
+
+
 def main():
-    force = "--force" in sys.argv
+    args = parse_args(sys.argv[1:])
     made = 0
     for g in GROUPS:
         print("===", g)
         for path in sorted(glob.glob("docs/assets/profiles/%s/*.webp" % g)):
             stem = os.path.basename(path)[:-5]
-            if stem.endswith("-ripped"):
+            if stem.endswith("-ripped") or stem.endswith("-ripped-left"):
                 continue
             # todd_01 / todd_02 are variants of one manager; the id for the
             # skip check is the part before the variant suffix.
             mid = stem.rsplit("_", 1)[0] if stem.rsplit("_", 1)[-1].isdigit() else stem
+            if not wanted(args.only, g, mid, stem):
+                continue
             if (g, mid) in SKIP:
+                # Blaine's cut is a hand-painted brush edge and there is no
+                # synthesised tear worth putting next to it. He sits at persona
+                # position 1 -- portrait LEFT -- so he wants the right tear he
+                # already has. If he is ever reordered onto the right, the
+                # honest fix is a new hand-painted source, not this generator.
                 print("  skip (hand-painted) %s" % stem)
                 continue
-            made += build(path, g, mid, force)
-    print("\n%d file(s) written. family is excluded on purpose - see module docstring."
-          % made)
+            made += build(path, g, mid, args.force, args.side, args.out_root)
+    print("")
+    print("%d file(s) written (side=%s). family is excluded on purpose - "
+          "see module docstring." % (made, args.side))
     # Covers family's untorn art too — it uses the same flush treatment, just
     # without a tear, so it needs its sizes in the manifest all the same.
-    write_manifest()
+    #
+    # NOT REWRITTEN FOR A STAGED PASS. The manifest is the live page's
+    # declaration of what exists under docs/, and a build that wrote nowhere
+    # near docs/ has changed nothing it should describe.
+    if args.out_root:
+        print("staged under %s -- manifest left alone (nothing published)."
+              % args.out_root)
+    else:
+        write_manifest()
 
 
 if __name__ == "__main__":

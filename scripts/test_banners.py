@@ -155,38 +155,43 @@ def panel_only():
               f"{g} has no published banner directory")
 
 
-def frontend_wiring():
-    """The three edits that make the manifest render, and the guarantee that
-    what renders is ONE image with no motion attached to it."""
-    html = (ROOT / "docs" / "managers.html").read_text(encoding="utf-8")
-    js = (ROOT / "docs" / "managers.js").read_text(encoding="utf-8")
-    css = (ROOT / "docs" / "style.css").read_text(encoding="utf-8")
+def nothing_renders_it():
+    """THE FRONTEND HALF IS GONE, and this is what replaced it.
 
-    check('id="mgr-banner"' in html, "managers.html has the banner slot")
-    check(html.index('id="mgr-banner"') < html.index('id="mgr-intro"'),
-          "the banner slot sits ABOVE the page intro")
-    check("function renderBanner(" in js, "managers.js defines renderBanner()")
-    check("renderBanner(bannersRes)" in js, "renderBanner() is actually called")
-    check(f"data/${{groupId}}/banners.json" in js,
-          "managers.js fetches the per-group manifest")
-    check("Math.random()" in js, "the pick is random")
-    check("loading=\"eager\"" in js, "the banner loads eagerly (above the fold)")
-    check("el.style.aspectRatio" in js,
-          "the box is reserved from the manifest's dimensions")
+    This file used to assert three edits that made the manifest render on
+    managers.html. The band came off the profile scroll, then renderBanner()
+    itself was deleted -- it was the only caller of this manifest, and a
+    rotator no surface calls is a second, drifting answer to "how does this
+    site show a banner" sitting next to app.js's bannerFor(), which is the one
+    the home page actually uses.
 
-    # No motion, of any kind, anywhere on this page. A timer or a transition
-    # here would be an auto-rotator or a crossfade, and this feature is neither.
-    for banned in ("setInterval", "setTimeout", "requestAnimationFrame"):
-        check(banned not in js, f"managers.js contains no {banned} (no auto-rotation)")
-    check(".mgr-banner-slot" in css, "style.css styles the banner slot")
-    slot = css[css.index(".mgr-banner-slot"):]
-    slot = slot[:slot.index("/* ---- page intro ---- */")]
-    check("transition:" not in slot.replace("transition: none", ""),
-          "no transition declared on the banner")
-    check("animation:" not in slot.replace("animation: none", ""),
-          "no animation declared on the banner")
-    check("prefers-reduced-motion" in slot,
-          "the reduced-motion fence is present")
+    So the remaining frontend claim is a NEGATIVE one, and it is worth keeping:
+    nothing anywhere reads data/<group>/banners.json, and no stylesheet still
+    carries rules for a slot that cannot exist. Both are the states a
+    well-meaning re-wiring would silently undo.
+
+    THE MANIFEST AND ITS IMAGES STAY ON DISK, and every check above still holds
+    them to it. build_banners.py is the generator and banners.json is the spec;
+    if a surface ever wants the band back, that is what it builds against.
+    """
+    docs = ROOT / "docs"
+    for name in ("managers.js", "app.js", "site.js", "analytics.js"):
+        js = (docs / name).read_text(encoding="utf-8")
+        check("function renderBanner(" not in js,
+              f"{name} does not define renderBanner()")
+        # The fetch, not the word. managers.js names the manifest in a comment
+        # explaining where the rotator's inputs went, and a test that cannot
+        # tell a comment from a call would forbid documenting the decision.
+        check("fetchJSON(`data/${groupId}/banners.json`)" not in js
+              and "fetch('data/" + "banners.json'" not in js,
+              f"{name} does not fetch a banner manifest")
+    for name in ("managers.html", "index.html", "analytics.html", "svp.html"):
+        html = (docs / name).read_text(encoding="utf-8")
+        check('id="mgr-banner"' not in html, f"{name} has no banner slot")
+    for name in ("style.css", "profile.css"):
+        css = (docs / name).read_text(encoding="utf-8")
+        check(".mgr-banner-slot" not in css,
+              f"{name} carries no rules for the deleted slot")
 
 
 def main() -> int:
@@ -210,8 +215,8 @@ def main() -> int:
     print("\nscope")
     panel_only()
 
-    print("\nfrontend wiring")
-    frontend_wiring()
+    print("\nnothing renders it")
+    nothing_renders_it()
 
     print()
     if FAILURES:

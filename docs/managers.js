@@ -100,6 +100,39 @@ const LAYOUT_TEMPLATES = {
 };
 const DEFAULT_LAYOUT = 'sideline';
 
+// ---------------------------------------------------------------------------
+// WHICH SIDE THE PORTRAIT SITS ON.
+//
+// Every manager in every league renders SIDELINE now, so the rhythm down the
+// page can no longer come from switching variants. It comes from switching
+// SIDES: position 1 puts the portrait left, position 2 right, position 3 left,
+// and so on. `pf--align-right` is the only thing that says so; profile.css
+// flips the grid and the bleed margin off that one class and the DOM order of
+// the two columns never changes, which is what keeps the reading order — and
+// therefore the tab order and the screen-reader order — identical on both
+// sides.
+//
+// PINNED TO profile_order, WHICH IS NOT THIS PAGE'S ORDER. The page renders in
+// STANDINGS order; profile_order is the manager's index in
+// groups/<group>/personas.json, published by sync_personas.py. Those two lists
+// disagree, and pinning to the persona list is the deliberate choice: a
+// manager's side must not flip mid-season because they won or lost a game.
+//
+// The consequence, stated plainly because it is visible: except where the two
+// orders happen to line up, the sides down the page do NOT read
+// left/right/left. Two managers who sit next to each other in the standings
+// can both be portrait-left. That is the cost of a stable side, and it is the
+// side that was specified as the thing to protect.
+//
+// FALLBACK to the rank index when profile_order is absent — an older published
+// personas.json, or a manager with no persona record at all. Alternating off
+// something is better than every profile silently collapsing to the left.
+function alignRight(persona, index) {
+  const order = (persona && Number.isInteger(persona.profile_order))
+    ? persona.profile_order : index;
+  return order % 2 === 1;
+}
+
 // The icon per module BLOCK — never per person. This file cannot know that a
 // particular manager's gag is about Texas, and a per-person mark would be the
 // first `if (manager === ...)` in a file that has none.
@@ -143,6 +176,21 @@ function themeVars(p, fallbackColor) {
 // no placeholder, no alt stub, no empty gutter. A manager without a picture
 // should look like a manager whose page was designed without one.
 //
+// WHICH WAY THE TEAR FACES. A section placed portrait-RIGHT asks for
+// profile_page_hero_left FIRST: the ragged edge has to open toward the copy,
+// and the published <id>-ripped.webp is ragged on its right, which on that
+// side lands against the page margin where nothing meets it. The left cut is
+// the same tear mirrored (see build_profile_heroes.py --side left).
+//
+// GATED ON THE MANIFEST, NOT ON THE SLOT ANSWERING, and that gate is the whole
+// safety of this: art_slots resolves a PATTERN, so every manager in a tearing
+// group resolves to a -ripped-left path whether or not one was ever made. Only
+// six exist. heroes.json is the statement that a file is on disk, so a manager
+// with no left cut falls straight through to their right-edge cut and keeps
+// their portrait — they lose the tear's direction, not their picture. That is
+// what makes reordering personas.json safe: a manager can move between sides
+// without anything breaking, and the cut can follow later.
+//
 // TWO SLOTS, TRIED IN ORDER, and an explicit persona asset beats both.
 // profile_page_hero is the torn, alpha-keyed cut; profile_hero is the opaque
 // rectangle and the fallback for every group that never declared the page
@@ -160,10 +208,20 @@ function themeVars(p, fallbackColor) {
 //
 // The alt text is the manager's name: this is a portrait of a person and it is
 // primary content, not decoration, so it is never alt="".
-function blockPortrait(ctx, m, p, index) {
+function blockPortrait(ctx, m, p, index, alignsRight) {
   const authored = p && p.assets && has(p.assets.hero) ? p.assets.hero : null;
-  const cut = resolveArt(ctx.groupId, 'profile_page_hero', ctx.week, { id: m.manager_id });
+  const cutRight = resolveArt(ctx.groupId, 'profile_page_hero', ctx.week, { id: m.manager_id });
   const card = resolveArt(ctx.groupId, 'profile_hero', ctx.week, { id: m.manager_id });
+
+  // Declared BEFORE the general manifest check below, because this one is a
+  // fallback rather than a failure: a missing left cut means "use the right
+  // one", not "this manager has no art".
+  const manifestKnown = Object.keys(ctx.heroSizes).length > 0;
+  const cutLeft = alignsRight
+    ? resolveArt(ctx.groupId, 'profile_page_hero_left', ctx.week, { id: m.manager_id })
+    : null;
+  const cut = (cutLeft && (!manifestKnown || ctx.heroSizes[cutLeft])) ? cutLeft : cutRight;
+
   const src = authored || cut || card;
   if (!src) return { html: '', hasArt: false };
 
@@ -185,7 +243,6 @@ function blockPortrait(ctx, m, p, index) {
   // leaves the map empty, and treating that as "no manager has art" would
   // blank every portrait on the site; an empty map therefore means "cannot
   // say", and every path is allowed through to the old error-handler tier.
-  const manifestKnown = Object.keys(ctx.heroSizes).length > 0;
   if (manifestKnown && !ctx.heroSizes[src]) {
     // Loud, because the other way this happens is a real asset that was added
     // without re-running build_profile_heroes.py — which would now silently
@@ -491,7 +548,11 @@ function blockJump(m) {
 function profile(m, persona, ctx, index) {
   const p = persona || null;
   const allow = toneOf(p);
-  const portrait = blockPortrait(ctx, m, p, index);
+
+  // Computed BEFORE the portrait, because it decides which cut of the art the
+  // portrait asks for — not just which side the finished block sits on.
+  const alignsRight = alignRight(p, index);
+  const portrait = blockPortrait(ctx, m, p, index, alignsRight);
 
   // The variant is a DATA VALUE. persona_schema.py has already rejected any
   // key that is not a known variant, so an unknown one cannot arrive here —
@@ -505,6 +566,13 @@ function profile(m, persona, ctx, index) {
   // alone. This is the no-art tier, not a per-manager special case.
   let layout = (p && has(p.layout) && LAYOUT_TEMPLATES[p.layout]) ? p.layout : DEFAULT_LAYOUT;
   if (!portrait.hasArt && layout !== 'dossier') layout = 'dossier';
+
+  // The alternation is SIDELINE's, and only SIDELINE's. DOSSIER — which is
+  // where a manager with no art lands — is a full-width composition with no
+  // portrait column to put on either side, so tagging it would be a class that
+  // describes nothing. See alignRight() for why the position comes from the
+  // persona list rather than from this page's order.
+  const alignCls = (layout === 'sideline' && alignsRight) ? ' pf--align-right' : '';
 
   const blocks = {
     portrait: portrait.html,
@@ -524,11 +592,50 @@ function profile(m, persona, ctx, index) {
   const fallbackColor = p && has(p.color) ? p.color
     : (ctx.colors[m.manager_id] || null);
 
-  return `<article class="pf pf--${esc(layout)}${portrait.hasArt ? '' : ' has-no-art'}"
+  return `<article class="pf pf--${esc(layout)}${alignCls}${portrait.hasArt ? '' : ' has-no-art'}"
     id="${esc(m.manager_id)}"
     aria-labelledby="${esc(m.manager_id)}-name"${themeVars(p, fallbackColor)}>
     ${LAYOUT_TEMPLATES[layout](blocks)}
   </article>`;
+}
+
+// ---------- contents -------------------------------------------------------
+// The jump strip under the page title. One line, names only, every manager
+// linked to their own section — this page can run to eight full-bleed
+// chapters, and without it reaching the seventh means scrolling past six.
+//
+// DRAFT ORDER, i.e. profile_order, i.e. each manager's position in
+// groups/<group>/personas.json. The same list the alternating layout is
+// pinned to, for the same reason: a contents line that reshuffles itself
+// every time somebody wins a game is a contents line nobody can learn.
+//
+// AND SO IT DOES NOT MATCH THE ORDER OF THE PAGE, which renders in STANDINGS
+// order. Stated plainly because it is the one thing about this strip a reader
+// could be surprised by: the names read left-to-right in draft order, and the
+// sections below them read top-to-bottom in rank order. Deriving the strip
+// from `mgrs` as handed in (already rank-sorted) is the one-line change if
+// that trade ever reads the wrong way round.
+//
+// Separators are drawn in CSS, never put in the markup: a screen reader
+// should hear four names, not four names and three pipes.
+function renderContents(mgrs, personas) {
+  const el = $('mgr-contents');
+  if (!el || mgrs.length < 2) return;      // one manager is not a contents page
+
+  // Fall back to the rank position when profile_order is absent, exactly as
+  // the layout alternation does — the two must not be able to disagree about
+  // where a manager sits.
+  const pos = {};
+  mgrs.forEach((m, i) => {
+    const p = personas[m.manager_id];
+    pos[m.manager_id] = (p && Number.isInteger(p.profile_order)) ? p.profile_order : i;
+  });
+
+  const ordered = mgrs.slice().sort((a, b) => pos[a.manager_id] - pos[b.manager_id]);
+  el.innerHTML = `<ul class="pf-contents-list">${ordered.map((m) =>
+    `<li><a href="#${esc(encodeURIComponent(m.manager_id))}">${esc(m.display_name)}</a></li>`
+  ).join('')}</ul>`;
+  show(el);
 }
 
 // ---------- nav ------------------------------------------------------------
@@ -553,62 +660,18 @@ function fail(title, body) {
   show($('load-error'));
 }
 
-// ---------- masthead banner ------------------------------------------------
-
-// ONE image, chosen uniformly at random at render time. That is the entire
-// feature: a different banner when you refresh, and nothing whatsoever after
-// first paint. No timer, no crossfade, no carousel, no controls — the rotation
-// IS the reload, which is also why there is no motion to suppress under
-// prefers-reduced-motion.
+// ---------- no masthead banner --------------------------------------------
+// renderBanner() lived here and is gone. The slot came off managers.html when
+// the band was removed from the profile scroll, and a function no surface
+// calls is not a spare part — it is a second, drifting answer to "how does
+// this site show a banner" sitting next to app.js's bannerFor(), which is the
+// one the home page actually uses.
 //
-// GROUP-GENERIC, like every other block in this file. The gate is NOT a
-// `groupId === 'panel'` check — it is the manifest's existence.
-// data/<group>/banners.json is written by scripts/build_banners.py, only panel
-// has one today, and every other league 404s and renders exactly what it
-// rendered before this existed. A league gets a banner by getting a manifest,
-// never by being named in here.
-//
-// THE BOX IS RESERVED FROM REAL PIXELS. The manifest carries each file's true
-// width and height, and the aspect ratio goes on the slot inline before the
-// <img> is even created. This image is eager and above the fold on a page
-// whose first paint is the roster, so a late-arriving intrinsic size would
-// shove every profile down the page — the same reflow .mgr-art solves with a
-// placeholder ratio, solved here with the exact one.
-//
-// Entries missing a usable file/width/height are dropped rather than rendered
-// as a broken box: the manifest is generated, so a malformed entry means the
-// generator changed shape, and the honest response is the no-banner layout.
-function renderBanner(manifest) {
-  const el = $('mgr-banner');
-  if (!el || !manifest) return;
-  const list = (manifest.banners || []).filter(
-    (b) => b && b.file && b.width > 0 && b.height > 0);
-  if (!list.length) return;
-
-  const dir = String(manifest.dir || '').replace(/\/+$/, '');
-  const pick = list[Math.floor(Math.random() * list.length)];
-  const src = dir ? `${dir}/${pick.file}` : pick.file;
-  // Generic by default, per-image only when the manifest says so. This is
-  // content, not decoration — it sits where a reader expects the league's
-  // picture — so it gets a real name rather than the alt="" the home page's
-  // kickoff strip uses.
-  const alt = pick.alt || `${groupLabel(manifest.group || currentGroupId())} banner`;
-
-  el.style.aspectRatio = `${pick.width} / ${pick.height}`;
-  el.innerHTML =
-    `<img src="${esc(src)}" alt="${esc(alt)}" width="${pick.width}" ` +
-    `height="${pick.height}" loading="eager" decoding="async" fetchpriority="high">`;
-  show(el);
-
-  // Same third-tier contract as the portraits and the profile art: a file
-  // declared in a manifest but missing on disk drops the whole element rather
-  // than leaving a broken-image icon — or, here, an empty reserved box — under
-  // the masthead.
-  const img = el.querySelector('img');
-  const drop = () => { el.innerHTML = ''; el.style.aspectRatio = ''; hide(el); };
-  if (img.complete) { if (img.naturalWidth === 0) drop(); }
-  else img.addEventListener('error', drop, { once: true });
-}
+// The rotator's inputs are still on disk and untouched:
+// data/<group>/banners.json (written by scripts/build_banners.py, panel only)
+// and assets/banners/panel/*.png. Nothing reads them today. If a surface ever
+// wants the band back, the manifest is the spec and build_banners.py is the
+// generator; scripts/test_banners.py still holds both to the disk.
 
 // The browser tries its hash scroll before this page has any content, so the
 // jump has to be redone once the profiles exist. Without this, every
@@ -662,8 +725,12 @@ async function main() {
   // value — P(win pool) in the stat strip — and with the strip gone there is
   // nothing on this page a model produces. A page that reads a file it does not
   // render is a page that will grow a use for it by accident.
-  const [personasRes, standingsRes, slotsRes, portraitsRes, marksRes, heroesRes,
-         bannersRes] =
+  //
+  // banners.json is NOT among them any more, for the same reason
+  // projection.json is not: this page has no banner slot to paint it into.
+  // The manifest still exists and the home page still reads it — the fetch
+  // was removed here, not the file.
+  const [personasRes, standingsRes, slotsRes, portraitsRes, marksRes, heroesRes] =
     await Promise.all([
       fetchJSON(`data/${groupId}/personas.json`).catch(() => null),
       fetchJSON(`data/${groupId}/standings.json`).catch((e) => ({ $error: e })),
@@ -671,10 +738,6 @@ async function main() {
       fetchJSON('assets/portraits/index.json').catch(() => null),
       fetchJSON('data/team_marks.json').catch(() => null),
       fetchJSON('assets/profiles/heroes.json').catch(() => null),
-      // Generated by scripts/build_banners.py, and present for panel only
-      // today. A 404 here is the NORMAL state for the other three leagues and
-      // means no banner element is emitted at all.
-      fetchJSON(`data/${groupId}/banners.json`).catch(() => null),
     ]);
 
   if (!standingsRes || standingsRes.$error) {
@@ -708,9 +771,6 @@ async function main() {
   // out every pick a manager holds.
   renderSampleBanner(meta);
 
-  // Masthead art, above the page title. No-op for a league with no manifest.
-  renderBanner(bannersRes);
-
   const wk = weekLabel(meta.as_of_week, isPreseasonStandings(standings));
   $('mgr-intro').innerHTML =
     `<p class="pf-intro-kicker">Profiles</p>
@@ -718,6 +778,8 @@ async function main() {
      <p class="pf-intro-sub">${mgrs.length} manager${mgrs.length === 1 ? '' : 's'}, ` +
     `in standings order &middot; ${esc(wk)}</p>`;
   show($('mgr-intro'));
+
+  renderContents(mgrs, personas);
 
   const ctx = {
     groupId,
@@ -748,6 +810,10 @@ async function main() {
       if (card) {
         card.classList.add('has-no-art');
         Object.keys(LAYOUT_TEMPLATES).forEach((k) => card.classList.remove(`pf--${k}`));
+        // The side goes with the variant. A DOSSIER still carrying
+        // pf--align-right is a class describing a portrait column that no
+        // longer exists — see the note on alignCls in profile().
+        card.classList.remove('pf--align-right');
         card.classList.add('pf--dossier');
       }
     };

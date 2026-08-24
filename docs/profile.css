@@ -795,6 +795,76 @@ body.pf-body-ground {
 }
 
 /* ==========================================================================
+   CONTENTS — the jump strip under the page title.
+
+   A masthead contents line, not a nav bar: no chrome, no pills, no box, no
+   current-item state. The only structure is the rule it hangs off (the page
+   title's own bottom border, four pixels up) and the pipes between the names,
+   and the pipes are drawn here rather than typed into the markup so a screen
+   reader hears the names and nothing else.
+
+   It wraps rather than scrolls. A horizontal scroller would hide managers off
+   the right edge on a phone, which is the exact problem this element exists to
+   solve; eight names at this size wrap to two or three tidy lines instead.
+   ========================================================================== */
+.pf-contents {
+  padding: 14px 0 16px;
+  border-bottom: 1px solid var(--pf-rule, rgba(20, 17, 15, .18));
+}
+.pf-contents-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  /* row-gap carries the wrapped lines; the column gap is the pipe's breathing
+     room and is deliberately tight, because the pipe is the separator and the
+     space around it should read as one mark, not three. */
+  gap: 6px 0;
+}
+/* The pipe is generated rather than typed into the markup. It is presentation
+   — the <li> boundary is what actually separates one manager from the next —
+   and keeping it out of the DOM keeps it out of the accessible name of the
+   link beside it, which is the part that would really have hurt. */
+.pf-contents-list li + li::before {
+  content: "|";
+  margin: 0 .85em;
+  color: #b3a894;
+}
+.pf-contents-list a {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: .82rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #6f6355;
+  text-decoration: none;
+  /* The underline is the hover, so it needs somewhere to sit that does not
+     move the baseline when it appears. */
+  border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
+  transition: color .12s linear, border-color .12s linear;
+}
+.pf-contents-list a:hover,
+.pf-contents-list a:focus-visible {
+  color: var(--profile-ink, #14110f);
+  border-bottom-color: var(--profile-accent, #b8452a);
+}
+.pf-contents-list a:focus-visible {
+  outline: 3px solid var(--profile-accent-deep, #7a2d1c);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pf-contents-list a { transition: none; }
+}
+@media (max-width: 899px) {
+  .pf-contents { padding: 12px 0 14px; }
+  .pf-contents-list a { font-size: .76rem; letter-spacing: .12em; }
+  .pf-contents-list li + li::before { margin: 0 .6em; }
+}
+
+/* ==========================================================================
    LAYOUT VARIANTS
    Same blocks, same markup, different composition. The variant class is set
    from persona `layout`; an absent value means SIDELINE.
@@ -821,6 +891,61 @@ body.pf-body-ground {
      asymmetry that keeps the composition from reading as two tidy columns. */
   .pf--sideline .pf-col-aside { margin-left: -20px; }
   .pf--sideline .pf-portrait { margin-bottom: 0; }
+
+  /* THE STRIP FLOOR — a guard, not a fix for anything currently on disk.
+     church/david rendered as a full-bleed banner (1200x620 across the whole
+     card, no sidebar) because his persona declared HEADLINER, and that is
+     fixed at the source: every manager is SIDELINE now, and
+     test_persona_schema.py fails the build if one re-declares otherwise.
+
+     This closes the SECOND route to the same picture. .pf-portrait takes the
+     art's own ratio from heroes.json verbatim, and this column is a fixed
+     370px track — so a wide-format source (a landscape group photo, a scanned
+     programme spread) would compute to a couple of hundred pixels of height
+     and render as a horizontal strip in the sidebar: David's symptom again,
+     arriving through the manifest instead of through `layout`. The floor
+     makes the box keep a portrait's presence and lets object-fit: cover crop
+     to it, which the img rule above already does.
+
+     BOTH RULES OR NEITHER, and max-width is the load-bearing one. The figure
+     takes its size from `aspect-ratio`, not from the track, so it is not
+     otherwise bounded by the column at all: min-height alone on a 3:1 source
+     solved for a 900px-wide box and pushed it straight out of a 370px column
+     and off the page. max-width caps the width to the track; min-height then
+     wins over the ratio and the img's own object-fit: cover crops to the box.
+
+     300px against a ~390px figure floors the box at about 1.3:1. Every
+     portrait in the four leagues today is between 0.63 and 0.98, so neither
+     rule fires on current art — they are here for the file nobody has added
+     yet. */
+  .pf--sideline .pf-portrait { max-width: 100%; min-height: 300px; }
+
+  /* ---- the mirror -------------------------------------------------------
+     Portrait RIGHT, editorial LEFT. Set by managers.js from the manager's
+     position in groups/<g>/personas.json (odd positions mirror), so the scroll
+     alternates without a second variant and without a second block order.
+
+     GRID PLACEMENT, NOT `direction` AND NOT `order`. The two column wrappers
+     stay in the same DOM order on both sides — aside first, main second —
+     because that order is the reading order, the tab order and the
+     screen-reader order, and a composition should never buy its rhythm by
+     scrambling those. Only the track each wrapper is placed into changes, so
+     a mirrored profile is the same document with the columns swapped.
+
+     Explicit `grid-row: 1` on both: without it the auto-placement algorithm
+     puts the second-named-but-first-column child on row 2 and the profile
+     renders as two stacked full-width blocks. */
+  .pf--sideline.pf--align-right {
+    grid-template-columns: minmax(0, 1fr) 370px;
+  }
+  .pf--sideline.pf--align-right .pf-col-aside { grid-column: 2; grid-row: 1; }
+  .pf--sideline.pf--align-right .pf-col-main  { grid-column: 1; grid-row: 1; }
+  /* The asymmetric bleed mirrors with the column: the portrait still breaks
+     out past the card into the page margin, now on the other edge. */
+  .pf--sideline.pf--align-right .pf-col-aside {
+    margin-left: 0;
+    margin-right: -20px;
+  }
 }
 
 /* ---- HEADLINER — full-bleed art, name overlapping the image edge -------- */
@@ -964,11 +1089,6 @@ body.pf-body-ground {
    ========================================================================== */
 @media (max-width: 899px) {
   .pf-page { padding: 0 14px 48px; }
-  /* The masthead banner bleeds to this container's edges, and its rule lives
-     in style.css against the desktop 20px. Re-stated here so the two numbers
-     stay together: left uncorrected it overhangs the page box by 6px a side
-     and gives a phone a horizontal scrollbar. */
-  .mgr-banner-slot { margin: 0 -14px 18px; }
   .pf {
     display: flex;
     flex-direction: column;
