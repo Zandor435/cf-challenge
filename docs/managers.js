@@ -228,7 +228,7 @@ function blockPortrait(ctx, m, p, index, alignsRight) {
   // THE MANIFEST IS THE DECLARATION THAT THE ART EXISTS, and it has to be,
   // now that portraits load lazily. art_slots.json resolves a PATTERN — every
   // browns manager gets `assets/profiles/browns/<id>-ripped.webp` whether or
-  // not that file was ever made — so josh and marc resolve to paths that 404.
+  // not that file was ever made — so josh and mark resolve to paths that 404.
   // Eagerly that was self-correcting: the error fired at once and the runtime
   // handler re-tagged them to DOSSIER before anyone saw it. Lazily the error
   // does not fire until the section scrolls into view, so they would render as
