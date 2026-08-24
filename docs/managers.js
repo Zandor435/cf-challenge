@@ -360,13 +360,23 @@ function blockDossier(m, p) {
 // ALWAYS renders. This is the page's guarantee that a manager with zero flavor
 // content still gets a real page: live scoring is something everybody has.
 //
-// THE COLUMN SET IS DATA-DRIVEN, and that is the whole reason this is written
-// the way it is. Preseason there is no delta worth printing — every pick's
-// banked_delta is just its line back — so the Δ column is omitted and the four
-// remaining columns take the width. The moment as_of_week is an integer the
-// column appears, with no second table implementation and no redesign. That is
-// the "current/result columns slot in during the season" requirement, met by
-// letting one renderer read the week rather than by building two tables.
+// A STRIP, NOT A TABLE, and the reason is scroll cost rather than taste. As a
+// four-column table this block was 325px per manager -- 2,278px on the seven
+// browns profiles, 28% of that page -- for four facts per pick that the home
+// board and the picks page both already carry in full. On the page whose
+// subject is the PERSON, the picks are a reference line, not the exhibit. A
+// table sets them as the exhibit.
+//
+// So each pick collapses to one inline unit -- mark, team, line, call -- and
+// the units wrap like type instead of stacking like rows. Nothing is lost:
+// conference moves up to the label line as a DEDUPED SPREAD, which costs no
+// height and carries more than the per-pick repetition did. Same source
+// values, same delta in season; only the geometry changed.
+//
+// THE COLUMN SET IS STILL DATA-DRIVEN. Preseason there is no delta worth
+// printing -- every pick's banked_delta is just its line back -- so it is
+// omitted, and the moment as_of_week is an integer it appears. One renderer
+// reads the week; there is no second implementation for the season.
 //
 // Every value here is exact arithmetic off standings.json, which copied line
 // and conference from data/team_win_totals_2026.json at draft entry. Nothing
@@ -374,27 +384,18 @@ function blockDossier(m, p) {
 function blockPicks(m, ctx) {
   const picks = m.picks || [];
   const live = Number.isInteger(ctx.week);
-  const cols = live
-    ? 'minmax(0, 1fr) 88px 84px 104px 86px'
-    : 'minmax(0, 1fr) 100px 92px 116px';
   const label = live ? `Week ${ctx.week} board` : `${ctx.season} preseason picks`;
 
   if (!picks.length) {
     // Pre-draft is a real state, not a failure — say so instead of printing an
-    // empty table.
+    // empty strip.
     return `<section class="pf-picks" aria-label="Picks">
       <div class="pf-picks-head"><span class="pf-label">${esc(label)}</span></div>
-      <div class="pf-table" style="--pf-pick-cols:${cols}">
-        <p class="pf-picks-empty">No picks yet — this league hasn&rsquo;t drafted.</p>
-      </div>
+      <p class="pf-picks-empty">No picks yet — this league hasn&rsquo;t drafted.</p>
     </section>`;
   }
 
-  const head = `<div class="pf-row is-head" aria-hidden="true">
-    <span>Team</span><span>Conf</span><span>Line</span><span>Call</span>${live ? '<span>&Delta;</span>' : ''}
-  </div>`;
-
-  const rows = picks.map((pk) => {
+  const items = picks.map((pk) => {
     const over = pk.direction === 'O';
     const mark = ctx.marks[pk.team] || null;
     const chip = mark && mark.logo
@@ -405,21 +406,44 @@ function blockPicks(m, ctx) {
       : `<span class="pf-mark"${mark && mark.color ? ` style="--pf-team-color:${esc(mark.color)};--pf-team-ink:${esc(mark.ink || '#fff')}"` : ''} aria-hidden="true">${esc(mark ? mark.abbr : (pk.team || '?').slice(0, 3).toUpperCase())}</span>`;
     const d = Number(pk.banked_delta);
     const dCls = d > 0 ? ' pos' : d < 0 ? ' neg' : '';
-    // The call is stated as a WORD and given a distinct shape (filled vs
-    // outlined) as well as a colour. The Over/Under distinction is never
-    // carried by colour alone.
-    return `<div class="pf-row${pk.status === 'DEAD' ? ' is-dead' : ''}">
-      <div class="pf-team">${chip}<span class="pf-team-name">${esc(pk.team)}</span></div>
-      <span class="pf-conf" data-label="Conf">${esc(pk.conference || '—')}</span>
-      <span class="pf-line" data-label="Line">${fmtLine(pk.line)}</span>
-      <span class="pf-call ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'}</span>
-      ${live ? `<span class="pf-delta${dCls}" data-label="Delta">${fmtSigned(d)}</span>` : ''}
-    </div>`;
+    // The call stays a WORD with a distinct shape (filled vs outlined) as well
+    // as a colour, at a smaller size. Abbreviating it to O/U would have been
+    // the obvious way to save the width and would have put the one field a
+    // reader cannot infer behind a legend.
+    return `<li class="pf-pick${pk.status === 'DEAD' ? ' is-dead' : ''}">
+      ${chip}
+      <span class="pf-pick-team">${esc(pk.team)}</span>
+      <span class="pf-pick-line">${fmtLine(pk.line)}</span>
+      <span class="pf-pick-call ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'}</span>
+      ${live ? `<span class="pf-pick-delta${dCls}">${fmtSigned(d)}</span>` : ''}
+    </li>`;
   }).join('');
 
+  // A LIST, not a grid of divs. Four picks are four things, and the count is
+  // the one fact a reader gets from this block at a glance — a screen reader
+  // should be told "list, 4 items" rather than left to count divs.
+  // THE CONFERENCE SPREAD, ONCE, INSTEAD OF THE CONFERENCE FOUR TIMES.
+  // Printing it per pick cost the strip a wrapped line (95px a manager rather
+  // than 62px) to repeat a field the home board and the picks page both carry
+  // in full. Deduped onto the label line it costs NO height at all — that row
+  // was already there and half empty — and it says more than the per-pick
+  // version did: this league's rules require a minimum number of distinct
+  // conferences, so "SEC · ACC" is the fact about somebody's draft. Three SEC
+  // picks collapse to one token, which is exactly the signal worth seeing.
+  //
+  // Insertion-ordered, not sorted: the order picks were entered is the order
+  // they are shown everywhere else on the site.
+  const confs = [];
+  picks.forEach((pk) => {
+    if (has(pk.conference) && confs.indexOf(pk.conference) < 0) confs.push(pk.conference);
+  });
+  const spread = confs.length
+    ? `<span class="pf-picks-confs">${confs.map((c) => esc(c)).join(' &middot; ')}</span>`
+    : '';
+
   return `<section class="pf-picks" aria-label="Picks">
-    <div class="pf-picks-head"><span class="pf-label">${esc(label)}</span></div>
-    <div class="pf-table" style="--pf-pick-cols:${cols}">${head}${rows}</div>
+    <div class="pf-picks-head"><span class="pf-label">${esc(label)}</span>${spread}</div>
+    <ul class="pf-pickstrip">${items}</ul>
   </section>`;
 }
 

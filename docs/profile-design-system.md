@@ -234,11 +234,24 @@ the reading order is set explicitly with `order`:
 That is a **recomposition, not a shrink**. Portrait, name and picks come first
 because they are what someone opening a profile on a phone came for.
 
-The **picks table is the exception to the breakpoint**: it folds on a *container*
-query, not a viewport one, because it has to fold whenever its own column is
-narrow — which happens on a phone, in PROGRAM's side column, and in HEADLINER's
-secondary column. The header row drops and each cell announces itself from its
-own `data-label`. Micro-labels never go below `.62rem`.
+The **picks need no breakpoint of their own.** They were a four-column table
+that folded on a *container* query — it had to fold whenever its own column got
+narrow, which happened on a phone, in PROGRAM's side column and in HEADLINER's
+secondary column, none of which a viewport rule can see. They are now a wrapping
+strip of inline units, and wrapping content re-flows into any width by itself,
+so the container query is gone and one rule serves all four situations.
+
+That change was made for **scroll cost**, not for tidiness: as a table the block
+was 325px per manager — 2,278px across the seven browns profiles, 28% of that
+page — to print four facts per pick that the home board and the picks page both
+carry in full. On the page whose subject is the person, the picks are a
+reference line, not the exhibit. Nothing was lost: the per-pick conference
+moved up to the label line as a **deduped spread**, which costs no height at
+all and says more than repeating it four times did — this league's rules
+require a minimum number of distinct conferences, so `SEC · ACC` is the fact
+about somebody's draft. Same source values, same in-season delta, and the call
+is still a word in a filled or outlined block so OVER and UNDER are never told
+apart by colour alone.
 
 Verified at 1440px and a true 390px across all 24 profiles: no horizontal
 overflow anywhere.
@@ -327,7 +340,7 @@ real page off their picks alone.
    and the path.
 
 **Team logos:** drop `docs/assets/logos/<slug>.webp` (`Texas A&M` → `texas-am`)
-and re-run `build_team_marks.py`. The picks table picks them up with no page
+and re-run `build_team_marks.py`. The pick strip picks them up with no page
 change; absent, it draws a team-coloured monogram.
 
 ---
