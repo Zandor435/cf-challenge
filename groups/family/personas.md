@@ -90,6 +90,23 @@ and she tells that story at parties without once dropping her voice.
 - **tagline:** Three unders and no announcement.
 - **draft_tendency:** Sneaky-good. Doesn't announce anything.
 
+**Extended profile:**
+
+- **archetype:** The Real Fan
+- **thesis:** Quietest board. Most contrarian. Same bayou.
+- **layout:** `sideline`
+- **theme.accent:** `#4b0082` · **theme.accent_secondary:** `#8a1538` · **theme.paper:** null · **theme.ink:** null
+- **dossier.role:** The Real Fan
+- **dossier.nicknames:** (none — null)
+- **dossier.known_for:** Turning in the quietest board and the most contrarian one.
+- **dossier.hometown:** Baton Rouge, LA
+- **dossier.college:** Ole Miss, then LSU Law
+- **dossier.drafted:** (none — null)
+- **dossier.status:** Sneaky-good
+- **modules.draft_tendency:** label "Draft tendency" · headline "The Quiet Contrarian" · art null
+- **pull_quote:** "Doesn't announce anything. Doesn't have to." — Rachel
+- **footer:** Quietest board. / Most contrarian.
+
 ---
 
 ## vic — "Abita Springs"
@@ -110,6 +127,23 @@ the water in the house and rebuilt after it — a thing he brings up as easily a
 the move to Abita Springs, and with about the same shrug.
 
 - **draft_tendency:** Unbothered. Four overs, no hedge, moves on.
+
+**Extended profile:**
+
+- **archetype:** Abita Springs
+- **thesis:** Four overs, no hedge, moved to Abita Springs.
+- **layout:** `sideline`
+- **theme.accent:** `#2d6a4f` · **theme.accent_secondary:** `#14213d` · **theme.paper:** null · **theme.ink:** null
+- **dossier.role:** Abita Springs
+- **dossier.nicknames:** (none — null)
+- **dossier.known_for:** Taking every pick to the over and not overthinking it.
+- **dossier.hometown:** Abita Springs, LA
+- **dossier.college:** (none — null)
+- **dossier.drafted:** (none — null)
+- **dossier.status:** Unbothered
+- **modules.draft_tendency:** label "Draft tendency" · headline "Four Overs, No Hedge" · art null
+- **pull_quote:** "Four overs. No hedge. Moved on." — Vic
+- **footer:** Four overs. / No hedge.
 
 ---
 
@@ -135,6 +169,25 @@ will take a joke. He will also take your arm.
 - **fatal_flaw:** No casual setting. Anywhere. Ever.
 - **rival:** `gunner`
 
+**Extended profile:**
+
+- **archetype:** The Backpass Assassin
+- **thesis:** No casual setting. Medical device rep. Blue belt. Mustard incident.
+- **layout:** `sideline`
+- **theme.accent:** `#582f7d` · **theme.accent_secondary:** `#000000` · **theme.paper:** null · **theme.ink:** null
+- **dossier.role:** The Backpass Assassin
+- **dossier.nicknames:** The Backpass Assassin, Blue Belt
+- **dossier.known_for:** Walking his little brother into a mustard display. Also: Michael Bradley.
+- **dossier.hometown:** Denver, CO
+- **dossier.college:** Furman
+- **dossier.drafted:** (none — null)
+- **dossier.status:** No casual setting
+- **modules.draft_tendency:** label "Draft tendency" · headline "Nobody's Watching These Teams" · art null
+- **modules.fatal_flaw:** label "Fatal flaw" · headline "No Off Switch" · art null
+- **modules.running_gag:** label "Running gag" · headline "Michael Bradley Was Good" · art null
+- **pull_quote:** "Michael Bradley was good. I will die on this hill." — Gayden
+- **footer:** No casual setting. / Anywhere. Ever.
+
 ---
 
 ## holly — "Rocky Top in Enemy Territory"
@@ -157,6 +210,26 @@ ever seen from her on the subject.
 - **draft_tendency:** Picks against the teams whose fans have annoyed her most. Historically not a bad system.
 - **fatal_flaw:** (none — stays null)
 - **rival:** `vic` (one-directional; vic is straight)
+
+**Extended profile:**
+
+- **archetype:** Rocky Top in Enemy Territory
+- **thesis:** Tennessee educated. Alabama surrounded. Not converting.
+- **layout:** `sideline`
+- **theme.accent:** `#FF8200` · **theme.accent_secondary:** `#58595B` · **theme.paper:** null · **theme.ink:** null
+- **dossier.role:** Rocky Top in Enemy Territory
+- **dossier.nicknames:** Rocky Top
+- **dossier.known_for:** Living in Alabama and refusing to convert.
+- **dossier.hometown:** Chelsea, AL
+- **dossier.college:** Tennessee
+- **dossier.drafted:** (none — null)
+- **dossier.status:** Surrounded
+- **modules.draft_tendency:** label "Draft tendency" · headline "The Annoyance Index" · art null
+- **modules.running_gag:** label "Running gag" · headline "Rocky Top in Roll Tide Country" · art null
+- **modules.rival:** label "Rival" · headline "Uncle Vic" · art null
+- **modules.fatal_flaw:** (none — the flat `fatal_flaw` is null, so the tone gate hides the module; do not author one)
+- **pull_quote:** "I had every opportunity to take an Alabama under. I did not." — Holly
+- **footer:** Tennessee educated. / Alabama surrounded.
 
 ---
 
@@ -183,6 +256,25 @@ and not one word of explanation.
 - **fatal_flaw:** Will let you walk off the cliff rather than raise his voice.
 - **rival:** `devin`
 
+**Extended profile:**
+
+- **archetype:** Bubba G
+- **thesis:** Holly's son. Cleanest board. Scored out of a win.
+- **layout:** `sideline`
+- **theme.accent:** `#8B0000` · **theme.accent_secondary:** `#C4A23C` · **theme.paper:** null · **theme.ink:** null
+- **dossier.role:** Bubba G
+- **dossier.nicknames:** Bubba G
+- **dossier.known_for:** Having the World Cup pool won on merit and losing it to a scoring system his cousin wrote.
+- **dossier.hometown:** South Florida
+- **dossier.college:** North Alabama
+- **dossier.drafted:** (none — null)
+- **dossier.status:** The Asterisk
+- **modules.draft_tendency:** label "Draft tendency" · headline "Says Nothing, Walks Out With It" · art null
+- **modules.fatal_flaw:** label "Fatal flaw" · headline "Too Quiet to Warn You" · art null
+- **modules.running_gag:** label "Running gag" · headline "Scored Out of a Win" · art null
+- **pull_quote:** "He was a good sport about it, which is somehow worse." — (about Gunner)
+- **footer:** Didn't lose. / Was scored out of it.
+
 ---
 
 ## devin — "Ghost Pepper"
@@ -208,6 +300,25 @@ asterisk.
 - **fatal_flaw:** Took his own school to the over. His aunt took the other side without blinking.
 - **rival:** `gunner`
 
+**Extended profile:**
+
+- **archetype:** Ghost Pepper
+- **thesis:** Auburn man. WC champion. The asterisk is not acknowledged.
+- **layout:** `sideline`
+- **theme.accent:** `#DD550C` · **theme.accent_secondary:** `#0C2340` · **theme.paper:** null · **theme.ink:** null
+- **dossier.role:** Ghost Pepper
+- **dossier.nicknames:** Ghost Pepper, The Champ
+- **dossier.known_for:** The title, and the manner of its acquisition.
+- **dossier.hometown:** Tampa, FL
+- **dossier.college:** Auburn
+- **dossier.drafted:** (none — null)
+- **dossier.status:** Reigning WC Champion (asterisk pending)
+- **modules.draft_tendency:** label "Draft tendency" · headline "Trusts the Pick" · art null
+- **modules.fatal_flaw:** label "Fatal flaw" · headline "His Own School" · art null
+- **modules.running_gag:** label "Running gag" · headline "The Asterisk" · art null
+- **pull_quote:** "I looked at the ghost pepper and said I can eat that." — Devin
+- **footer:** Won the last one. / Will not discuss how.
+
 ---
 
 ## zach — "Mustard Boy"
@@ -231,6 +342,25 @@ hedges, one engine that could have told him better.
 - **draft_tendency:** Overthinks it, then drafts with his heart anyway.
 - **fatal_flaw:** Built a projection engine that keeps telling him he loses. Shipped it anyway.
 - **rival:** `gunner`
+
+**Extended profile:**
+
+- **archetype:** Mustard Boy
+- **thesis:** Built the whole thing. Drafted with his heart anyway.
+- **layout:** `sideline`
+- **theme.accent:** `#CEB888` · **theme.accent_secondary:** `#4B0082` · **theme.paper:** null · **theme.ink:** null
+- **dossier.role:** Mustard Boy
+- **dossier.nicknames:** Mustard Boy, The Commissioner
+- **dossier.known_for:** Building elaborate infrastructure for trivial stakes.
+- **dossier.hometown:** Charlottesville, VA
+- **dossier.college:** Wake Forest
+- **dossier.drafted:** (none — null)
+- **dossier.status:** Commissioner / Defendant
+- **modules.draft_tendency:** label "Draft tendency" · headline "Overthinks, Then Hearts It" · art null
+- **modules.fatal_flaw:** label "Fatal flaw" · headline "The Engine Says No" · art null
+- **modules.running_gag:** label "Running gag" · headline "The Scoring Dispute" · art null
+- **pull_quote:** "Four picks, four overs, zero hedges, one engine that could have told him better." — Zach
+- **footer:** Built the engine. / Ignored the engine.
 
 **NOTE:** Zach's family backstory differs deliberately from his panel and CEC
 versions. Same person, different room, different joke. Keep all three distinct.
