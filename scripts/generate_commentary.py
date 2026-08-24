@@ -241,9 +241,29 @@ def build_prompt(group_id, packet_override=None):
             f"Say '{basis}' or 'over the last {elapsed} weeks'.")
 
     stakes = packet.get("stakes")
+    # THE STAKES BAN, rewritten because the short form leaked. "This group has
+    # no declared stakes. Do not invent any." names the field but not the
+    # BEHAVIOUR, and the model does not read "stakes" as covering "what they
+    # are playing for" -- so panel wk0 filed "both playing for pride and,
+    # possibly, the chance to needle the other until next year", which invents
+    # a prize, a motivation and a consequence out of a None. Same failure shape
+    # as the prior-season ban before it became a word test: name the words.
     stakes_line = (f"Stakes for this group: {stakes}. You may reference them by "
                    f"their actual terms." if stakes else
-                   "This group has no declared stakes. Do not invent any.")
+                   "packet.stakes is None. Do not invent stakes, motivations "
+                   "for winning, or what the managers are \"playing for\". Do "
+                   "not write phrases like \"playing for pride\", \"bragging "
+                   "rights\", \"the chance to needle\", or any description of "
+                   "what the winner gets or the loser suffers. The column is "
+                   "about the picks, not the prize.\n"
+                   "  THIS SHIPPED AND WAS WRONG: \"both playing for pride "
+                   "and, possibly, the chance to needle the other until next "
+                   "year\". Nothing in the packet says they are playing for "
+                   "anything. A season of ribbing, bragging rights, pride, "
+                   "the loser buying dinner, who has to hear about it until "
+                   "next draft -- all invented, all banned.\n"
+                   "  There is no soft version of this. If a sentence says or "
+                   "implies what is at stake, cut it.")
 
     # The packet publishes season_complete, but a bool buried in 12KB of JSON is
     # not an instruction — the same reason basis_warning and stakes_line exist as
@@ -425,6 +445,38 @@ def build_prompt(group_id, packet_override=None):
             "the packet itself measures, stated on its own stated basis — and "
             "that is movement WITHIN this season, never across seasons.")
 
+    # NO SUPERLATIVES, and it is a WORD test for the same reason the
+    # prior-season ban is. The coda block already forbids "the lowest on the
+    # board" specifically, and panel wk0 answered it with "the lowest on the
+    # board OUTSIDE Blaine and Chris's tussle" -- the hedge that makes the
+    # claim true is precisely what makes it a ranking claim the packet never
+    # made. Naming the concept ("do not overstate") hands the writer a test it
+    # can pass itself, so this names the words instead.
+    superlative_line = (
+        "NO SUPERLATIVES ABOUT RANK OR MAGNITUDE. You may not rank picks "
+        "against each other, size one market gap against another, call a "
+        "probability the largest or smallest, or place anything on the board "
+        "relative to anything else. The packet orders material FOR you; that "
+        "ordering is not a fact about the season and never reaches the page.\n"
+        "  BANNED AS WORDS in any claim about picks, gaps, probabilities or "
+        "board position: lowest, highest, only, most, biggest, smallest, "
+        "worst, best, sharpest, largest, widest, closest, furthest, "
+        "least.\n"
+        "  A HEDGE DOES NOT RESCUE ONE. These are the same violation with "
+        "better manners and are equally banned: \"second-lowest\", \"one of "
+        "the lowest\", \"among the biggest\", \"the lowest outside X\", "
+        "\"arguably the worst\", \"close to the largest\", \"one of the "
+        "few\", \"nobody else is near it\".\n"
+        "  THIS SHIPPED AND WAS WRONG: \"the lowest on the board outside "
+        "Blaine and Chris's tussle\". It is hedged, it is technically true, "
+        "and it is still a ranking claim -- the exact failure this ban "
+        "exists for.\n"
+        "  WHAT TO DO INSTEAD: if you find yourself ranking or comparing "
+        "magnitudes, describe what the pick IS. Its number, its probability, "
+        "the manager's character, what the disagreement actually says. A pick "
+        "is interesting because of what it claims, not because of where it "
+        "sits in a sorted list.")
+
     # The two beats. Beat 2 is the recurring coda and it SWAPS in preseason:
     # "Bad Beat of the Week" needs a pick that died, and in Week 0 nothing has
     # died. "Worst Pick on the Board" keeps the coda's DNA — one target, direct
@@ -540,6 +592,7 @@ def build_prompt(group_id, packet_override=None):
         season_line,
         uniform_line,
         prior_season_line,
+        superlative_line,
         stakes_line,
     ]
     if suppressed_line:
@@ -616,15 +669,26 @@ def build_prompt(group_id, packet_override=None):
         "  1. NEVER NAME AN INTERNAL DATA STRUCTURE. The reader has never seen "
         "the packet and does not know one exists. Banned as reader-facing "
         "words: packet, cache, manifest, baseline, schema, storyline, "
-        "storyline pool, narrative score, coda, coda candidate, bad-beat "
-        "candidate, uniform profile fields, manager profiles, character bits, "
-        "column memory. Panel wk0 filed \"The packet gives Blaine a 0.86467 "
+        "storyline pool, narrative score, coda, coda pool, coda candidate, "
+        "bad-beat candidate, uniform profile fields, manager profiles, "
+        "character bits, column memory. Also banned as PHRASES, because the "
+        "space is not a disguise: \"packet says\", \"packet gives\", "
+        "\"the packet has\", \"according to the packet\". Panel wk0 filed "
+        "\"The packet gives Blaine a 0.86467 "
         "chance\" and the reader has no idea what the packet is. Attribute a "
         "number to \"the model\", \"our projection\", \"SP+\", \"the "
         "numbers\" — or to nothing at all, and simply state it.",
         "  2. NEVER PRINT A RAW FIELD NAME OR THE PACKET'S OWN BOOKKEEPING. "
         "Write \"the market disagrees by 0.669\", never \"a market_gap of "
-        "0.669\". narrative_score and moment_size exist to ORDER the material "
+        "0.669\". THE SPACE IS NOT A DISGUISE: \"market gap\" and \"the "
+        "market gap\" are the same violation as \"market_gap\" and are "
+        "equally banned, as are \"delta impact\", \"narrative score\", "
+        "\"moment size\", \"p beat line\" and \"implied expected wins\". "
+        "Panel wk0 filed \"The market gap here is a negative 1.044\", which "
+        "slipped the ban only because the underscore was gone -- it is a raw "
+        "field name read aloud. Say \"the market disagrees by 1.044\", or "
+        "name no field at all and just state the number. "
+        "narrative_score and moment_size exist to ORDER the material "
         "for you and are not facts about the season: \"this clash carries a "
         "narrative score of 6.338, the highest on the board\" reports the "
         "scorer's opinion as though it were a result. Neither they nor the "
@@ -642,12 +706,17 @@ def build_prompt(group_id, packet_override=None):
         # a rule stated once at 18% of a 55KB prompt did not survive to the
         # output, twice. This costs one sentence and puts the check after
         # everything else the model has been asked to hold.
-        "Before you return it, read the column back and check three things: no "
+        "Before you return it, read the column back and check six things: no "
         "banned prior-season word is in it (again, still, once more, finally, "
         "no longer, used to, back, return, returning, resurgence, comeback, "
         "bounce-back, rebound, turnaround, redemption, revenge, rebuild) — "
         "delete any sentence that carries one; no internal structure is named; "
-        "every probability is a rounded percentage, not a decimal.",
+        "every probability is a rounded percentage, not a decimal; no field "
+        "name is read aloud with the underscore removed (\"market gap\", "
+        "\"narrative score\"); no superlative or hedged superlative ranks "
+        "one pick, gap or probability against another (lowest, highest, only, "
+        "most, biggest, worst, best — including \"one of the\" and \"outside "
+        "X\" forms); and nothing says or implies what anyone is playing for.",
         "Return ONLY the column text. No preamble, no title, no explanation.",
     ]
     return system_text, "\n".join(parts), packet

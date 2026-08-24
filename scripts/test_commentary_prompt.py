@@ -178,8 +178,13 @@ def test_stakes():
     no_stakes["stakes"] = None
     with sandbox("panel", no_stakes):
         _, user_text, _ = G.build_prompt("panel")
+    # The wording moved from "Do not invent any" to a named-phrase ban when
+    # that short form leaked (see test_invented_stakes_ban). Assert the
+    # BEHAVIOUR -- a None is stated and inventing is forbidden -- not one
+    # sentence, so the next rewrite of the block does not fail this test.
     check("no stakes: instructs the pundit not to invent any",
-          "Do not invent any" in user_text)
+          "packet.stakes is None" in user_text
+          and "Do not invent stakes" in user_text)
 
     with_stakes = json.loads(json.dumps(base_packet))
     with_stakes["stakes"] = "loser buys dinner"
@@ -1005,6 +1010,111 @@ def test_length_guidance_survives_the_bans():
           > user_text.rindex("=== WEEK PACKET"))
 
 
+def test_market_gap_space_ban():
+    """The raw-field-name ban must catch the unhyphenated form too.
+
+    House style banned "market_gap" and panel wk0 filed "The market gap here
+    is a negative 1.044" -- the same field name read aloud with the underscore
+    dropped. A ban written against one spelling is a ban against one spelling.
+    """
+    print("\nRaw field names are banned with or without the underscore:")
+    base = _seeded_packet()
+    with sandbox("panel", base):
+        _, user_text, _ = G.build_prompt("panel")
+
+    check("space form: the prompt says the space is not a disguise",
+          "THE SPACE IS NOT A DISGUISE" in user_text)
+    check("space form: 'market gap' is named as banned, not just market_gap",
+          '"market gap" and "the market gap" are the same violation'
+          in user_text.replace(chr(8220), '"').replace(chr(8221), '"'))
+    check("space form: the shipped failure is quoted verbatim",
+          "The market gap here is a negative 1.044" in user_text)
+    check("space form: the other spaced field names are covered too",
+          all(t in user_text for t in ("delta impact", "narrative score",
+                                       "moment size", "implied expected wins")))
+    check("space form: the two-word packet leaks are banned as phrases",
+          "packet says" in user_text and "packet gives" in user_text)
+    check("space form: the underscore ban itself is still there",
+          "market_gap" in user_text)
+    check("space form: the read-back check names it",
+          "no field name is read aloud with the underscore removed"
+          in user_text)
+
+
+def test_superlative_ban():
+    """No ranking claims, and a hedge is not an escape hatch.
+
+    The coda block already forbade "the lowest on the board". Panel wk0
+    answered with "the lowest on the board OUTSIDE Blaine and Chris's tussle"
+    -- hedged into technical truth and still a ranking claim the packet never
+    made. So this is a word test, like the prior-season ban, not a concept.
+    """
+    print("\nSuperlatives about rank or magnitude are banned:")
+    base = _seeded_packet()
+    with sandbox("panel", base):
+        _, user_text, _ = G.build_prompt("panel")
+
+    check("superlatives: the block is present",
+          "NO SUPERLATIVES ABOUT RANK OR MAGNITUDE" in user_text)
+    check("superlatives: every banned word is named",
+          all(w in user_text for w in ("lowest", "highest", "only", "most",
+                                       "biggest", "smallest", "worst", "best",
+                                       "sharpest")))
+    check("superlatives: hedges are named as the same violation",
+          "A HEDGE DOES NOT RESCUE ONE" in user_text)
+    check("superlatives: the specific hedge forms are listed",
+          all(h in user_text for h in ("second-lowest", "one of the",
+                                       "the lowest outside")))
+    check("superlatives: the shipped failure is quoted verbatim",
+          "the lowest on the board outside Blaine and Chris's tussle"
+          in user_text)
+    check("superlatives: it says what to do INSTEAD, not just what to avoid",
+          "WHAT TO DO INSTEAD" in user_text
+          and "describe what the pick IS" in user_text)
+    check("superlatives: the read-back check names it",
+          "no superlative or hedged superlative ranks" in user_text)
+
+
+def test_invented_stakes_ban():
+    """packet.stakes is None means no prize, no motivation, no consequence.
+
+    "This group has no declared stakes. Do not invent any." named the field
+    but not the behaviour, and panel wk0 filed "both playing for pride and,
+    possibly, the chance to needle the other until next year".
+    """
+    print("\nInvented stakes are banned by name:")
+    base = _seeded_packet()
+    base.pop("stakes", None)
+    with sandbox("panel", base):
+        _, user_text, _ = G.build_prompt("panel")
+
+    check("stakes: the None is named directly",
+          "packet.stakes is None" in user_text)
+    check("stakes: motivations and what they are playing for are covered",
+          "motivations for winning" in user_text)
+    check("stakes: the specific phrases are banned by name",
+          all(t in user_text for t in ("playing for pride", "bragging rights",
+                                       "the chance to needle")))
+    check("stakes: winner-gets / loser-suffers is covered",
+          "what the winner gets or the loser suffers" in user_text)
+    check("stakes: the shipped failure is quoted verbatim",
+          "both playing for pride and, possibly, the chance to needle the "
+          "other until next year" in user_text)
+    check("stakes: there is no soft version offered",
+          "There is no soft version of this" in user_text)
+    check("stakes: the read-back check names it",
+          "nothing says or implies what anyone is playing for" in user_text)
+
+    # A group that HAS stakes still gets to use them.
+    withstakes = _seeded_packet()
+    withstakes["stakes"] = "loser buys dinner"
+    with sandbox("panel", withstakes):
+        _, user_text, _ = G.build_prompt("panel")
+    check("stakes: a real declared stake is still passed through",
+          "loser buys dinner" in user_text
+          and "packet.stakes is None" not in user_text)
+
+
 def main():
     print("generate_commentary.py \u2014 prompt assembly, dry run, fail-soft")
     test_prompt_shape()
@@ -1020,6 +1130,9 @@ def main():
     test_coda_superlative_matches_the_selection_rule()
     test_prior_season_ban_is_a_word_test()
     test_house_style_structures_and_percentages()
+    test_market_gap_space_ban()
+    test_superlative_ban()
+    test_invented_stakes_ban()
     test_length_guidance_survives_the_bans()
     test_no_prior_season_language()
     test_dry_run()
