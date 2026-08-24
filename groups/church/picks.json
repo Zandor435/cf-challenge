@@ -1,31 +1,147 @@
 {
-  "_note": "DUMMY SAMPLE DATA — this is NOT a real draft. `draft_status` is \"dummy\" so the site shows the amber sample-data banner. Plausible, varied rosters over the completed 2025 fixture so the board renders and commentary has something to narrate. Replace WHOLESALE at the real draft: overwrite `picks` and set `draft_status` to \"final\" (see README 'Replacing the dummy data'). Each manager holds EXACTLY 4 picks across 4 distinct conferences; `line` is the frozen preseason win total; direction = \"O\" (over) | \"U\" (under); store canonical team names only (§9). The two Johns are distinct manager_ids: john_wells vs john_tamu.",
+  "_note": "Written by scripts/enter_draft.py from a dictated paste block. `team` is the canonical name returned by utils.resolve_team (§9) — never a display_name, never an ambiguity candidate. `conference` and `line` are copied from team_win_totals_2026.json (season 2026), the frozen draft-day reference; nothing dictated overrides them (§1). direction = \"O\" (over) | \"U\" (under), uppercase only — the engine tests `direction == \"O\"`. `manager` is the manager_id join key from config.json. Regenerate with enter_draft.py rather than hand-editing.",
   "group_id": "church",
-  "draft_status": "dummy",
+  "draft_status": "final",
   "picks": [
-    { "manager": "zach", "team": "Ohio State", "conference": "Big Ten", "direction": "O", "line": 9.5 },
-    { "manager": "zach", "team": "Texas A&M",  "conference": "SEC",     "direction": "O", "line": 8.5 },
-    { "manager": "zach", "team": "Virginia",   "conference": "ACC",     "direction": "O", "line": 7.5 },
-    { "manager": "zach", "team": "Texas Tech", "conference": "Big 12",  "direction": "O", "line": 10.5 },
-
-    { "manager": "brian", "team": "Michigan",       "conference": "Big Ten", "direction": "O", "line": 8.5 },
-    { "manager": "brian", "team": "LSU",            "conference": "SEC",     "direction": "U", "line": 8.5 },
-    { "manager": "brian", "team": "Florida State",  "conference": "ACC",     "direction": "U", "line": 6.5 },
-    { "manager": "brian", "team": "BYU",            "conference": "Big 12",  "direction": "O", "line": 8.5 },
-
-    { "manager": "david", "team": "Nebraska",   "conference": "Big Ten", "direction": "U", "line": 6.5 },
-    { "manager": "david", "team": "Auburn",     "conference": "SEC",     "direction": "U", "line": 6.5 },
-    { "manager": "david", "team": "Clemson",    "conference": "ACC",     "direction": "O", "line": 7.5 },
-    { "manager": "david", "team": "Iowa State", "conference": "Big 12",  "direction": "O", "line": 4.5 },
-
-    { "manager": "john_wells", "team": "Washington", "conference": "Big Ten", "direction": "O", "line": 7.5 },
-    { "manager": "john_wells", "team": "Missouri",   "conference": "SEC",     "direction": "O", "line": 6.5 },
-    { "manager": "john_wells", "team": "Pittsburgh", "conference": "ACC",     "direction": "O", "line": 7.5 },
-    { "manager": "john_wells", "team": "Cincinnati", "conference": "Big 12",  "direction": "O", "line": 5.5 },
-
-    { "manager": "john_tamu", "team": "Penn State", "conference": "Big Ten", "direction": "U", "line": 8.5 },
-    { "manager": "john_tamu", "team": "Texas",      "conference": "SEC",     "direction": "U", "line": 9.5 },
-    { "manager": "john_tamu", "team": "Duke",       "conference": "ACC",     "direction": "O", "line": 5.5 },
-    { "manager": "john_tamu", "team": "Kansas",     "conference": "Big 12",  "direction": "O", "line": 5.5 }
+    {
+      "manager": "david",
+      "team": "Virginia Tech",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 6.5
+    },
+    {
+      "manager": "david",
+      "team": "West Virginia",
+      "conference": "Big 12",
+      "direction": "O",
+      "line": 5.5
+    },
+    {
+      "manager": "david",
+      "team": "Army",
+      "conference": "American",
+      "direction": "U",
+      "line": 7.5
+    },
+    {
+      "manager": "david",
+      "team": "Penn State",
+      "conference": "Big Ten",
+      "direction": "U",
+      "line": 8.5
+    },
+    {
+      "manager": "john_tamu",
+      "team": "Texas A&M",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 8.5
+    },
+    {
+      "manager": "john_tamu",
+      "team": "Texas Tech",
+      "conference": "Big 12",
+      "direction": "U",
+      "line": 10.5
+    },
+    {
+      "manager": "john_tamu",
+      "team": "Wisconsin",
+      "conference": "Big Ten",
+      "direction": "O",
+      "line": 6.5
+    },
+    {
+      "manager": "john_tamu",
+      "team": "Georgia Tech",
+      "conference": "ACC",
+      "direction": "U",
+      "line": 6.5
+    },
+    {
+      "manager": "zach",
+      "team": "Iowa State",
+      "conference": "Big 12",
+      "direction": "O",
+      "line": 4.5
+    },
+    {
+      "manager": "zach",
+      "team": "Notre Dame",
+      "conference": "Independent",
+      "direction": "U",
+      "line": 11.5
+    },
+    {
+      "manager": "zach",
+      "team": "LSU",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 8.5
+    },
+    {
+      "manager": "zach",
+      "team": "Navy",
+      "conference": "American",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "brian",
+      "team": "Stanford",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 3.5
+    },
+    {
+      "manager": "brian",
+      "team": "USC",
+      "conference": "Big Ten",
+      "direction": "U",
+      "line": 8.5
+    },
+    {
+      "manager": "brian",
+      "team": "Texas",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 9.5
+    },
+    {
+      "manager": "brian",
+      "team": "Washington State",
+      "conference": "Pac-12",
+      "direction": "O",
+      "line": 4.5
+    },
+    {
+      "manager": "john_wells",
+      "team": "Virginia",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "john_wells",
+      "team": "Florida State",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 6.5
+    },
+    {
+      "manager": "john_wells",
+      "team": "James Madison",
+      "conference": "Sun Belt",
+      "direction": "O",
+      "line": 8.5
+    },
+    {
+      "manager": "john_wells",
+      "team": "California",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 6.5
+    }
   ]
 }
