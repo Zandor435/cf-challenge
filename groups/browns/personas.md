@@ -33,8 +33,14 @@ comedy recommendations with Zach at a volume that suggests neither of them has
 other hobbies, and their taste is bad in exactly the same way, which is why it
 works.
 
+Drafted three unders — Texas Tech, North Carolina, Vanderbilt — against exactly
+one over, Penn State, which is the board of a man who has read every offseason
+article ever published and come away convinced that everyone is overrated
+except James Franklin. Talks down three comps, pumps the one listing.
+
 - **running_gag:** The hustle. Every conversation eventually becomes a listing.
-- **draft_tendency:** Sells you on his picks. Hard.
+- **draft_tendency:** Sells you on his picks. Hard. Three of them are unders,
+  so he is selling you on nothing happening.
 
 ---
 
@@ -56,6 +62,12 @@ the receipts, and he will produce them unprompted. He married a veterinarian,
 which given the dog situation reads less like romance and more like vertical
 integration.
 
+Took Ohio State over 9.5, which is the one program on this board he has the
+least standing to claim, and he claimed it without blinking. Filled out the
+flight with Navy over 7.5 and Kentucky over 4.5 — two pours nobody else at this
+table would have ordered — then sent Miami back at 10.5. Adopted the fandom,
+then adopted the blue blood to go with it.
+
 - **running_gag:** Adopted fandom. He chose this. Voluntarily.
 - **draft_tendency:** Curated. Treats a draft board like a tasting flight.
 
@@ -74,6 +86,15 @@ neighbor to Zach, owner of a brown lab named Tater, and — the detail that undo
 all of the above — an enthusiastic decorator of his home with ferns. The man has
 a green thumb. He is also a deeply serious Ohio State and Browns fan and takes an
 enormous amount of incoming for it. Takes it well. Then takes Zach's money.
+
+Shorted Michigan at 8.5 and Texas at 9.5 — the two most-hyped programs in the
+sport — and put the proceeds into Kent State over 3.5 and South Florida over
+8.5. Two brand names sold, two small caps bought; he runs a PE group and he
+drafted like one. The Michigan under is the rare pick where the model and the
+Ohio State fan in him agreed completely, and he has never looked more at peace.
+That South Florida over is the only head-to-head on the browns board — Todd
+took the under. Two men who have never once cared about South Florida will now
+be watching every snap of it, for exactly opposite reasons.
 
 - **running_gag:** The ferns. Also: he wins.
 - **draft_tendency:** Ruthless. Reads the board and doesn't blink.
@@ -94,6 +115,13 @@ consensus, the largest dog anyone here has met. Die-hard Browns, which for a
 laid-back guy means he has developed a serenity the rest of the group has not —
 decades of practice at accepting outcomes. Jokes constantly, never escalates.
 
+Took Boise State over 7.5 and Iowa State over 4.5, then put unders on South
+Florida and James Madison — a man who trusts a group-of-five ceiling and does
+not trust anything in the middle of the Big 12. His South Florida under is the
+only head-to-head on the browns board, and Bryan is on the other side of it.
+The most relaxed man in the group has been handed the one pick he cannot be
+relaxed about. He intends to be relaxed about it anyway.
+
 - **running_gag:** The dog. The Rivian. The unbotherable calm.
 - **draft_tendency:** Doesn't overthink. Picks and moves on.
 
@@ -112,6 +140,11 @@ engine, projection model, and website for a pool that could have run on a napkin
 Contributes reliably at poker in the sense that his money reliably ends up
 elsewhere, mostly Bryan's. Has decided that the correct response to being bad at
 one game is to build a second game and administer it.
+
+Drafted Virginia Tech, LSU, SMU and Oregon, all four over, which makes the
+commissioner the most optimistic man in a league whose projection model he
+wrote himself. He says the numbers told him to. He wrote the numbers. The LSU
+over is at least honest — that one is just his school.
 
 - **running_gag:** Loses at poker, writes the scoring for everything else.
 - **draft_tendency:** Overthinks it, then takes the model's number anyway.
