@@ -924,6 +924,33 @@ body.pf-body-ground {
     margin-left: 0;
     margin-right: -20px;
   }
+
+  /* THE COPY COLUMN'S GUTTER, which the mirror above does not carry over.
+     The card itself has no horizontal padding — a left-aligned profile gets
+     its gutter from the grid, because the copy sits in track 2 and the 370px
+     portrait plus the 46px column-gap hold it 416px inside the card's paper.
+     Mirroring moves the copy into track 1, where there is nothing to its left,
+     so that gutter went to ZERO: every line of Chris's scouting report, and
+     his nameplate with it, started hard on the paper's edge and read as
+     falling off the page.
+
+     Measured rather than eyeballed: at 1440 the card's paper begins ~92px
+     from the viewport, and the copy began 92px from it too — 0px inside its
+     own ground, against 416px on an unmirrored section.
+
+     46px, i.e. the column-gap, and not a new number. It is the gutter this
+     composition already puts between the portrait and the copy, so a mirrored
+     section is inset by exactly one gutter and the two alignments read as the
+     same layout seen from either side. Padding on the wrapper rather than
+     margin on the blocks: `.pf-col-main` is a `minmax(0, 1fr)` track, so the
+     padding comes out of the copy measure instead of widening the grid — and
+     it applies once, to every block the column holds, rather than once per
+     block with a list that goes stale the next time a block is added.
+
+     Left only. The right edge stays flush against the column-gap and the
+     portrait beyond it, which is the same relationship an unmirrored profile
+     has and is not the edge that broke. */
+  .pf--sideline.pf--align-right .pf-col-main { padding-left: 46px; }
 }
 
 /* ---- HEADLINER — full-bleed art, name overlapping the image edge -------- */
