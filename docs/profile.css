@@ -822,6 +822,34 @@ body.pf-body-ground {
   .pf--sideline .pf-col-aside { margin-left: -20px; }
   .pf--sideline .pf-portrait { margin-bottom: 0; }
 
+  /* THE STRIP FLOOR — a guard, not a fix for anything currently on disk.
+     church/david rendered as a full-bleed banner (1200x620 across the whole
+     card, no sidebar) because his persona declared HEADLINER, and that is
+     fixed at the source: every manager is SIDELINE now, and
+     test_persona_schema.py fails the build if one re-declares otherwise.
+
+     This closes the SECOND route to the same picture. .pf-portrait takes the
+     art's own ratio from heroes.json verbatim, and this column is a fixed
+     370px track — so a wide-format source (a landscape group photo, a scanned
+     programme spread) would compute to a couple of hundred pixels of height
+     and render as a horizontal strip in the sidebar: David's symptom again,
+     arriving through the manifest instead of through `layout`. The floor
+     makes the box keep a portrait's presence and lets object-fit: cover crop
+     to it, which the img rule above already does.
+
+     BOTH RULES OR NEITHER, and max-width is the load-bearing one. The figure
+     takes its size from `aspect-ratio`, not from the track, so it is not
+     otherwise bounded by the column at all: min-height alone on a 3:1 source
+     solved for a 900px-wide box and pushed it straight out of a 370px column
+     and off the page. max-width caps the width to the track; min-height then
+     wins over the ratio and the img's own object-fit: cover crops to the box.
+
+     300px against a ~390px figure floors the box at about 1.3:1. Every
+     portrait in the four leagues today is between 0.63 and 0.98, so neither
+     rule fires on current art — they are here for the file nobody has added
+     yet. */
+  .pf--sideline .pf-portrait { max-width: 100%; min-height: 300px; }
+
   /* ---- the mirror -------------------------------------------------------
      Portrait RIGHT, editorial LEFT. Set by managers.js from the manager's
      position in groups/<g>/personas.json (odd positions mirror), so the scroll
