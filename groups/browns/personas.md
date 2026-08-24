@@ -47,9 +47,12 @@ works.
 
 Hosts the game, which grants him diplomatic immunity roughly none of the time.
 Works in alcohol, tastes wine seriously, lifts, and walks his lab nearly every
-day — a man with a genuinely well-rounded life who has chosen to spend part of it
-on the Cleveland Browns despite having no Ohio claim whatsoever. That's the thing
-about Hauck: he opted in. Nobody made him do this. He married a veterinarian,
+day — a genuinely well-rounded life that he then spends every autumn feeding
+into the Cleveland Browns. Ohio born and Ohio State made, which at this table is
+the rare credential: the Browns are mostly transplants rooting for teams they
+picked up somewhere along the way, and Hauck is one of the few men here who
+actually comes from the place he roots for. He has the receipts, he knows he has
+the receipts, and he will produce them unprompted. He married a veterinarian,
 which given the dog situation reads less like romance and more like vertical
 integration.
 
@@ -130,14 +133,14 @@ absent, so he shows up correctly in the meantime.
 
 ---
 
-## marc
+## mark
 
 - **tone:** roast
-- **display_name:** Marc
+- **display_name:** Mark
 
 **backstory:** *(unwritten)*
 
-Added to the roster 2026-08-22. Nothing about Marc has been written down
+Added to the roster 2026-08-22. Nothing about Mark has been written down
 yet, so every prose field is deliberately empty rather than guessed — `tone`
 is set because sync_personas.py requires it and `roast` is this group's
 register, not a claim about him. Fill this section in and copy the fields

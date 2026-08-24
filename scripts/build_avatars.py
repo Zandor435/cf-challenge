@@ -96,6 +96,15 @@ ANCHORS = {
     # fills the frame; it just cannot be detected.
     "family/gunner": {"head_top": 0.005, "chin": 0.490, "cx": 0.467,
                       "eye_y": 0.280},
+
+    # browns/hauck: a sideline three-quarter profile -- he is looking down the
+    # field, not at the camera, and the frontal cascade cannot read a head at
+    # that yaw. It matched a 76px face in the crowd instead (6.6% of height),
+    # which MIN_FACE_FRAC correctly rejected. His head is not small: measured
+    # head_top-to-chin is 25.4% of frame height, inside the 21-27% band panel's
+    # four sit in. Measured by hand off the 928x1152 source.
+    "browns/hauck": {"head_top": 0.052, "chin": 0.306, "cx": 0.496,
+                     "eye_y": 0.171},
 }
 
 # Breathing room above the hair, and total crop height, both in head-heights.
