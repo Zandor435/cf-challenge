@@ -156,19 +156,33 @@ def panel_only():
 
 
 def frontend_wiring():
-    """The three edits that make the manifest render, and the guarantee that
-    what renders is ONE image with no motion attached to it."""
+    """The rotator is OFF the profile scroll, and what it renders elsewhere is
+    still ONE image with no motion attached to it.
+
+    The banner slot was removed from managers.html: the masthead already names
+    the league and the page title names it again, so a third announcement above
+    a text-heavy scroll pushed the first profile under the fold. This half of
+    the test inverted with it — it now asserts the wiring is GONE, because a
+    silently reinstated banner is exactly the drift worth catching.
+
+    renderBanner() itself stays in managers.js. It is the only implementation
+    of the one-image/no-motion contract, so the motion checks below still have
+    something real to guard.
+    """
     html = (ROOT / "docs" / "managers.html").read_text(encoding="utf-8")
     js = (ROOT / "docs" / "managers.js").read_text(encoding="utf-8")
     css = (ROOT / "docs" / "style.css").read_text(encoding="utf-8")
 
-    check('id="mgr-banner"' in html, "managers.html has the banner slot")
-    check(html.index('id="mgr-banner"') < html.index('id="mgr-intro"'),
-          "the banner slot sits ABOVE the page intro")
-    check("function renderBanner(" in js, "managers.js defines renderBanner()")
-    check("renderBanner(bannersRes)" in js, "renderBanner() is actually called")
-    check(f"data/${{groupId}}/banners.json" in js,
-          "managers.js fetches the per-group manifest")
+    check('id="mgr-banner"' not in html,
+          "managers.html has NO banner slot (removed from the profile scroll)")
+    check("renderBanner(bannersRes)" not in js,
+          "managers.js does not call renderBanner()")
+    check("fetchJSON(`data/${groupId}/banners.json`)" not in js,
+          "managers.js does not fetch a manifest it has nowhere to paint")
+
+    # The implementation is retained, unwired. Deleting it would mean rewriting
+    # the rotator from the manifest spec the day a surface wants the band back.
+    check("function renderBanner(" in js, "managers.js still defines renderBanner()")
     check("Math.random()" in js, "the pick is random")
     check("loading=\"eager\"" in js, "the banner loads eagerly (above the fold)")
     check("el.style.aspectRatio" in js,
