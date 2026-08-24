@@ -39,6 +39,25 @@ one he doesn't trust.
 - **running_gag:** Nobody expects the depth of the football knowledge. It gets them every year — least of all on the Stanford pick, which everybody should have seen coming.
 - **draft_tendency:** Reads everything. Picks like someone who read everything.
 
+**extended profile:**
+
+- **archetype:** The Cardinal
+- **thesis:** Nobody sees him coming. Then he opens his mouth about football.
+- **layout:** `sideline`
+- **theme.accent:** `#8C1515` · **theme.accent_secondary:** `#232D4B` · **theme.paper:** — · **theme.ink:** —
+- **dossier.role:** The Cardinal
+- **dossier.nicknames:** The Cardinal
+- **dossier.known_for:** The depth of the football knowledge. It gets them every year.
+- **dossier.hometown:** Charlottesville, VA
+- **dossier.college:** Stanford
+- **dossier.drafted:** —
+- **dossier.status:** Sam started kindergarten
+- **modules.draft_tendency:** label "Draft tendency" · headline "Reads Everything" · art —
+- **modules.running_gag:** label "Running gag" · headline "Nobody Expects It" · art —
+- **modules.fatal_flaw:** — (warm register: never authored)
+- **pull_quote:** "The 'diplomat or divided loyalties' question resolved itself at the draft." — Brian
+- **footer.left:** Stanford man. · **footer.right:** UVA soft spot.
+
 ---
 
 ## john_tamu — "Aggie by Blood"
@@ -61,6 +80,25 @@ has decided the market is wrong.
 
 - **running_gag:** Whatever he does with Texas A&M. It's never neutral.
 - **draft_tendency:** Has better information than he lets on. Ask him about Texas Tech.
+
+**extended profile:**
+
+- **archetype:** Aggie by Blood
+- **thesis:** Texas A&M all the way. In-house analytics the rest of us do not have.
+- **layout:** `sideline`
+- **theme.accent:** `#500000` · **theme.accent_secondary:** `#998542` · **theme.paper:** — · **theme.ink:** —
+- **dossier.role:** Aggie by Blood
+- **dossier.nicknames:** —
+- **dossier.known_for:** Having better information than he lets on.
+- **dossier.hometown:** Texas
+- **dossier.college:** Texas A&M
+- **dossier.drafted:** —
+- **dossier.status:** As decent a guy as there is in this group
+- **modules.draft_tendency:** label "Draft tendency" · headline "Better Information" · art —
+- **modules.running_gag:** label "Running gag" · headline "Whatever He Does With A&M" · art —
+- **modules.fatal_flaw:** — (warm register: never authored)
+- **pull_quote:** "The market has decided Texas Tech is a contender. John has decided the market is wrong." — (about John K)
+- **footer.left:** Aggie by blood. · **footer.right:** Analyst by household.
 
 ---
 
@@ -108,6 +146,25 @@ going all-in.
 - **running_gag:** A financial planner betting on Virginia is a risk-tolerance question. A financial planner betting on Virginia, Florida State, James Madison, and California, all in the same direction, is a different question entirely.
 - **draft_tendency:** Conservative. Won't reach — except this year, when he reached four times in the same direction and broke the conference-minimum rule doing it.
 
+**extended profile:**
+
+- **archetype:** Wahoo
+- **thesis:** Financial planner. Four straight overs. Broke the conference rule.
+- **layout:** `sideline`
+- **theme.accent:** `#232D4B` · **theme.accent_secondary:** `#F84C1E` · **theme.paper:** — · **theme.ink:** —
+- **dossier.role:** Wahoo
+- **dossier.nicknames:** Wahoo
+- **dossier.known_for:** Having actually done the arithmetic on his own picks before submitting them.
+- **dossier.hometown:** Charlottesville, VA
+- **dossier.college:** Virginia
+- **dossier.drafted:** —
+- **dossier.status:** Most measured guy in the pool
+- **modules.draft_tendency:** label "Draft tendency" · headline "Conservative (Except This Year)" · art —
+- **modules.running_gag:** label "Running gag" · headline "The Risk-Tolerance Question" · art —
+- **modules.fatal_flaw:** — (warm register: never authored)
+- **pull_quote:** "Conservative. Won't reach — except this year, when he reached four times in the same direction." — John Wells
+- **footer.left:** Financial planner. · **footer.right:** All-in.
+
 ---
 
 ## zach — "The Commissioner"
@@ -133,6 +190,25 @@ either conviction or something to answer for in the standings.
 - **running_gag:** Elaborate infrastructure, trivial stakes. Also: David. Also, betting against Notre Dame with his own math.
 - **draft_tendency:** Overthinks it, then takes the model's number anyway.
 - **rival:** `david`
+
+**extended profile:**
+
+- **archetype:** The Commissioner
+- **thesis:** Built it three times. For three groups. Who would have been fine with a spreadsheet.
+- **layout:** `sideline`
+- **theme.accent:** `#CEB888` · **theme.accent_secondary:** `#461D7C` · **theme.paper:** — · **theme.ink:** —
+- **dossier.role:** The Commissioner
+- **dossier.nicknames:** The Commissioner
+- **dossier.known_for:** Elaborate infrastructure for trivial stakes.
+- **dossier.hometown:** Charlottesville, VA
+- **dossier.college:** Wake Forest
+- **dossier.drafted:** —
+- **dossier.status:** Also: David
+- **modules.draft_tendency:** label "Draft tendency" · headline "The Model's Number" · art —
+- **modules.running_gag:** label "Running gag" · headline "Infrastructure, Stakes, David" · art —
+- **modules.fatal_flaw:** — (warm register: never authored)
+- **pull_quote:** "Everyone here understands the man who wrote the scoring is also in the standings." — Zach
+- **footer.left:** Three groups. · **footer.right:** One spreadsheet would have covered it.
 
 **NOTE:** Zach's CEC backstory differs deliberately from his panel and family
 versions. Keep all three distinct.
