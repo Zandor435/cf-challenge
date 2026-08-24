@@ -9,7 +9,8 @@ Source of truth for prose. Fields here map 1:1 to `groups/church/personas.json`.
 **Shared context:** everyone here is in Charlottesville, VA, and talks college
 football at church every week. This pool is an extension of that conversation.
 All guys, so there's latitude — but the register stays closer to family than to
-panel. Most humor lands on **teams selected**, via `pick_note`, not on people.
+panel. Most humor lands on **teams selected**, via backstory, running_gag, and
+draft_tendency, not on people.
 
 ---
 
