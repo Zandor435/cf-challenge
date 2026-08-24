@@ -31,6 +31,10 @@ Wake Forest, by way of Baton Rouge — went up to play soccer, didn't play socce
 came back a Demon Deacon with an LSU heart and a spreadsheet problem. He is the
 only man in this pool who will build a scoring engine, a projection model, a CI
 pipeline, and an AI art department for a bet you could settle with a handshake.
+He has done it once already: a World Cup pool over the summer, a different
+crew, a scoring system he wrote and then lost under — none of which stopped one
+man from finishing the thing convinced the scoring had cost him a win he had
+earned. He built this one anyway, and appeals still go to the author.
 Twenty years ago he looked at Marcus Randall and called him the future of our
 team. Matt Mauck was standing right there. He has never lived it down and he
 never will, because he wrote the website that displays it.
