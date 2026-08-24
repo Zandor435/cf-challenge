@@ -633,74 +633,18 @@ function fail(title, body) {
   show($('load-error'));
 }
 
-// ---------- masthead banner (RETAINED, NOT WIRED ON THIS PAGE) -------------
+// ---------- no masthead banner --------------------------------------------
+// renderBanner() lived here and is gone. The slot came off managers.html when
+// the band was removed from the profile scroll, and a function no surface
+// calls is not a spare part — it is a second, drifting answer to "how does
+// this site show a banner" sitting next to app.js's bannerFor(), which is the
+// one the home page actually uses.
 //
-// NOTHING ON managers.html CALLS THIS ANY MORE. The banner slot came off the
-// profile scroll — see the note where it used to sit in managers.html — and
-// the call and the banners.json fetch went with it, so this page no longer
-// requests a manifest that 404s for three of the four leagues.
-//
-// The function is kept rather than deleted because it is the only
-// implementation of the rotator contract (one image, no motion, box reserved
-// from real pixels) and deleting it would mean rewriting it from the manifest
-// spec the day a surface wants the band back. It is inert: $('mgr-banner')
-// returns null on this page and the first line returns early, so it cannot
-// throw if something calls it by accident.
-//
-// ONE image, chosen uniformly at random at render time. That is the entire
-// feature: a different banner when you refresh, and nothing whatsoever after
-// first paint. No timer, no crossfade, no carousel, no controls — the rotation
-// IS the reload, which is also why there is no motion to suppress under
-// prefers-reduced-motion.
-//
-// GROUP-GENERIC, like every other block in this file. The gate is NOT a
-// `groupId === 'panel'` check — it is the manifest's existence.
-// data/<group>/banners.json is written by scripts/build_banners.py, only panel
-// has one today, and every other league 404s and renders exactly what it
-// rendered before this existed. A league gets a banner by getting a manifest,
-// never by being named in here.
-//
-// THE BOX IS RESERVED FROM REAL PIXELS. The manifest carries each file's true
-// width and height, and the aspect ratio goes on the slot inline before the
-// <img> is even created. This image is eager and above the fold on a page
-// whose first paint is the roster, so a late-arriving intrinsic size would
-// shove every profile down the page — the same reflow .mgr-art solves with a
-// placeholder ratio, solved here with the exact one.
-//
-// Entries missing a usable file/width/height are dropped rather than rendered
-// as a broken box: the manifest is generated, so a malformed entry means the
-// generator changed shape, and the honest response is the no-banner layout.
-function renderBanner(manifest) {
-  const el = $('mgr-banner');
-  if (!el || !manifest) return;
-  const list = (manifest.banners || []).filter(
-    (b) => b && b.file && b.width > 0 && b.height > 0);
-  if (!list.length) return;
-
-  const dir = String(manifest.dir || '').replace(/\/+$/, '');
-  const pick = list[Math.floor(Math.random() * list.length)];
-  const src = dir ? `${dir}/${pick.file}` : pick.file;
-  // Generic by default, per-image only when the manifest says so. This is
-  // content, not decoration — it sits where a reader expects the league's
-  // picture — so it gets a real name rather than the alt="" the home page's
-  // kickoff strip uses.
-  const alt = pick.alt || `${groupLabel(manifest.group || currentGroupId())} banner`;
-
-  el.style.aspectRatio = `${pick.width} / ${pick.height}`;
-  el.innerHTML =
-    `<img src="${esc(src)}" alt="${esc(alt)}" width="${pick.width}" ` +
-    `height="${pick.height}" loading="eager" decoding="async" fetchpriority="high">`;
-  show(el);
-
-  // Same third-tier contract as the portraits and the profile art: a file
-  // declared in a manifest but missing on disk drops the whole element rather
-  // than leaving a broken-image icon — or, here, an empty reserved box — under
-  // the masthead.
-  const img = el.querySelector('img');
-  const drop = () => { el.innerHTML = ''; el.style.aspectRatio = ''; hide(el); };
-  if (img.complete) { if (img.naturalWidth === 0) drop(); }
-  else img.addEventListener('error', drop, { once: true });
-}
+// The rotator's inputs are still on disk and untouched:
+// data/<group>/banners.json (written by scripts/build_banners.py, panel only)
+// and assets/banners/panel/*.png. Nothing reads them today. If a surface ever
+// wants the band back, the manifest is the spec and build_banners.py is the
+// generator; scripts/test_banners.py still holds both to the disk.
 
 // The browser tries its hash scroll before this page has any content, so the
 // jump has to be redone once the profiles exist. Without this, every

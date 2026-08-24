@@ -1089,11 +1089,6 @@ body.pf-body-ground {
    ========================================================================== */
 @media (max-width: 899px) {
   .pf-page { padding: 0 14px 48px; }
-  /* The masthead banner bleeds to this container's edges, and its rule lives
-     in style.css against the desktop 20px. Re-stated here so the two numbers
-     stay together: left uncorrected it overhangs the page box by 6px a side
-     and gives a phone a horizontal scrollbar. */
-  .mgr-banner-slot { margin: 0 -14px 18px; }
   .pf {
     display: flex;
     flex-direction: column;
