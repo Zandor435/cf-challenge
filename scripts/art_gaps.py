@@ -43,7 +43,8 @@ DOCS = ROOT / "docs"
 SLOTS = DOCS / "assets" / "art_slots.json"
 
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp"}
-PER_MANAGER = ("profile_hero", "profile_page_hero", "manager_avatar")
+PER_MANAGER = ("profile_hero", "profile_page_hero", "profile_page_hero_left",
+               "manager_avatar")
 PER_GROUP = ("hero_banner", "svp_column_art", "editorial_hero")
 
 # Which slots a page script actually calls resolveArt() for. Derived from the
@@ -135,6 +136,11 @@ def published(group, mid, slot):
         hits = sorted(base.glob(f"{mid}-ripped.webp")) + \
             sorted(base.glob(f"{mid}_*-ripped.webp"))
         return hits or (sorted(base.glob(f"{mid}.webp")) if group == "family" else [])
+    if slot == "profile_page_hero_left":
+        base = DOCS / "assets" / "profiles" / group
+        if not base.is_dir():
+            return []
+        return sorted(base.glob(f"{mid}-ripped-left.webp")) +             sorted(base.glob(f"{mid}_*-ripped-left.webp"))
     if slot == "manager_avatar":
         # TWO layouts, and the group-scoped one is checked FIRST.
         # docs/img/avatars/<group>/ is where every group except panel writes,
@@ -152,7 +158,50 @@ def published(group, mid, slot):
     return []
 
 
+def portrait_right(group, mid):
+    """Does the alternation place this manager's section portrait-RIGHT?
+
+    Odd profile_order in the PUBLISHED personas.json -- the same number
+    managers.js alternates on, read from the same file the page reads, so this
+    report cannot disagree with the page about who is on which side.
+    """
+    f = DOCS / "data" / group / "personas.json"
+    if not f.is_file():
+        return False
+    try:
+        rec = json.loads(f.read_text(encoding="utf-8"))["managers"].get(mid) or {}
+    except (ValueError, KeyError):
+        return False
+    order = rec.get("profile_order")
+    return isinstance(order, int) and order % 2 == 1
+
+
 def status(group, mid, slot, slots):
+    # THE ONLY SLOT THAT IS NOT OWED TO EVERYONE, and it is owed to six of the
+    # twenty-four. A left-edge cut exists to make the tear open toward the copy
+    # on a portrait-RIGHT section. Two separate things make it inapplicable,
+    # and both are "-" rather than GAP, or this report would invent a backlog
+    # of eighteen files nobody wants and bury the ones that matter:
+    #
+    #   the section is portrait-LEFT   -- the right-edge cut is already correct
+    #   there is no tear to mirror     -- family's art is real photographs and
+    #                                     is never torn on either edge, and a
+    #                                     manager with no art at all renders
+    #                                     DOSSIER, which has no portrait column
+    #                                     and therefore no side
+    #
+    # The second test is for a `-ripped` file specifically, not for "some
+    # published page_hero": family's page_hero slot resolves to the PLAIN
+    # <id>.webp on purpose, so anything looser reads family as four managers
+    # one command away from a cut that must never be made.
+    if slot == "profile_page_hero_left":
+        if not portrait_right(group, mid):
+            return "-"
+        base = DOCS / "assets" / "profiles" / group
+        torn = (sorted(base.glob(f"{mid}-ripped.webp"))
+                + sorted(base.glob(f"{mid}_*-ripped.webp"))) if base.is_dir() else []
+        if not torn:
+            return "-"
     pub, src = published(group, mid, slot), sources(group, mid)
     if slot == "manager_avatar" and pub and not declared(slots, group, slot):
         pub = []                      # not this group's file -- see published()
@@ -160,6 +209,11 @@ def status(group, mid, slot, slots):
         if not declared(slots, group, slot):
             return "BUILT"
         return "LIVE" if slot in CONSUMED else "STAGED"
+    if slot == "profile_page_hero_left":
+        # Reached only when the manager is portrait-RIGHT and a torn cut
+        # exists, so there is always something to mirror: READY, never GAP.
+        # --side left is a free, deterministic flip of the file they have.
+        return "READY"
     return "READY" if src else "GAP"
 
 
@@ -214,10 +268,12 @@ def main():
 
     for grp, d in report.items():
         print(f"\n=== {grp} " + "=" * (66 - len(grp)))
-        print(f"  {'manager':<12} {'profile_hero':<14} {'page_hero':<14} avatar")
+        print(f"  {'manager':<12} {'profile_hero':<14} {'page_hero':<14} "
+              f"{'page_hero_L':<13} avatar")
         for mid, r in d["managers"].items():
             print(f"  {mid:<12} {r['profile_hero']:<14} "
-                  f"{r['profile_page_hero']:<14} {r['manager_avatar']}")
+                  f"{r['profile_page_hero']:<14} "
+                  f"{r['profile_page_hero_left']:<13} {r['manager_avatar']}")
         print("  " + "-" * 60)
         for s, v in d["group"].items():
             print(f"  {'(group)':<12} {s:<28} {v}")

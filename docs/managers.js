@@ -176,6 +176,21 @@ function themeVars(p, fallbackColor) {
 // no placeholder, no alt stub, no empty gutter. A manager without a picture
 // should look like a manager whose page was designed without one.
 //
+// WHICH WAY THE TEAR FACES. A section placed portrait-RIGHT asks for
+// profile_page_hero_left FIRST: the ragged edge has to open toward the copy,
+// and the published <id>-ripped.webp is ragged on its right, which on that
+// side lands against the page margin where nothing meets it. The left cut is
+// the same tear mirrored (see build_profile_heroes.py --side left).
+//
+// GATED ON THE MANIFEST, NOT ON THE SLOT ANSWERING, and that gate is the whole
+// safety of this: art_slots resolves a PATTERN, so every manager in a tearing
+// group resolves to a -ripped-left path whether or not one was ever made. Only
+// six exist. heroes.json is the statement that a file is on disk, so a manager
+// with no left cut falls straight through to their right-edge cut and keeps
+// their portrait — they lose the tear's direction, not their picture. That is
+// what makes reordering personas.json safe: a manager can move between sides
+// without anything breaking, and the cut can follow later.
+//
 // TWO SLOTS, TRIED IN ORDER, and an explicit persona asset beats both.
 // profile_page_hero is the torn, alpha-keyed cut; profile_hero is the opaque
 // rectangle and the fallback for every group that never declared the page
@@ -193,10 +208,20 @@ function themeVars(p, fallbackColor) {
 //
 // The alt text is the manager's name: this is a portrait of a person and it is
 // primary content, not decoration, so it is never alt="".
-function blockPortrait(ctx, m, p, index) {
+function blockPortrait(ctx, m, p, index, alignsRight) {
   const authored = p && p.assets && has(p.assets.hero) ? p.assets.hero : null;
-  const cut = resolveArt(ctx.groupId, 'profile_page_hero', ctx.week, { id: m.manager_id });
+  const cutRight = resolveArt(ctx.groupId, 'profile_page_hero', ctx.week, { id: m.manager_id });
   const card = resolveArt(ctx.groupId, 'profile_hero', ctx.week, { id: m.manager_id });
+
+  // Declared BEFORE the general manifest check below, because this one is a
+  // fallback rather than a failure: a missing left cut means "use the right
+  // one", not "this manager has no art".
+  const manifestKnown = Object.keys(ctx.heroSizes).length > 0;
+  const cutLeft = alignsRight
+    ? resolveArt(ctx.groupId, 'profile_page_hero_left', ctx.week, { id: m.manager_id })
+    : null;
+  const cut = (cutLeft && (!manifestKnown || ctx.heroSizes[cutLeft])) ? cutLeft : cutRight;
+
   const src = authored || cut || card;
   if (!src) return { html: '', hasArt: false };
 
@@ -218,7 +243,6 @@ function blockPortrait(ctx, m, p, index) {
   // leaves the map empty, and treating that as "no manager has art" would
   // blank every portrait on the site; an empty map therefore means "cannot
   // say", and every path is allowed through to the old error-handler tier.
-  const manifestKnown = Object.keys(ctx.heroSizes).length > 0;
   if (manifestKnown && !ctx.heroSizes[src]) {
     // Loud, because the other way this happens is a real asset that was added
     // without re-running build_profile_heroes.py — which would now silently
@@ -524,7 +548,11 @@ function blockJump(m) {
 function profile(m, persona, ctx, index) {
   const p = persona || null;
   const allow = toneOf(p);
-  const portrait = blockPortrait(ctx, m, p, index);
+
+  // Computed BEFORE the portrait, because it decides which cut of the art the
+  // portrait asks for — not just which side the finished block sits on.
+  const alignsRight = alignRight(p, index);
+  const portrait = blockPortrait(ctx, m, p, index, alignsRight);
 
   // The variant is a DATA VALUE. persona_schema.py has already rejected any
   // key that is not a known variant, so an unknown one cannot arrive here —
@@ -544,8 +572,7 @@ function profile(m, persona, ctx, index) {
   // portrait column to put on either side, so tagging it would be a class that
   // describes nothing. See alignRight() for why the position comes from the
   // persona list rather than from this page's order.
-  const alignCls = (layout === 'sideline' && alignRight(p, index))
-    ? ' pf--align-right' : '';
+  const alignCls = (layout === 'sideline' && alignsRight) ? ' pf--align-right' : '';
 
   const blocks = {
     portrait: portrait.html,
