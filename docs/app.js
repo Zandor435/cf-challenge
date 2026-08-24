@@ -757,10 +757,14 @@ function renderBoard1(standings, ident, moves, pre) {
   const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   const meta = standings.meta || {};
   $('board1-week').textContent = weekLabel(meta.as_of_week, pre);
+  // One line, not two. The static .card-sub describes a board with results in
+  // it, which before kickoff there are none of, so it steps aside rather than
+  // stacking above a correction that contradicts it. In season the note hides
+  // and the sub comes back — never both at once.
+  (pre ? hide : show)($('board1-sub'));
   preseasonNote('board1-preseason', pre,
-    'Preseason &mdash; nothing has been played, so every banked total is just that ' +
-    'manager&rsquo;s lines added up in their picks&rsquo; directions. This orders the ' +
-    'league by how many Unders someone drafted, not by how anyone is doing.');
+    'Preseason totals are just each manager&rsquo;s picks added up in their chosen ' +
+    'direction &mdash; arithmetic, not results. Real scoring starts Week 1.');
 
   const head = `<div class="mgr-head mgr-head-c">
     <span>Rank</span><span></span><span>Manager</span><span>Banked</span>

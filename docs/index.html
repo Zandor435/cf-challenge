@@ -98,7 +98,11 @@
           <h2 class="card-title">Standings</h2>
           <span class="card-tag tag-exact" id="board1-week"></span>
         </div>
-        <p class="card-sub">Banked results only — pure arithmetic, reproducible by hand.
+        <!-- In-season description. Before kickoff it describes a board that
+             has no results in it yet, so renderBoard1() hides it and the
+             .preseason-note below carries the one line that is true then.
+             Exactly one of the two is ever visible. -->
+        <p class="card-sub" id="board1-sub">Banked results only — pure arithmetic, reproducible by hand.
           Open the Standings tab for every pick&rsquo;s range.</p>
         <p class="preseason-note" id="board1-preseason" hidden></p>
         <div class="standings" id="standings"></div>
