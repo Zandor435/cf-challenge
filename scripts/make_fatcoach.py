@@ -94,8 +94,23 @@ NO_FURNITURE = (
     "brand marks anywhere in the frame."
 )
 
+# A NAMED negative. --exclude exists because a generation that has already
+# produced the wrong school once will produce it again: the browns hauck batch
+# came back in James Madison purple and gold, and one variant put a JMU
+# wordmark on a Kentucky-blue polo inside a Kentucky stadium. Naming the
+# offender is far more reliable than trusting the positive prompt to crowd it
+# out, and it is opt-in, so no existing call site changes behaviour.
+EXCLUSION = (
+    " ABSOLUTELY FORBIDDEN anywhere in this picture: {names}. None of these "
+    "may appear on his apparel, on a patch, on the credential, on the "
+    "play-call sheet, on the field, in the crowd, or on any signage or "
+    "backdrop. Ignore any suggestion of them coming from the reference image "
+    "or from earlier attempts, and build the scene from the named team's own "
+    "colors and marks instead."
+)
 
-def build_prompt(color_word, hexc, patch):
+
+def build_prompt(color_word, hexc, patch, exclude=None):
     text = SCENE.format(color=color_word) + f" The team color is {hexc}."
     text += IDENTITY_LOCK + BUILD_CHANGE
     if patch:
@@ -107,6 +122,8 @@ def build_prompt(color_word, hexc, patch):
                  f"lettering or insignia anywhere in the picture.")
     else:
         text += NO_FURNITURE
+    if exclude:
+        text += EXCLUSION.format(names=exclude)
     return text
 
 
@@ -120,6 +137,9 @@ def main():
     ap.add_argument("--hex", default=None, help="literal #RRGGBB instead of --team")
     ap.add_argument("--patch", default=None,
                     help='e.g. "a returning national champions patch"')
+    ap.add_argument("--exclude", default=None,
+                    help="comma-joined things that must NOT appear, e.g. "
+                         '"JMU, James Madison, purple". Opt-in; see EXCLUSION')
     ap.add_argument("--n", type=int, default=2, help="variants")
     ap.add_argument("--aspect", default=DEFAULT_ASPECT)
     ap.add_argument("--model", default=gemini_image.DEFAULT_MODEL)
@@ -147,7 +167,7 @@ def main():
     else:
         ap.error("one of --team or --hex is required")
 
-    prompt = build_prompt(word, hexc, a.patch)
+    prompt = build_prompt(word, hexc, a.patch, a.exclude)
     out_dir = Path(a.out) if a.out else ROOT / "output" / "personas" / a.group
     if not out_dir.is_absolute():
         out_dir = ROOT / out_dir
