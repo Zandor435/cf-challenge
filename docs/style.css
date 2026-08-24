@@ -830,15 +830,20 @@ a { color: inherit; }
    Panel is the only league with a banner manifest today; the rest emit nothing
    here and this block never applies to them.
 
-   BLEEDS TO THE PAGE BOX, not the viewport. The negative margins cancel
-   .mgr-page's own `24px 20px` padding exactly, so the art meets the site
-   masthead's accent rule above it and the content edges beside it — those two
-   numbers track .mgr-page's padding and must change with it. Past 1080px the
-   band is the page's width rather than the window's, which is what keeps it
-   part of the masthead composition instead of a separate full-width header.
+   BLEEDS TO THE PAGE BOX, not the viewport. The side margin cancels the
+   profile page container's own horizontal padding exactly, so the art meets
+   the site masthead's accent rule above it and the content edges beside it.
+   THAT NUMBER TRACKS .pf-page's padding in profile.css and must change with
+   it — including at the 899px breakpoint, where profile.css narrows the
+   container to 14px and re-states this margin alongside it. The container is
+   .pf-page, not the .mgr-page above: managers.html moved onto the editorial
+   profile system's page box, whose top padding is 0, which is why there is no
+   negative top margin here any more. Past the container's max width the band
+   is the page's width rather than the window's, which is what keeps it part of
+   the masthead composition instead of a separate full-width header.
 
    NO BORDER of its own: .svp-masthead already closes with a 4px accent rule
-   directly above, and .mgr-intro opens with a 3px rule directly below. A third
+   directly above, and the page intro opens with a rule directly below. A third
    rule between them is the one thing this composition does not need.
 
    HEIGHT IS RESERVED, not guessed: managers.js sets `aspect-ratio` inline from
@@ -846,7 +851,7 @@ a { color: inherit; }
    under an eager, above-the-fold banner never gets pushed down on load. The
    dark ground is what shows in that box until the image paints. */
 .mgr-banner-slot {
-  margin: -24px -20px 22px;
+  margin: 0 -20px 22px;
   overflow: hidden;
   background: var(--ink-panel);
 }
