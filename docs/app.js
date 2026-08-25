@@ -1140,7 +1140,7 @@ async function renderEditorial(groupId) {
   if (src) {
     const img = $('ed-byline-avatar');
     img.onerror = () => img.remove();
-    img.alt = 'SVP';
+    img.alt = 'Fat Van Pelt';
     img.src = src;
     img.hidden = false;
   }

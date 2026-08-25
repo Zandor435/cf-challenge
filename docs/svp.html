@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The SVP Column — CF Challenge</title>
-<meta name="description" content="Weekly SVP column: one big thing from the week's pick'em action.">
+<title>The Fat Van Pelt Column — CF Challenge</title>
+<meta name="description" content="Every Fat Van Pelt column this season: one big thing from each week's pick'em action.">
 <!-- Icon: the masthead shield, adapted for a tab bar. The SVG is the real
      asset; favicon.ico is declared after it purely so the browsers that ignore
      an SVG icon request a file that exists instead of 404ing on /favicon.ico. -->
@@ -59,7 +59,7 @@
 </header>
 
 <main class="svp-page">
-  <p class="svp-kicker">The SVP Column</p>
+  <p class="svp-kicker">The Fat Van Pelt Column</p>
 
   <!-- "One big thing" is the locked column format — don't change the wording. -->
   <h1 class="svp-headline">One big thing</h1>
@@ -73,7 +73,7 @@
   <div class="svp-byline" id="svp-byline" hidden>
     <img class="svp-byline-avatar" id="svp-byline-avatar" alt="" width="56" height="56" hidden>
     <div class="svp-byline-text">
-      <span class="svp-byline-name">SVP</span>
+      <span class="svp-byline-name">Fat Van Pelt</span>
       <span class="svp-byline-meta" id="svp-byline-meta"></span>
     </div>
   </div>
@@ -252,7 +252,7 @@
         var img = document.getElementById('svp-byline-avatar');
         if (!img) return;
         img.onerror = function () { img.remove(); };
-        img.alt = 'SVP';
+        img.alt = 'Fat Van Pelt';
         img.src = src;
         img.hidden = false;
       });
