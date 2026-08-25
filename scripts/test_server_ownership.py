@@ -153,6 +153,19 @@ def test_the_hook_is_wired():
     check("...and it is block_bare_server.py",
           any("block_bare_server.py" in c for c in cmds), str(cmds))
 
+    # FAIL OPEN. A PreToolUse hook that exits non-zero does not decline to
+    # answer -- it fails the tool call. When this file went missing, every Bash
+    # call in the repo errored until it came back, so the registration carries a
+    # `||` fallback that warns and allows. Asserted on the command STRING
+    # because the failure it covers is the interpreter never reaching our code:
+    # there is nothing runnable to test at that point, only the wiring.
+    #
+    # This does not soften the two checks above. A missing file or a wrong path
+    # still FAILS here -- fail-open is about the shell staying usable, never
+    # about a broken wire looking fine.
+    check("...and the registration falls open if that file is missing",
+          all("||" in c for c in cmds if "block_bare_server.py" in c), str(cmds))
+
 
 def test_the_hook_denies_the_incident_command():
     """GUARD 2, behaviourally: the exact command that caused it is denied.
@@ -179,6 +192,15 @@ def test_the_hook_denies_the_incident_command():
     reason = (out.get("hookSpecificOutput") or {}).get("permissionDecisionReason", "")
     check("...and the denial names the alternative",
           "shotserve" in reason, reason[:120])
+
+    # A hook that CRASHES must also allow. Forced by feeding it a payload whose
+    # command is not a string, which every code path below the json.load treats
+    # as text; whatever that raises, main() must swallow it and exit 0.
+    p = subprocess.run(
+        [sys.executable, str(HOOK)], text=True, capture_output=True, timeout=30,
+        input=json.dumps({"tool_name": "Bash", "tool_input": {"command": {"a": 1}}}))
+    check("a hook that cannot do its job still exits 0 (fails open)",
+          p.returncode == 0, f"exit={p.returncode} stderr={p.stderr[:150]}")
 
     # And the commands this repo actually runs all day are untouched. A hook
     # that blocks real work gets disabled, and a disabled hook guards nothing.

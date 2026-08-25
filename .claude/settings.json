@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/block_bare_server.py\"",
+            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/block_bare_server.py\" || { echo \"block_bare_server.py did not run -- the bare-static-server guard is OFF for this command. Restore scripts/hooks/block_bare_server.py; scripts/test_server_ownership.py fails while it is missing.\" >&2; echo '{\"systemMessage\": \"The bare-static-server guard did NOT run: scripts/hooks/block_bare_server.py is missing or unreadable. This command was allowed anyway, because a missing hook must not brick every Bash call in the repo -- but nothing is checking for a bare static server right now. Restore the file; scripts/test_server_ownership.py fails while it is gone.\"}'; }",
             "timeout": 10,
             "statusMessage": "checking for a bare static server"
           }

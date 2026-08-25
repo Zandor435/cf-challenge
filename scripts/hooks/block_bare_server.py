@@ -21,6 +21,25 @@ THE FILENAME IS LOAD-BEARING and is asserted in test_server_ownership.py. It is
 named here exactly as .claude/settings.json invokes it; a hook whose path does
 not resolve is not a disabled hook, it is a hook that ERRORS on every Bash call
 in the repo, which is how this file briefly came to be named twice.
+
+FAIL OPEN, LOUDLY, IN BOTH HALVES. That error mode is not hypothetical: this
+file went missing mid-task and every Bash call in the repo failed until it came
+back. So neither half of the wiring may turn a problem with the GUARD into a
+problem with the SHELL.
+
+  * .claude/settings.json appends a `|| { ... }` fallback. It covers this file
+    being absent or unreadable -- the interpreter never gets to run, so nothing
+    written here could help. It warns on stderr, returns a systemMessage, allows.
+  * main() below catches everything, so a bug in THIS file -- a bad regex, a
+    payload shape nobody anticipated -- also allows rather than exiting non-zero.
+
+Allowing is not going quiet, and the two are the whole design. Both paths say
+the guard did not run, and scripts/test_server_ownership.py FAILS while the file
+is missing or the registration is wrong -- so a guard that is off cannot be
+mistaken for a guard that is on beyond the next test run.
+
+The asymmetry is the argument: the worst case of allowing is one unguarded
+command, and the worst case of erroring is a repo where nothing runs at all.
 """
 
 import json
@@ -110,7 +129,7 @@ def blocked_reason(command: str):
     return None
 
 
-def main() -> int:
+def _run() -> int:
     try:
         payload = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
@@ -135,6 +154,27 @@ def main() -> int:
         }
     }))
     return 0
+
+
+def main() -> int:
+    """Never raise, never exit non-zero. See FAIL OPEN in the module docstring.
+
+    A PreToolUse hook that exits non-zero does not decline to answer -- it makes
+    the tool call itself fail. For a guard that is one regex over one string,
+    that trade is never worth taking.
+    """
+    try:
+        return _run()
+    except Exception as e:                      # noqa: BLE001 -- deliberate
+        why = f"{type(e).__name__}: {e}"
+        print(f"block_bare_server.py failed ({why}) -- the bare-static-server "
+              f"guard is OFF for this command.", file=sys.stderr)
+        print(json.dumps({"systemMessage":
+                          f"The bare-static-server guard crashed ({why}) and did "
+                          f"not check this command. It was allowed anyway so a "
+                          f"broken hook cannot brick every Bash call. Fix "
+                          f"scripts/hooks/block_bare_server.py."}))
+        return 0
 
 
 if __name__ == "__main__":
