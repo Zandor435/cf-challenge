@@ -59,12 +59,13 @@
   <section class="load-error" id="load-error" hidden></section>
 
   <!-- NO MASTHEAD BANNER, deliberately. This page carried the rotator that
-       still runs on index.html, and it was the wrong surface for it: the
+       now runs on index.html, and it was the wrong surface for it: the
        group is already named by the masthead and again by the page title
        below, so the band added a third announcement and pushed the first
        profile under the fold. A text-heavy scroll wants its first picture to
-       be a person, not decoration. data/<group>/banners.json is untouched and
-       still feeds the home page. -->
+       be a person, not decoration. data/<group>/banners.json is untouched BY
+       THIS PAGE — index.html reads it every load and picks one of panel's
+       fifteen banners from it. -->
 
   <section class="pf-intro" id="mgr-intro" hidden></section>
 
