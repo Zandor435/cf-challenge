@@ -145,8 +145,11 @@ def test_the_hook_is_wired():
         return
     check(".claude/settings.json parses", True)
 
+    # Any PreToolUse entry whose matcher mentions Bash -- an exact "Bash" or a
+    # regex alternation like "Bash|PowerShell" both count, and which of those it
+    # is gets asserted below rather than assumed here.
     entries = [e for e in (cfg.get("hooks", {}).get("PreToolUse") or [])
-               if e.get("matcher") == "Bash"]
+               if "Bash" in (e.get("matcher") or "")]
     cmds = [h.get("command", "") for e in entries for h in (e.get("hooks") or [])
             if h.get("type") == "command"]
     check("a PreToolUse/Bash command hook is registered", bool(cmds))
@@ -165,6 +168,16 @@ def test_the_hook_is_wired():
     # about a broken wire looking fine.
     check("...and the registration falls open if that file is missing",
           all("||" in c for c in cmds if "block_bare_server.py" in c), str(cmds))
+
+    # EVERY SHELL TOOL. main() has always accepted a PowerShell payload, but the
+    # matcher read "Bash", so the hook was never invoked for one and the exact
+    # command denied through Bash ran unguarded through PowerShell. The matcher
+    # is the half that silently regressed, so it is asserted here by name;
+    # test_the_hook_denies_through_every_shell_tool below asserts the behaviour.
+    matchers = [e.get("matcher", "") for e in entries]
+    for tool in ("Bash", "PowerShell"):
+        check(f"...and the matcher covers {tool}",
+              any(tool in m for m in matchers), str(matchers))
 
 
 def test_the_hook_denies_the_incident_command():
@@ -250,6 +263,35 @@ def test_the_hook_reads_prose_as_prose():
               f"got {got!r}, wanted {want!r}")
 
 
+def test_the_hook_denies_through_every_shell_tool():
+    """GUARD 2, per tool: a matcher covering PowerShell is worth nothing if the
+    script then ignores a PowerShell payload, and vice versa. Both halves, both
+    tools, because the gap that shipped was exactly this pair disagreeing."""
+    incident = "cd docs && python -m " + "http" + ".server 8899 &"
+    for tool in ("Bash", "PowerShell"):
+        payload = json.dumps({"tool_name": tool,
+                              "tool_input": {"command": incident}})
+        p = subprocess.run([sys.executable, str(HOOK)], input=payload,
+                           capture_output=True, text=True, timeout=30)
+        try:
+            out = json.loads(p.stdout or "{}")
+        except json.JSONDecodeError:
+            check(f"{tool}: the hook emits JSON", False, p.stdout[:150])
+            continue
+        decision = (out.get("hookSpecificOutput") or {}).get("permissionDecision")
+        check(f"{tool}: a bare static server is denied", decision == "deny",
+              f"decision={decision!r}")
+
+    # A tool this hook is not registered for is none of its business, and must
+    # not be denied on the strength of the text it carries.
+    p = subprocess.run(
+        [sys.executable, str(HOOK)], text=True, capture_output=True, timeout=30,
+        input=json.dumps({"tool_name": "Read",
+                          "tool_input": {"command": "python -m "
+                                                    + "http" + ".server"}}))
+    check("a non-shell tool is left alone", p.stdout.strip() == "", p.stdout[:150])
+
+
 def main():
     print("no script or workflow serves docs/")
     test_no_script_serves_docs()
@@ -257,6 +299,7 @@ def main():
     print("\nthe interactive route is closed")
     test_the_hook_is_wired()
     test_the_hook_denies_the_incident_command()
+    test_the_hook_denies_through_every_shell_tool()
     test_the_hook_reads_prose_as_prose()
 
     passed, total = sum(1 for r in _res if r[1]), len(_res)
