@@ -109,17 +109,35 @@
         <div class="standings" id="standings"></div>
       </section>
 
-      <!-- Editorial slot. The commentary pipeline is still stubbed, so this is
-           an honest placeholder, NOT invented copy. Wire to real commentary
-           output once that pipeline exists. -->
+      <!-- Editorial slot — the CURRENT column, on the front page. This card
+           used to be hardcoded copy saying the commentary pipeline "isn't wired
+           up yet"; it is, and four columns are filed, so the card now renders
+           the newest one off the same archive svp.html reads.
+
+           A LEAD-IN, NOT THE WHOLE COLUMN. This card shares .grid-top with
+           Board 1 at a 55/45 split, and a 330-word column in the narrow track
+           runs to roughly three times the board's height — the page stops being
+           a board with a column beside it and becomes a column with a board in
+           the corner. The first paragraph is the column's own opening, chosen
+           by the writer, and the link carries the reader to the rest.
+
+           Everything below the kicker is filled by renderEditorial() in app.js.
+           The markup asserts nothing: no headline, no byline, no prose, so a
+           group with no column filed renders its own honest empty state rather
+           than a claim this file made in advance. -->
       <section class="card editorial" id="editorial" hidden>
         <div class="ed-kicker">The Column</div>
-        <h2 class="ed-headline">Weekly recap<br>coming soon</h2>
-        <p class="ed-body">The commentary pipeline isn&rsquo;t wired up yet, so there&rsquo;s no
-          write-up for this week. Rather than fill the slot with filler, it stays
-          empty until there&rsquo;s something real to publish.</p>
-        <p class="ed-body">In the meantime, the column preview lives on its own page.</p>
-        <a class="ed-link" href="svp.html" id="editorial-link">Read the SVP column &rarr;</a>
+        <h2 class="ed-headline" id="ed-headline"></h2>
+        <div class="ed-byline" id="ed-byline" hidden>
+          <img class="ed-byline-avatar" id="ed-byline-avatar" alt="" width="44" height="44" hidden>
+          <div class="ed-byline-text">
+            <span class="ed-byline-name">SVP</span>
+            <span class="ed-byline-meta" id="ed-byline-meta"></span>
+          </div>
+        </div>
+        <div id="ed-body"></div>
+        <a class="ed-link" href="svp.html" id="editorial-link"></a>
+        <p class="ed-archive" id="ed-archive" hidden></p>
       </section>
     </div>
 

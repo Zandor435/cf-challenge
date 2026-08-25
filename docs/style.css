@@ -593,6 +593,36 @@ a { color: inherit; }
 }
 .ed-link:hover { background: var(--accent-alt); }
 
+/* Byline on the home card. Smaller than svp.html's (44px against the column
+   page's) because this is a card in a two-up grid, not the top of a page --
+   but the same square, hairlined crop, so the columnist is recognisably the
+   same face in both places. */
+.ed-byline {
+  display: flex; align-items: center; gap: 10px;
+  margin: -6px 0 14px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.ed-byline-avatar {
+  width: 44px; height: 44px; flex: 0 0 44px;
+  object-fit: cover; border: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+.ed-byline-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ed-byline-name {
+  font-family: var(--display); font-weight: 700; font-size: .85rem;
+  text-transform: uppercase; letter-spacing: .04em; color: var(--text);
+}
+.ed-byline-meta {
+  font-family: var(--mono); font-size: .58rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+/* The back-catalogue line, under the link. Muted: it is a signpost, not a
+   second call to action competing with the one above it. */
+.ed-archive {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-faint); margin-top: 12px;
+}
+
 /* ---------- Scoreboard --------------------------------------------------- */
 .sb-cols { display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 14px; }
 .sb-col { min-width: 0; }
