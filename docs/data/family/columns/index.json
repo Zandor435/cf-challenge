@@ -1,0 +1,23 @@
+{
+  "$note": [
+    "The published column archive for this group. DERIVED — rebuilt by",
+    "generate_commentary.py from the week_<N>.json files beside it, and",
+    "regenerable at any time with `--reindex` and no network.",
+    "Newest first: columns[0] is the current column. Carries no prose;",
+    "a week's paragraphs live in the file its `file` key names.",
+    "A 404 on this file is an ordinary state (no column filed yet) and",
+    "every consumer must render its own empty state rather than error."
+  ],
+  "$version": 1,
+  "group_id": "family",
+  "count": 1,
+  "columns": [
+    {
+      "week": 0,
+      "preseason": true,
+      "generated_at": "2026-08-23T12:12:22.564587+00:00",
+      "word_count": 344,
+      "file": "week_0.json"
+    }
+  ]
+}

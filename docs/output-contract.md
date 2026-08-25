@@ -28,12 +28,25 @@ used to read as "these four files and nothing else", which was already untrue:
 |------|----------|-------------------------|-------------|
 | `personas.json` | `sync_personas.py` | **overwrite** | no personas authored for the group |
 | `banners.json`  | `build_banners.py` | **overwrite** | no banner set built for the group |
-| `column.json`   | `generate_commentary.py` | **overwrite** | no column filed yet — the normal state before Week 0 |
+| `columns/week_<N>.json` | `generate_commentary.py` | **accumulate** | that week has not been filed |
+| `columns/index.json`    | `generate_commentary.py` | **derived** (rebuilt in full) | no column filed yet — the normal state before Week 0 |
 
-Every consumer of these three must treat a 404 as an ordinary state and render
-its own empty state, exactly as `svp.html` does for a group with no column.
+Every consumer of these must treat a 404 as an ordinary state and render its own
+empty state, exactly as `svp.html` does for a group with no column.
 
-#### `column.json` — the published column
+#### `columns/` — the published column archive
+
+**This replaced a single `column.json` that held the newest column only and was
+overwritten every week.** The `.md` sources under `groups/<group>/output/`
+accumulated, but only the latest was ever reachable from the site, so filing
+week 1 erased week 0 from the web. The archive accumulates instead.
+
+```
+docs/data/<group>/columns/week_<N>.json   one filed column   ACCUMULATE
+docs/data/<group>/columns/index.json      the manifest       DERIVED
+```
+
+##### `week_<N>.json` — one filed column
 
 ```json
 {
@@ -53,17 +66,55 @@ its own empty state, exactly as `svp.html` does for a group with no column.
 }
 ```
 
-- The **newest column only**. The season's filed columns live under
-  `groups/<group>/output/column_week_<N>.md`, which is the source of record —
+- Unchanged in shape from the `column.json` it replaced — only its path and its
+  lifetime changed. **Write-once per week:** filing week N opens `week_N.json`
+  and no other, so a publish cannot mutate an already-filed column. Re-filing
+  the same week after a prompt fix rewrites that one file, which is what a
+  prompt fix is for.
+- `groups/<group>/output/column_week_<N>.md` remains the **source of record** —
   what `column_memory.json` names, what next week's prompt reads back for
-  callbacks, and what a human reviews. `meta.source` names that file.
+  callbacks, and what a human reviews. `meta.source` names it.
+- It is also the **durable record of when a column was filed**. The `.md`
+  carries no title, byline, date or week inside it (week is in its filename and
+  nothing else is), so this file — never the source — is what the index is
+  built from.
 - `paragraphs` is the column **pre-split in Python**, blank-line separated with
   blanks dropped. The page renders one `<p>` per entry and splits nothing
   itself; `word_count` is likewise computed at write time. Same rule as
   `analytics.json`: if the page needs a number, it gets a key.
 - `meta.preseason` is the packet's own flag, not a second opinion about what
   week 0 means. The page labels a preseason column "Preseason" rather than
-  "Week 00", matching `standings.json`'s null `as_of_week`.
+  "Week 00", matching `standings.json`'s null `as_of_week`. **Week 0 is an
+  ordinary entry in the archive, not a special case.**
+
+##### `index.json` — the manifest
+
+```json
+{
+  "$note": ["..."],
+  "$version": 1,
+  "group_id": "panel",
+  "count": 2,
+  "columns": [
+    {"week": 1, "preseason": false, "generated_at": "...", "word_count": 344, "file": "week_1.json"},
+    {"week": 0, "preseason": true,  "generated_at": "...", "word_count": 332, "file": "week_0.json"}
+  ]
+}
+```
+
+- **Derived**, and derived from the published `week_<N>.json` files beside it —
+  never from the `.md` sources, which carry no date and would restamp every
+  historical column with today. Regenerable with no network:
+  `python scripts/generate_commentary.py --group <g> --reindex`.
+- **Newest first.** `columns[0]` is the current column; the order is the page's
+  reading order and is not re-sorted in JS. Sorted by `week` as an integer, so
+  week 10 precedes week 2.
+- **Carries no prose and no timestamp of its own.** A reader opening week N
+  fetches the file that entry's `file` key names. Nothing here is a clock
+  reading, so rebuilding with nothing new is byte-identical and a republish
+  produces no git churn.
+- A week file that will not parse is skipped with a `::warning::` rather than
+  taking down the index for every other week (playbook rule 10).
 
 Conventions: deltas are signed floats in the pick's O/U direction
 (`O`: `wins - line`; `U`: `line - wins`). Probabilities are floats in `[0,1]`.

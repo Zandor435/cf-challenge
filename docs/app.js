@@ -1071,6 +1071,93 @@ function renderBoard2Unavailable(reason) {
   show($('board2'));
 }
 
+// ---------- Editorial card — the current column, on the home view ----------
+// Reads the SAME archive svp.html reads (data/<group>/columns/), so the front
+// page and the Weekly Recap page cannot disagree about which column is current.
+// Two round trips, both after the boards are on screen: the manifest, then the
+// newest column's own file.
+//
+// FAIL-SOFT, AND THE EMPTY STATE IS THE HONEST ONE. No manifest, no entries, or
+// a newest file that will not load all land on the same card: the same sentence
+// svp.html's teaser carries, and a link to the desk. It never says a column is
+// coming, because that is a promise this page cannot keep, and it never leaves
+// the slot blank, because the card is already shown by the time this resolves.
+//
+// LEAD-IN, NOT THE FULL COLUMN — see the note on the card in index.html.
+async function renderEditorial(groupId) {
+  const headline = $('ed-headline');
+  const body = $('ed-body');
+  const link = $('editorial-link');
+  if (!headline || !body || !link) return;
+
+  // The absent state, written first so every early return below lands on it
+  // rather than on an empty card.
+  const absent = () => {
+    headline.textContent = 'Nothing filed yet';
+    body.innerHTML = '<p class="ed-body">The desk is dark until the games start. The ' +
+      'first column drops after Week&nbsp;0 &mdash; until then, the board is the whole ' +
+      'story.</p>';
+    link.textContent = 'Visit the column desk \u2192';
+  };
+
+  let index = null;
+  try {
+    index = await fetchJSON(`data/${groupId}/columns/index.json`);
+  } catch (e) {
+    index = null;                      // a 404 is the ordinary pre-Week-0 state
+  }
+  const entries = (index && Array.isArray(index.columns)) ? index.columns : [];
+  if (!entries.length) { absent(); return; }
+
+  const entry = entries[0];
+  let doc = null;
+  try {
+    doc = await fetchJSON(`data/${groupId}/columns/${entry.file}`);
+  } catch (e) {
+    doc = null;
+  }
+  const paras = ((doc && doc.column && doc.column.paragraphs) || [])
+    .filter((x) => typeof x === 'string' && x.trim());
+  // A manifest that names a file the site cannot serve is a broken publish, not
+  // a reason to invent a column. Say the desk is dark and link to the page that
+  // can still list the weeks that do load.
+  if (!paras.length) { absent(); return; }
+
+  const meta = doc.meta || {};
+  // The locked column format name, the same one svp.html prints. Not a title
+  // for THIS week -- no filed column carries one.
+  headline.textContent = 'One big thing';
+
+  const bits = [meta.preseason === true ? 'Preseason'
+    : (Number.isInteger(meta.week) ? `Week ${meta.week < 10 ? '0' : ''}${meta.week}` : 'Live')];
+  const filed = String(meta.generated_at || '').slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(filed)) bits.push(filed);
+  $('ed-byline-meta').textContent = bits.join(' \u00b7 ');
+  show($('ed-byline'));
+
+  // Same slot, same resolver, same graceful absence as the byline on svp.html.
+  const src = resolveArt(groupId, 'svp_column_art', meta.week);
+  if (src) {
+    const img = $('ed-byline-avatar');
+    img.onerror = () => img.remove();
+    img.alt = 'Fat Van Pelt';
+    img.src = src;
+    img.hidden = false;
+  }
+
+  body.innerHTML = `<p class="ed-body">${esc(paras[0])}</p>`;
+  link.textContent = 'Read the full column \u2192';
+
+  // Only when there IS a back catalogue. "and 0 earlier columns" is the kind of
+  // sentence that gets written by a template and read by nobody.
+  const earlier = entries.length - 1;
+  if (earlier > 0) {
+    const el = $('ed-archive');
+    el.innerHTML = `${earlier} earlier column${earlier === 1 ? '' : 's'} in the archive.`;
+    show(el);
+  }
+}
+
 // ---------- boot -----------------------------------------------------------
 async function main() {
   // Scoped mode is chrome-only: hide the switcher so a per-group link stays on
@@ -1168,6 +1255,10 @@ async function main() {
   renderStandingsDetail(standings, ident, moves, pre); // Standings tab — full detail
   renderScoreboard(standings, ident, pre);
   show($('editorial'));
+  // Not awaited: the column card is the least important thing on this page and
+  // must not hold the projection behind two more round trips. It fills itself
+  // in when it lands, and lands on its own empty state if it does not.
+  renderEditorial(groupId);
 
   // Board 2 degrades independently of Board 1 (STEP 4).
   try {

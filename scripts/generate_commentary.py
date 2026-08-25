@@ -11,11 +11,23 @@ live mode, posts it to OpenAI:
   groups/<group>/output/column_memory.json        season-long continuity
   groups/<group>/output/column_week_<N>.md        last week's column, for callbacks
 
-Live mode writes TWO files, and they are not redundant: the .md above is the
-source of record (what memory names, what next week reads back for callbacks,
-what a human reviews), and docs/data/<group>/column.json is the published form
-the site renders — same text, pre-split into paragraphs and word-counted here
-because the site computes nothing.
+Live mode writes the .md above (the source of record — what memory names, what
+next week reads back for callbacks, what a human reviews) and publishes the same
+text into the site's column ARCHIVE:
+
+  docs/data/<group>/columns/week_<N>.json   one filed column, WRITE-ONCE-PER-WEEK
+  docs/data/<group>/columns/index.json      the manifest, DERIVED from those files
+
+The archive ACCUMULATES. It replaced a single docs/data/<group>/column.json that
+held the newest column only and was overwritten every week, which meant week 1
+erased week 0 from the site while the .md sources quietly piled up unpublished.
+
+Filing week N opens week N's file and no other, so a publish cannot mutate an
+already-filed column — the guarantee is structural, not a correctness argument
+about merge logic. The index carries no prose and no timestamp of its own: it is
+rebuilt by scanning the published week files, so re-running with nothing new
+produces byte-identical output, and a lost index is regenerable (--reindex)
+where a lost week file is not.
 
 Persona: DECIDED — a Scott Van Pelt parody, a SINGLE pinned voice across all
 three groups (ARCHITECTURE §12, landed 2026-07-27). Rome / Herbstreit / Berman
@@ -97,22 +109,35 @@ def column_path(group_id, week):
     return out_dir(group_id) / f"column_week_{week}.md"
 
 
-def publish_path(group_id):
-    """The site's copy: docs/data/<group_id>/column.json — OVERWRITE.
+def columns_dir(group_id):
+    """The published archive for one group: docs/data/<group_id>/columns/."""
+    return utils.WEB_DATA_DIR / group_id / "columns"
 
-    Two files, and they are not redundant. The .md under groups/<group>/output/
-    is the SOURCE: it is what column_memory names, what next week's prompt reads
-    back for callbacks, and what a human reviews before anything ships. This is
-    the PUBLISHED form — the newest column only, pre-split into paragraphs and
+
+def publish_path(group_id, week):
+    """One filed column's published form — docs/data/<group>/columns/week_<N>.json.
+
+    ACCUMULATE, and write-once per week. This is the PUBLISHED form of the .md
+    under groups/<group>/output/: same text, pre-split into paragraphs and
     word-counted in Python, because the site renders JSON and computes nothing
     (playbook P2 #12). Writing it from here rather than from a separate publish
     step keeps the two from ever describing different columns.
 
-    docs/data/<group>/ already carries more than the four contract boards
-    (personas.json, banners.json); this joins them as an auxiliary publisher and
-    is documented alongside them in docs/output-contract.md.
+    Filing week N touches week N's file ONLY. Re-filing the same week after a
+    prompt fix overwrites that one file, which is what a prompt fix is for; no
+    other week is opened, read, or rewritten, so the archive cannot lose a
+    column to a bad publish the way the old newest-only column.json did.
+
+    It is also the DURABLE record of when a column was filed. The .md carries no
+    date, week or byline inside it — week lives in its filename, everything else
+    lives here — so this file, not the source, is what the index is built from.
     """
-    return utils.WEB_DATA_DIR / group_id / "column.json"
+    return columns_dir(group_id) / f"week_{week}.json"
+
+
+def index_path(group_id):
+    """The archive manifest — docs/data/<group>/columns/index.json. DERIVED."""
+    return columns_dir(group_id) / "index.json"
 
 
 # --- Loaders (raise; never sys.exit — the live guard needs a catchable error) --
@@ -818,6 +843,79 @@ def publish_doc(group_id, packet, column):
     }
 
 
+def build_index(group_id):
+    """Rebuild docs/data/<group>/columns/index.json by scanning the week files.
+
+    DERIVED, and derived from the PUBLISHED files rather than from the .md
+    sources — that is the whole reason the index is safe to regenerate. The .md
+    carries no date inside it (week is in its filename and nothing else is), so
+    `generated_at` exists only in the published week file. Rebuilding from the
+    sources would silently restamp every historical column with today.
+
+    IDEMPOTENT AT THE BYTE LEVEL. Nothing here is a clock reading: no
+    `generated_at` on the manifest itself, no ordering that depends on anything
+    but the week number. Re-running with no new column rewrites the same bytes,
+    so a republish produces no git churn and no false "the archive changed".
+
+    Carries NO prose. The list is what the archive page needs to draw its index
+    of the season — week, its label flag, when it was filed, how long it is —
+    and the page fetches a week's file when a reader opens that week. Putting a
+    teaser here would put the same sentences in two published files.
+
+    Defensive per file (playbook rule 10): a week file that will not parse is
+    skipped with a warning rather than taking down the index for every other
+    week. Returns the manifest that was written, or None when the group has no
+    published columns at all — the ordinary state before Week 0.
+    """
+    d = columns_dir(group_id)
+    entries = []
+    for path in sorted(d.glob("week_*.json")) if d.is_dir() else []:
+        try:
+            week = int(path.stem.split("_", 1)[1])
+        except (IndexError, ValueError):
+            print(f"  ::warning::[{group_id}] skipping unparseable name {path.name}")
+            continue
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+            meta = doc["meta"]
+            col = doc["column"]
+        except (OSError, ValueError, KeyError, TypeError) as e:
+            print(f"  ::warning::[{group_id}] skipping unreadable {path.name}: {e}")
+            continue
+        entries.append({
+            "week": week,
+            "preseason": meta.get("preseason") is True,
+            "generated_at": meta.get("generated_at"),
+            "word_count": col.get("word_count"),
+            "file": path.name,
+        })
+
+    if not entries:
+        return None
+
+    # Newest first: the archive page reads columns[0] as the current column and
+    # lists the rest beneath it, so the order IS the page's reading order and is
+    # not re-sorted in JS.
+    entries.sort(key=lambda e: e["week"], reverse=True)
+    doc = {
+        "$note": [
+            "The published column archive for this group. DERIVED — rebuilt by",
+            "generate_commentary.py from the week_<N>.json files beside it, and",
+            "regenerable at any time with `--reindex` and no network.",
+            "Newest first: columns[0] is the current column. Carries no prose;",
+            "a week's paragraphs live in the file its `file` key names.",
+            "A 404 on this file is an ordinary state (no column filed yet) and",
+            "every consumer must render its own empty state rather than error.",
+        ],
+        "$version": 1,
+        "group_id": group_id,
+        "count": len(entries),
+        "columns": entries,
+    }
+    utils.save_json_atomic(index_path(group_id), doc)
+    return doc
+
+
 # --- Modes -------------------------------------------------------------------
 
 def run_dry(group_id, packet_override=None):
@@ -869,10 +967,16 @@ def run_live(group_id, packet_override=None):
     path.write_text(column + "\n", encoding="utf-8")
     print(f"  -> wrote {path}")
 
-    # Publish the same text the site renders. Written from the string that was
-    # just filed, never re-read off disk, so the two files cannot describe
-    # different columns.
-    utils.save_json_atomic(publish_path(group_id), publish_doc(group_id, packet, column))
+    # Publish into the archive. Written from the string that was just filed,
+    # never re-read off disk, so the .md and its published form cannot describe
+    # different columns. This opens week N's file and no other — every earlier
+    # column is untouched by construction, not by being carefully merged.
+    utils.save_json_atomic(publish_path(group_id, week),
+                           publish_doc(group_id, packet, column))
+    # Then the manifest, rebuilt from what is now on disk. Second, so a crash
+    # between the two leaves an unindexed column (invisible, recoverable with
+    # --reindex) rather than an index naming a file that was never written.
+    build_index(group_id)
 
     # Append to memory LAST, and only the filename — the curated keys are
     # round-tripped untouched.
@@ -893,7 +997,19 @@ def main():
     ap.add_argument("--packet", default=None,
                     help="read the packet from this path instead of the group's "
                          "week_packet.json (used for the Week 0 preseason packet)")
+    ap.add_argument("--reindex", action="store_true",
+                    help="rebuild the archive manifest from the already-published "
+                         "week files; NO network call, writes no column")
     args = ap.parse_args()
+
+    # The no-fetch escape hatch (playbook rule 3 / P1 #6): regenerate the derived
+    # layer from committed data with no API key and no packet, so a corrupted or
+    # deleted index is a one-command fix rather than a re-run of the model.
+    if args.reindex:
+        doc = build_index(args.group)
+        n = doc["count"] if doc else 0
+        print(f"  [{args.group}] indexed {n} column(s)")
+        return 0
 
     if args.dry_run:
         # Developer-facing: let it fail loudly.

@@ -639,7 +639,7 @@ def test_persona_material_carries_no_tone_rule():
 
 def test_publish_doc():
     """The site's copy computes nothing: paragraphs and the count are made here."""
-    print("\nPublished column.json shape:")
+    print("\nPublished week_<N>.json shape:")
     packet = _seeded_packet()
     packet["preseason"] = True
     column = "First para, two sentences.\n\nSecond para.\r\n\r\nThird para.\n"
@@ -663,9 +663,12 @@ def test_publish_doc():
     check("publish: the word count is computed here, not in JS",
           doc["column"]["word_count"] == len(column.split()),
           f"{doc['column']['word_count']}")
-    check("publish: the target is docs/data/<group>/column.json",
-          G.publish_path("family") == utils.WEB_DATA_DIR / "family" / "column.json",
-          str(G.publish_path("family")))
+    check("publish: the target is docs/data/<group>/columns/week_<N>.json",
+          G.publish_path("family", 3)
+          == utils.WEB_DATA_DIR / "family" / "columns" / "week_3.json",
+          str(G.publish_path("family", 3)))
+    check("publish: each week is its own file, so filing one cannot touch another",
+          G.publish_path("family", 3) != G.publish_path("family", 4))
 
     # JSON-serialisable, because it is written straight to the web root.
     try:
@@ -674,6 +677,99 @@ def test_publish_doc():
     except TypeError as e:
         ok, _ = False, e
     check("publish: the document is JSON-serialisable", ok)
+
+
+def test_archive_index():
+    """The manifest is derived, idempotent, carries no prose, and never mutates
+    an already-filed column.
+
+    This is the test for the bug the archive exists to prevent: publishing used
+    to write a single newest-only column.json, so week 1 erased week 0 from the
+    site while the .md sources piled up unpublished.
+    """
+    print("\nArchive index (docs/data/<group>/columns/):")
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        real_web = utils.WEB_DATA_DIR
+        utils.WEB_DATA_DIR = root
+        try:
+            d = G.columns_dir("family")
+            d.mkdir(parents=True)
+
+            check("index: no published columns at all -> None, not an empty file",
+                  G.build_index("family") is None and not G.index_path("family").exists())
+
+            def file_week(week, pre, stamp, words):
+                utils.save_json_atomic(G.publish_path("family", week), {
+                    "meta": {"group_id": "family", "season": 2026, "week": week,
+                             "preseason": pre, "generated_at": stamp,
+                             "model": "gpt-4o",
+                             "source": f"groups/family/output/column_week_{week}.md"},
+                    "column": {"paragraphs": [f"Prose for week {week}."],
+                               "word_count": words},
+                })
+
+            file_week(0, True, "2026-08-23T12:00:00+00:00", 344)
+            idx = G.build_index("family")
+            check("index: one filed column is counted", idx["count"] == 1)
+
+            # Week 10 before week 2, so a lexical sort of the filenames would put
+            # week_10 after week_2 and the "newest" would be wrong.
+            file_week(10, False, "2026-11-01T12:00:00+00:00", 400)
+            file_week(2, False, "2026-09-07T12:00:00+00:00", 380)
+            idx = G.build_index("family")
+            check("index: every filed column appears", idx["count"] == 3)
+            check("index: newest first, by week as an integer (not lexically)",
+                  [c["week"] for c in idx["columns"]] == [10, 2, 0],
+                  str([c["week"] for c in idx["columns"]]))
+            check("index: week 0 is an ordinary entry, not a special case",
+                  idx["columns"][-1]["week"] == 0
+                  and idx["columns"][-1]["preseason"] is True)
+            check("index: each entry names the file its prose lives in",
+                  all((d / c["file"]).exists() for c in idx["columns"]))
+            # Scoped to the entries: the $note explains where prose lives and
+            # naturally contains the word, which is documentation, not data.
+            check("index: the manifest carries NO prose",
+                  "Prose for week" not in json.dumps(idx)
+                  and all(set(c) == {"week", "preseason", "generated_at",
+                                     "word_count", "file"}
+                          for c in idx["columns"]))
+            check("index: the filing date is carried through verbatim",
+                  idx["columns"][-1]["generated_at"] == "2026-08-23T12:00:00+00:00")
+
+            # Idempotence is byte-level: nothing in the manifest is a clock
+            # reading, so a republish with nothing new produces no git churn.
+            first = G.index_path("family").read_bytes()
+            G.build_index("family")
+            check("index: rebuilding with nothing new is byte-identical",
+                  G.index_path("family").read_bytes() == first)
+
+            # The guarantee that matters: filing a week opens that week only.
+            before = {w: G.publish_path("family", w).read_bytes() for w in (0, 2, 10)}
+            file_week(11, False, "2026-11-08T12:00:00+00:00", 390)
+            G.build_index("family")
+            check("index: filing a new week mutates no already-filed column",
+                  all(G.publish_path("family", w).read_bytes() == b
+                      for w, b in before.items()))
+            # Re-filing a week after a prompt fix is intended to replace THAT
+            # week and is the reason publishing stays idempotent per week.
+            keep = {w: G.publish_path("family", w).read_bytes() for w in (0, 10, 11)}
+            file_week(2, False, "2026-09-07T12:00:00+00:00", 999)
+            G.build_index("family")
+            check("index: re-filing one week rewrites that file and no other",
+                  json.loads(G.publish_path("family", 2).read_text(
+                      encoding="utf-8"))["column"]["word_count"] == 999
+                  and all(G.publish_path("family", w).read_bytes() == b
+                          for w, b in keep.items()))
+
+            # Defensive per file (playbook rule 10).
+            (d / "week_9.json").write_text("{not json", encoding="utf-8")
+            idx = G.build_index("family")
+            check("index: an unreadable week file is skipped, not fatal",
+                  idx is not None and 9 not in [c["week"] for c in idx["columns"]]
+                  and idx["count"] == 4)
+        finally:
+            utils.WEB_DATA_DIR = real_web
 
 
 def test_regeneration_does_not_cite_itself():
@@ -1126,6 +1222,7 @@ def main():
     test_head_to_head_named_in_prose()
     test_persona_material_carries_no_tone_rule()
     test_publish_doc()
+    test_archive_index()
     test_regeneration_does_not_cite_itself()
     test_coda_superlative_matches_the_selection_rule()
     test_prior_season_ban_is_a_word_test()

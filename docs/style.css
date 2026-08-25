@@ -593,6 +593,36 @@ a { color: inherit; }
 }
 .ed-link:hover { background: var(--accent-alt); }
 
+/* Byline on the home card. Smaller than svp.html's (44px against the column
+   page's) because this is a card in a two-up grid, not the top of a page --
+   but the same square, hairlined crop, so the columnist is recognisably the
+   same face in both places. */
+.ed-byline {
+  display: flex; align-items: center; gap: 10px;
+  margin: -6px 0 14px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.ed-byline-avatar {
+  width: 44px; height: 44px; flex: 0 0 44px;
+  object-fit: cover; border: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+.ed-byline-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ed-byline-name {
+  font-family: var(--display); font-weight: 700; font-size: .85rem;
+  text-transform: uppercase; letter-spacing: .04em; color: var(--text);
+}
+.ed-byline-meta {
+  font-family: var(--mono); font-size: .58rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+/* The back-catalogue line, under the link. Muted: it is a signpost, not a
+   second call to action competing with the one above it. */
+.ed-archive {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-faint); margin-top: 12px;
+}
+
 /* ---------- Scoreboard --------------------------------------------------- */
 .sb-cols { display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 14px; }
 .sb-col { min-width: 0; }
@@ -1145,11 +1175,17 @@ a { color: inherit; }
   margin-top: 18px; padding-bottom: 16px;
   border-bottom: 1px solid var(--border);
 }
-/* Square, hairlined, 56px — the same crop the standings rows use for a
-   manager, so the columnist reads as one more face on the site rather than a
-   logo. The source is 256px, so this is a downscale at every DPR. */
+/* Square, hairlined, 88px. It was 56 — the same crop the standings rows use
+   for a manager — and at that size the columnist was a thumbnail: the glasses,
+   the suit and the whole point of the picture were unreadable. He is the only
+   face on this page and the joke is what he looks like, so he is sized as a
+   byline portrait rather than as one more row avatar.
+   88 and not larger: it keeps the byline block shorter than the headline above
+   it, so it still reads as a byline rather than competing for the top of the
+   page. The source is 352px (4x this), because the svp_column_art slot resolves
+   to ONE fixed path with no srcset, so a single file has to stay sharp at 3x. */
 .svp-byline-avatar {
-  width: 56px; height: 56px; flex: 0 0 56px;
+  width: 88px; height: 88px; flex: 0 0 88px;
   object-fit: cover; border: 1px solid var(--border);
   background: var(--bg-subtle);
 }
@@ -1179,5 +1215,83 @@ a { color: inherit; }
 }
 
 @media (max-width: 700px) {
-  .svp-byline-avatar { width: 44px; height: 44px; flex-basis: 44px; }
+  /* 64, scaled with the desktop size rather than left at the old 44 — on a
+     phone this is still the only face on the page and the same picture has to
+     do the same job in a narrower column. */
+  .svp-byline-avatar { width: 64px; height: 64px; flex-basis: 64px; }
+}
+
+/* ==========================================================================
+   The column archive (svp.html)
+
+   Same namespace as the column above it on purpose: this is the rest of the
+   same page, not a new surface, and it reads the same tokens. The list is
+   deliberately quieter than the current column -- an index of the season, set
+   like a contents page, so it cannot compete with the prose it sits under.
+   ========================================================================== */
+
+.svp-archive { margin-top: 40px; max-width: 60ch; }
+.svp-archive-head {
+  font-family: var(--display); font-weight: 900; font-size: 1.1rem;
+  text-transform: uppercase; letter-spacing: .03em;
+  padding-bottom: 8px; border-bottom: 2px solid var(--text);
+}
+.svp-archive-list { list-style: none; margin: 0; padding: 0; }
+.svp-arc + .svp-arc { border-top: 1px solid var(--border-soft); }
+
+/* The whole row is the control. A <button> rather than a styled <div> so it is
+   focusable and operable from the keyboard for free; the reset below is what a
+   button costs in exchange. */
+.svp-arc-toggle {
+  display: flex; align-items: baseline; gap: 12px; width: 100%;
+  padding: 13px 0; background: none; border: 0; cursor: pointer;
+  font: inherit; color: inherit; text-align: left;
+}
+.svp-arc-toggle:hover .svp-arc-week { color: var(--accent); }
+.svp-arc-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.svp-arc-week {
+  font-family: var(--display); font-weight: 900; font-size: .95rem;
+  text-transform: uppercase; letter-spacing: .02em; flex: 0 0 auto;
+}
+.svp-arc-meta {
+  font-family: var(--mono); font-size: .62rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-faint);
+  flex: 1 1 auto; min-width: 0;
+}
+/* A plus that becomes a minus. Drawn in CSS rather than shipped as a glyph so
+   it inherits the accent and cannot 404. aria-expanded on the button is what
+   actually announces the state; this is only its picture. */
+.svp-arc-mark {
+  position: relative; flex: 0 0 12px; width: 12px; height: 12px;
+  align-self: center;
+}
+.svp-arc-mark::before, .svp-arc-mark::after {
+  content: ""; position: absolute; background: var(--text-muted);
+  transition: opacity .12s linear;
+}
+.svp-arc-mark::before { top: 5px; left: 0; width: 12px; height: 2px; }
+.svp-arc-mark::after { top: 0; left: 5px; width: 2px; height: 12px; }
+.svp-arc-toggle[aria-expanded="true"] .svp-arc-mark::after { opacity: 0; }
+.svp-arc-toggle[aria-expanded="true"] .svp-arc-week { color: var(--accent); }
+
+/* An opened column is set exactly like the current one -- same measure, same
+   rhythm -- so reading week 3 in the archive is reading a column, not reading a
+   database row. Indented and rule-marked to keep it clearly subordinate. */
+.svp-arc-body {
+  padding: 2px 0 20px 14px; border-left: 2px solid var(--border);
+  margin-bottom: 4px;
+}
+.svp-arc-body p { font-size: .94rem; line-height: 1.7; color: #222; }
+.svp-arc-body p + p { margin-top: 14px; }
+.svp-arc-note {
+  font-family: var(--mono); font-size: .66rem; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+
+@media (max-width: 700px) {
+  /* The date/length line wraps under the week on a narrow screen rather than
+     squeezing both onto one line and truncating the week label. */
+  .svp-arc-toggle { flex-wrap: wrap; gap: 4px 12px; }
+  .svp-arc-mark { order: 2; margin-left: auto; }
+  .svp-arc-meta { order: 3; flex-basis: 100%; }
 }
