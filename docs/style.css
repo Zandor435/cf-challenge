@@ -1175,11 +1175,17 @@ a { color: inherit; }
   margin-top: 18px; padding-bottom: 16px;
   border-bottom: 1px solid var(--border);
 }
-/* Square, hairlined, 56px — the same crop the standings rows use for a
-   manager, so the columnist reads as one more face on the site rather than a
-   logo. The source is 256px, so this is a downscale at every DPR. */
+/* Square, hairlined, 88px. It was 56 — the same crop the standings rows use
+   for a manager — and at that size the columnist was a thumbnail: the glasses,
+   the suit and the whole point of the picture were unreadable. He is the only
+   face on this page and the joke is what he looks like, so he is sized as a
+   byline portrait rather than as one more row avatar.
+   88 and not larger: it keeps the byline block shorter than the headline above
+   it, so it still reads as a byline rather than competing for the top of the
+   page. The source is 352px (4x this), because the svp_column_art slot resolves
+   to ONE fixed path with no srcset, so a single file has to stay sharp at 3x. */
 .svp-byline-avatar {
-  width: 56px; height: 56px; flex: 0 0 56px;
+  width: 88px; height: 88px; flex: 0 0 88px;
   object-fit: cover; border: 1px solid var(--border);
   background: var(--bg-subtle);
 }
@@ -1209,7 +1215,10 @@ a { color: inherit; }
 }
 
 @media (max-width: 700px) {
-  .svp-byline-avatar { width: 44px; height: 44px; flex-basis: 44px; }
+  /* 64, scaled with the desktop size rather than left at the old 44 — on a
+     phone this is still the only face on the page and the same picture has to
+     do the same job in a narrower column. */
+  .svp-byline-avatar { width: 64px; height: 64px; flex-basis: 64px; }
 }
 
 /* ==========================================================================
