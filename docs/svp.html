@@ -99,7 +99,18 @@
   </div>
 
   <!-- PRESENT STATE — the newest column. One <p> per paragraph in the week's
-       file; the split is done in Python (docs/output-contract.md), not here. -->
+       file; the split is done in Python (docs/output-contract.md), not here.
+
+       The section header above it is numbered furniture, not a topic heading:
+       the column data has no sections and no section titles, so the page
+       numbers the parts of ITSELF (the column, then the archive) rather than
+       inventing headings for paragraphs that never claimed to be sections. -->
+  <h2 class="svp-sec svp-archive-head" id="svp-sec-column" hidden>
+    <span class="svp-sec-num">01</span>
+    <span class="svp-sec-dash" aria-hidden="true"></span>
+    <span class="svp-sec-title">The column</span>
+    <span class="svp-sec-line" aria-hidden="true"></span>
+  </h2>
   <article class="svp-column" id="svp-column" hidden></article>
 
   <!-- THE ARCHIVE. Every earlier week, newest first, in the order the manifest
@@ -113,7 +124,12 @@
        no prose: a reader who opens one week pays for one week, and the page
        does not download the whole season to draw a list of dates. -->
   <section class="svp-archive" id="svp-archive" hidden>
-    <h2 class="svp-archive-head">Earlier this season</h2>
+    <h2 class="svp-sec svp-archive-head">
+      <span class="svp-sec-num">02</span>
+      <span class="svp-sec-dash" aria-hidden="true"></span>
+      <span class="svp-sec-title">Earlier this season</span>
+      <span class="svp-sec-line" aria-hidden="true"></span>
+    </h2>
     <ol class="svp-archive-list" id="svp-archive-list"></ol>
   </section>
 
@@ -193,8 +209,70 @@
       }) : [];
     }
 
-    function proseHTML(paras) {
-      return paras.map(function (x) { return '<p>' + esc(String(x)) + '</p>'; }).join('');
+    // Sentence split that survives the numbers this column is made of. A
+    // naive split on /[.!?]/ cuts "7.819" in half and puts "819, suggesting
+    // Blaine might be onto something" on the page as a sentence. A terminator
+    // only ends a sentence when whitespace or the end of the paragraph
+    // follows it, which is cheap to check and gets every real case here.
+    function sentencesOf(text) {
+      var out = [], buf = '', i, ch, next;
+      for (i = 0; i < text.length; i++) {
+        ch = text.charAt(i);
+        buf += ch;
+        if (ch === '.' || ch === '!' || ch === '?') {
+          next = text.charAt(i + 1);
+          if (next === '' || /\s/.test(next)) {
+            if (buf.trim()) out.push(buf.trim());
+            buf = '';
+          }
+        }
+      }
+      if (buf.trim()) out.push(buf.trim());
+      return out;
+    }
+
+    // The pull quote is SELECTED from the filed prose, never written. The rule
+    // is positional and fixed, so it cannot drift into an editorial judgement
+    // the page is not entitled to make: the closing sentence of the middle
+    // paragraph -- where a column's turn lands, and where a pull quote belongs
+    // on the page. Bounded 30..180 characters so a three-word fragment or a
+    // runaway sentence is never set at 30px; outside those bounds it takes the
+    // longest sentence in that paragraph that does fit, and a paragraph with
+    // nothing in range gets no pull quote at all rather than a bad one.
+    // Under three paragraphs there is no middle to pull from and none is drawn.
+    function pullQuoteOf(paras) {
+      if (paras.length < 3) return '';
+      var sents = sentencesOf(String(paras[Math.floor(paras.length / 2)]));
+      if (!sents.length) return '';
+      var last = sents[sents.length - 1];
+      if (last.length >= 30 && last.length <= 180) return last;
+      var best = '';
+      sents.forEach(function (x) {
+        if (x.length >= 30 && x.length <= 180 && x.length > best.length) best = x;
+      });
+      return best;
+    }
+
+    // withPull is false for archive entries: an opened back issue is
+    // subordinate to the column above it and does not get the same display
+    // typography competing with the current week.
+    function proseHTML(paras, withPull) {
+      var pull = withPull ? pullQuoteOf(paras) : '';
+      // Set BEFORE the paragraph it was taken from, not after it. After, the
+      // reader meets the sentence twice in a row -- once at 30px and again as
+      // the last line of the paragraph directly under it. Before, the quote
+      // reads as the promise the paragraph then keeps, which is what a pull
+      // quote is for, and it lands mid-article either way.
+      var at = Math.floor(paras.length / 2);
+      return paras.map(function (x, i) {
+        var html = '';
+        // aria-hidden: this is a second printing of a sentence the reader is
+        // already being read, and it is decoration in the reading order.
+        if (pull && i === at) {
+          html += '<p class="svp-pull" aria-hidden="true">' + esc(pull) + '</p>';
+        }
+        return html + '<p>' + esc(String(x)) + '</p>';
+      }).join('');
     }
 
     // 2 -- the masthead week. meta.as_of_week is null before the first scored
@@ -243,9 +321,11 @@
         var article = document.getElementById('svp-column');
         var teaser = document.getElementById('svp-teaser');
         if (!article) return;
-        article.innerHTML = proseHTML(paras);
+        article.innerHTML = proseHTML(paras, true);
         article.hidden = false;
         if (teaser) teaser.hidden = true;
+        var sec = document.getElementById('svp-sec-column');
+        if (sec) sec.hidden = false;
 
         // The byline's date line: the column's own week, on the same rule the
         // list uses, plus the day it was filed.
@@ -330,7 +410,7 @@
               return;
             }
             body.dataset.loaded = '1';
-            body.innerHTML = proseHTML(paras);
+            body.innerHTML = proseHTML(paras, false);
           });
         });
       });

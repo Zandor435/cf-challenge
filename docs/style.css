@@ -842,7 +842,7 @@ body.svp-doc { background: var(--paper); }
   font-size: 1.16rem; line-height: 1.5; color: #3a3a3a;
   margin-top: 22px; max-width: 46ch;
 }
-.svp-rule { border: 0; border-top: 1px solid var(--border); margin: 28px 0 14px; }
+.svp-rule { border: 0; border-top: 1px solid var(--paper-line); margin: 40px 0 14px; }
 .svp-foot-note { font-family: var(--mono); font-size: .66rem; color: var(--text-faint); }
 .svp-foot-note a { color: var(--text); border-bottom: 2px solid var(--accent); text-decoration: none; }
 
@@ -1265,18 +1265,64 @@ body.svp-doc { background: var(--paper); }
   text-transform: uppercase; color: var(--text-muted);
 }
 
-/* The column itself. Same measure and rhythm as .svp-teaser, which it
-   replaces, so the page does not reflow into a different typography the moment
-   a column lands. */
-.svp-column { margin-top: 18px; max-width: 60ch; }
-.svp-column p { font-size: .98rem; line-height: 1.7; color: #222; }
-.svp-column p + p { margin-top: 15px; }
+/* SECTION HEADER. One primitive, used for every major landmark on the page --
+   the filed column and the archive under it -- so the two read as sections of
+   one article rather than as two unrelated blocks.
+
+   The titles are page furniture ("The column", "Earlier this season"), NOT
+   topic headings pulled from the prose. The column data carries no section
+   structure and no section titles, so there is nothing to number the argument
+   by; inventing "01 - THE TEXAS PROBLEM" over paragraphs that never declared
+   themselves a section would be this page writing editorial copy.
+
+   The hairline is a flex filler that runs to the edge of the article track,
+   which is wider than the measure the prose is set to. That gap is deliberate:
+   rules wider than text is what makes the whitespace on the right read as
+   composition rather than as a layout bug. */
+.svp-sec {
+  display: flex; align-items: center; gap: 12px;
+  margin: 40px 0 18px;
+}
+.svp-sec-num {
+  font-family: var(--mono); font-size: .72rem; font-weight: 700;
+  letter-spacing: .04em; color: var(--text);
+  background: var(--accent); padding: 4px 7px; flex: 0 0 auto;
+}
+.svp-sec-dash { flex: 0 0 26px; height: 2px; background: var(--text); }
+.svp-sec-title {
+  font-family: var(--display); font-weight: 900; font-size: 1.05rem;
+  text-transform: uppercase; letter-spacing: .05em; color: var(--text);
+  flex: 0 0 auto;
+}
+.svp-sec-line { flex: 1 1 auto; min-width: 0; height: 1px; background: var(--paper-line); }
+
+/* The column itself. Set as running prose: the body face, not the mono the
+   metadata uses. 68ch rather than the full 712px track -- at 16px Inter the
+   track is ~78 characters, which is past the point where the eye reliably
+   finds the next line. */
+.svp-column { margin-top: 0; max-width: 68ch; }
+.svp-column p { font-size: 1rem; line-height: 1.62; color: #2a2a2a; }
+.svp-column p + p { margin-top: 16px; }
+
+/* PULL QUOTE. Selected from the filed prose by the script -- see pullQuoteOf()
+   in svp.html -- and never written here or there. Gold bar and condensed caps,
+   no quotation marks and no card: it is a change of scale inside the article,
+   not a box beside it. aria-hidden in the markup because it is a second
+   printing of a sentence the reader is already being read. */
+.svp-pull {
+  margin: 30px 0; padding: 2px 0 2px 20px;
+  border-left: 6px solid var(--accent);
+  font-family: var(--display); font-weight: 900;
+  font-size: 1.85rem; line-height: 1.14; letter-spacing: -.01em;
+  text-transform: uppercase; color: var(--text);
+  max-width: 26ch;
+}
 /* The sign-off is the last paragraph, every issue, verbatim. Nothing marks it
    in the data — giving it a class would ask the generator to label prose — so
    it is set apart by position alone. */
 .svp-column p:last-child {
-  margin-top: 22px; padding-top: 16px;
-  border-top: 1px solid var(--border-soft);
+  margin-top: 24px; padding-top: 18px;
+  border-top: 1px solid var(--paper-line);
   color: var(--text-muted);
 }
 
@@ -1305,14 +1351,12 @@ body.svp-doc { background: var(--paper); }
    like a contents page, so it cannot compete with the prose it sits under.
    ========================================================================== */
 
-.svp-archive { margin-top: 40px; max-width: 60ch; }
-.svp-archive-head {
-  font-family: var(--display); font-weight: 900; font-size: 1.1rem;
-  text-transform: uppercase; letter-spacing: .03em;
-  padding-bottom: 8px; border-bottom: 2px solid var(--text);
-}
+.svp-archive { margin-top: 8px; }
+/* The heading carries .svp-sec as well and takes all of its look from there;
+   this only resets what an <h2> brings with it. */
+.svp-archive-head { font-size: inherit; font-weight: inherit; }
 .svp-archive-list { list-style: none; margin: 0; padding: 0; }
-.svp-arc + .svp-arc { border-top: 1px solid var(--border-soft); }
+.svp-arc + .svp-arc { border-top: 1px solid var(--paper-line); }
 
 /* The whole row is the control. A <button> rather than a styled <div> so it is
    focusable and operable from the keyboard for free; the reset below is what a
@@ -1353,14 +1397,22 @@ body.svp-doc { background: var(--paper); }
    rhythm -- so reading week 3 in the archive is reading a column, not reading a
    database row. Indented and rule-marked to keep it clearly subordinate. */
 .svp-arc-body {
-  padding: 2px 0 20px 14px; border-left: 2px solid var(--border);
-  margin-bottom: 4px;
+  padding: 2px 0 20px 14px; border-left: 2px solid var(--paper-line);
+  margin-bottom: 4px; max-width: 68ch;
 }
-.svp-arc-body p { font-size: .94rem; line-height: 1.7; color: #222; }
+.svp-arc-body p { font-size: .96rem; line-height: 1.62; color: #2a2a2a; }
 .svp-arc-body p + p { margin-top: 14px; }
 .svp-arc-note {
   font-family: var(--mono); font-size: .66rem; letter-spacing: .06em;
   text-transform: uppercase; color: var(--text-faint);
+}
+
+@media (max-width: 860px) {
+  /* The section header keeps its number and title on one line and lets the
+     filler rule do the collapsing -- it is the only flexible track. */
+  .svp-sec { margin: 32px 0 16px; gap: 10px; }
+  .svp-sec-dash { flex-basis: 16px; }
+  .svp-pull { font-size: 1.5rem; margin: 26px 0; padding-left: 16px; }
 }
 
 @media (max-width: 700px) {
