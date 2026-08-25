@@ -1,22 +1,34 @@
 #!/usr/bin/env python3
-"""The banner manifest agrees with what is actually published, and the
-masthead rotator stays one-image-per-load.
+"""The banner manifest agrees with what is actually published, the published
+files honour the webp budget, and exactly one surface rotates them.
 
-Two halves.
+Three halves, which is one more than it used to be.
 
-INTEGRITY. docs/data/panel/banners.json is the only thing the frontend reads
-to decide which files exist, so every claim in it has to be true on disk: the
-file is there, and its width/height are the image's real pixels. A wrong
+INTEGRITY. docs/data/panel/banners.json is the only thing the frontend reads to
+decide which files exist, so every claim in it has to be true on disk: the file
+is there, and its width/height are the PUBLISHED image's real pixels. A wrong
 dimension is not cosmetic here — the page reserves the banner box from it, and
 a wrong ratio reintroduces exactly the reflow the metadata exists to prevent.
-Byte-parity against output/ is checked whenever the (gitignored) source tree is
-present, which is the guarantee that nothing re-encoded on the way through.
 
-SCOPE. This pass is panel only. The other three leagues must have no manifest,
-and the frontend must contain no timer, no crossfade and no controls — the
-rotation is the page load and nothing else.
+THE PUBLISH CONTRACT, which replaced byte-parity. This script used to assert
+that published bytes were identical to source bytes, because publishing was a
+copy. It is an encode now, so identity is the wrong question and the right ones
+are: is every published file actually WEBP, is it inside the size budget the
+rotator was sized for, is its long edge within LONG_EDGE, and does re-encoding
+today's source reproduce today's published bytes. That last one is the real
+guard — it catches a manifest published from a source that has since changed,
+which is the drift the old sha256 check used to catch.
+
+SCOPE AND WIRING. This pass is panel only: the other three leagues must have no
+manifest and must stay on a `fixed` hero_banner slot. And the rotation must
+live on exactly ONE surface — app.js, reached through the slot resolver — with
+the full fallback chain still spelled out behind it. A second reader of the
+manifest is the specific regression this half exists to catch, because that is
+what the profile page grew last time and what had to be deleted again.
 """
 import json
+import re
+import shutil
 import sys
 import tempfile
 from pathlib import Path
@@ -31,7 +43,13 @@ GROUP = "panel"
 MANIFEST = ROOT / "docs" / "data" / GROUP / "banners.json"
 PUB_DIR = ROOT / "docs" / "assets" / "banners" / GROUP
 SRC_DIR = ROOT / "output" / "banners" / GROUP
+SLOTS = ROOT / "docs" / "assets" / "art_slots.json"
+DOCS = ROOT / "docs"
 OTHER_GROUPS = ("family", "church", "browns")
+
+# What the branch published. Not a lower bound: a count that drifts without
+# anyone noticing is how a half-published set reaches the site.
+EXPECTED_COUNT = 15
 
 FAILURES = []
 
@@ -64,8 +82,15 @@ def manifest_shape(doc):
           "manifest dir is the docs-relative publish path")
     check(doc.get("count") == len(banners or []),
           "manifest count matches the banner list length")
+    check(doc.get("count") == EXPECTED_COUNT,
+          f"manifest declares {EXPECTED_COUNT} banners")
     names = [b.get("file") for b in (banners or [])]
     check(len(set(names)) == len(names), "no duplicate filenames in the manifest")
+    # The published extension is a claim about the bytes, and the whole point
+    # of the encode step is that the claim is now true. A .png here would mean
+    # the mirroring publish path came back.
+    check(all(str(n).endswith(".webp") for n in names),
+          "every manifest entry names a .webp")
     return banners or []
 
 
@@ -81,17 +106,61 @@ def published(banners):
               f"{name}: positive integer dimensions in the manifest")
         try:
             with Image.open(p) as im:
-                real = im.size
+                real, fmt = im.size, im.format
         except Exception as e:                      # noqa: BLE001
             check(False, f"{name}: published file is a readable image ({e})")
             continue
         check(real == (w, h),
               f"{name}: manifest {w}x{h} matches the file's real {real[0]}x{real[1]}")
+        check(fmt == "WEBP", f"{name}: published bytes really are WEBP (got {fmt})")
+
+
+def budget(banners):
+    """The rotator's worst case is its largest file, so the cap is per file."""
+    total = 0
+    for b in banners:
+        name = str(b.get("file"))
+        p = PUB_DIR / name
+        if not p.is_file():
+            continue
+        size = p.stat().st_size
+        total += size
+        check(size <= build_banners.MAX_BYTES,
+              f"{name}: {size // 1024} KB is within the "
+              f"{build_banners.MAX_BYTES // 1024} KB cap")
+        check(max(b.get("width") or 0, b.get("height") or 0)
+              <= build_banners.LONG_EDGE,
+              f"{name}: long edge within {build_banners.LONG_EDGE}px")
+    print(f"  --    published set totals {total // 1024} KB "
+          f"across {len(banners)} file(s)")
+
+
+def alt_text(banners):
+    """Alt text is optional by contract, but it must not carry standings prose
+    if it is present — the hero headline beside the banner already says who
+    leads, and a second telling in alt text goes stale the moment it moves."""
+    for b in banners:
+        if "alt" not in b:
+            continue
+        name, alt = str(b.get("file")), str(b.get("alt"))
+        check(bool(alt.strip()), f"{name}: alt text is non-empty when present")
+        # Whole words, and only words that can ONLY mean the board. "standing"
+        # is not on the list on purpose: half this art is people standing
+        # shoulder to shoulder, and a substring match on it fails a correct
+        # description. The plural "standings" is the board and is on the list.
+        leaky = [w for w in ("leader", "leaders", "leads", "banked", "rank",
+                             "ranked", "ranking", "standings", "in first",
+                             "first place", "points")
+                 if re.search(rf"\b{re.escape(w)}\b", alt, re.I)]
+        check(not leaky,
+              f"{name}: alt text describes the art, not the board "
+              f"(found: {leaky or 'nothing'})")
 
 
 def no_extras(banners):
     """Nothing published that the manifest does not declare — an undeclared
-    file is dead weight in the deploy that no page will ever request."""
+    file is dead weight in the deploy that no page will ever request. This is
+    also what proves the retired .png publications are actually gone."""
     if not PUB_DIR.is_dir():
         return
     on_disk = {p.name for p in PUB_DIR.iterdir() if p.is_file()}
@@ -101,20 +170,32 @@ def no_extras(banners):
           f"(undeclared: {sorted(on_disk - declared) or 'none'})")
 
 
-def byte_parity(banners):
-    """No re-encode on the way through. Skipped when output/ is absent — it is
-    gitignored, so a fresh clone legitimately has no sources to compare."""
+def reproducible(banners):
+    """Re-encoding today's source reproduces today's published bytes.
+
+    This is what byte-parity became. Skipped when output/ is absent — it is
+    gitignored, so a fresh clone legitimately has no sources to compare — but
+    when it IS present this catches a source that changed after publication,
+    which is the drift that leaves the site serving art nobody can regenerate.
+    """
     if not SRC_DIR.is_dir():
-        print("  --    output/banners/panel absent; byte-parity check skipped")
+        print("  --    output/banners/panel absent; re-encode check skipped")
         return
+    srcs = {build_banners.published_name(s): s
+            for s in build_banners.sources(SRC_DIR)}
     for b in banners:
         name = str(b.get("file"))
-        s, d = SRC_DIR / name, PUB_DIR / name
-        if not s.exists() or not d.exists():
-            check(False, f"{name}: present in BOTH output/ and docs/")
+        s = srcs.get(name)
+        if not check(s is not None, f"{name}: has a source in output/"):
             continue
-        check(build_banners.sha256(s) == build_banners.sha256(d),
-              f"{name}: published bytes identical to the source")
+        d = PUB_DIR / name
+        if not d.exists():
+            continue
+        data, w, h, _q = build_banners.encode(s)
+        check(data == d.read_bytes(),
+              f"{name}: re-encoding the source reproduces the published bytes")
+        check((w, h) == (b.get("width"), b.get("height")),
+              f"{name}: re-encode reproduces the manifest's dimensions")
 
 
 def empty_source_guard():
@@ -142,8 +223,93 @@ def empty_source_guard():
                   "missing source directory is refused, and says why")
     finally:
         build_banners.SRC_ROOT = saved
+        shutil.rmtree(tmp, ignore_errors=True)
     after = MANIFEST.read_bytes() if MANIFEST.exists() else None
     check(before == after, "refused runs left the existing manifest untouched")
+
+
+def check_is_dry():
+    """--check must write NOTHING. It encodes to memory to report exact sizes,
+    which is precisely the code path most likely to grow an accidental write."""
+    if not SRC_DIR.is_dir():
+        print("  --    output/banners/panel absent; dry-run check skipped")
+        return
+    before_manifest = MANIFEST.read_bytes() if MANIFEST.exists() else None
+    before_assets = ({p.name: p.stat().st_size for p in PUB_DIR.iterdir()
+                      if p.is_file()} if PUB_DIR.is_dir() else {})
+    build_banners.build(GROUP, check=True, prune=True)
+    after_manifest = MANIFEST.read_bytes() if MANIFEST.exists() else None
+    after_assets = ({p.name: p.stat().st_size for p in PUB_DIR.iterdir()
+                     if p.is_file()} if PUB_DIR.is_dir() else {})
+    check(before_manifest == after_manifest, "--check left the manifest untouched")
+    # --prune passed alongside --check on purpose: the destructive flag must
+    # also be inert in a dry run, which is the combination worth pinning.
+    check(before_assets == after_assets,
+          "--check --prune left every published file untouched")
+
+
+def slot_wiring():
+    """panel rotates from the manifest; the other three do not rotate at all."""
+    try:
+        slots = json.loads(SLOTS.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        check(False, f"art_slots.json parses ({e})")
+        return
+    groups = slots.get("groups") or {}
+    panel = (groups.get(GROUP) or {}).get("hero_banner") or {}
+    check(panel.get("mode") == "rotate", "panel hero_banner is mode rotate")
+    check(panel.get("source") == "data/{group}/banners.json",
+          "panel hero_banner sources the group's banners.json")
+    # An empty candidate list is not an oversight here: it is what keeps the
+    # manifest the single answer to "which banner", with the single kickoff
+    # webp reachable one tier down through $banners instead.
+    check(not (panel.get("candidates") or []),
+          "panel hero_banner declares no inline candidates")
+    for g in OTHER_GROUPS:
+        spec = (groups.get(g) or {}).get("hero_banner") or {}
+        check(spec.get("mode") == "fixed", f"{g} hero_banner is still mode fixed")
+        check(spec.get("candidates") == ["assets/banners/{group}.webp"],
+              f"{g} hero_banner still resolves to its single kickoff banner")
+        check("source" not in spec, f"{g} hero_banner names no manifest")
+
+
+def one_rotator():
+    """Exactly one surface reads the manifest, and the fallback behind it is
+    still intact. Both halves matter: a second reader is the regression the
+    profile page already grew once, and a rotator with no fallback turns a
+    missing manifest into a missing masthead."""
+    app = (DOCS / "app.js").read_text(encoding="utf-8")
+    site = (DOCS / "site.js").read_text(encoding="utf-8")
+
+    check("loadBannerPool" in app, "app.js loads the rotate pool")
+    check("setArtPool" in site and "ART_POOLS" in site,
+          "site.js owns the pool the resolver picks from")
+    check("spec.mode === 'rotate'" in site,
+          "resolveArt() handles the rotate mode")
+    # The fallback tiers, by the code that implements each one.
+    check("PORTRAITS[BANNER_KEY]" in app,
+          "bannerFor() still falls back to the $banners list")
+    check(f"assets/banners/${{groupId}}.webp" in app,
+          "bannerFor() still falls back to the single kickoff banner")
+    check("bimg.addEventListener('error', drop" in app,
+          "the decode-failure handler still drops the banner block")
+
+    # No OTHER surface fetches it. The word may appear in a comment explaining
+    # where the rotator went — a test that cannot tell a comment from a call
+    # would forbid documenting the decision — so this looks for the fetch.
+    for name in ("managers.js", "site.js", "analytics.js"):
+        js = (DOCS / name).read_text(encoding="utf-8")
+        check("function renderBanner(" not in js,
+              f"{name} does not define renderBanner()")
+        check("banners.json`)" not in js and "banners.json')" not in js,
+              f"{name} does not fetch a banner manifest")
+    for name in ("managers.html", "index.html", "analytics.html", "svp.html"):
+        html = (DOCS / name).read_text(encoding="utf-8")
+        check('id="mgr-banner"' not in html, f"{name} has no profile banner slot")
+    for name in ("style.css", "profile.css"):
+        css = (DOCS / name).read_text(encoding="utf-8")
+        check(".mgr-banner-slot" not in css,
+              f"{name} carries no rules for the deleted slot")
 
 
 def panel_only():
@@ -153,45 +319,10 @@ def panel_only():
               f"{g} has no banner manifest (panel only this pass)")
         check(not (ROOT / "docs" / "assets" / "banners" / g).is_dir(),
               f"{g} has no published banner directory")
-
-
-def nothing_renders_it():
-    """THE FRONTEND HALF IS GONE, and this is what replaced it.
-
-    This file used to assert three edits that made the manifest render on
-    managers.html. The band came off the profile scroll, then renderBanner()
-    itself was deleted -- it was the only caller of this manifest, and a
-    rotator no surface calls is a second, drifting answer to "how does this
-    site show a banner" sitting next to app.js's bannerFor(), which is the one
-    the home page actually uses.
-
-    So the remaining frontend claim is a NEGATIVE one, and it is worth keeping:
-    nothing anywhere reads data/<group>/banners.json, and no stylesheet still
-    carries rules for a slot that cannot exist. Both are the states a
-    well-meaning re-wiring would silently undo.
-
-    THE MANIFEST AND ITS IMAGES STAY ON DISK, and every check above still holds
-    them to it. build_banners.py is the generator and banners.json is the spec;
-    if a surface ever wants the band back, that is what it builds against.
-    """
-    docs = ROOT / "docs"
-    for name in ("managers.js", "app.js", "site.js", "analytics.js"):
-        js = (docs / name).read_text(encoding="utf-8")
-        check("function renderBanner(" not in js,
-              f"{name} does not define renderBanner()")
-        # The fetch, not the word. managers.js names the manifest in a comment
-        # explaining where the rotator's inputs went, and a test that cannot
-        # tell a comment from a call would forbid documenting the decision.
-        check("fetchJSON(`data/${groupId}/banners.json`)" not in js
-              and "fetch('data/" + "banners.json'" not in js,
-              f"{name} does not fetch a banner manifest")
-    for name in ("managers.html", "index.html", "analytics.html", "svp.html"):
-        html = (docs / name).read_text(encoding="utf-8")
-        check('id="mgr-banner"' not in html, f"{name} has no banner slot")
-    for name in ("style.css", "profile.css"):
-        css = (docs / name).read_text(encoding="utf-8")
-        check(".mgr-banner-slot" not in css,
-              f"{name} carries no rules for the deleted slot")
+        check((ROOT / "docs" / "assets" / "banners" / f"{g}.webp").is_file(),
+              f"{g} still has its single kickoff banner")
+    check((ROOT / "docs" / "assets" / "banners" / f"{GROUP}.webp").is_file(),
+          "panel still has its single kickoff banner as the rotate fallback")
 
 
 def main() -> int:
@@ -206,17 +337,27 @@ def main() -> int:
     published(banners)
     no_extras(banners)
 
-    print("\nbyte parity with output/")
-    byte_parity(banners)
+    print("\npublish budget")
+    budget(banners)
+
+    print("\nalt text")
+    alt_text(banners)
+
+    print("\nre-encode reproducibility")
+    reproducible(banners)
 
     print("\nbuilder guards")
     empty_source_guard()
+    check_is_dry()
 
     print("\nscope")
     panel_only()
 
-    print("\nnothing renders it")
-    nothing_renders_it()
+    print("\nslot wiring")
+    slot_wiring()
+
+    print("\none rotator, with its fallback")
+    one_rotator()
 
     print()
     if FAILURES:
