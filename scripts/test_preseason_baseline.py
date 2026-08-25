@@ -522,51 +522,85 @@ def test_conference_spread_suppressed_where_the_rule_is_advisory():
           and PB.suppressed_profile_fields(None) == {})
 
 
+def _unauthored_fields(rec):
+    """The PERSONA_FIELDS this source record leaves genuinely unwritten.
+
+    Null, absent and whitespace are the same answer. `rival` is a manager_id
+    rather than prose but is unwritten in exactly the same way, so it needs no
+    special case here.
+    """
+    out = []
+    for f in PB.PERSONA_FIELDS:
+        v = rec.get(f)
+        if v is None or (isinstance(v, str) and not v.strip()):
+            out.append(f)
+    return out
+
+
 def test_persona_material_tolerates_absence():
     """Missing persona fields mean less material -- never a crash, never a rule.
 
-    UNAUTHORED, not withheld. This used to lean on the `straight` register,
+    UNAUTHORED, not withheld. This once leaned on the `straight` register,
     which nulled fatal_flaw, running_gag and rival for John, Rachel and Vic;
-    that register was retired on 2026-08-25 and all three now author the full
-    set. The property it was really testing has nothing to do with tone and
-    still holds: a manager who simply never had a field written must reach the
-    packet with that key ABSENT, because a packet full of "fatal_flaw": null is
-    a checklist of what each manager lacks rather than a description of who
-    they are.
+    that register was retired on 2026-08-25 and all three author the full set
+    now. It was then re-pointed at Holly, the one roast manager carrying no
+    fatal flaw -- and she was authored one commit later. Twice broken for the
+    same reason: it NAMED a manager, and naming one pins a structural property
+    to an editorial decision that is free to change on any given afternoon.
 
-    Holly is the live case -- roast like everyone else, with no fatal flaw ever
-    authored. If she ever gets one, move this to whoever is still short a
-    field rather than deleting it; the packet has to survive a sparse persona
-    for as long as personas are optional.
+    So it no longer names one. It DERIVES the sparse cases from the source
+    files and asserts the property against every one it finds: a field the
+    source leaves unwritten must reach the packet with that key ABSENT, because
+    a packet full of "fatal_flaw": null is a checklist of what each manager
+    lacks rather than a description of who they are. Authoring more persona
+    copy cannot break this test any more. Only authoring EVERY field for EVERY
+    manager in all four groups can, and that case fails loudly below rather
+    than passing vacuously on an empty loop.
     """
     print("\nPersona material survives absent fields:")
-    family = PB.build_week0_packet("family")
-    personas = family["manager_personas"]
 
-    holly = personas.get("holly", {})
-    check("holly still contributes material", bool(holly), f"{sorted(holly)}")
-    check("holly carries no null-valued field",
-          all(v not in (None, "") for v in holly.values()))
-    check("her unauthored fatal_flaw is absent, not null",
-          "fatal_flaw" not in holly, f"{sorted(holly)}")
-    check("and the fields she DID author still arrive",
-          {"running_gag", "rival"} <= set(holly), f"{sorted(holly)}")
+    # Derived from the SOURCE, which is where an unauthored field actually is.
+    # The packet is the thing under test, so it must not also be the oracle.
+    groups_dir = Path(__file__).resolve().parent.parent / "groups"
+    sparse = []
+    for src_path in sorted(groups_dir.glob("*/personas.json")):
+        group = src_path.parent.name
+        src = json.loads(src_path.read_text(encoding="utf-8")).get("managers") or {}
+        personas = PB.build_week0_packet(group)["manager_personas"]
+        for mid, rec in sorted(src.items()):
+            block = personas.get(mid, {})
+            unauthored = _unauthored_fields(rec)
+            authored = [f for f in PB.PERSONA_FIELDS if f not in unauthored]
+            if unauthored:
+                sparse.append((group, mid, tuple(unauthored)))
 
-    # The formerly-straight three now author the full set, and it must all
-    # reach the packet -- the flip is only real if the material follows it.
-    for mid in ("john", "rachel", "vic"):
-        block = personas.get(mid, {})
-        check(f"{mid} still contributes material", bool(block),
-              f"{sorted(block)}")
-        check(f"{mid} carries no null-valued field",
-              all(v not in (None, "") for v in block.values()))
-        check(f"{mid}: the blocks the straight register used to withhold now ship",
-              {"fatal_flaw", "running_gag", "rival"} <= set(block),
-              f"{sorted(block)}")
+            leaked = [f for f in unauthored if f in block]
+            check(f"{group}/{mid}: unauthored fields are absent, not null",
+                  not leaked, f"LEAKED {leaked}" if leaked else "")
+            dropped = [f for f in authored if f not in block]
+            check(f"{group}/{mid}: authored fields all arrive",
+                  not dropped, f"DROPPED {dropped}" if dropped else "")
+            check(f"{group}/{mid}: no null-valued field in the packet",
+                  all(v not in (None, "") for v in block.values()))
 
-    check("a long-standing roast manager still brings the fields they DO have",
-          {"fatal_flaw", "running_gag", "rival"} <= set(personas.get("gayden", {})),
-          f"{sorted(personas.get('gayden', {}))}")
+    # The loop above only means something if it found something. If every field
+    # of every manager everywhere is ever authored, fail LOUD and say to delete
+    # this rather than let it pass on nothing.
+    check("at least one genuinely unauthored field still exists to test",
+          bool(sparse),
+          "" if sparse else
+          "every persona field is authored in all four groups -- this test has "
+          "nothing left to guard; delete it rather than inventing a gap")
+    if sparse:
+        shown = "; ".join(f"{g}/{m} lacks {', '.join(f)}" for g, m, f in sparse[:4])
+        more = f" (+{len(sparse) - 4} more)" if len(sparse) > 4 else ""
+        print(f"    {len(sparse)} sparse manager(s): {shown}{more}")
+
+    personas = PB.build_week0_packet("family")["manager_personas"]
+
+    # Rival is the one field the packet TRANSFORMS rather than copies, so it
+    # keeps a check of its own: a raw manager_id reaching the column would read
+    # as a database key dropped into the middle of a sentence.
     check("rival is resolved to a display name, never a raw manager_id",
           personas["gayden"]["rival"] == "Gunner",
           f"{personas['gayden'].get('rival')!r}")
