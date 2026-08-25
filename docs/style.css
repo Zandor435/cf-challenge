@@ -25,6 +25,14 @@
   --negative:    #FF2020;
   --ink-panel:   #111111;   /* hero / dark ground */
 
+  /* The column page's ground (svp.html only, via body.svp-doc). Warm off-white
+     rather than the site's flat #fff: it is a page of running prose, not a
+     board of cards, and it is set to read like newsprint. --paper-line is the
+     hairline that survives on it -- --border (#e2e2e2) is lighter than the
+     ground itself and disappears. */
+  --paper:       #F5F3EF;
+  --paper-line:  #d6d1c7;
+
   --display: 'Roboto Condensed', 'Arial Narrow', system-ui, sans-serif;
   --body:    'Inter', system-ui, -apple-system, sans-serif;
   --mono:    'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
@@ -743,7 +751,7 @@ a { color: inherit; }
    ========================================================================== */
 .svp-masthead { background: var(--ink-panel); border-bottom: 4px solid var(--accent); }
 .svp-masthead-inner {
-  max-width: 720px; margin: 0 auto; padding: 14px 20px;
+  max-width: 1084px; margin: 0 auto; padding: 14px 20px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
 .svp-wordmark {
@@ -771,7 +779,22 @@ a { color: inherit; }
 .svp-nav .nav-btn:hover { background: #1e1e1e; }
 .svp-nav .nav-btn[aria-current="true"] { background: var(--accent); color: var(--text); border-color: var(--accent); }
 
-.svp-page { max-width: 720px; margin: 0 auto; padding: 28px 20px 60px; }
+/* The page is the editorial shell now: one wide container holding a narrow
+   article and a narrow rail, rather than a single 720px measure. The article
+   track deliberately stays close to what it was -- 1084 - 48 padding - 292 rail
+   - 32 gap = 712px -- because the thing that got wider is the PAGE, not the
+   line length. Prose set to the full width of a 1084px container is unreadable
+   and is the failure mode this split exists to avoid. */
+body.svp-doc { background: var(--paper); }
+
+.svp-page { max-width: 1084px; margin: 0 auto; padding: 0 24px 72px; }
+
+.svp-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 292px;
+  gap: 32px;
+  align-items: start;
+}
 
 /* Cover art: placeholder ONLY — flat block until the persona pipeline
    (generate_persona_batch.py) delivers real trading-card art. */
@@ -785,17 +808,40 @@ a { color: inherit; }
   text-transform: uppercase; color: var(--text-faint); padding: 10px 12px;
 }
 
+/* Kicker, with the gold rule under it drawn as ::after rather than as a border
+   on the <p>: a border would run the full column width, and the mark wanted
+   here is a short stub the length of a word or two. */
 .svp-kicker {
-  font-family: var(--mono); font-size: .62rem; font-weight: 500;
-  text-transform: uppercase; letter-spacing: .14em; color: var(--text-faint);
-  margin-top: 26px;
+  font-family: var(--mono); font-size: .66rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: .18em; color: #4d4d4d;
+  margin-top: 36px;
 }
+.svp-kicker::after {
+  content: ""; display: block;
+  width: 56px; height: 4px; background: var(--accent); margin-top: 11px;
+}
+
+/* THE headline. Deliberately oversized -- this page has one job above the fold
+   and it is the two words of the column's locked format. clamp() rather than a
+   media-query step so it stays dramatic all the way down to a phone instead of
+   collapsing to a heading; the 6.7rem ceiling is ~107px at 1440.
+   max-width in ch forces the natural two-line wrap ("ONE BIG / THING") instead
+   of leaving it to whether 13 condensed caps happen to overrun 712px. */
 .svp-headline {
   font-family: var(--display); font-weight: 900;
-  font-size: 2.6rem; line-height: .98; letter-spacing: -.02em;
-  text-transform: uppercase; color: var(--text); margin-top: 8px;
+  font-size: clamp(3.1rem, 7.3vw, 6.7rem);
+  line-height: .82; letter-spacing: -.028em;
+  text-transform: uppercase; color: var(--text);
+  margin-top: 16px; max-width: 11ch;
 }
-.svp-teaser { font-size: .98rem; line-height: 1.7; color: #222; margin-top: 18px; max-width: 60ch; }
+
+/* The deck slot. In the absent state this is the standing teaser, which is the
+   only deck copy that exists anywhere -- the column data carries no deck field,
+   so a filed column simply has no deck rather than an invented one. */
+.svp-teaser {
+  font-size: 1.16rem; line-height: 1.5; color: #3a3a3a;
+  margin-top: 22px; max-width: 46ch;
+}
 .svp-rule { border: 0; border-top: 1px solid var(--border); margin: 28px 0 14px; }
 .svp-foot-note { font-family: var(--mono); font-size: .66rem; color: var(--text-faint); }
 .svp-foot-note a { color: var(--text); border-bottom: 2px solid var(--accent); text-decoration: none; }
@@ -861,7 +907,9 @@ a { color: inherit; }
   .hero-banner.sized.tall img { max-height: 240px; }
   .hero-title { font-size: 1.5rem; }
   .ed-headline { font-size: 2rem; }
-  .svp-headline { font-size: 2rem; }
+  /* .svp-headline is NOT stepped down here any more. It is clamp()ed at the
+     rule itself and its floor (3.1rem) is the phone size on purpose -- the
+     oversized headline is the page, at every width. */
   .svp-nav .nav-btn { padding: 7px 10px; }   /* keep the mobile tab size; see the desktop rule */
 }
 
@@ -1170,10 +1218,20 @@ a { color: inherit; }
 
 /* Byline. Hidden in the markup until real prose is on the page — a columnist's
    face over an empty desk is the page claiming an author for nothing. */
+/* THE BYLINE CARD. A bordered block in the composition, not an author row:
+   the portrait is ~40% of the card and is the second thing on the page after
+   the headline.
+
+   The first track is `auto`, NOT a fixed 288px, and that is load-bearing. The
+   portrait is drawn only when art_slots.json resolves it AND the file is on
+   disk; both absence paths hide or remove the <img>. An `auto` track collapses
+   to zero when its only child is display:none, so the text simply fills the
+   card -- a fixed track would leave a 288px hole where the picture isn't. */
 .svp-byline {
-  display: flex; align-items: center; gap: 12px;
-  margin-top: 18px; padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
+  display: grid; grid-template-columns: auto minmax(0, 1fr);
+  align-items: stretch;
+  margin-top: 32px;
+  background: #fff; border: 1px solid var(--paper-line);
 }
 /* Square, hairlined, 88px. It was 56 — the same crop the standings rows use
    for a manager — and at that size the columnist was a thumbnail: the glasses,
@@ -1184,19 +1242,27 @@ a { color: inherit; }
    it, so it still reads as a byline rather than competing for the top of the
    page. The source is 352px (4x this), because the svp_column_art slot resolves
    to ONE fixed path with no srcset, so a single file has to stay sharp at 3x. */
+/* 288 x 200 off an 800px square source. object-position sits above centre
+   because cropping a square to 7:5 takes the difference off the top and the
+   bottom, and the head is in the upper half. */
 .svp-byline-avatar {
-  width: 88px; height: 88px; flex: 0 0 88px;
-  object-fit: cover; border: 1px solid var(--border);
-  background: var(--bg-subtle);
+  width: 288px; height: 200px;
+  object-fit: cover; object-position: 50% 34%;
+  display: block; background: var(--bg-subtle);
+  border-right: 1px solid var(--paper-line);
 }
-.svp-byline-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.svp-byline-text {
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 14px; min-width: 0; padding: 22px 26px;
+}
 .svp-byline-name {
-  font-family: var(--display); font-weight: 700; font-size: .95rem;
-  text-transform: uppercase; letter-spacing: .04em; color: var(--text);
+  font-family: var(--display); font-weight: 900; font-size: 2rem;
+  line-height: 1; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--text);
 }
 .svp-byline-meta {
-  font-family: var(--mono); font-size: .62rem; letter-spacing: .08em;
-  text-transform: uppercase; color: var(--text-faint);
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--text-muted);
 }
 
 /* The column itself. Same measure and rhythm as .svp-teaser, which it
@@ -1214,11 +1280,20 @@ a { color: inherit; }
   color: var(--text-muted);
 }
 
-@media (max-width: 700px) {
-  /* 64, scaled with the desktop size rather than left at the old 44 — on a
-     phone this is still the only face on the page and the same picture has to
-     do the same job in a narrower column. */
-  .svp-byline-avatar { width: 64px; height: 64px; flex-basis: 64px; }
+@media (max-width: 860px) {
+  /* One column, and the rail lands under the whole article because it is
+     already last in the source order -- nothing is re-ordered here. */
+  .svp-shell { grid-template-columns: minmax(0, 1fr); gap: 30px; }
+
+  /* Image over text, full-bleed to the card edges. The portrait is the whole
+     point of the block and does not shrink back to a thumbnail on a phone. */
+  .svp-byline { grid-template-columns: minmax(0, 1fr); }
+  .svp-byline-avatar {
+    width: 100%; height: 190px; object-position: 50% 30%;
+    border-right: 0; border-bottom: 1px solid var(--paper-line);
+  }
+  .svp-byline-text { padding: 18px 18px 20px; }
+  .svp-byline-name { font-size: 1.7rem; }
 }
 
 /* ==========================================================================
