@@ -808,6 +808,19 @@ a { color: inherit; }
   .hero { padding: 20px 16px; }
   .hero-banner { margin: -20px -16px 2px; }
   .hero-banner img { max-height: 150px; }
+  /* The 150px above is the pre-manifest band and now applies only to the
+     groups that have no manifest. A `sized` banner gets 240px here, which
+     at this width is a cap that never actually bites: the band is ~366px
+     across on a 390px phone, so the tallest published ratio (2:1) resolves
+     to 183px and the widest (3:1) to 122px. Every panel banner therefore
+     renders WHOLE on a phone -- no crop, so no focal, so no face to cut,
+     which the 150px cap could not say (it took a third off the 2:1 pieces
+     and a fifth off the 2.36s and landed the window on their chests).
+     .tall is re-stated because it is a more specific selector than this one
+     and would otherwise keep the 540px desktop cap on a phone. 240 is the
+     guard rail for art squarer than anything published today. */
+  .hero-banner.sized img,
+  .hero-banner.sized.tall img { max-height: 240px; }
   .hero-title { font-size: 1.5rem; }
   .ed-headline { font-size: 2rem; }
   .svp-headline { font-size: 2rem; }
