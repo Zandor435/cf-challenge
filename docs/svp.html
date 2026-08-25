@@ -18,11 +18,19 @@
 </head>
 <body>
 
-<!-- TWO STATES, AND THE MARKUP ASSERTS NOTHING IN EITHER.
-     Column absent (the normal state for a group that has not filed one, and
-     for every group before Week 0): the dark-desk teaser below stands, exactly
-     as it did when this page had no wiring at all. Column present: the teaser
-     is replaced by the filed prose from data/<group>/column.json.
+<!-- THE SEASON'S COLUMN ARCHIVE, AND THE MARKUP ASSERTS NOTHING IN ANY STATE.
+     Archive absent (the normal state for a group that has not filed a column,
+     and for every group before Week 0): the dark-desk teaser below stands,
+     exactly as it did when this page had no wiring at all. Archive present:
+     the newest column replaces the teaser in full, and every earlier week is
+     listed under it and opens in place.
+
+     ONE ENTRY IS NOT A SPECIAL CASE OF MANY, and neither is Week 0. A group
+     with a single filed column renders that column and simply has no list
+     beneath it; a preseason column is an ordinary entry that happens to be
+     labelled "Preseason" instead of "Week 00". There is no separate code path
+     for either, because a separate code path is where the one-column state
+     drifts away from the many-column one.
 
      No manager, event, number or week is written into this file. Everything
      live is filled by the script at the bottom, and every fetch it makes fails
@@ -75,9 +83,24 @@
   <p class="svp-teaser" id="svp-teaser">The desk is dark until the games start. The first column
   drops after Week&nbsp;0 — until then, the board is the whole story.</p>
 
-  <!-- PRESENT STATE. One <p> per paragraph in column.json; the split is done
-       in Python (docs/output-contract.md), not here. -->
+  <!-- PRESENT STATE — the newest column. One <p> per paragraph in the week's
+       file; the split is done in Python (docs/output-contract.md), not here. -->
   <article class="svp-column" id="svp-column" hidden></article>
+
+  <!-- THE ARCHIVE. Every earlier week, newest first, in the order the manifest
+       already put them in — this page does not re-sort a computed ordering.
+       Hidden until there is a second column to list: a heading reading "earlier
+       this season" over an empty list is the page claiming a back catalogue it
+       does not have.
+
+       Each entry opens IN PLACE rather than linking away, and fetches its own
+       week file the first time it is opened. That is why the manifest carries
+       no prose: a reader who opens one week pays for one week, and the page
+       does not download the whole season to draw a list of dates. -->
+  <section class="svp-archive" id="svp-archive" hidden>
+    <h2 class="svp-archive-head">Earlier this season</h2>
+    <ol class="svp-archive-list" id="svp-archive-list"></ol>
+  </section>
 
   <hr class="svp-rule">
   <p class="svp-foot-note">Filed weekly. Standings live on the
@@ -90,7 +113,7 @@
      silently-drifting answer to "which leagues are real" gets created. -->
 <script src="site.js"></script>
 <script>
-  // Presentation only. Four jobs, all fail-soft, and every failure lands on the
+  // Presentation only. Five jobs, all fail-soft, and every failure lands on the
   // absent state rather than on a guess:
   //   1. carry ?group= (and ?scoped=1 with it) onto every internal link so the
   //      league selection survives the round trip. Selecting by the bare
@@ -98,9 +121,12 @@
   //      above is covered without touching this.
   //   2. label the masthead with the group's REAL week, read off the committed
   //      standings.json the board itself renders from.
-  //   3. render the filed column from data/<group>/column.json, if there is
-  //      one. A 404 is the ordinary state, not an error.
-  //   4. hang the columnist's avatar on the byline, via art_slots.json.
+  //   3. render the newest filed column from the archive manifest at
+  //      data/<group>/columns/index.json. A 404 is the ordinary state, not an
+  //      error, and it leaves the teaser standing.
+  //   4. list every earlier week under it, each opening in place and fetching
+  //      its own file the first time it is opened.
+  //   5. hang the columnist's avatar on the byline, via art_slots.json.
   (function () {
     var q = location.search;
     if (q) {
@@ -111,7 +137,7 @@
       });
     }
 
-    // currentGroupId() returns null for a ?group= that names no real league —
+    // currentGroupId() returns null for a ?group= that names no real league --
     // an unknown group must not silently render The Panel's column under
     // somebody else's URL, so nothing is fetched at all in that case.
     var group = (typeof currentGroupId === 'function') ? currentGroupId() : null;
@@ -123,73 +149,176 @@
       }).catch(function () { return null; });
     }
 
-    // 2 — the masthead week. meta.as_of_week is null before the first scored
+    var COLUMNS = 'data/' + group + '/columns/';
+
+    // The one label rule, used by the masthead, the byline and every archive
+    // entry, so the same column cannot be called "Preseason" in the list and
+    // "Week 00" at the top. meta.preseason is the packet's flag -- this page
+    // does not decide what week 0 means.
+    function weekLabel(week, preseason) {
+      if (preseason) return 'Preseason';
+      if (!Number.isInteger(week)) return 'Live';
+      return 'Week ' + (week < 10 ? '0' + week : week);
+    }
+
+    // A filed date, or '' when the stamp is missing or is not a date. Never a
+    // guess and never today: an undated column is shown undated.
+    function filedOn(stamp) {
+      var d = String(stamp || '').slice(0, 10);
+      return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : '';
+    }
+
+    function paragraphsOf(doc) {
+      var paras = (doc && doc.column && doc.column.paragraphs) || [];
+      return Array.isArray(paras) ? paras.filter(function (x) {
+        return typeof x === 'string' && x.trim();
+      }) : [];
+    }
+
+    function proseHTML(paras) {
+      return paras.map(function (x) { return '<p>' + esc(String(x)) + '</p>'; }).join('');
+    }
+
+    // 2 -- the masthead week. meta.as_of_week is null before the first scored
     // week ("Preseason") and an integer after ("Week N"). Any failure leaves
     // the label empty; an empty label is honest, a guessed one is the thing
-    // this page exists to not do.
+    // this page exists to not do. This reads the BOARD's week, not the
+    // column's: the two answer different questions and legitimately differ
+    // whenever the current week has no column filed for it yet.
     getJSON('data/' + group + '/standings.json').then(function (d) {
       var label = document.getElementById('svp-week');
       if (!label || !d || !d.meta) return;
       var w = d.meta.as_of_week;
       if (w === null || w === undefined) label.textContent = 'Preseason';
-      else if (Number.isInteger(w)) label.textContent = 'Week ' + (w < 10 ? '0' + w : w);
+      else if (Number.isInteger(w)) label.textContent = weekLabel(w, false);
     });
 
-    // 3 + 4 — the column and its byline. art_slots.json is fetched alongside
-    // rather than before, because the avatar is decoration on prose: the column
-    // must render whether or not the slot manifest is reachable.
+    // 3 + 4 + 5 -- the archive. art_slots.json is fetched alongside rather than
+    // before, because the avatar is decoration on prose: the column must render
+    // whether or not the slot manifest is reachable.
     Promise.all([
-      getJSON('data/' + group + '/column.json'),
+      getJSON(COLUMNS + 'index.json'),
       getJSON('assets/art_slots.json'),
     ]).then(function (res) {
-      var doc = res[0];
+      var index = res[0];
       var slots = res[1];
-      var paras = (doc && doc.column && doc.column.paragraphs) || [];
-      // An empty paragraph list is treated exactly as no column: a published
-      // file with nothing in it must not blank the teaser and leave the desk
-      // showing a byline over silence.
-      if (!Array.isArray(paras) || !paras.length) return;
+      var entries = (index && Array.isArray(index.columns)) ? index.columns : [];
+      // No manifest, or a manifest with nothing in it, is the ordinary
+      // pre-Week-0 state and is treated exactly as no column at all: the teaser
+      // stands and no byline is drawn over it.
+      if (!entries.length) return;
 
-      var article = document.getElementById('svp-column');
-      var teaser = document.getElementById('svp-teaser');
-      if (!article) return;
-      article.innerHTML = paras.map(function (p) {
-        return '<p>' + esc(String(p)) + '</p>';
-      }).join('');
-      article.hidden = false;
-      if (teaser) teaser.hidden = true;
-
-      // The byline's date line: the column's own week, on the same rule the
-      // masthead uses, plus the day it was filed. meta.preseason is the
-      // packet's flag — the page does not decide what week 0 means.
-      var meta = doc.meta || {};
-      var bits = [];
-      bits.push(meta.preseason ? 'Preseason'
-        : (Number.isInteger(meta.week) ? 'Week ' + meta.week : 'Live'));
-      var filed = String(meta.generated_at || '').slice(0, 10);
-      if (/^\d{4}-\d{2}-\d{2}$/.test(filed)) bits.push(filed);
-      var metaEl = document.getElementById('svp-byline-meta');
-      if (metaEl) metaEl.textContent = bits.join(' · ');
-      var byline = document.getElementById('svp-byline');
-      if (byline) byline.hidden = false;
-
-      // The avatar. resolveArt() reads the module-level ART_SLOTS in site.js,
-      // so it has to be seeded first; a missing manifest leaves it {} and
-      // resolveArt returns null, which is the same graceful-absence path as a
-      // group that declares no art. onerror covers the remaining case — a
-      // declared candidate that is not on disk — by removing the image rather
-      // than leaving a broken-image glyph next to the byline.
       if (slots) ART_SLOTS = slots;
-      var src = (typeof resolveArt === 'function')
-        ? resolveArt(group, 'svp_column_art', meta.week) : null;
-      if (!src) return;
-      var img = document.getElementById('svp-byline-avatar');
-      if (!img) return;
-      img.onerror = function () { img.remove(); };
-      img.alt = 'SVP';
-      img.src = src;
-      img.hidden = false;
+      renderCurrent(entries[0]);
+      renderArchive(entries.slice(1));
     });
+
+    // The newest column, in full, in place of the teaser.
+    function renderCurrent(entry) {
+      getJSON(COLUMNS + entry.file).then(function (doc) {
+        var paras = paragraphsOf(doc);
+        // A manifest entry whose file is missing or empty must not blank the
+        // teaser and leave the desk showing a byline over silence. The archive
+        // list below is drawn either way -- the earlier weeks are still real.
+        if (!paras.length) return;
+
+        var article = document.getElementById('svp-column');
+        var teaser = document.getElementById('svp-teaser');
+        if (!article) return;
+        article.innerHTML = proseHTML(paras);
+        article.hidden = false;
+        if (teaser) teaser.hidden = true;
+
+        // The byline's date line: the column's own week, on the same rule the
+        // list uses, plus the day it was filed.
+        var meta = (doc && doc.meta) || {};
+        var bits = [weekLabel(meta.week, meta.preseason === true)];
+        var filed = filedOn(meta.generated_at);
+        if (filed) bits.push(filed);
+        var metaEl = document.getElementById('svp-byline-meta');
+        if (metaEl) metaEl.textContent = bits.join(' \u00b7 ');
+        var byline = document.getElementById('svp-byline');
+        if (byline) byline.hidden = false;
+
+        // The avatar. resolveArt() reads the module-level ART_SLOTS in site.js,
+        // so it has to be seeded first; a missing manifest leaves it {} and
+        // resolveArt returns null, which is the same graceful-absence path as a
+        // group that declares no art. onerror covers the remaining case -- a
+        // declared candidate that is not on disk -- by removing the image
+        // rather than leaving a broken-image glyph next to the byline.
+        var src = (typeof resolveArt === 'function')
+          ? resolveArt(group, 'svp_column_art', meta.week) : null;
+        if (!src) return;
+        var img = document.getElementById('svp-byline-avatar');
+        if (!img) return;
+        img.onerror = function () { img.remove(); };
+        img.alt = 'SVP';
+        img.src = src;
+        img.hidden = false;
+      });
+    }
+
+    // Every earlier week. Drawn from the manifest alone -- no prose is fetched
+    // until a reader actually opens one.
+    function renderArchive(rest) {
+      if (!rest.length) return;
+      var section = document.getElementById('svp-archive');
+      var list = document.getElementById('svp-archive-list');
+      if (!section || !list) return;
+
+      list.innerHTML = rest.map(function (entry, i) {
+        var bodyId = 'svp-arc-body-' + i;
+        var meta = [filedOn(entry.generated_at)];
+        if (Number.isInteger(entry.word_count)) meta.push(entry.word_count + ' words');
+        return '<li class="svp-arc">' +
+          '<button type="button" class="svp-arc-toggle" aria-expanded="false"' +
+          ' aria-controls="' + bodyId + '" data-i="' + i + '">' +
+            '<span class="svp-arc-week">' +
+              esc(weekLabel(entry.week, entry.preseason === true)) + '</span>' +
+            '<span class="svp-arc-meta">' +
+              esc(meta.filter(Boolean).join(' \u00b7 ')) + '</span>' +
+            '<span class="svp-arc-mark" aria-hidden="true"></span>' +
+          '</button>' +
+          '<div class="svp-arc-body" id="' + bodyId + '" hidden></div>' +
+        '</li>';
+      }).join('');
+
+      list.querySelectorAll('.svp-arc-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var entry = rest[Number(btn.dataset.i)];
+          var body = document.getElementById(btn.getAttribute('aria-controls'));
+          if (!entry || !body) return;
+
+          // Close: the state lives on the button, and any prose already fetched
+          // stays in the DOM so reopening costs nothing.
+          if (btn.getAttribute('aria-expanded') === 'true') {
+            btn.setAttribute('aria-expanded', 'false');
+            body.hidden = true;
+            return;
+          }
+          btn.setAttribute('aria-expanded', 'true');
+          body.hidden = false;
+          if (body.dataset.loaded) return;
+
+          body.innerHTML = '<p class="svp-arc-note">Loading\u2026</p>';
+          getJSON(COLUMNS + entry.file).then(function (doc) {
+            var paras = paragraphsOf(doc);
+            // A named file that will not load says so in place. The entry stays
+            // open and every other week is unaffected -- one dead file must not
+            // take down the archive.
+            if (!paras.length) {
+              body.innerHTML = '<p class="svp-arc-note">This column could not be ' +
+                'loaded. The others are unaffected.</p>';
+              return;
+            }
+            body.dataset.loaded = '1';
+            body.innerHTML = proseHTML(paras);
+          });
+        });
+      });
+
+      section.hidden = false;
+    }
   })();
 </script>
 
