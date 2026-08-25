@@ -23,10 +23,16 @@ FRAMING, which is the newest half. The manifest's width/height are no longer
 decoration the page ignores - renderHero() sizes the band from them, so a
 wrong ratio is now a visibly wrong box rather than a comment that lies. And
 each entry carries a `focal`: the object-position the band crops that one
-image to. Both are checked the same way - the value has to be a shape the page
-can use, it has to agree with the sidecar it came from, and the frontend has
-to actually consume it. A focal published and never read is the same masthead
-full of torsos this branch started with.
+image to, and a `face_band`, the measurement that focal was derived from.
+
+The last of those is what makes the geometry checkable rather than merely
+documented. A band shorter than the face band x the frame's rendered height
+cannot show every face at any object-position, so the largest of them is a
+hard floor under the cap in style.css -- and both halves are now asserted:
+that every banner CAN be framed inside its cap (cap_floor), and that the
+focal actually shipped DOES frame it (focal_clears_faces). The second is the
+likelier failure. Shortening the cap from 360 to 280 left every floor intact
+while invalidating fourteen of the sixteen focals at a stroke.
 
 SCOPE AND WIRING. This pass is panel only: the other three leagues must have no
 manifest and must stay on a `fixed` hero_banner slot. And the rotation must
@@ -65,6 +71,16 @@ OTHER_GROUPS = ("family", "church", "browns")
 EXPECTED_COUNT = 16
 
 FAILURES = []
+
+# The widest the band ever renders: --maxw (1400px) less .page's 20px of
+# padding either side. .hero-banner's negative margins cancel .hero's padding,
+# so the band spans that full 1360 and no more -- confirmed by measurement at
+# 1440 and 1920 viewports, where it is 1360 at both. This is the WORST CASE for
+# cropping: the wider the band, the taller the un-clamped image, so the smaller
+# the fraction of it a fixed pixel cap can show. A focal that clears the faces
+# here clears them at every narrower viewport. css_maxw() re-checks the 1400 so
+# this constant cannot quietly stop being true.
+BAND_W = 1360
 
 
 def local_sources():
@@ -342,6 +358,162 @@ def framing_wiring(banners):
                   f"{thr} .tall threshold")
 
 
+def _strip_media(css):
+    """style.css with every @media block removed, leaving the base rules.
+
+    Splitting on the first "@media" does NOT work and is worth spelling out,
+    because it silently returns a passing-looking answer: the first media
+    query in this stylesheet opens hundreds of lines above the banner rules,
+    so that split throws away the very rules being looked for and the regex
+    then finds nothing. Braces are matched instead. What is being isolated is
+    the DESKTOP cap -- the mobile override caps a band ~366px wide, where
+    nothing published is tall enough to reach it.
+    """
+    out, i = [], 0
+    while True:
+        j = css.find("@media", i)
+        if j < 0:
+            out.append(css[i:])
+            return "".join(out)
+        out.append(css[i:j])
+        k = css.find("{", j)
+        if k < 0:
+            return "".join(out)
+        depth, k = 1, k + 1
+        while k < len(css) and depth:
+            depth += (css[k] == "{") - (css[k] == "}")
+            k += 1
+        i = k
+
+
+def _css_caps():
+    """(standard, tall) max-height in px for .hero-banner.sized, desktop block.
+
+    Read out of the stylesheet rather than duplicated here, because a test that
+    hardcodes the cap it is checking against stops being a check the moment
+    somebody edits the CSS: it would keep passing on the number the test
+    remembers while the site ships the number the browser reads.
+    """
+    desktop = _strip_media((DOCS / "style.css").read_text(encoding="utf-8"))
+    std = re.search(r"\.hero-banner\.sized img\s*\{[^}]*?max-height:\s*(\d+)px",
+                    desktop, re.S)
+    tall = re.search(r"\.hero-banner\.sized\.tall img\s*\{[^}]*?max-height:\s*(\d+)px",
+                     desktop, re.S)
+    check(std is not None, "style.css declares a standard .sized cap")
+    check(tall is not None, "style.css declares a .tall cap")
+    return (int(std.group(1)) if std else None,
+            int(tall.group(1)) if tall else None)
+
+
+def cap_floor(banners):
+    """No published banner may need a taller band than its cap allows.
+
+    THE ARITHMETIC. A banner's face band spans (bottom - top) percent of its
+    frame. At BAND_W the frame renders BAND_W / ratio pixels tall, so the
+    faces occupy (bottom - top)% of that many pixels. A band shorter than that
+    cannot show them all AT ANY object-position -- the window is simply
+    shorter than the thing it has to contain, and moving it only chooses which
+    face loses its chin. That product is the banner's floor, and the largest
+    floor in the set is the floor for the cap.
+
+    WHY THIS IS A TEST AND NOT A COMMENT. Every previous time this number
+    mattered it was established by a person looking at screenshots, and it has
+    changed under us twice: once when the band was re-shaped from a fixed
+    260px window to per-image ratios, and once when a sixteenth banner was
+    published. A re-crop that lowers somebody's chin by six percent of frame,
+    or a new piece with a deeper group pose, moves the floor silently and the
+    only symptom is a face cut off in the masthead on one load in sixteen --
+    which is exactly the kind of thing nobody sees for a month.
+
+    The .tall banners are checked against the .tall cap: that class exists
+    BECAUSE their floors (510px and 490px) are far above what the standard
+    band can hold, so measuring them against the standard cap would report a
+    failure the design already answers.
+    """
+    std, tall_cap = _css_caps()
+    if std is None or tall_cap is None:
+        return
+    check(re.search(r"--maxw:\s*1400px", (DOCS / "style.css").read_text(encoding="utf-8"))
+          is not None,
+          f"--maxw is still 1400px, so BAND_W={BAND_W} is still the widest band")
+
+    floors = []
+    for b in banners:
+        name = str(b.get("file"))
+        band = b.get("face_band")
+        if not check(isinstance(band, (list, tuple)) and len(band) == 2,
+                     f"{name}: carries a face_band"):
+            continue
+        top, bot = float(band[0]), float(band[1])
+        check(0 <= top < bot <= 100,
+              f"{name}: face_band [{top}, {bot}] is a sane fraction of frame")
+        ratio = (b.get("width") or 0) / (b.get("height") or 1)
+        nat = BAND_W / ratio if ratio else 0
+        floor = (bot - top) / 100 * nat
+        is_tall = ratio < _tall_ratio()
+        cap = tall_cap if is_tall else std
+        floors.append((name, floor, cap, is_tall))
+        check(floor <= cap,
+              f"{name}: needs {floor:.0f}px of band to show every face, "
+              f"{'.tall ' if is_tall else ''}cap is {cap}px")
+
+    landscape = [f for f in floors if not f[3]]
+    if landscape:
+        worst = max(landscape, key=lambda f: f[1])
+        print(f"  --    landscape floor is {worst[1]:.0f}px ({worst[0]}), "
+              f"cap {std}px, headroom {std - worst[1]:.0f}px")
+    tallest = [f for f in floors if f[3]]
+    if tallest:
+        worst = max(tallest, key=lambda f: f[1])
+        print(f"  --    .tall floor is {worst[1]:.0f}px ({worst[0]}), "
+              f"cap {tall_cap}px, headroom {tall_cap - worst[1]:.0f}px")
+
+
+def focal_clears_faces(banners):
+    """The published focal actually keeps every face inside the band.
+
+    cap_floor() proves a banner CAN be framed without cutting a face. This
+    proves the value shipped alongside it DOES. They are different failures
+    and the second is the likelier one: shortening the cap left every floor
+    intact while invalidating fourteen of the sixteen focals at a stroke,
+    because the window got shorter and the values that used to sit inside it
+    no longer did.
+
+    Same worst case as cap_floor -- the widest band, where the crop is
+    deepest. object-position places the window's top edge at focal x the
+    overflow, so the visible span is [p(1-r), p(1-r)+r] as a fraction of the
+    frame, and both the highest hairline and the lowest chin have to be inside
+    it.
+    """
+    std, tall_cap = _css_caps()
+    if std is None or tall_cap is None:
+        return
+    for b in banners:
+        name = str(b.get("file"))
+        band, focal = b.get("face_band"), b.get("focal")
+        if not (isinstance(band, (list, tuple)) and len(band) == 2
+                and isinstance(focal, str)):
+            continue
+        ratio = (b.get("width") or 0) / (b.get("height") or 1)
+        nat = BAND_W / ratio
+        cap = tall_cap if ratio < _tall_ratio() else std
+        r = min(cap / nat, 1.0)
+        p = float(focal.split()[1].rstrip("%")) / 100
+        top = p * (1 - r) * 100
+        bot = top + r * 100
+        f0, f1 = float(band[0]), float(band[1])
+        check(top <= f0 + 1e-6 and bot >= f1 - 1e-6,
+              f"{name}: focal {focal} shows {top:.1f}-{bot:.1f}% of frame, "
+              f"faces are at {f0:.0f}-{f1:.0f}%")
+
+
+def _tall_ratio():
+    """The .tall threshold, from app.js, so this file has one source for it."""
+    m = re.search(r"const TALL_RATIO = ([0-9.]+);",
+                  (DOCS / "app.js").read_text(encoding="utf-8"))
+    return float(m.group(1)) if m else 2.2
+
+
 def no_extras(banners):
     """Nothing published that the manifest does not declare — an undeclared
     file is dead weight in the deploy that no page will ever request. This is
@@ -584,6 +756,8 @@ def main() -> int:
 
     print("\nframing")
     focal(banners)
+    cap_floor(banners)
+    focal_clears_faces(banners)
     focal_sidecar(banners)
     focal_guards()
     framing_wiring(banners)

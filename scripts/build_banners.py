@@ -59,6 +59,12 @@ their four faces at a different height in every one of them, and one shared
 crop is what made the band render torsos. A malformed value or a key naming no source is
 FATAL, not skipped; see load_focals().
 
+Per-image FACE BAND is the third sidecar and the one the other two lean on:
+output/banners/<group>/faces.json maps a SOURCE filename to [top%, bottom%]
+of the frame, highest hairline to lowest chin, and rides into the manifest as
+"face_band". Every focal was derived from one of these, and the largest of
+them sets the shortest band the masthead can use -- see load_faces().
+
 Playbook compliance (CLAUDE.md):
   - rule 4: an unreadable image FAILS LOUD and names the file, and so does one
     that cannot be encoded under the size cap. Neither is skipped into a
@@ -98,6 +104,7 @@ EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"}
 
 ALT_SIDECAR = "alt.json"
 FOCAL_SIDECAR = "focal.json"
+FACES_SIDECAR = "faces.json"
 
 # A CSS object-position value, and nothing else. This string is copied into the
 # manifest, fetched by the page and written into a style attribute, so its
@@ -253,6 +260,57 @@ def load_focals(src_dir: Path, srcs) -> dict:
     return out
 
 
+def load_faces(src_dir: Path, srcs) -> dict:
+    """Optional filename -> [top%, bottom%] face band.
+
+    THE MEASUREMENT EVERYTHING ELSE RESTS ON. Every focal in focal.json was
+    derived from one of these, and the masthead's height cap is bounded from
+    below by the largest of them: a band shorter than (bottom - top) x the
+    frame's rendered height cannot hold the faces at ANY object-position, so
+    no amount of focal tuning saves it. That number decided the cap, and until
+    it was published it lived in commit messages where nothing could check it.
+
+    Same two fatal cases as load_focals(), for the same reason -- a malformed
+    band or a key naming no source is somebody believing a banner has been
+    measured when it has not, and the whole value of the number is that it is
+    trustworthy. Plus one of its own: bottom must be below top and both inside
+    the frame, because a reversed or out-of-range pair produces a NEGATIVE
+    floor, which is the one wrong answer that would sail through every check
+    downstream by looking easy to satisfy.
+    """
+    p = src_dir / FACES_SIDECAR
+    if not p.exists():
+        return {}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        sys.exit(f"FATAL: {rel(p)} is unreadable: {e}")
+    if not isinstance(data, dict):
+        sys.exit(f"FATAL: {rel(p)} must be a filename -> [top, bottom] object")
+    out = {}
+    for k, v in data.items():
+        k = str(k)
+        if k.startswith("_"):
+            continue
+        ok = (isinstance(v, (list, tuple)) and len(v) == 2
+              and all(isinstance(n, (int, float)) and not isinstance(n, bool)
+                      for n in v))
+        if not ok:
+            sys.exit(f"FATAL: {rel(p)}: {k!r} -> {v!r} must be two numbers, "
+                     f"[top, bottom], as percentages of frame height")
+        top, bot = float(v[0]), float(v[1])
+        if not (0 <= top < bot <= 100):
+            sys.exit(f"FATAL: {rel(p)}: {k!r} -> [{top}, {bot}] must satisfy "
+                     f"0 <= top < bottom <= 100")
+        out[k] = [top, bot]
+    known = {s.name for s in srcs}
+    unknown = sorted(k for k in out if k not in known)
+    if unknown:
+        sys.exit(f"FATAL: {rel(p)} measures images that are not in "
+                 f"{rel(src_dir)}: {', '.join(unknown)}")
+    return out
+
+
 def encode(src: Path):
     """Resize to LONG_EDGE and encode to WEBP under MAX_BYTES.
 
@@ -325,6 +383,7 @@ def build(group: str, check: bool, prune: bool) -> int:
     report_unscanned(src_dir)
     alts = load_alts(src_dir)
     focals = load_focals(src_dir, srcs)
+    faces = load_faces(src_dir, srcs)
     entries = []
     written = unchanged = 0
 
@@ -352,6 +411,8 @@ def build(group: str, check: bool, prune: bool) -> int:
         entry = {"file": name, "width": width, "height": height}
         if s.name in focals:
             entry["focal"] = focals[s.name]
+        if s.name in faces:
+            entry["face_band"] = faces[s.name]
         if s.name in alts:
             entry["alt"] = alts[s.name]
         entries.append(entry)
@@ -390,6 +451,12 @@ def build(group: str, check: bool, prune: bool) -> int:
             "object-position the page crops this one image to when the",
             "band's height cap bites. Absent means the frontend default,",
             "which biases toward the top of the frame.",
+            "'face_band' is optional, comes from",
+            "output/banners/<group>/faces.json, and is [top%, bottom%] of",
+            "the frame between the highest hairline and the lowest chin.",
+            "It is what the focal was measured against and what bounds the",
+            "band's height cap from below; test_banners.py fails the build",
+            "if any of them stops fitting the cap in style.css.",
             "'dir' is docs-relative; 'alt' is optional, comes from",
             "output/banners/<group>/alt.json, and overrides the frontend's",
             "generic fallback for that one image.",

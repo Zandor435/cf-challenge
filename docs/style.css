@@ -358,12 +358,21 @@ a { color: inherit; }
    them, because an unloaded img with no width/height attributes is 0px tall
    and the boards below it jumped when the art landed.
 
-   360px is the cap, and it was measured off the published banners,
-   not chosen. At the 1360px this band reaches on desktop an unclamped ratio
-   is 453px tall at 3:1 and 577px at 2.36:1 -- a masthead that pushes the
-   standings off the first screen. 360 leaves every landscape piece in the set
-   showing all four faces with margin to spare: the deepest face of them (the
-   locker-room scene, chins at 52% of frame) needs 234px of the 360. */
+   280px is the cap. At the 1360px this band reaches on desktop an unclamped
+   ratio is 453px tall at 3:1 and 577px at 2.36:1 -- a masthead that pushes
+   the standings off the first screen -- so something has to clamp it, and how
+   FAR it clamps is bounded from below by the art rather than by taste.
+
+   The binding banner is the locker-room scene: four faces with chins at 52%
+   of a frame that renders 544px tall here, so 234px of band is the least that
+   can hold them and no object-position recovers a shorter one. That 234 is
+   the floor for the whole landscape set, and test_banners.py fails the build
+   if any published banner ever raises it above this cap -- see cap_floor().
+   280 sits 46px above it. It is deliberately not much more: the sweep this
+   was picked from showed 260 still clearing (26px of margin) and 220 losing
+   the locker room outright, so this is the short end of the safe range rather
+   than the middle of it. Every focal in banners.json was re-measured against
+   this window; the 360px values did not survive it. */
 .hero-banner.sized img {
   /* The ratio goes on the IMG, not on .hero-banner. Put it on the box and the
      box has two free axes -- it then satisfies the ratio by NARROWING itself
@@ -373,7 +382,7 @@ a { color: inherit; }
      left to derive, which is the direction this needs. */
   height: auto;
   aspect-ratio: var(--banner-ratio);
-  max-height: 360px;
+  max-height: 280px;
   object-position: var(--banner-focal, 50% 22%);
 }
 

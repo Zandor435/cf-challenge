@@ -62,18 +62,26 @@ data/backtest_cache/
 # leading slash costs nothing and restores the intended scope.
 assets/source_photos/
 /output/*
-# ...except the focal sidecars, which are not art and carry no photo. They are
-# a hand-authored map of filename -> object-position, read at publish time and
-# copied into docs/data/<group>/banners.json. The manifest REGENERATES in full
-# on every build (playbook rule 5), so a sidecar that only ever lived on one
-# laptop means the next person to re-run build_banners.py silently republishes
-# every banner on the default crop and puts the faces back under the fold. The
-# privacy reason this whole block exists does not reach a file of percentages.
+# ...except the framing sidecars, which are not art and carry no photo. Both
+# are hand-authored maps of percentages -- focal.json is filename ->
+# object-position, faces.json is filename -> [top%, bottom%] of the face band
+# -- read at publish time and copied into docs/data/<group>/banners.json. The
+# manifest REGENERATES in full on every build (playbook rule 5), so a sidecar
+# that only ever lived on one laptop means the next person to re-run
+# build_banners.py silently republishes every banner on the default crop and
+# puts the faces back under the fold, and drops the measurement the cap floor
+# is checked against. The privacy reason this whole block exists -- real
+# photos, un-approved art -- does not reach a file of percentages.
+#
+# alt.json is deliberately NOT here. It has the same exposure and arguably
+# belongs, but it predates this exception and changing its status is a call
+# for whoever owns the alt-text pass, not a side effect of a framing branch.
 !/output/banners/
 /output/banners/*
 !/output/banners/*/
 /output/banners/*/*
 !/output/banners/*/focal.json
+!/output/banners/*/faces.json
 
 # Playwright MCP scratch output (screenshots, console logs, a11y snapshots)
 # written into the repo root during browser verification runs. Throwaway.
