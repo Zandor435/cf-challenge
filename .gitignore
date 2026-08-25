@@ -95,6 +95,14 @@ assets/source_photos/
 # from. They are regenerable by re-running the gate, are an input to nothing,
 # and sit right where a careless `git add .` will take them.
 #
+# SERVE THE SITE FOR THAT PASS WITH `python scripts/shotserve.py`, never with
+# a bare `python -m http.server` on a fixed port. A leftover server on a shared
+# port once served a whole pass from a pre-branch checkout and every one of
+# the resulting captures was of the wrong tree; shotserve takes a free port
+# and proves what it serves matches disk before handing back a URL. Its
+# docstring has the incident in full, and scripts/test_server_ownership.py
+# plus the PreToolUse hook keep it from being worked around.
+#
 # Two shapes, because the gate produces two:
 #   <page>-<width>.<ext>   the convention the gate uses when it names a file;
 #                          3+ digits, so a WxH suffix (390x844) matches too and
