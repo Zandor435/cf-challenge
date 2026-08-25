@@ -562,11 +562,55 @@ const BANNER_KEY = '$banners';
 
 // Slot first, $banners second. The manifest list stays as the fallback so a
 // missing or 404ing art_slots.json leaves banner selection exactly as it was.
+//
+// THE FULL CHAIN, and every rung of it is load-bearing:
+//   1. the hero_banner slot. For panel that is mode `rotate`, one of the
+//      fifteen published banners picked uniformly at random per page load;
+//      for family, church and browns it is mode `fixed`, i.e. exactly the one
+//      path they resolved to before rotation existed.
+//   2. the $banners list in the portraits manifest -> assets/banners/<group>.webp.
+//      This is where a rotate group lands when banners.json is missing, empty,
+//      404s or does not parse -- panel keeps its single kickoff banner and the
+//      masthead is indistinguishable from what shipped before this branch.
+//   3. null, and renderHero() emits no banner block at all.
+//   4. and if the chosen file 404s or fails to decode, the img.onerror handler
+//      below drops the block rather than leaving a gap.
+// A rotate group with no manifest therefore degrades one rung, not to nothing.
 function bannerFor(groupId, week) {
   const slot = resolveArt(groupId, 'hero_banner', week);
   if (slot) return slot;
   const list = (PORTRAITS && PORTRAITS[BANNER_KEY]) || [];
   return list.indexOf(groupId) >= 0 ? `assets/banners/${groupId}.webp` : null;
+}
+
+// Fetch the manifest a `rotate` hero_banner slot names, and hand its paths to
+// the slot resolver. Called once at boot, before anything renders.
+//
+// ONLY groups that declare `rotate` pay for it: family, church and browns are
+// `fixed` and this returns without a request, which is the zero-failed-requests
+// contract art_slots.json exists to keep. Every failure here is silent ON
+// PURPOSE -- a missing or broken manifest must cost the reader the rotation,
+// never the masthead, so the pool stays empty and bannerFor() falls to tier 2.
+async function loadBannerPool(groupId) {
+  const spec = (((ART_SLOTS && ART_SLOTS.groups) || {})[groupId] || {}).hero_banner;
+  if (!spec || spec.mode !== 'rotate') return;
+  const src = expandArt(String(spec.source || ''), groupId);
+  if (!src) return;
+  let doc;
+  try {
+    doc = await fetchJSON(src);
+  } catch (e) {
+    return;
+  }
+  // The manifest's own `dir` is the publish path, so the page never hardcodes
+  // where banners live -- build_banners.py writes both halves and they cannot
+  // drift apart. Trailing slashes trimmed so "a/" + "/b" cannot produce "a//b".
+  const dir = String((doc && doc.dir) || '').replace(/\/+$/, '');
+  const files = ((doc && doc.banners) || [])
+    .map((b) => (b && typeof b.file === 'string' ? b.file : ''))
+    .filter((f) => f);
+  if (!dir || !files.length) return;
+  setArtPool(groupId, 'hero_banner', files.map((f) => `${dir}/${f}`));
 }
 
 // `pre` reframes the headline, and only the headline. Nothing here is
@@ -1005,6 +1049,10 @@ async function main() {
   // Likewise for art slots: absent means every slot resolves to null, which is
   // the pre-slots behavior verbatim. Nothing on the page requires this file.
   ART_SLOTS = slotsRes.status === 'fulfilled' ? (slotsRes.value || {}) : {};
+  // Sequential, not folded into the round trip above, because WHICH manifest
+  // to fetch (or whether to fetch one at all) is stated by the file that just
+  // landed. Costs one small request for panel and none for anyone else.
+  await loadBannerPool(groupId);
 
   let standings;
   try {

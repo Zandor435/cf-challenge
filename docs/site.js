@@ -284,6 +284,28 @@ function navQuery(groupId) {
 // every caller falls through to exactly what it did before slots existed.
 let ART_SLOTS = {};
 
+// Candidate pools for `rotate` slots, keyed "<group>/<slot>". A rotate slot
+// does not list its own candidates: it NAMES a manifest, that manifest is
+// fetched at boot, and whoever fetched it hands the resulting paths here. The
+// split is deliberate -- resolveArt() stays a pure synchronous "pick one", and
+// the knowledge of what a particular manifest looks like stays with the page
+// that owns the slot (app.js owns hero_banner and banners.json). Empty is the
+// normal state: unfetched, missing, 404, malformed and "declared no art" all
+// land on the same empty pool, and therefore on the same fallback.
+let ART_POOLS = {};
+
+function poolKey(groupId, slot) {
+  return `${groupId}/${slot}`;
+}
+
+// Paths must already be docs-relative and fully expanded. Anything that is not
+// a non-empty string is dropped rather than published as a broken <img> src.
+function setArtPool(groupId, slot, paths) {
+  const clean = (Array.isArray(paths) ? paths : [])
+    .filter((s) => typeof s === 'string' && s);
+  if (clean.length) ART_POOLS[poolKey(groupId, slot)] = clean;
+}
+
 // {group} always expands; per-subject slots also pass {id}. Substitution runs
 // AFTER selection so which candidate rotates in never depends on the subject.
 // An unknown token is left verbatim rather than blanked -- a visibly wrong
@@ -328,6 +350,16 @@ function resolveArt(groupId, slot, week, tokens) {
       Object.prototype.hasOwnProperty.call(spec.by_id, subject)) {
     spec = spec.by_id[subject];
     if (!spec) return null;
+  }
+  // `rotate` before the candidates check, because a rotate slot HAS no
+  // candidates of its own -- its pool was fetched from the manifest the slot
+  // names and handed here via setArtPool(). An empty pool is the same answer
+  // as an empty candidate list: null, and the caller falls to its next tier.
+  if (spec.mode === 'rotate') {
+    const pool = ART_POOLS[poolKey(groupId, slot)];
+    if (!Array.isArray(pool) || !pool.length) return null;
+    return expandArt(pool[Math.floor(Math.random() * pool.length)],
+                     groupId, tokens);
   }
   const list = (Array.isArray(spec.candidates) ? spec.candidates : [])
     .filter((s) => typeof s === 'string' && s);
