@@ -560,12 +560,35 @@ function computeMoves(standings, timeline) {
 // so it can never collide with a group slug (slugs are path/URL segments).
 const BANNER_KEY = '$banners';
 
+// Per-file geometry from the rotate manifest, keyed by the same docs-relative
+// path that was handed to setArtPool(). It lives here rather than in the pool
+// because resolveArt() returns a PATH and deliberately nothing else -- it is
+// one resolver for every slot on every page and must not learn what a banner
+// is -- so the manifest's width/height/focal are parked beside the pool and
+// looked up again once a path has been picked. A path with no entry is the
+// normal case, not an error: every `fixed` group has one, and it renders the
+// single fixed band .hero-banner img has always described.
+let BANNER_META = {};
+
+// An object-position value and nothing else, checked because this string is
+// written into a style attribute. Two components, x then y, each a percentage
+// or a CSS keyword -- the same shape build_banners.py enforces on focal.json,
+// asserted again here because the page must not trust a manifest it fetched.
+const FOCAL_RE =
+  /^(?:left|center|right|top|bottom|\d{1,3}(?:\.\d+)?%) (?:left|center|right|top|bottom|\d{1,3}(?:\.\d+)?%)$/;
+
+// Below this width:height ratio a banner is poster-shaped rather than
+// band-shaped and gets .tall. 2.2 sits in the empty gap between the two
+// shapes actually published (2.0 collages, 2.36 and wider everything else),
+// so it is a boundary, not a knife edge through the middle of the set.
+const TALL_RATIO = 2.2;
+
 // Slot first, $banners second. The manifest list stays as the fallback so a
 // missing or 404ing art_slots.json leaves banner selection exactly as it was.
 //
 // THE FULL CHAIN, and every rung of it is load-bearing:
 //   1. the hero_banner slot. For panel that is mode `rotate`, one of the
-//      fifteen published banners picked uniformly at random per page load;
+//      sixteen published banners picked uniformly at random per page load;
 //      for family, church and browns it is mode `fixed`, i.e. exactly the one
 //      path they resolved to before rotation existed.
 //   2. the $banners list in the portraits manifest -> assets/banners/<group>.webp.
@@ -606,11 +629,36 @@ async function loadBannerPool(groupId) {
   // where banners live -- build_banners.py writes both halves and they cannot
   // drift apart. Trailing slashes trimmed so "a/" + "/b" cannot produce "a//b".
   const dir = String((doc && doc.dir) || '').replace(/\/+$/, '');
-  const files = ((doc && doc.banners) || [])
-    .map((b) => (b && typeof b.file === 'string' ? b.file : ''))
-    .filter((f) => f);
-  if (!dir || !files.length) return;
-  setArtPool(groupId, 'hero_banner', files.map((f) => `${dir}/${f}`));
+  const entries = ((doc && doc.banners) || [])
+    .filter((b) => b && typeof b.file === 'string' && b.file);
+  if (!dir || !entries.length) return;
+  // Geometry is read per entry and each half is independently optional: a
+  // banner with unusable dimensions still rotates, it just renders in the old
+  // fixed band instead of its own shape. Degrading one image's framing is the
+  // right cost here; dropping it from the pool over a bad number would be the
+  // manifest quietly shortening the rotation.
+  const paths = entries.map((b) => {
+    const path = `${dir}/${b.file}`;
+    const meta = {};
+    const w = Number(b.width), h = Number(b.height);
+    // Both, positive, finite. A zero or a missing height would resolve to
+    // `aspect-ratio: 1584 / 0` and collapse the box to nothing.
+    if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) {
+      meta.ratio = `${w} / ${h}`;
+    }
+    // Squarer than TALL_RATIO gets the taller band, and the threshold is the
+    // whole rule: a poster-format piece stacks its subjects down the frame
+    // instead of across it, so a band sized for landscape art cuts one of
+    // them off whatever the focal says. Derived from the ratio rather than
+    // listed by filename so the next 2:1 piece needs no code change. The two
+    // heights live in style.css, where the rest of the band's geometry does.
+    if (meta.ratio && w / h < TALL_RATIO) meta.tall = true;
+    const focal = typeof b.focal === 'string' ? b.focal.trim() : '';
+    if (FOCAL_RE.test(focal)) meta.focal = focal;
+    if (meta.ratio || meta.focal) BANNER_META[path] = meta;
+    return path;
+  });
+  setArtPool(groupId, 'hero_banner', paths);
 }
 
 // `pre` reframes the headline, and only the headline. Nothing here is
@@ -661,8 +709,20 @@ function renderHero(standings, pre) {
   const banner = bannerFor(meta.group_id || currentGroupId(), meta.as_of_week);
   // Decorative: the headline below carries the same information as text, so the
   // banner is alt="" rather than duplicating it for a screen reader.
+  // Shape and framing ride as custom properties rather than as a width/height
+  // pair on the img, because the box is what has to be reserved: see the
+  // .hero-banner.sized comment in style.css. `sized` is keyed on the RATIO,
+  // not on the meta entry -- a focal with no dimensions has nothing to crop
+  // against, so it stays off the class and off the style.
+  const bmeta = (banner && BANNER_META[banner]) || null;
+  const ratio = bmeta && bmeta.ratio;
+  const vars = ratio
+    ? `--banner-ratio:${ratio};` + (bmeta.focal ? `--banner-focal:${bmeta.focal};` : '')
+    : '';
+  const cls = 'hero-banner' + (ratio ? ' sized' : '') + (bmeta && bmeta.tall ? ' tall' : '');
   const bannerHTML = banner
-    ? `<div class="hero-banner"><img src="${esc(banner)}" alt="" loading="eager"></div>`
+    ? `<div class="${cls}"${vars ? ` style="${esc(vars)}"` : ''}>` +
+      `<img src="${esc(banner)}" alt="" loading="eager"></div>`
     : '';
 
   $('hero').innerHTML = bannerHTML +

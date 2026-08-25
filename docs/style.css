@@ -345,6 +345,49 @@ a { color: inherit; }
   max-height: 260px; object-fit: cover; object-position: center 38%;
 }
 
+/* `.sized` is the manifest-driven variant of the two rules above, and the
+   ONLY thing that turns it on is renderHero() having a published width and
+   height for this exact file: banners.json carries them, and a group with no
+   manifest (family, church, browns) never gets the class, so those three
+   render byte-for-byte what they rendered before this rule existed.
+
+   Why the ratio reserves the box: `aspect-ratio` resolves the height from the
+   width, which the layout knows immediately, so the band is its final height
+   before a single banner byte has arrived. That is what the manifest has been
+   carrying width/height FOR; the `height: auto` sizing above could not use
+   them, because an unloaded img with no width/height attributes is 0px tall
+   and the boards below it jumped when the art landed.
+
+   360px is the cap, and it was measured off the published banners,
+   not chosen. At the 1360px this band reaches on desktop an unclamped ratio
+   is 453px tall at 3:1 and 577px at 2.36:1 -- a masthead that pushes the
+   standings off the first screen. 360 leaves every landscape piece in the set
+   showing all four faces with margin to spare: the deepest face of them (the
+   locker-room scene, chins at 52% of frame) needs 234px of the 360. */
+.hero-banner.sized img {
+  /* The ratio goes on the IMG, not on .hero-banner. Put it on the box and the
+     box has two free axes -- it then satisfies the ratio by NARROWING itself
+     to cap x ratio and sitting pillarboxed, a black gutter down one side of
+     the masthead, instead of by getting shorter. The img's width is already
+     pinned to 100% by the rule above, so here the height is the only axis
+     left to derive, which is the direction this needs. */
+  height: auto;
+  aspect-ratio: var(--banner-ratio);
+  max-height: 360px;
+  object-position: var(--banner-focal, 50% 22%);
+}
+
+/* The two four-panel collages are the exception, and it is geometry, not
+   taste. They are 2:1 posters with a manager in each quadrant, so their faces
+   span 75% of the frame top to bottom -- at 1360px wide that is 510px of art,
+   and ANY band shorter than that takes a chin off the bottom row no matter
+   where the focal points. 540px is the shortest cap that clears both with
+   margin. renderHero() adds `.tall` from the published ratio alone (squarer
+   than 2.2:1), so this is a rule about shapes, not a list of filenames: drop
+   another poster-format piece into output/banners/panel/ and it inherits the
+   band it needs. Everything wider stays at 360. */
+.hero-banner.sized.tall img { max-height: 540px; }
+
 /* ---------- Board 1 — Standings ------------------------------------------ */
 .standings { margin-top: 14px; }
 .mgr-head {
@@ -764,6 +807,19 @@ a { color: inherit; }
   .hero { padding: 20px 16px; }
   .hero-banner { margin: -20px -16px 2px; }
   .hero-banner img { max-height: 150px; }
+  /* The 150px above is the pre-manifest band and now applies only to the
+     groups that have no manifest. A `sized` banner gets 240px here, which
+     at this width is a cap that never actually bites: the band is ~366px
+     across on a 390px phone, so the tallest published ratio (2:1) resolves
+     to 183px and the widest (3:1) to 122px. Every panel banner therefore
+     renders WHOLE on a phone -- no crop, so no focal, so no face to cut,
+     which the 150px cap could not say (it took a third off the 2:1 pieces
+     and a fifth off the 2.36s and landed the window on their chests).
+     .tall is re-stated because it is a more specific selector than this one
+     and would otherwise keep the 540px desktop cap on a phone. 240 is the
+     guard rail for art squarer than anything published today. */
+  .hero-banner.sized img,
+  .hero-banner.sized.tall img { max-height: 240px; }
   .hero-title { font-size: 1.5rem; }
   .ed-headline { font-size: 2rem; }
   .svp-headline { font-size: 2rem; }

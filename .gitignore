@@ -61,7 +61,19 @@ data/backtest_cache/
 # (its --out default) and repo-root output/ is the only such directory, so the
 # leading slash costs nothing and restores the intended scope.
 assets/source_photos/
-/output/
+/output/*
+# ...except the focal sidecars, which are not art and carry no photo. They are
+# a hand-authored map of filename -> object-position, read at publish time and
+# copied into docs/data/<group>/banners.json. The manifest REGENERATES in full
+# on every build (playbook rule 5), so a sidecar that only ever lived on one
+# laptop means the next person to re-run build_banners.py silently republishes
+# every banner on the default crop and puts the faces back under the fold. The
+# privacy reason this whole block exists does not reach a file of percentages.
+!/output/banners/
+/output/banners/*
+!/output/banners/*/
+/output/banners/*/*
+!/output/banners/*/focal.json
 
 # Playwright MCP scratch output (screenshots, console logs, a11y snapshots)
 # written into the repo root during browser verification runs. Throwaway.

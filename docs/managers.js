@@ -701,7 +701,7 @@ function fail(title, body) {
 // (written by scripts/build_banners.py, panel only) and
 // assets/banners/panel/*.webp are now read by the home page: panel's
 // hero_banner slot in assets/art_slots.json is mode `rotate` and names the
-// manifest, and app.js's bannerFor() picks one of the fifteen per page load.
+// manifest, and app.js's bannerFor() picks one of the sixteen per page load.
 // So there is exactly one rotator on this site and it is not here.
 //
 // Which is the point of this comment. If a band ever belongs on this page
@@ -764,7 +764,7 @@ async function main() {
   // banners.json is NOT among them any more, for the same reason
   // projection.json is not: this page has no banner slot to paint it into.
   // The file is very much alive — the home page fetches it per load and picks
-  // one of panel's fifteen banners out of it — but it is fetched THERE, by the
+  // one of panel's sixteen banners out of it — but it is fetched THERE, by the
   // surface that renders it. The fetch was removed here, not the file.
   const [personasRes, standingsRes, slotsRes, portraitsRes, marksRes, heroesRes] =
     await Promise.all([

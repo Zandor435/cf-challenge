@@ -2,7 +2,7 @@
 """The banner manifest agrees with what is actually published, the published
 files honour the webp budget, and exactly one surface rotates them.
 
-Three halves, which is one more than it used to be.
+Four halves, which is two more than it used to be.
 
 INTEGRITY. docs/data/panel/banners.json is the only thing the frontend reads to
 decide which files exist, so every claim in it has to be true on disk: the file
@@ -19,6 +19,15 @@ today's source reproduce today's published bytes. That last one is the real
 guard — it catches a manifest published from a source that has since changed,
 which is the drift the old sha256 check used to catch.
 
+FRAMING, which is the newest half. The manifest's width/height are no longer
+decoration the page ignores - renderHero() sizes the band from them, so a
+wrong ratio is now a visibly wrong box rather than a comment that lies. And
+each entry carries a `focal`: the object-position the band crops that one
+image to. Both are checked the same way - the value has to be a shape the page
+can use, it has to agree with the sidecar it came from, and the frontend has
+to actually consume it. A focal published and never read is the same masthead
+full of torsos this branch started with.
+
 SCOPE AND WIRING. This pass is panel only: the other three leagues must have no
 manifest and must stay on a `fixed` hero_banner slot. And the rotation must
 live on exactly ONE surface — app.js, reached through the slot resolver — with
@@ -26,6 +35,7 @@ the full fallback chain still spelled out behind it. A second reader of the
 manifest is the specific regression this half exists to catch, because that is
 what the profile page grew last time and what had to be deleted again.
 """
+import io
 import json
 import re
 import shutil
@@ -48,8 +58,11 @@ DOCS = ROOT / "docs"
 OTHER_GROUPS = ("family", "church", "browns")
 
 # What the branch published. Not a lower bound: a count that drifts without
-# anyone noticing is how a half-published set reaches the site.
-EXPECTED_COUNT = 15
+# anyone noticing is how a half-published set reaches the site -- which is not
+# hypothetical here. It sat at 15 while a sixteenth banner, delivered in the
+# same pack as five that DID ship, waited in a subdirectory the publish step
+# never reads. See unscanned_is_reported() for the guard on that half.
+EXPECTED_COUNT = 16
 
 FAILURES = []
 
@@ -157,6 +170,157 @@ def alt_text(banners):
               f"(found: {leaky or 'nothing'})")
 
 
+def focal(banners):
+    """Every banner says where to crop it, in a shape the page can use.
+
+    COMPLETE COVERAGE is asserted, not just validity. `focal` is optional by
+    contract -- app.js falls back to a top-biased default -- but on this set an
+    entry without one is a banner nobody framed, and framing them one at a time
+    is the entire point of the sidecar. A missing one is silent: the picture
+    still renders, just cropped to a default that was never measured against
+    it, which is indistinguishable from the bug this branch fixed.
+    """
+    for b in banners:
+        name = str(b.get("file"))
+        f = b.get("focal")
+        if not check(isinstance(f, str) and f, f"{name}: carries a focal"):
+            continue
+        check(bool(build_banners.FOCAL_RE.match(f)),
+              f"{name}: focal {f!r} is a CSS object-position")
+        # x is 50% on every published banner, and that is structural rather
+        # than stylistic: the band is never squarer than the art, so cover
+        # never crops horizontally and any other x would be a no-op that
+        # reads like an intention.
+        check(f.split(" ")[0] == "50%",
+              f"{name}: focal x is 50% (the band never crops horizontally)")
+
+
+def focal_sidecar(banners):
+    """The published focal is the sidecar's, unchanged.
+
+    Skipped without output/, same as the re-encode check. When it IS there,
+    this catches a manifest published from a sidecar that has since been
+    edited -- the focal equivalent of the source-drift guard.
+    """
+    if not SRC_DIR.is_dir():
+        print("  --    output/banners/panel absent; focal sidecar check skipped")
+        return
+    srcs = build_banners.sources(SRC_DIR)
+    side = build_banners.load_focals(SRC_DIR, srcs)
+    check(bool(side), "output/banners/panel/focal.json exists and parses")
+    by_out = {build_banners.published_name(s): side.get(s.name) for s in srcs}
+    for b in banners:
+        name = str(b.get("file"))
+        check(b.get("focal") == by_out.get(name),
+              f"{name}: manifest focal matches the sidecar")
+
+
+def focal_guards():
+    """Rule 4: a focal that cannot be used stops the build and names itself.
+
+    Both cases are silent otherwise. A malformed value would be dropped and
+    the banner would publish on the default crop; a key naming no source is
+    somebody who believes they framed an image and did not -- the file was
+    renamed, or the name was typed wrong -- and nothing would tell them. The
+    sidecar is checkable against the sources in a way alt.json is not, so it
+    is checked.
+    """
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        src = tmp / GROUP
+        src.mkdir()
+        real = src / "a.png"
+        real.write_bytes(b"")           # never opened; only its NAME is read
+        srcs = [real]
+
+        check(build_banners.load_focals(src, srcs) == {},
+              "a missing focal.json is legal and yields no focals")
+
+        (src / "focal.json").write_text('{"a.png": "50% 12%"}', encoding="utf-8")
+        check(build_banners.load_focals(src, srcs) == {"a.png": "50% 12%"},
+              "a well-formed focal.json is read")
+
+        (src / "focal.json").write_text('{"a.png": "middle-ish"}', encoding="utf-8")
+        try:
+            build_banners.load_focals(src, srcs)
+            check(False, "a malformed focal value is refused")
+        except SystemExit as e:
+            check("object-position" in str(e) and "a.png" in str(e),
+                  "a malformed focal value is refused, and names the file")
+
+        (src / "focal.json").write_text('{"ghost.png": "50% 12%"}', encoding="utf-8")
+        try:
+            build_banners.load_focals(src, srcs)
+            check(False, "a focal key naming no source is refused")
+        except SystemExit as e:
+            check("ghost.png" in str(e),
+                  "a focal key naming no source is refused, and names the key")
+
+        (src / "focal.json").write_text('{"_x": "hi", "a.png": "50% 1%"}',
+                                        encoding="utf-8")
+        check(build_banners.load_focals(src, srcs) == {"a.png": "50% 1%"},
+              'underscore-prefixed keys are notes, not filenames')
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def framing_wiring(banners):
+    """The page consumes what the manifest publishes, on both axes.
+
+    Every assertion here pairs a manifest field with the code that reads it.
+    The published geometry was inert once already: banners.json has carried
+    width/height since the webp encode, and its own $note claimed the page
+    reserved the box from them, while renderHero() emitted a bare <img> that
+    reserved nothing. Metadata everybody believes is load-bearing and nothing
+    reads is the failure this function exists to catch.
+    """
+    app = (DOCS / "app.js").read_text(encoding="utf-8")
+    css = (DOCS / "style.css").read_text(encoding="utf-8")
+
+    check("--banner-ratio" in app and "--banner-ratio" in css,
+          "the published ratio reaches the page as --banner-ratio")
+    check("aspect-ratio: var(--banner-ratio)" in css,
+          "the band's height is derived from that ratio, not from a fixed px")
+    check("--banner-focal" in app and "var(--banner-focal" in css,
+          "the published focal reaches the page as --banner-focal")
+    check("FOCAL_RE" in app,
+          "app.js re-checks the focal shape before writing it to a style")
+    check(".hero-banner.sized" in css,
+          "the manifest-driven variant is a class, so the groups with no "
+          "manifest are untouched")
+
+    # The cap VALUES are the stylesheet's business. Two relations between them
+    # are not: the poster band has to be the taller one or .tall means nothing,
+    # and a phone must not inherit a desktop cap.
+    caps = re.findall(r"\.hero-banner\.sized(\.tall)?[^{}]*\{[^}]*?"
+                      r"max-height:\s*(\d+)px", css, re.S)
+    plain = [int(px) for tall, px in caps if not tall]
+    tall = [int(px) for tall, px in caps if tall]
+    check(len(plain) >= 2 and len(tall) >= 1,
+          f"both blocks cap .sized, and .tall is capped "
+          f"(found sized={plain}, tall={tall})")
+    if plain and tall:
+        check(max(tall) > max(plain),
+              f"the poster-format band is the taller one ({max(tall)}px "
+              f"vs {max(plain)}px)")
+        check(min(plain) < max(plain),
+              f"a phone gets a shorter cap than the desktop band ({plain})")
+
+    # TALL_RATIO is a boundary between two shapes, not a knife edge through the
+    # middle of the set. Republish a banner at 2.15:1 and this fires -- which
+    # is the moment to decide which band that shape belongs in, rather than
+    # discovering it in the masthead.
+    m = re.search(r"const TALL_RATIO = ([0-9.]+);", app)
+    if check(m is not None, "app.js declares TALL_RATIO"):
+        thr = float(m.group(1))
+        for b in banners:
+            w, h = b.get("width") or 0, b.get("height") or 1
+            r = w / h
+            check(abs(r - thr) > 0.1,
+                  f"{b.get('file')}: ratio {r:.3f} is clear of the "
+                  f"{thr} .tall threshold")
+
+
 def no_extras(banners):
     """Nothing published that the manifest does not declare — an undeclared
     file is dead weight in the deploy that no page will ever request. This is
@@ -226,6 +390,59 @@ def empty_source_guard():
         shutil.rmtree(tmp, ignore_errors=True)
     after = MANIFEST.read_bytes() if MANIFEST.exists() else None
     check(before == after, "refused runs left the existing manifest untouched")
+
+
+def unscanned_is_reported():
+    """An image in a subdirectory is skipped, and the skip is announced.
+
+    This is the check that would have caught the trophy panorama. A pack of
+    eleven arrived as output/banners/panel/banners/, five were renamed up into
+    the flat directory and published, six were not, and the build reported
+    "15 banners" with no hint that it had walked past the rest. Everything
+    downstream agreed with it, because every other check in this file starts
+    from what was PUBLISHED rather than from what was delivered -- so a
+    silently half-published pack is invisible from here by construction.
+
+    Deliberately not fatal, and the test pins that too: a subdirectory is a
+    legitimate place for an original delivery or a rejected take, and a build
+    that refuses to run because one exists is a build nobody can use.
+    """
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        src = tmp / GROUP
+        (src / "sub").mkdir(parents=True)
+        (src / "sub" / "hidden-banner.png").write_bytes(b"")
+        (src / "sub" / "notes.txt").write_bytes(b"")
+
+        buf = io.StringIO()
+        stdout = sys.stdout
+        try:
+            sys.stdout = buf
+            build_banners.report_unscanned(src)
+        finally:
+            sys.stdout = stdout
+        out = buf.getvalue()
+
+        check("hidden-banner.png" in out,
+              "an image in a subdirectory is named, not silently skipped")
+        check("notes.txt" not in out,
+              "a non-image in a subdirectory is not reported as skipped art")
+        check(bool(out.strip()) and "NOTE" in out,
+              "the skip is announced on the build's own output")
+
+        # And no subdirectory means no noise -- a run that skipped nothing must
+        # not print a warning nobody can act on.
+        (src / "flat.png").write_bytes(b"")
+        buf = io.StringIO()
+        try:
+            sys.stdout = buf
+            build_banners.report_unscanned(src / "sub")
+        finally:
+            sys.stdout = stdout
+        check("hidden-banner.png" not in buf.getvalue(),
+              "a directory with no image subdirectories reports nothing")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 def check_is_dry():
@@ -343,11 +560,18 @@ def main() -> int:
     print("\nalt text")
     alt_text(banners)
 
+    print("\nframing")
+    focal(banners)
+    focal_sidecar(banners)
+    focal_guards()
+    framing_wiring(banners)
+
     print("\nre-encode reproducibility")
     reproducible(banners)
 
     print("\nbuilder guards")
     empty_source_guard()
+    unscanned_is_reported()
     check_is_dry()
 
     print("\nscope")

@@ -3,7 +3,11 @@
 
 THE WORKFLOW, in three steps:
 
-    1. drop images in   output/banners/<group>/
+    1. drop images in   output/banners/<group>/   <- FLAT. Not a subdirectory:
+                        this reads that one level and nothing below it, and an
+                        image parked in output/banners/<group>/anything/ is not
+                        published. Every run now NAMEs what it skipped for
+                        exactly that reason -- see report_unscanned().
     2. run              python scripts/build_banners.py --group panel
     3. commit           docs/assets/banners/<group>/  and
                         docs/data/<group>/banners.json
@@ -20,7 +24,7 @@ two costs the masthead could not carry once the rotator went live:
 
   * a random-per-load banner means the reader may pull ANY published file, so
     the page's worst case is the largest one. The generator emits 0.9-3.3 MB
-    stills; fifteen of those is a masthead that costs megabytes per view.
+    stills; a rotation of those is a masthead that costs megabytes per view.
   * the generator also emits JPEG bytes under a .png name. Mirroring preserved
     the lie. Encoding to WEBP ends it: the published name states the published
     format because the encoder, not the generator, chose both.
@@ -47,6 +51,14 @@ maps a SOURCE filename to a string, that string rides into the manifest as
 "alt" on the published entry. Keys starting with "_" are notes, not filenames,
 and are skipped.
 
+Per-image FOCAL is optional in the same shape: output/banners/<group>/focal.json
+maps a SOURCE filename to a CSS object-position ("50% 12%"), which rides into
+the manifest as "focal" and tells the page where to crop that banner when the
+masthead's height cap bites. It is not decoration -- the panel banners put
+their four faces at a different height in every one of them, and one shared
+crop is what made the band render torsos. A malformed value or a key naming no source is
+FATAL, not skipped; see load_focals().
+
 Playbook compliance (CLAUDE.md):
   - rule 4: an unreadable image FAILS LOUD and names the file, and so does one
     that cannot be encoded under the size cap. Neither is skipped into a
@@ -69,6 +81,7 @@ Usage:
 import argparse
 import io
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -84,6 +97,16 @@ DATA_ROOT = ROOT / "docs" / "data"
 EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"}
 
 ALT_SIDECAR = "alt.json"
+FOCAL_SIDECAR = "focal.json"
+
+# A CSS object-position value, and nothing else. This string is copied into the
+# manifest, fetched by the page and written into a style attribute, so its
+# shape is PINNED here rather than trusted downstream: two components, x then
+# y, each a percentage or one of the box keywords. app.js re-checks the same
+# shape on arrival -- the page must not trust a manifest either -- but the stop
+# belongs here, where the sidecar can still be fixed.
+_FOCAL_PART = r"(?:left|center|right|top|bottom|\d{1,3}(?:\.\d+)?%)"
+FOCAL_RE = re.compile(rf"^{_FOCAL_PART} {_FOCAL_PART}$")
 
 # Publish geometry and budget. LONG_EDGE is a ceiling, never a target: the
 # masthead is capped at 260px tall on desktop and 150px on mobile (style.css
@@ -123,6 +146,38 @@ def sources(src_dir: Path):
                   key=lambda p: p.name)
 
 
+def report_unscanned(src_dir: Path) -> None:
+    """Name the images sitting in subdirectories, which this script never reads.
+
+    Not fatal, and not a rule-4 stop: a subdirectory under output/ is a
+    legitimate place to keep an original delivery, a rejected take or a
+    working file, and failing the build over one would make the source tree
+    unusable as a workspace.
+
+    But it must not be SILENT, which it was. A pack of eleven images arrived
+    as output/banners/panel/banners/, five were renamed up into the flat
+    directory and published, and six -- including a four-manager trophy
+    panorama that belonged in the masthead -- simply stayed where they were.
+    Nothing said so. The publish step reported "15 banners" and every check
+    downstream agreed, because every one of them starts from what was
+    published rather than from what was delivered. The whole point of this
+    line is that "I dropped the pack in and it published" and "I dropped the
+    pack in and it published SOME of it" no longer look identical.
+    """
+    nested = []
+    for d in sorted(p for p in src_dir.iterdir() if p.is_dir()):
+        found = sorted(p.name for p in d.rglob("*")
+                       if p.is_file() and p.suffix.lower() in EXTS)
+        if found:
+            nested.append((d, found))
+    for d, found in nested:
+        shown = ", ".join(found[:6]) + (" ..." if len(found) > 6 else "")
+        print(f"  NOTE      {len(found)} image(s) under {rel(d)}/ are NOT "
+              f"published -- this script reads {rel(src_dir)}/ only, not "
+              f"subdirectories. Move one up a level to publish it.")
+        print(f"            {shown}")
+
+
 def published_name(src: Path) -> str:
     """Source filename -> published filename. Always .webp, because that is
     what encode() writes; the extension is a statement about the bytes."""
@@ -150,6 +205,52 @@ def load_alts(src_dir: Path) -> dict:
     # than a string) cannot be str()-ed into something that looks like alt text.
     return {str(k): str(v).strip() for k, v in data.items()
             if not str(k).startswith("_") and str(v).strip()}
+
+
+def load_focals(src_dir: Path, srcs) -> dict:
+    """Optional filename -> object-position map, e.g. "50% 12%".
+
+    WHY THIS EXISTS: the banners are group portraits and every one of them puts
+    the four faces in a different part of the frame. The page caps the band's
+    height, so something has to be cropped, and without this the crop is the
+    same blind `center 38%` for every one -- which is how a set of images
+    with faces in the top third ended up rendering as a row of torsos.
+
+    Two fatal cases, both rule 4. A value that is not an object-position is a
+    stop, because a focal that silently drops is a banner that silently crops
+    wrong -- the exact failure this file was added to end. And a key that
+    names no source is a stop too: it is a typo or a renamed image, and either
+    way somebody believes they have framed a banner that is still on the
+    default. Unlike alt.json this map CAN be checked against the sources,
+    because it is keyed by the same filenames the encoder is about to read.
+    """
+    p = src_dir / FOCAL_SIDECAR
+    if not p.exists():
+        return {}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        sys.exit(f"FATAL: {rel(p)} is unreadable: {e}")
+    if not isinstance(data, dict):
+        sys.exit(f"FATAL: {rel(p)} must be a filename -> focal object")
+    # "_"-prefixed keys are editorial notes, not filenames -- same convention
+    # as alt.json, and skipped by key for the same reason.
+    out = {}
+    for k, v in data.items():
+        k = str(k)
+        if k.startswith("_"):
+            continue
+        val = str(v).strip()
+        if not FOCAL_RE.match(val):
+            sys.exit(f"FATAL: {rel(p)}: {k!r} -> {val!r} is not an "
+                     f"object-position (want e.g. \"50% 12%\")")
+        out[k] = val
+    known = {s.name for s in srcs}
+    unknown = sorted(k for k in out if k not in known)
+    if unknown:
+        sys.exit(f"FATAL: {rel(p)} frames images that are not in "
+                 f"{rel(src_dir)}: {', '.join(unknown)}")
+    return out
 
 
 def encode(src: Path):
@@ -221,7 +322,9 @@ def build(group: str, check: bool, prune: bool) -> int:
         sys.exit(f"FATAL: {rel(src_dir)} has sources that publish to the same "
                  f"name: {lines}")
 
+    report_unscanned(src_dir)
     alts = load_alts(src_dir)
+    focals = load_focals(src_dir, srcs)
     entries = []
     written = unchanged = 0
 
@@ -247,6 +350,8 @@ def build(group: str, check: bool, prune: bool) -> int:
                   f"<- {s.name} {s.stat().st_size // 1024} KB)")
 
         entry = {"file": name, "width": width, "height": height}
+        if s.name in focals:
+            entry["focal"] = focals[s.name]
         if s.name in alts:
             entry["alt"] = alts[s.name]
         entries.append(entry)
@@ -280,6 +385,11 @@ def build(group: str, check: bool, prune: bool) -> int:
             "pixels -- both are what the encoder wrote, not what the source",
             "was -- so the page can reserve the box from the true aspect ratio",
             "before the image loads.",
+            "'focal' is optional, comes from",
+            "output/banners/<group>/focal.json, and is the CSS",
+            "object-position the page crops this one image to when the",
+            "band's height cap bites. Absent means the frontend default,",
+            "which biases toward the top of the frame.",
             "'dir' is docs-relative; 'alt' is optional, comes from",
             "output/banners/<group>/alt.json, and overrides the frontend's",
             "generic fallback for that one image.",
