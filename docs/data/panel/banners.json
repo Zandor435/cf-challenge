@@ -11,6 +11,11 @@
   "pixels -- both are what the encoder wrote, not what the source",
   "was -- so the page can reserve the box from the true aspect ratio",
   "before the image loads.",
+  "'focal' is optional, comes from",
+  "output/banners/<group>/focal.json, and is the CSS",
+  "object-position the page crops this one image to when the",
+  "band's height cap bites. Absent means the frontend default,",
+  "which biases toward the top of the frame.",
   "'dir' is docs-relative; 'alt' is optional, comes from",
   "output/banners/<group>/alt.json, and overrides the frontend's",
   "generic fallback for that one image."
@@ -23,90 +28,105 @@
    "file": "panel_boxart_01.webp",
    "width": 1584,
    "height": 672,
+   "focal": "50% 0%",
    "alt": "Illustrated poster of the league's four managers as college football coaches, standing shoulder to shoulder in Oklahoma State orange, Colorado black and gold, Texas Tech red and Wake Forest gold, lit by stadium floodlights and streaks of orange light."
   },
   {
    "file": "panel_boxart_02.webp",
    "width": 1584,
    "height": 672,
+   "focal": "50% 3%",
    "alt": "Illustrated poster of the four managers as coaches in full-length pose on a field, arms crossed or hands on hips, against a sunburst of orange and crimson."
   },
   {
    "file": "panel_boxart_03.webp",
    "width": 1584,
    "height": 672,
+   "focal": "50% 0%",
    "alt": "Illustrated poster of the four managers as coaches lined up at midfield at sunset, a packed stadium and confetti behind them."
   },
   {
    "file": "panel_broadcast_01.webp",
    "width": 1600,
    "height": 640,
+   "focal": "50% 3%",
    "alt": "Broadcast-style promo image of the four managers as coaches in a dark studio, staggered from front to back with sparks and stadium lights behind them and a bank of press microphones at the right."
   },
   {
    "file": "panel_comic_01.webp",
    "width": 1584,
    "height": 672,
+   "focal": "50% 5%",
    "alt": "Comic-book panel of the four managers as coaches in team jackets, drawn in heavy ink lines with speed lines radiating behind them and a daylight stadium beyond."
   },
   {
    "file": "panel_comic_02.webp",
    "width": 1584,
    "height": 672,
+   "focal": "50% 13%",
    "alt": "Comic-book panel of the four managers as coaches under night stadium lights, drawn in flat color with a deep blue sky behind them."
   },
   {
    "file": "panel_comic_03.webp",
    "width": 1584,
    "height": 672,
+   "focal": "50% 3%",
    "alt": "Comic-book panel of the four managers as coaches grinning at the camera, framed by red and yellow action rays over a crowded stadium."
   },
   {
    "file": "panel_comic_04.webp",
    "width": 1584,
    "height": 672,
+   "focal": "50% 8%",
    "alt": "Comic-book panel of the four managers as coaches in matching team tracksuits, drawn against a dusk sky and speed lines."
   },
   {
    "file": "panel_comic_05.webp",
    "width": 1584,
    "height": 672,
+   "focal": "50% 3%",
    "alt": "Comic-book panel of the four managers as coaches in a close group portrait, halftone shading and a white starburst behind them."
   },
   {
    "file": "panel_comicgroup_01.webp",
    "width": 1600,
    "height": 800,
+   "focal": "50% 5%",
    "alt": "Four-panel comic collage, one manager per torn-edged panel, each pointing at the viewer over halftone team-colored backgrounds and chalkboard play diagrams."
   },
   {
    "file": "panel_locker_01.webp",
    "width": 1600,
    "height": 640,
+   "focal": "50% 15%",
    "alt": "Dim locker-room scene: the four managers lean over a lit tactics table, one drawing a play in glowing chalk while the others study it, rain-streaked windows and stadium light behind them."
   },
   {
    "file": "panel_program_01.webp",
    "width": 1600,
    "height": 800,
+   "focal": "50% 5%",
    "alt": "Vintage game-program illustration of the four managers as coaches, their portraits arranged on a cream and orange field of chalkboard X-and-O diagrams, with an empty panel at the left for the program title."
   },
   {
    "file": "panel_sled_01.webp",
    "width": 1600,
    "height": 533,
+   "focal": "50% 5%",
    "alt": "Painted sideline scene: each of the four managers sits astride a blocking sled, shouting and gesturing while a line of players in matching uniforms drives the sleds through the mud of a practice field."
   },
   {
    "file": "panel_tradingcard_01.webp",
    "width": 1584,
    "height": 672,
+   "focal": "50% 11%",
    "alt": "Trading-card style illustration of the four managers as coaches in front of a blurred night crowd, one at a lectern with a microphone."
   },
   {
    "file": "panel_vintage70s_01.webp",
    "width": 1584,
    "height": 672,
+   "focal": "50% 16%",
    "alt": "Faded 1970s team photograph of the four managers as coaches standing hands-on-hips on a winter practice field, a scoreboard and bare trees behind them."
   }
  ]

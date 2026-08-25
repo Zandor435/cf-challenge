@@ -375,6 +375,7 @@ a { color: inherit; }
   height: auto;
   aspect-ratio: var(--banner-ratio);
   max-height: 360px;
+  object-position: var(--banner-focal, 50% 22%);
 }
 
 /* The two four-panel collages are the exception, and it is geometry, not

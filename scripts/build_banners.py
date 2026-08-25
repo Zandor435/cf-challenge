@@ -47,6 +47,14 @@ maps a SOURCE filename to a string, that string rides into the manifest as
 "alt" on the published entry. Keys starting with "_" are notes, not filenames,
 and are skipped.
 
+Per-image FOCAL is optional in the same shape: output/banners/<group>/focal.json
+maps a SOURCE filename to a CSS object-position ("50% 12%"), which rides into
+the manifest as "focal" and tells the page where to crop that banner when the
+masthead's height cap bites. It is not decoration -- the fifteen panel banners
+put their four faces at fifteen different heights, and one shared crop is what
+made the band render torsos. A malformed value or a key naming no source is
+FATAL, not skipped; see load_focals().
+
 Playbook compliance (CLAUDE.md):
   - rule 4: an unreadable image FAILS LOUD and names the file, and so does one
     that cannot be encoded under the size cap. Neither is skipped into a
@@ -69,6 +77,7 @@ Usage:
 import argparse
 import io
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -84,6 +93,16 @@ DATA_ROOT = ROOT / "docs" / "data"
 EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"}
 
 ALT_SIDECAR = "alt.json"
+FOCAL_SIDECAR = "focal.json"
+
+# A CSS object-position value, and nothing else. This string is copied into the
+# manifest, fetched by the page and written into a style attribute, so its
+# shape is PINNED here rather than trusted downstream: two components, x then
+# y, each a percentage or one of the box keywords. app.js re-checks the same
+# shape on arrival -- the page must not trust a manifest either -- but the stop
+# belongs here, where the sidecar can still be fixed.
+_FOCAL_PART = r"(?:left|center|right|top|bottom|\d{1,3}(?:\.\d+)?%)"
+FOCAL_RE = re.compile(rf"^{_FOCAL_PART} {_FOCAL_PART}$")
 
 # Publish geometry and budget. LONG_EDGE is a ceiling, never a target: the
 # masthead is capped at 260px tall on desktop and 150px on mobile (style.css
@@ -150,6 +169,52 @@ def load_alts(src_dir: Path) -> dict:
     # than a string) cannot be str()-ed into something that looks like alt text.
     return {str(k): str(v).strip() for k, v in data.items()
             if not str(k).startswith("_") and str(v).strip()}
+
+
+def load_focals(src_dir: Path, srcs) -> dict:
+    """Optional filename -> object-position map, e.g. "50% 12%".
+
+    WHY THIS EXISTS: the banners are group portraits and every one of them puts
+    the four faces in a different part of the frame. The page caps the band's
+    height, so something has to be cropped, and without this the crop is the
+    same blind `center 38%` for all fifteen -- which is how a set of images
+    with faces in the top third ended up rendering as a row of torsos.
+
+    Two fatal cases, both rule 4. A value that is not an object-position is a
+    stop, because a focal that silently drops is a banner that silently crops
+    wrong -- the exact failure this file was added to end. And a key that
+    names no source is a stop too: it is a typo or a renamed image, and either
+    way somebody believes they have framed a banner that is still on the
+    default. Unlike alt.json this map CAN be checked against the sources,
+    because it is keyed by the same filenames the encoder is about to read.
+    """
+    p = src_dir / FOCAL_SIDECAR
+    if not p.exists():
+        return {}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        sys.exit(f"FATAL: {rel(p)} is unreadable: {e}")
+    if not isinstance(data, dict):
+        sys.exit(f"FATAL: {rel(p)} must be a filename -> focal object")
+    # "_"-prefixed keys are editorial notes, not filenames -- same convention
+    # as alt.json, and skipped by key for the same reason.
+    out = {}
+    for k, v in data.items():
+        k = str(k)
+        if k.startswith("_"):
+            continue
+        val = str(v).strip()
+        if not FOCAL_RE.match(val):
+            sys.exit(f"FATAL: {rel(p)}: {k!r} -> {val!r} is not an "
+                     f"object-position (want e.g. \"50% 12%\")")
+        out[k] = val
+    known = {s.name for s in srcs}
+    unknown = sorted(k for k in out if k not in known)
+    if unknown:
+        sys.exit(f"FATAL: {rel(p)} frames images that are not in "
+                 f"{rel(src_dir)}: {', '.join(unknown)}")
+    return out
 
 
 def encode(src: Path):
@@ -222,6 +287,7 @@ def build(group: str, check: bool, prune: bool) -> int:
                  f"name: {lines}")
 
     alts = load_alts(src_dir)
+    focals = load_focals(src_dir, srcs)
     entries = []
     written = unchanged = 0
 
@@ -247,6 +313,8 @@ def build(group: str, check: bool, prune: bool) -> int:
                   f"<- {s.name} {s.stat().st_size // 1024} KB)")
 
         entry = {"file": name, "width": width, "height": height}
+        if s.name in focals:
+            entry["focal"] = focals[s.name]
         if s.name in alts:
             entry["alt"] = alts[s.name]
         entries.append(entry)
@@ -280,6 +348,11 @@ def build(group: str, check: bool, prune: bool) -> int:
             "pixels -- both are what the encoder wrote, not what the source",
             "was -- so the page can reserve the box from the true aspect ratio",
             "before the image loads.",
+            "'focal' is optional, comes from",
+            "output/banners/<group>/focal.json, and is the CSS",
+            "object-position the page crops this one image to when the",
+            "band's height cap bites. Absent means the frontend default,",
+            "which biases toward the top of the frame.",
             "'dir' is docs-relative; 'alt' is optional, comes from",
             "output/banners/<group>/alt.json, and overrides the frontend's",
             "generic fallback for that one image.",
