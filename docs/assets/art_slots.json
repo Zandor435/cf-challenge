@@ -17,7 +17,18 @@
   "          and a null/non-integer week resolves to candidates[0], i.e.",
   "          identical to fixed. Rotation is an addition to day-one behavior,",
   "          never a precondition for it.",
-  "  random  a uniform pick, independent of week.",
+  "  random  a uniform pick from candidates, independent of week.",
+  "  rotate  a uniform pick per page load from a MANIFEST this slot names in",
+  "          `source` rather than from `candidates`, which stays empty. The",
+  "          manifest is docs-relative, {group} expands in it, and it is",
+  "          fetched once at boot by the page that owns the slot -- for",
+  "          hero_banner that is app.js reading data/<group>/banners.json and",
+  "          joining its `dir` to each `banners[].file`. Selection itself is",
+  "          the same uniform pick `random` makes; only where the list comes",
+  "          from differs. A manifest that is missing, empty, 404s or does not",
+  "          parse leaves the pool empty, which resolves to null -- exactly",
+  "          what an empty candidate list does -- so the caller lands on its",
+  "          next fallback tier and nothing about the page breaks.",
   "",
   "TOKENS: {group} always expands; per-subject slots also expand {id}.",
   "Substitution runs AFTER selection so rotation never depends on the subject.",
@@ -42,8 +53,23 @@
  "groups": {
   "panel": {
    "hero_banner": {
-    "mode": "fixed",
-    "candidates": ["assets/banners/{group}.webp"]
+    "$why": [
+     "The ONLY rotate slot in this file. panel has fifteen published banners",
+     "(the four managers drawn as coaches, in eight treatments); the other",
+     "three groups have exactly one apiece and stay `fixed` -- a rotate slot",
+     "with one candidate is a fixed slot that costs an extra request.",
+     "`candidates` is empty and that is correct: a rotate slot's pool comes",
+     "from `source`, never from a list here. Leaving the old",
+     "assets/banners/{group}.webp in candidates would put a SECOND answer to",
+     "'which banner' next to the manifest, and the two would drift the first",
+     "time build_banners.py published a different set. The single kickoff",
+     "banner is still the fallback -- it is reached through the $banners list",
+     "in the portraits manifest, one tier down, which is the same tier it",
+     "occupied before rotation existed."
+    ],
+    "mode": "rotate",
+    "source": "data/{group}/banners.json",
+    "candidates": []
    },
    "manager_avatar": {
     "mode": "fixed",

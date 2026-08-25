@@ -697,11 +697,16 @@ function fail(title, body) {
 // this site show a banner" sitting next to app.js's bannerFor(), which is the
 // one the home page actually uses.
 //
-// The rotator's inputs are still on disk and untouched:
-// data/<group>/banners.json (written by scripts/build_banners.py, panel only)
-// and assets/banners/panel/*.png. Nothing reads them today. If a surface ever
-// wants the band back, the manifest is the spec and build_banners.py is the
-// generator; scripts/test_banners.py still holds both to the disk.
+// The rotator itself did not die, it MOVED. data/<group>/banners.json
+// (written by scripts/build_banners.py, panel only) and
+// assets/banners/panel/*.webp are now read by the home page: panel's
+// hero_banner slot in assets/art_slots.json is mode `rotate` and names the
+// manifest, and app.js's bannerFor() picks one of the fifteen per page load.
+// So there is exactly one rotator on this site and it is not here.
+//
+// Which is the point of this comment. If a band ever belongs on this page
+// again, wire it to resolveArt('hero_banner') the way app.js does -- do not
+// re-grow a second reader of the manifest here.
 
 // The browser tries its hash scroll before this page has any content, so the
 // jump has to be redone once the profiles exist. Without this, every
@@ -758,8 +763,9 @@ async function main() {
   //
   // banners.json is NOT among them any more, for the same reason
   // projection.json is not: this page has no banner slot to paint it into.
-  // The manifest still exists and the home page still reads it — the fetch
-  // was removed here, not the file.
+  // The file is very much alive — the home page fetches it per load and picks
+  // one of panel's fifteen banners out of it — but it is fetched THERE, by the
+  // surface that renders it. The fetch was removed here, not the file.
   const [personasRes, standingsRes, slotsRes, portraitsRes, marksRes, heroesRes] =
     await Promise.all([
       fetchJSON(`data/${groupId}/personas.json`).catch(() => null),
