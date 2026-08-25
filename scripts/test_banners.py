@@ -67,11 +67,11 @@ DOCS = ROOT / "docs"
 # The count is exact, not a lower bound, for the reason it always was: a count
 # that drifts without anyone noticing is how a half-published set reaches the
 # site. See unscanned_is_reported() for the other half of that.
-ROTATORS = {"panel": 16}
+ROTATORS = {"panel": 16, "browns": 1}
 
 # Still on a single kickoff banner and mode `fixed`. These have no manifest and
 # no published directory, and scope() asserts they stay that way.
-FIXED_GROUPS = ("family", "church", "browns")
+FIXED_GROUPS = ("family", "church")
 
 # The group currently under test. REBOUND per pass by _select() rather than
 # threaded through as a parameter: thirty-seven references across a dozen

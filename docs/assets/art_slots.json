@@ -365,16 +365,30 @@
    ],
    "hero_banner": {
     "$why": [
-     "browns_comic_02, generated 2026-08-21 from the five fat coach portraits.",
-     "browns passes literal hex colors rather than team names (two managers have",
-     "no college allegiance, and inventing one would publish a claim about a real",
-     "person), which had the side benefit of leaving no team wordmark for the",
-     "render to leak -- compare panel's banner, which bakes in OSU/CU/T/WF marks",
-     "that NO_TEXT was supposed to prevent.",
-     "`fixed` because browns has exactly one approved banner today."
+     "ROTATE, on one banner, and that is the point rather than an oversight.",
+     "build_banners.py publishes into docs/assets/banners/<group>/ and writes",
+     "docs/data/<group>/banners.json -- that IS the rotate slot's input shape.",
+     "The `fixed` tier this replaced named the flat assets/banners/browns.webp,",
+     "which a DIFFERENT tool writes (prepare_portraits.publish_banner) and which",
+     "carries no metadata at all. focal and face_band exist only in the manifest,",
+     "and cap_floor / focal_clears_faces in test_banners.py read them from there,",
+     "so a `fixed` browns banner could not have carried a measured crop nor been",
+     "covered by the guards. Rotate is not a preference here -- it is what",
+     "publishing through the script and being framed by the tests both require.",
+     "",
+     "The consequence worth having: banners two through five are a DATA change.",
+     "Drop the art in output/banners/browns/, add its focal, faces and alt",
+     "entries, re-run the script, commit. No code, no slot edit, no page change.",
+     "",
+     "browns_trophychase_01 is the first entry. The single kickoff banner",
+     "(assets/banners/browns.webp, browns_comic_02 -- which carries no team",
+     "wordmark, unlike panel's) is untouched and is still the fallback one tier",
+     "down, reached through the $banners list in the portraits manifest. Same",
+     "arrangement panel has."
     ],
-    "mode": "fixed",
-    "candidates": ["assets/banners/{group}.webp"]
+    "mode": "rotate",
+    "source": "data/{group}/banners.json",
+    "candidates": []
    },
    "manager_avatar": {
     "$why": [

@@ -1,0 +1,26 @@
+{
+ "_note": [
+  "filename -> [top%, bottom%] of the FACE BAND: the top of the highest",
+  "hat or hairline to the lowest chin, as a percentage of the published",
+  "frame's height. Read by scripts/build_banners.py and published into",
+  "docs/data/browns/banners.json as 'face_band'.",
+  "",
+  "MEASURED OFF THE ART against the 280px band, per face:",
+  "  back row, wine glass    ~0-4%   (top of head cut by the source frame)",
+  "  back row, fistful of money ~0-10% (hairline at the frame edge)",
+  "  left, blue polo         ~18-32%",
+  "  centre, olive shirt     ~22-40%",
+  "  right, bald with tray   ~25-48%",
+  "  left-centre, red cap    ~30-56%",
+  "  right-centre, headphones ~32-57%  <- the lowest chin, and the binding one",
+  "",
+  "So [0, 57]. The top is 0 because the two back-row heads are cropped by",
+  "the artwork itself, not by the masthead: their highest VISIBLE point is",
+  "the frame edge. That is what this number has to describe, since it is",
+  "what the cap has to hold."
+ ],
+ "browns_trophychase_01.png": [
+  0,
+  57
+ ]
+}
