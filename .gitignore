@@ -90,17 +90,18 @@ assets/source_photos/
 # Screenshot-gate captures. The visual verification pass every front-end thread
 # runs shoots each page at a desktop and a mobile width via Playwright MCP's
 # browser_take_screenshot, and a call that passes an explicit `filename` writes
-# it to the CWD
-#
-# SERVE THE SITE FOR THAT PASS WITH `python scripts/shotserve.py`, never with a
-# bare `python -m http.server` on a fixed port. A leftover server on a shared
-# port once served a whole pass from a pre-branch checkout and every one of the
-# resulting captures was of the wrong tree; shotserve takes a free port and
-# proves what it is serving matches disk before handing back a URL. Its
-# docstring has the incident in full -- which is the repo root, NOT .playwright-mcp/ above. That is
+# it to the CWD -- which is the repo root, NOT .playwright-mcp/ above. That is
 # where an-panel-1440.png, index-390.png and managers-1440.png keep coming
 # from. They are regenerable by re-running the gate, are an input to nothing,
 # and sit right where a careless `git add .` will take them.
+#
+# SERVE THE SITE FOR THAT PASS WITH `python scripts/shotserve.py`, never with
+# a bare `python -m http.server` on a fixed port. A leftover server on a shared
+# port once served a whole pass from a pre-branch checkout and every one of
+# the resulting captures was of the wrong tree; shotserve takes a free port
+# and proves what it serves matches disk before handing back a URL. Its
+# docstring has the incident in full, and scripts/test_server_ownership.py
+# plus the PreToolUse hook keep it from being worked around.
 #
 # Two shapes, because the gate produces two:
 #   <page>-<width>.<ext>   the convention the gate uses when it names a file;
