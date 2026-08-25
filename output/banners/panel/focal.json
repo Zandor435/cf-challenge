@@ -12,14 +12,13 @@
   "where the crop is deepest). Narrower viewports crop less, so a value that",
   "clears the faces at 1360 clears them everywhere.",
   "",
-  "x is 50% on all fifteen and that is not laziness: the band is never",
+  "x is 50% on every one and that is not laziness: the band is never",
   "squarer than the art, so object-fit never crops horizontally. The x",
   "component is carried because object-position needs two.",
   "",
   "Absent is legal -- app.js falls back to '50% 22%', which biases toward",
   "the top because these are group portraits."
  ],
-
  "panel_boxart_01.png": "50% 0%",
  "panel_boxart_02.png": "50% 3%",
  "panel_boxart_03.png": "50% 0%",
@@ -34,5 +33,6 @@
  "panel_program_01.png": "50% 5%",
  "panel_sled_01.png": "50% 5%",
  "panel_tradingcard_01.png": "50% 11%",
- "panel_vintage70s_01.png": "50% 16%"
+ "panel_vintage70s_01.png": "50% 16%",
+ "panel_trophychase_01.png": "50% 10%"
 }

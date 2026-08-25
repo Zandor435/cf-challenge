@@ -588,7 +588,7 @@ const TALL_RATIO = 2.2;
 //
 // THE FULL CHAIN, and every rung of it is load-bearing:
 //   1. the hero_banner slot. For panel that is mode `rotate`, one of the
-//      fifteen published banners picked uniformly at random per page load;
+//      sixteen published banners picked uniformly at random per page load;
 //      for family, church and browns it is mode `fixed`, i.e. exactly the one
 //      path they resolved to before rotation existed.
 //   2. the $banners list in the portraits manifest -> assets/banners/<group>.webp.

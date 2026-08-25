@@ -57,8 +57,11 @@ DOCS = ROOT / "docs"
 OTHER_GROUPS = ("family", "church", "browns")
 
 # What the branch published. Not a lower bound: a count that drifts without
-# anyone noticing is how a half-published set reaches the site.
-EXPECTED_COUNT = 15
+# anyone noticing is how a half-published set reaches the site -- which is not
+# hypothetical here. It sat at 15 while a sixteenth banner, delivered in the
+# same pack as five that DID ship, waited in a subdirectory the publish step
+# never reads.
+EXPECTED_COUNT = 16
 
 FAILURES = []
 

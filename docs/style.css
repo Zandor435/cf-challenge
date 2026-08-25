@@ -358,13 +358,12 @@ a { color: inherit; }
    them, because an unloaded img with no width/height attributes is 0px tall
    and the boards below it jumped when the art landed.
 
-   360px is the cap, and it was measured off the fifteen published banners,
+   360px is the cap, and it was measured off the published banners,
    not chosen. At the 1360px this band reaches on desktop an unclamped ratio
    is 453px tall at 3:1 and 577px at 2.36:1 -- a masthead that pushes the
-   standings off the first screen. 360 leaves every one of the thirteen
-   landscape pieces showing all four faces with margin to spare: the deepest
-   face in the set (the locker-room scene, chins at 52% of frame) needs 234px
-   of the 360. */
+   standings off the first screen. 360 leaves every landscape piece in the set
+   showing all four faces with margin to spare: the deepest face of them (the
+   locker-room scene, chins at 52% of frame) needs 234px of the 360. */
 .hero-banner.sized img {
   /* The ratio goes on the IMG, not on .hero-banner. Put it on the box and the
      box has two free axes -- it then satisfies the ratio by NARROWING itself

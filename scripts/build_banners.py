@@ -20,7 +20,7 @@ two costs the masthead could not carry once the rotator went live:
 
   * a random-per-load banner means the reader may pull ANY published file, so
     the page's worst case is the largest one. The generator emits 0.9-3.3 MB
-    stills; fifteen of those is a masthead that costs megabytes per view.
+    stills; a rotation of those is a masthead that costs megabytes per view.
   * the generator also emits JPEG bytes under a .png name. Mirroring preserved
     the lie. Encoding to WEBP ends it: the published name states the published
     format because the encoder, not the generator, chose both.
@@ -50,9 +50,9 @@ and are skipped.
 Per-image FOCAL is optional in the same shape: output/banners/<group>/focal.json
 maps a SOURCE filename to a CSS object-position ("50% 12%"), which rides into
 the manifest as "focal" and tells the page where to crop that banner when the
-masthead's height cap bites. It is not decoration -- the fifteen panel banners
-put their four faces at fifteen different heights, and one shared crop is what
-made the band render torsos. A malformed value or a key naming no source is
+masthead's height cap bites. It is not decoration -- the panel banners put
+their four faces at a different height in every one of them, and one shared
+crop is what made the band render torsos. A malformed value or a key naming no source is
 FATAL, not skipped; see load_focals().
 
 Playbook compliance (CLAUDE.md):
@@ -177,7 +177,7 @@ def load_focals(src_dir: Path, srcs) -> dict:
     WHY THIS EXISTS: the banners are group portraits and every one of them puts
     the four faces in a different part of the frame. The page caps the band's
     height, so something has to be cropped, and without this the crop is the
-    same blind `center 38%` for all fifteen -- which is how a set of images
+    same blind `center 38%` for every one -- which is how a set of images
     with faces in the top third ended up rendering as a row of torsos.
 
     Two fatal cases, both rule 4. A value that is not an object-position is a
