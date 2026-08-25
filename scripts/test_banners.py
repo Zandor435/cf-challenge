@@ -67,6 +67,24 @@ EXPECTED_COUNT = 16
 FAILURES = []
 
 
+def local_sources():
+    """The source images, or [] when this checkout has none.
+
+    THE PREDICATE, and the bug it is replacing: three checks below compare the
+    published set against the sources that produced it, and each guarded
+    itself with `SRC_DIR.is_dir()` -- "output/ is gitignored, so a fresh clone
+    legitimately has nothing to compare." That was true right up until
+    focal.json was un-ignored, which made output/banners/panel/ EXIST on CI
+    while still holding no images. The guard read "directory is here, sources
+    must be too", ran the comparisons against an empty source list, and
+    load_focals() correctly reported all sixteen focal keys as naming no file.
+
+    A directory was never the thing being asked about. Images were. Asking for
+    them directly is immune to whatever else gets tracked in there later.
+    """
+    return build_banners.sources(SRC_DIR) if SRC_DIR.is_dir() else []
+
+
 def check(cond, label):
     if not cond:
         FAILURES.append(label)
@@ -198,14 +216,17 @@ def focal(banners):
 def focal_sidecar(banners):
     """The published focal is the sidecar's, unchanged.
 
-    Skipped without output/, same as the re-encode check. When it IS there,
-    this catches a manifest published from a sidecar that has since been
-    edited -- the focal equivalent of the source-drift guard.
+    Skipped when this checkout has no source IMAGES, same as the re-encode
+    check -- and note that is not the same question as whether output/ exists,
+    which is what this used to ask and what broke CI the moment focal.json
+    became a tracked file in an otherwise gitignored directory. When the
+    sources ARE here, this catches a manifest published from a sidecar that
+    has since been edited: the focal equivalent of the source-drift guard.
     """
-    if not SRC_DIR.is_dir():
-        print("  --    output/banners/panel absent; focal sidecar check skipped")
+    srcs = local_sources()
+    if not srcs:
+        print("  --    no local banner sources; focal sidecar check skipped")
         return
-    srcs = build_banners.sources(SRC_DIR)
     side = build_banners.load_focals(SRC_DIR, srcs)
     check(bool(side), "output/banners/panel/focal.json exists and parses")
     by_out = {build_banners.published_name(s): side.get(s.name) for s in srcs}
@@ -337,16 +358,17 @@ def no_extras(banners):
 def reproducible(banners):
     """Re-encoding today's source reproduces today's published bytes.
 
-    This is what byte-parity became. Skipped when output/ is absent — it is
-    gitignored, so a fresh clone legitimately has no sources to compare — but
-    when it IS present this catches a source that changed after publication,
-    which is the drift that leaves the site serving art nobody can regenerate.
+    This is what byte-parity became. Skipped when this checkout holds no
+    source images — they are gitignored, so a fresh clone legitimately has
+    nothing to compare — but when they ARE here this catches a source that
+    changed after publication, which is the drift that leaves the site serving
+    art nobody can regenerate.
     """
-    if not SRC_DIR.is_dir():
-        print("  --    output/banners/panel absent; re-encode check skipped")
+    local = local_sources()
+    if not local:
+        print("  --    no local banner sources; re-encode check skipped")
         return
-    srcs = {build_banners.published_name(s): s
-            for s in build_banners.sources(SRC_DIR)}
+    srcs = {build_banners.published_name(s): s for s in local}
     for b in banners:
         name = str(b.get("file"))
         s = srcs.get(name)
@@ -448,8 +470,8 @@ def unscanned_is_reported():
 def check_is_dry():
     """--check must write NOTHING. It encodes to memory to report exact sizes,
     which is precisely the code path most likely to grow an accidental write."""
-    if not SRC_DIR.is_dir():
-        print("  --    output/banners/panel absent; dry-run check skipped")
+    if not local_sources():
+        print("  --    no local banner sources; dry-run check skipped")
         return
     before_manifest = MANIFEST.read_bytes() if MANIFEST.exists() else None
     before_assets = ({p.name: p.stat().st_size for p in PUB_DIR.iterdir()
