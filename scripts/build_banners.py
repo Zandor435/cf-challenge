@@ -3,7 +3,11 @@
 
 THE WORKFLOW, in three steps:
 
-    1. drop images in   output/banners/<group>/
+    1. drop images in   output/banners/<group>/   <- FLAT. Not a subdirectory:
+                        this reads that one level and nothing below it, and an
+                        image parked in output/banners/<group>/anything/ is not
+                        published. Every run now NAMEs what it skipped for
+                        exactly that reason -- see report_unscanned().
     2. run              python scripts/build_banners.py --group panel
     3. commit           docs/assets/banners/<group>/  and
                         docs/data/<group>/banners.json
@@ -140,6 +144,38 @@ def sources(src_dir: Path):
     return sorted((p for p in src_dir.iterdir()
                    if p.is_file() and p.suffix.lower() in EXTS),
                   key=lambda p: p.name)
+
+
+def report_unscanned(src_dir: Path) -> None:
+    """Name the images sitting in subdirectories, which this script never reads.
+
+    Not fatal, and not a rule-4 stop: a subdirectory under output/ is a
+    legitimate place to keep an original delivery, a rejected take or a
+    working file, and failing the build over one would make the source tree
+    unusable as a workspace.
+
+    But it must not be SILENT, which it was. A pack of eleven images arrived
+    as output/banners/panel/banners/, five were renamed up into the flat
+    directory and published, and six -- including a four-manager trophy
+    panorama that belonged in the masthead -- simply stayed where they were.
+    Nothing said so. The publish step reported "15 banners" and every check
+    downstream agreed, because every one of them starts from what was
+    published rather than from what was delivered. The whole point of this
+    line is that "I dropped the pack in and it published" and "I dropped the
+    pack in and it published SOME of it" no longer look identical.
+    """
+    nested = []
+    for d in sorted(p for p in src_dir.iterdir() if p.is_dir()):
+        found = sorted(p.name for p in d.rglob("*")
+                       if p.is_file() and p.suffix.lower() in EXTS)
+        if found:
+            nested.append((d, found))
+    for d, found in nested:
+        shown = ", ".join(found[:6]) + (" ..." if len(found) > 6 else "")
+        print(f"  NOTE      {len(found)} image(s) under {rel(d)}/ are NOT "
+              f"published -- this script reads {rel(src_dir)}/ only, not "
+              f"subdirectories. Move one up a level to publish it.")
+        print(f"            {shown}")
 
 
 def published_name(src: Path) -> str:
@@ -286,6 +322,7 @@ def build(group: str, check: bool, prune: bool) -> int:
         sys.exit(f"FATAL: {rel(src_dir)} has sources that publish to the same "
                  f"name: {lines}")
 
+    report_unscanned(src_dir)
     alts = load_alts(src_dir)
     focals = load_focals(src_dir, srcs)
     entries = []

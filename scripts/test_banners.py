@@ -35,6 +35,7 @@ the full fallback chain still spelled out behind it. A second reader of the
 manifest is the specific regression this half exists to catch, because that is
 what the profile page grew last time and what had to be deleted again.
 """
+import io
 import json
 import re
 import shutil
@@ -60,7 +61,7 @@ OTHER_GROUPS = ("family", "church", "browns")
 # anyone noticing is how a half-published set reaches the site -- which is not
 # hypothetical here. It sat at 15 while a sixteenth banner, delivered in the
 # same pack as five that DID ship, waited in a subdirectory the publish step
-# never reads.
+# never reads. See unscanned_is_reported() for the guard on that half.
 EXPECTED_COUNT = 16
 
 FAILURES = []
@@ -391,6 +392,59 @@ def empty_source_guard():
     check(before == after, "refused runs left the existing manifest untouched")
 
 
+def unscanned_is_reported():
+    """An image in a subdirectory is skipped, and the skip is announced.
+
+    This is the check that would have caught the trophy panorama. A pack of
+    eleven arrived as output/banners/panel/banners/, five were renamed up into
+    the flat directory and published, six were not, and the build reported
+    "15 banners" with no hint that it had walked past the rest. Everything
+    downstream agreed with it, because every other check in this file starts
+    from what was PUBLISHED rather than from what was delivered -- so a
+    silently half-published pack is invisible from here by construction.
+
+    Deliberately not fatal, and the test pins that too: a subdirectory is a
+    legitimate place for an original delivery or a rejected take, and a build
+    that refuses to run because one exists is a build nobody can use.
+    """
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        src = tmp / GROUP
+        (src / "sub").mkdir(parents=True)
+        (src / "sub" / "hidden-banner.png").write_bytes(b"")
+        (src / "sub" / "notes.txt").write_bytes(b"")
+
+        buf = io.StringIO()
+        stdout = sys.stdout
+        try:
+            sys.stdout = buf
+            build_banners.report_unscanned(src)
+        finally:
+            sys.stdout = stdout
+        out = buf.getvalue()
+
+        check("hidden-banner.png" in out,
+              "an image in a subdirectory is named, not silently skipped")
+        check("notes.txt" not in out,
+              "a non-image in a subdirectory is not reported as skipped art")
+        check(bool(out.strip()) and "NOTE" in out,
+              "the skip is announced on the build's own output")
+
+        # And no subdirectory means no noise -- a run that skipped nothing must
+        # not print a warning nobody can act on.
+        (src / "flat.png").write_bytes(b"")
+        buf = io.StringIO()
+        try:
+            sys.stdout = buf
+            build_banners.report_unscanned(src / "sub")
+        finally:
+            sys.stdout = stdout
+        check("hidden-banner.png" not in buf.getvalue(),
+              "a directory with no image subdirectories reports nothing")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 def check_is_dry():
     """--check must write NOTHING. It encodes to memory to report exact sizes,
     which is precisely the code path most likely to grow an accidental write."""
@@ -517,6 +571,7 @@ def main() -> int:
 
     print("\nbuilder guards")
     empty_source_guard()
+    unscanned_is_reported()
     check_is_dry()
 
     print("\nscope")
