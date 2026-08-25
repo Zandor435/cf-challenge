@@ -10,37 +10,54 @@ THE WORKFLOW, in three steps:
 
 output/ is gitignored (see the /output/ block in .gitignore) and GitHub Pages
 serves from docs/, so nothing under output/ can ever reach a reader. This
-script is the one edge between the two: it MIRRORS output/banners/<group>/ into
-docs/assets/banners/<group>/ preserving filenames and bytes, then regenerates
+script is the one edge between the two: it ENCODES output/banners/<group>/ into
+docs/assets/banners/<group>/ as WEBP, then regenerates
 docs/data/<group>/banners.json listing what it published.
 
-BYTES ARE NOT TOUCHED. No resize, no re-encode, no format change -- the file
-that lands in docs/ is byte-identical to the one in output/. Dimensions are
-read, never rewritten. (Several of today's panel files are named .png but hold
-JPEG bytes; that is how they were generated, browsers sniff image data rather
-than trusting the extension, and re-encoding to "fix" a filename is exactly the
-lossy step this script exists not to take.)
+BYTES ARE RE-ENCODED, and this is the deliberate reversal of what this script
+used to do. It mirrored source bytes and source filenames verbatim, which had
+two costs the masthead could not carry once the rotator went live:
 
-THE MANIFEST is what the frontend reads -- managers.js picks ONE entry from it
-uniformly at random per page load. It carries each file's real pixel width and
-height so the page can reserve the box from the true aspect ratio before the
-image arrives; an eager, above-the-fold banner that reflows the roster under it
-is the failure this metadata prevents. Never hand-edit it: it is regenerated
-here, and a filename in it that is not on disk is a 404 in the masthead.
+  * a random-per-load banner means the reader may pull ANY published file, so
+    the page's worst case is the largest one. The generator emits 0.9-3.3 MB
+    stills; fifteen of those is a masthead that costs megabytes per view.
+  * the generator also emits JPEG bytes under a .png name. Mirroring preserved
+    the lie. Encoding to WEBP ends it: the published name states the published
+    format because the encoder, not the generator, chose both.
+
+Every source is resized to a long edge of LONG_EDGE (only downwards -- a small
+source is never upscaled into blur) and encoded at the highest quality on the
+QUALITY_LADDER that lands under MAX_BYTES. The ladder descends, so a busy image
+pays in quality and a flat one does not; a file that cannot make the cap even
+at the floor is FATAL and names itself, rather than shipping a banner heavier
+than the budget the rotator was sized for. This is the same Pillow WEBP call
+prepare_portraits.publish_banner() uses for the single per-group hero webp --
+one encoder, two callers, not two encoders.
+
+THE MANIFEST is what the frontend reads. It carries the PUBLISHED filename and
+the PUBLISHED pixel width and height -- never the source's, which after the
+resize above are usually a different number. The page reserves the banner box
+from that ratio before the image arrives; an eager, above-the-fold banner that
+reflows the boards under it is the failure this metadata prevents. Never
+hand-edit it: it is regenerated here, and a filename in it that is not on disk
+is a 404 in the masthead.
 
 Per-image alt text is OPTIONAL. If output/banners/<group>/alt.json exists and
-maps a filename to a string, that string rides into the manifest as "alt" and
-the frontend uses it; absent, the page falls back to a generic league label.
+maps a SOURCE filename to a string, that string rides into the manifest as
+"alt" on the published entry. Keys starting with "_" are notes, not filenames,
+and are skipped.
 
 Playbook compliance (CLAUDE.md):
-  - rule 4: an unreadable image FAILS LOUD and names the file. It is never
-    skipped into a manifest that then disagrees with what is on disk.
+  - rule 4: an unreadable image FAILS LOUD and names the file, and so does one
+    that cannot be encoded under the size cap. Neither is skipped into a
+    manifest that then disagrees with what is on disk.
   - rule 5: an empty/missing source directory is a hard stop -- the existing
     published banners and manifest are left exactly as they were, never
     clobbered with an empty list. The manifest REGENERATES; the asset directory
     only ever gains files, and removing one is opt-in via --prune.
-  - rule 7: no network, no paid API, no cost. Safe to re-run; unchanged files
-    are compared by content hash and skipped.
+  - rule 7: no network, no paid API, no cost. Safe to re-run; every source is
+    encoded to memory first and only written when the resulting bytes differ
+    from what is already published, so an unchanged run touches no file.
 
 Usage:
     python scripts/build_banners.py --group panel
@@ -50,9 +67,8 @@ Usage:
 """
 
 import argparse
-import hashlib
+import io
 import json
-import shutil
 import sys
 from pathlib import Path
 
@@ -69,6 +85,22 @@ EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"}
 
 ALT_SIDECAR = "alt.json"
 
+# Publish geometry and budget. LONG_EDGE is a ceiling, never a target: the
+# masthead is capped at 260px tall on desktop and 150px on mobile (style.css
+# .hero-banner img), so 1600 already covers a 2x display with room to crop.
+LONG_EDGE = 1600
+MAX_BYTES = 250 * 1024
+# Descending: the first quality that fits the budget wins, so flat art keeps
+# its detail and only the busiest images pay. Most of this set lands at q78-q90;
+# the four-panel collage, which is halftone texture edge to edge and compresses
+# worst, needs the low fifties to make the cap at 1600px. 50 is the floor --
+# below that the halftone and speed-line art visibly bands, and shipping a
+# banner that looks broken is worse than failing the build and being told which
+# file needs a smaller crop. The rendered box is at most 260px tall (style.css
+# .hero-banner img), so even the floor is oversampled on screen.
+QUALITY_LADDER = (90, 86, 82, 78, 74, 70, 66, 62, 58, 54, 50)
+WEBP_METHOD = 6         # slowest/densest encode; this runs offline, not in CI
+
 
 def rel(path: Path) -> str:
     """Repo-relative path for messages, falling back to the absolute one.
@@ -84,19 +116,17 @@ def rel(path: Path) -> str:
         return str(path)
 
 
-def sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
 def sources(src_dir: Path):
     """Image files in src_dir, sorted by name. Not recursive."""
     return sorted((p for p in src_dir.iterdir()
                    if p.is_file() and p.suffix.lower() in EXTS),
                   key=lambda p: p.name)
+
+
+def published_name(src: Path) -> str:
+    """Source filename -> published filename. Always .webp, because that is
+    what encode() writes; the extension is a statement about the bytes."""
+    return src.stem + ".webp"
 
 
 def load_alts(src_dir: Path) -> dict:
@@ -115,7 +145,53 @@ def load_alts(src_dir: Path) -> dict:
         sys.exit(f"FATAL: {rel(p)} is unreadable: {e}")
     if not isinstance(data, dict):
         sys.exit(f"FATAL: {rel(p)} must be a filename -> alt object")
-    return {str(k): str(v) for k, v in data.items() if str(v).strip()}
+    # "_"-prefixed keys are editorial notes to whoever maintains the sidecar,
+    # not filenames. Skipped by key, so a note whose value is a list (rather
+    # than a string) cannot be str()-ed into something that looks like alt text.
+    return {str(k): str(v).strip() for k, v in data.items()
+            if not str(k).startswith("_") and str(v).strip()}
+
+
+def encode(src: Path):
+    """Resize to LONG_EDGE and encode to WEBP under MAX_BYTES.
+
+    Returns (bytes, width, height, quality). Encodes to memory, never to disk:
+    that is what lets --check report the exact published size and the exact
+    changed/unchanged verdict without writing anything.
+    """
+    try:
+        with Image.open(src) as im:
+            im.load()
+            img = im.convert("RGB")
+    except Exception as e:                          # noqa: BLE001 -- any decode
+        sys.exit(f"FATAL: cannot read image {rel(src)}: {e}")
+
+    w, h = img.size
+    if not w or not h:
+        sys.exit(f"FATAL: {rel(src)} reports a zero dimension ({w}x{h})")
+
+    # Only ever down. Upscaling a small source to hit LONG_EDGE would spend
+    # bytes on interpolation and publish a blurrier image than the original.
+    longest = max(w, h)
+    if longest > LONG_EDGE:
+        scale = LONG_EDGE / longest
+        img = img.resize((max(1, round(w * scale)), max(1, round(h * scale))),
+                         Image.LANCZOS)
+
+    last = None
+    for q in QUALITY_LADDER:
+        buf = io.BytesIO()
+        img.save(buf, "WEBP", quality=q, method=WEBP_METHOD)
+        data = buf.getvalue()
+        last = (len(data), q)
+        if len(data) <= MAX_BYTES:
+            return data, img.width, img.height, q
+
+    # Rule 4: name the offender rather than publishing over budget.
+    sys.exit(f"FATAL: {rel(src)} cannot be encoded under "
+             f"{MAX_BYTES // 1024} KB -- smallest was {last[0] // 1024} KB at "
+             f"quality {last[1]} ({img.width}x{img.height}). Crop or simplify "
+             f"the source, or lower the quality floor deliberately.")
 
 
 def build(group: str, check: bool, prune: bool) -> int:
@@ -134,38 +210,43 @@ def build(group: str, check: bool, prune: bool) -> int:
                  f"({' '.join(sorted(EXTS))}) -- nothing published, "
                  f"{rel(manifest)} untouched.")
 
+    # Two sources whose stems collide would publish to one .webp and the second
+    # would silently win. Catch it here, before either is encoded.
+    by_out = {}
+    for s in srcs:
+        by_out.setdefault(published_name(s), []).append(s.name)
+    clash = {k: v for k, v in by_out.items() if len(v) > 1}
+    if clash:
+        lines = "; ".join(f"{k} <- {', '.join(v)}" for k, v in sorted(clash.items()))
+        sys.exit(f"FATAL: {rel(src_dir)} has sources that publish to the same "
+                 f"name: {lines}")
+
     alts = load_alts(src_dir)
     entries = []
-    copied = unchanged = 0
+    written = unchanged = 0
 
     for s in srcs:
-        # Rule 4: read the real pixel size, and NAME the file if it cannot be
-        # read. A banner that lands in docs/ with no dimensions in the manifest
-        # is a banner the page cannot reserve a box for.
-        try:
-            with Image.open(s) as im:
-                width, height = im.size
-        except Exception as e:                      # noqa: BLE001 -- any decode
-            sys.exit(f"FATAL: cannot read image {rel(s)}: {e}")
-        if not width or not height:
-            sys.exit(f"FATAL: {rel(s)} reports a zero dimension "
-                     f"({width}x{height})")
+        data, width, height, quality = encode(s)
+        name = published_name(s)
+        d = pub_dir / name
 
-        d = pub_dir / s.name
-        same = (d.exists()
-                and d.stat().st_size == s.stat().st_size
-                and sha256(d) == sha256(s))
+        # Compare the bytes we would write against the bytes already there.
+        # A content compare, not a timestamp one: re-running the encoder on an
+        # unchanged source is deterministic, so this is what makes a no-op run
+        # actually touch nothing.
+        same = d.exists() and d.read_bytes() == data
         if same:
             unchanged += 1
         else:
             if not check:
                 pub_dir.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(s, d)          # bytes preserved, no re-encode
-            copied += 1
-            print(f"  {'would copy' if check else 'copied'}  {s.name} "
-                  f"({width}x{height}, {s.stat().st_size // 1024} KB)")
+                d.write_bytes(data)
+            written += 1
+            print(f"  {'would write' if check else 'wrote'}  {name} "
+                  f"({width}x{height}, q{quality}, {len(data) // 1024} KB "
+                  f"<- {s.name} {s.stat().st_size // 1024} KB)")
 
-        entry = {"file": s.name, "width": width, "height": height}
+        entry = {"file": name, "width": width, "height": height}
         if s.name in alts:
             entry["alt"] = alts[s.name]
         entries.append(entry)
@@ -175,7 +256,7 @@ def build(group: str, check: bool, prune: bool) -> int:
     # is not something a routine rebuild should do behind your back.
     stale = []
     if pub_dir.is_dir():
-        keep = {s.name for s in srcs}
+        keep = {published_name(s) for s in srcs}
         stale = sorted(p.name for p in pub_dir.iterdir()
                        if p.is_file() and p.name not in keep)
     for name in stale:
@@ -184,18 +265,24 @@ def build(group: str, check: bool, prune: bool) -> int:
             print(f"  pruned    {name}")
         else:
             hint = "--check" if check else "pass --prune to remove"
-            print(f"  STALE     {name} (in docs/, not in output/; {hint})")
+            print(f"  STALE     {name} (in docs/, not published by this run; {hint})")
 
     doc = {
         "$note": [
             "GENERATED by scripts/build_banners.py -- do not hand-edit.",
             "REGENERATES in full on every run (playbook rule 5).",
-            "Read by managers.js, which picks ONE entry uniformly at random",
-            "per page load and renders it above the page intro. width/height",
-            "are the file's real pixels and exist so the box can be reserved",
-            "from the true aspect ratio before the image loads.",
-            "'dir' is docs-relative; 'alt' is optional and overrides the",
-            "frontend's generic fallback for that one image.",
+            "Read by app.js on the home page: assets/art_slots.json declares",
+            "this group's hero_banner slot as mode 'rotate', which names this",
+            "file as its candidate source, and bannerFor() picks ONE entry",
+            "uniformly at random per page load for the masthead. A group whose",
+            "slot is mode 'fixed' does not read this file at all.",
+            "'file' is the PUBLISHED name and width/height are the PUBLISHED",
+            "pixels -- both are what the encoder wrote, not what the source",
+            "was -- so the page can reserve the box from the true aspect ratio",
+            "before the image loads.",
+            "'dir' is docs-relative; 'alt' is optional, comes from",
+            "output/banners/<group>/alt.json, and overrides the frontend's",
+            "generic fallback for that one image.",
         ],
         "group": group,
         "dir": f"assets/banners/{group}",
@@ -206,7 +293,7 @@ def build(group: str, check: bool, prune: bool) -> int:
         manifest.parent.mkdir(parents=True, exist_ok=True)
         manifest.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
 
-    print(f"\n{group}: {len(entries)} banner(s) -- {copied} copied, "
+    print(f"\n{group}: {len(entries)} banner(s) -- {written} written, "
           f"{unchanged} unchanged, {len(stale)} stale")
     print(f"  assets:   {rel(pub_dir)}")
     tail = " (not written -- --check)" if check else ""
