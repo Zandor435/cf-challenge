@@ -132,7 +132,9 @@ def published(group, mid, slot):
         base = DOCS / "assets" / "profiles" / group
         if not base.is_dir():
             return []
-        # family points this slot at the plain file on purpose (tone gate).
+        # family points this slot at the plain file on purpose: its art is
+        # real photographs, which get no painted tear. See
+        # build_profile_heroes.py.
         hits = sorted(base.glob(f"{mid}-ripped.webp")) + \
             sorted(base.glob(f"{mid}_*-ripped.webp"))
         return hits or (sorted(base.glob(f"{mid}.webp")) if group == "family" else [])

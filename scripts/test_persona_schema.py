@@ -18,14 +18,16 @@ TWO PROPERTIES, and they pull against each other, which is why both are tested:
      missing from an otherwise finished-looking page, which is the creative-data
      equivalent of the DR Congo bug (playbook rule 4).
 
-AND THE TONE GATE, which is the one rule here that is not cosmetic. The three
-registers each withhold a set of flat fields; `modules` only ever decorates a
-flat field (label/headline/art -- never the body prose). So a withheld flat
-field MUST take its module block with it. If it does not, a straight-register
-manager -- somebody's father, on a page his family reads -- renders a "Fatal
-Flaw" label and headline over an empty body. test_tone_gate_strips_modules is
-the check that this cannot happen, and it asserts against the real published
-payload, not a synthetic one.
+AND THE ABSENT TONE GATE. Three registers used to withhold sets of flat
+fields, and because `modules` only ever decorates a flat field (label/headline
+/art -- never the body prose), a withheld field had to take its module block
+with it or render a "Fatal Flaw" label over an empty body. The registers were
+retired on 2026-08-25: every manager is `roast` and nothing is withheld, so
+that failure mode is now reachable only through an authored module over an
+empty flat field, which property 2 above already rejects.
+test_no_register_withholds_anything pins the retirement itself -- the closed
+`roast`-only vocabulary and the absence of the stripper -- so the gate cannot
+come back half-wired, in the publish path but not in the page.
 
 Runs both ways: pytest collects one test per section and conftest.py raises on
 any check() recorded as FAIL; `python scripts/test_persona_schema.py` prints
@@ -38,14 +40,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import persona_schema  # noqa: E402
+import sync_personas  # noqa: E402
 from persona_schema import (  # noqa: E402
     DEFAULT_LAYOUT,
     LAYOUTS,
-    MODULE_KEYS,
     PRIVATE_FIELDS,
     PROFILE_SITE_FIELDS,
     PersonaSchemaError,
-    strip_modules_for_tone,
     validate_manager,
 )
 
@@ -53,15 +55,12 @@ ROOT = Path(__file__).resolve().parent.parent
 GROUPS_DIR = ROOT / "groups"
 WEB_DATA_DIR = ROOT / "docs" / "data"
 
-# Mirrors sync_personas.TONE_POLICY. Duplicated deliberately: if the policy
-# there is ever loosened, this test should fail rather than silently agree
-# with the new value. The strict register is somebody's parents; a test that
-# imports the thing it is guarding cannot guard it.
-EXPECTED_TONE_POLICY = {
-    "roast": (),
-    "warm": ("fatal_flaw",),
-    "straight": ("fatal_flaw", "running_gag", "rival"),
-}
+# Mirrors sync_personas.VALID_TONES. Duplicated deliberately: a test that
+# imports the thing it is guarding cannot guard it. The withholding registers
+# (`warm`, `straight`) were retired on 2026-08-25 and nothing gates on tone any
+# more, so widening this tuple without restoring a real gate should fail here
+# rather than silently publish a manager who asked to be withheld.
+EXPECTED_VALID_TONES = ("roast",)
 
 _res = []
 
@@ -195,37 +194,37 @@ def test_malformed_fields_fail_loud():
     check("motifs rejects a bare string", *rejects({**base, "motifs": "coffee"}))
 
 
-def test_tone_gate_strips_modules():
-    """A withheld flat field takes its module block with it."""
-    for tone, withheld in EXPECTED_TONE_POLICY.items():
-        rec = {
-            "tone": tone,
-            "draft_tendency": "x", "fatal_flaw": "y", "running_gag": "z", "rival": "someone",
-            "modules": {k: {"label": k, "headline": "H"} for k in MODULE_KEYS},
-        }
-        for k in withheld:
-            rec[k] = None
-        strip_modules_for_tone(rec, withheld)
-        mods = rec.get("modules") or {}
-        leaked = [k for k in withheld if mods.get(k)]
-        check(f"tone {tone!r}: withheld modules stripped ({', '.join(withheld) or 'none'})",
-              not leaked, f"LEAKED {leaked}" if leaked else "")
-        # And the register must NOT strip what it does not withhold.
-        kept = [k for k in MODULE_KEYS if k not in withheld]
-        lost = [k for k in kept if not mods.get(k)]
-        check(f"tone {tone!r}: permitted modules survive", not lost,
-              f"wrongly stripped {lost}" if lost else "")
+def test_no_register_withholds_anything():
+    """The tone gate is gone: every authored module reaches the payload.
 
-    # An all-null modules dict collapses to None so the page tests one thing.
-    rec = {"tone": "straight", "modules": {"fatal_flaw": {"headline": "H"}}}
-    strip_modules_for_tone(rec, ("fatal_flaw", "running_gag", "rival"))
-    check("all-null modules collapses to None", rec["modules"] is None,
-          f"got {rec['modules']!r}")
+    This is the inverse of the test it replaces. That one asserted a withheld
+    flat field took its module block with it; there is no withholding left, so
+    what is worth pinning is that the roster cannot quietly acquire a register
+    the code no longer honours. A persona carrying `tone: "straight"` today
+    would be published in FULL -- flaw, gag and rival -- which is why the
+    vocabulary stays closed rather than becoming a free string.
+    """
+    check("only `roast` is a valid tone", EXPECTED_VALID_TONES == ("roast",),
+          f"got {EXPECTED_VALID_TONES!r}")
+    check("sync_personas agrees with this file's mirror",
+          tuple(sync_personas.VALID_TONES) == EXPECTED_VALID_TONES,
+          f"sync_personas says {tuple(sync_personas.VALID_TONES)!r}")
 
-    # No modules at all is not an error.
-    rec = {"tone": "roast"}
-    strip_modules_for_tone(rec, ())
-    check("absent modules is a no-op", rec.get("modules") is None)
+    # The stripper is gone, not merely unused: an importable one is a gate
+    # somebody can wire back up without also restoring the page-side half.
+    check("strip_modules_for_tone no longer exists",
+          not hasattr(persona_schema, "strip_modules_for_tone"))
+    check("TONE_POLICY no longer exists",
+          not hasattr(sync_personas, "TONE_POLICY"))
+
+    # Every real manager is roast, so no published payload is missing a block
+    # it authored. Asserted against the SOURCE files, which is where a future
+    # register would be introduced.
+    for src in sorted(GROUPS_DIR.glob("*/personas.json")):
+        doc = json.loads(src.read_text(encoding="utf-8"))
+        for mid, rec in (doc.get("managers") or {}).items():
+            check(f"{src.parent.name}/{mid}: tone is roast",
+                  rec.get("tone") == "roast", f"got {rec.get('tone')!r}")
 
 
 def test_private_fields_never_published():

@@ -39,13 +39,14 @@ the fetch and every manager still gets a real card off standings/projection, so
 a league can launch with no prose at all and look finished. Empty is a normal
 state here, not a broken one.
 
-TONE, and why it is stripped here as well as gated in the page:
-  tone is REQUIRED on every manager and has three registers -- see TONE_POLICY
-  below for what each one withholds. Whatever a register withholds is nulled in
-  the payload before it ever leaves the repo, and docs/managers.html gates on
-  tone independently. Two gates, because the strict register is somebody's
-  parents and a single CSS or JS regression must not be able to print a "fatal
-  flaw" under someone's father's name.
+TONE, and what is left of it:
+  tone is REQUIRED on every manager and every manager is `roast`. The registers
+  -- `warm`, which withheld a fatal flaw, and `straight`, which withheld the
+  flaw, the gag and the rival -- were retired on 2026-08-25 along with the
+  page-side gate in docs/site.js. Nothing is nulled on the way out any more;
+  what a persona authors is what the page publishes. The field is kept, and
+  kept required, so the roster cannot drift back to a withholding register
+  without someone restoring a real gate to go with it -- see VALID_TONES.
 
 Playbook compliance (CLAUDE.md):
   - rule 4: an unmapped manager_id -- in EITHER direction -- fails loud and
@@ -75,14 +76,12 @@ try:
     from persona_schema import (  # noqa: F401  (run as a script from scripts/)
         PROFILE_SITE_FIELDS,
         PersonaSchemaError,
-        strip_modules_for_tone,
         validate_manager,
     )
 except ImportError:  # imported as scripts.persona_schema by the test suite
     from scripts.persona_schema import (
         PROFILE_SITE_FIELDS,
         PersonaSchemaError,
-        strip_modules_for_tone,
         validate_manager,
     )
 
@@ -92,26 +91,20 @@ WEB_DATA_DIR = ROOT / "docs" / "data"
 CANONICAL = ROOT / "data" / "teams_canonical.json"
 
 # TONE, and what each register withholds. The value is the tuple of fields that
-# are nulled before publishing.
+# THE ONLY REGISTER. `warm` (withheld a fatal flaw) and `straight` (withheld
+# the flaw, the gag and the rival) were retired on 2026-08-25: family's three
+# straight managers and church's five warm ones were flipped to roast and
+# authored the blocks they had been withholding, which left the gate with no
+# input and made it dead code.
 #
-#   roast     nothing withheld. Panel and Browns: rooms where everyone has
-#             agreed, over decades, to be a target.
-#   warm      a fatal flaw is withheld, a running gag and a rival are not.
-#             CEC is the case this exists for: it is warm-register -- jokes aim
-#             at picks, not people -- yet every manager has an affectionate
-#             gag authored and there is one real rivalry in the group. Under a
-#             two-value gate that content had to be either published with a
-#             "fatal flaw" beside it or thrown away, and neither is right.
-#   straight  everything personal withheld. Family's John, Rachel and Vic --
-#             somebody's parents, somebody's uncle. The strict register stays
-#             strict; `warm` exists so that nothing needs to be loosened here
-#             to make another group render.
-TONE_POLICY = {
-    "roast":    (),
-    "warm":     ("fatal_flaw",),
-    "straight": ("fatal_flaw", "running_gag", "rival"),
-}
-VALID_TONES = tuple(TONE_POLICY)
+# This stays a one-value whitelist rather than becoming a free string on
+# purpose. Reintroducing a withholding register means editing this line, and
+# whoever does that has to notice there is no longer any code behind it and
+# restore a real gate -- in sync_personas.py AND in the page. A silently
+# accepted `tone: "straight"` that renders a fatal flaw anyway is precisely
+# the failure the registers existed to prevent, and it fails loudly here
+# instead (playbook rule 4).
+VALID_TONES = ("roast",)
 
 # The site contract. Every one of these keys is present on every published
 # manager -- null when unauthored, NEVER absent and NEVER a "TODO" string, so
@@ -200,8 +193,9 @@ def build_payload(group_id, config, personas, colors):
         if tone not in VALID_TONES:
             sys.exit(
                 "FAIL [{g}/{m}]: tone is {t!r}; it is REQUIRED and must be one of "
-                "{v}. tone decides whether this person gets a 'fatal flaw' printed "
-                "under their name -- there is no safe default.".format(
+                "{v}. The withholding registers were retired and nothing gates on "
+                "this any more -- a persona asking for one would be published in "
+                "full instead. Restore a real gate before reintroducing one.".format(
                     g=group_id, m=mid, t=tone, v=VALID_TONES)
             )
 
@@ -232,19 +226,12 @@ def build_payload(group_id, config, personas, colors):
         except PersonaSchemaError as exc:
             sys.exit(str(exc))
 
-        # deepcopy, not a shared reference: strip_modules_for_tone() mutates
-        # the nested `modules` dict, and a shallow projection would reach
-        # through and edit the in-memory source. Harmless today because nothing
-        # writes the source back, but --check renders twice in one process and
-        # a mutating projection is exactly how the second render disagrees
-        # with the first.
+        # deepcopy, not a shared reference. Nothing mutates the nested dicts
+        # today -- the tone strip that used to was removed with the register
+        # gate -- but --check renders twice in one process, and a projection
+        # that ever reaches through into the in-memory source is exactly how
+        # the second render disagrees with the first.
         rec = copy.deepcopy({k: src.get(k, None) for k in SITE_FIELDS})
-        for k in TONE_POLICY[tone]:
-            rec[k] = None
-        # The second half of the tone gate: a withheld flat field must take its
-        # module block with it, or the page prints a label and a headline over
-        # an empty body. See persona_schema.strip_modules_for_tone.
-        strip_modules_for_tone(rec, TONE_POLICY[tone])
 
         rival = rec.get("rival")
         if rival is not None and rival not in cfg_ids:
@@ -269,10 +256,9 @@ def build_payload(group_id, config, personas, colors):
             "Art-pipeline fields (traits, silhouette_cue/s) and the editorial-profile",
             "creative brief (north_star, motifs, easter_eggs) are deliberately NOT",
             "published -- they are image-prompt inputs, not page copy.",
-            "tone withholds fields per register: straight nulls fatal_flaw,",
-            "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing.",
-            "A withheld field takes its modules[<field>] block with it, so a",
-            "withheld block can never render as a headline with no body.",
+            "tone is published as data and withholds nothing: the registers",
+            "that nulled fields per tone were retired 2026-08-25 and every",
+            "manager is `roast`. What a persona authors is what ships.",
             "profile_order is DERIVED, not authored: it is each manager's index",
             "in groups/{g}/personas.json, and managers.js alternates the sideline".format(g=group_id),
             "layout off it so a manager's side cannot move when their rank does.",
