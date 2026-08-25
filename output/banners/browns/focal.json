@@ -1,0 +1,20 @@
+{
+ "_note": [
+  "filename -> CSS object-position, read by scripts/build_banners.py and",
+  "published into docs/data/browns/banners.json as 'focal'. It is where the",
+  "page crops THIS image when the masthead's height cap bites.",
+  "",
+  "Measured, not guessed, by the method panel's focal.json documents: the",
+  "art was overlaid with a 5% horizontal grid and the face band read off",
+  "it, then y set to the smallest object-position that puts the window's",
+  "top edge at or above that band at the widest desktop band (1360px,",
+  "where the crop is deepest). Narrower viewports crop less, so a value",
+  "that clears the faces at 1360 clears them everywhere.",
+  "",
+  "0% is forced here rather than chosen. Two of the seven faces are",
+  "already cut by the SOURCE frame -- the back-row pair are drawn with",
+  "their hairlines above y=0 -- so the band's top is 0 and the only",
+  "object-position whose window starts at or above 0 is 0."
+ ],
+ "browns_trophychase_01.png": "50% 0%"
+}

@@ -55,20 +55,49 @@ import build_banners  # noqa: E402
 from PIL import Image  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
+SLOTS = ROOT / "docs" / "assets" / "art_slots.json"
+DOCS = ROOT / "docs"
+
+# EVERY ROTATOR GROUP, and how many banners each publishes. The whole battery
+# below -- integrity, budget, framing, reproducibility -- runs once per entry.
+# It was panel-only while panel was the only group with a manifest; browns has
+# one now, and a guard that covers one of two rotators is a guard with a hole
+# in exactly the place the next one will be added.
+#
+# The count is exact, not a lower bound, for the reason it always was: a count
+# that drifts without anyone noticing is how a half-published set reaches the
+# site. See unscanned_is_reported() for the other half of that.
+ROTATORS = {"panel": 16, "browns": 1}
+
+# Still on a single kickoff banner and mode `fixed`. These have no manifest and
+# no published directory, and scope() asserts they stay that way.
+FIXED_GROUPS = ("family", "church")
+
+# The group currently under test. REBOUND per pass by _select() rather than
+# threaded through as a parameter: thirty-seven references across a dozen
+# functions would be thirty-seven signature changes for no gain, and the rebind
+# is contained -- one module, one process, passes run strictly in sequence and
+# never interleave. main() sets it before each pass and nothing outside this
+# file reads it.
 GROUP = "panel"
 MANIFEST = ROOT / "docs" / "data" / GROUP / "banners.json"
 PUB_DIR = ROOT / "docs" / "assets" / "banners" / GROUP
 SRC_DIR = ROOT / "output" / "banners" / GROUP
-SLOTS = ROOT / "docs" / "assets" / "art_slots.json"
-DOCS = ROOT / "docs"
-OTHER_GROUPS = ("family", "church", "browns")
+EXPECTED_COUNT = ROTATORS[GROUP]
 
-# What the branch published. Not a lower bound: a count that drifts without
-# anyone noticing is how a half-published set reaches the site -- which is not
-# hypothetical here. It sat at 15 while a sixteenth banner, delivered in the
-# same pack as five that DID ship, waited in a subdirectory the publish step
-# never reads. See unscanned_is_reported() for the guard on that half.
-EXPECTED_COUNT = 16
+
+def _select(group):
+    """Point the module-level group paths at one group for the next pass."""
+    global GROUP, MANIFEST, PUB_DIR, SRC_DIR, EXPECTED_COUNT
+    GROUP = group
+    EXPECTED_COUNT = ROTATORS[group]
+    MANIFEST = ROOT / "docs" / "data" / group / "banners.json"
+    PUB_DIR = ROOT / "docs" / "assets" / "banners" / group
+    SRC_DIR = ROOT / "output" / "banners" / group
+
+# The count that sat at 15 while a sixteenth banner, delivered in the same pack
+# as five that DID ship, waited in a subdirectory the publish step never reads,
+# is now ROTATORS above -- one number per group instead of one for panel.
 
 FAILURES = []
 
@@ -111,7 +140,7 @@ def check(cond, label):
 
 
 def load():
-    if not check(MANIFEST.exists(), "docs/data/panel/banners.json exists"):
+    if not check(MANIFEST.exists(), f"docs/data/{GROUP}/banners.json exists"):
         return None
     try:
         return json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -124,7 +153,7 @@ def manifest_shape(doc):
     banners = doc.get("banners")
     check(isinstance(banners, list) and len(banners) > 0,
           "manifest lists at least one banner")
-    check(doc.get("group") == GROUP, "manifest group is panel")
+    check(doc.get("group") == GROUP, f"manifest group is {GROUP}")
     check(doc.get("dir") == f"assets/banners/{GROUP}",
           "manifest dir is the docs-relative publish path")
     check(doc.get("count") == len(banners or []),
@@ -667,16 +696,17 @@ def slot_wiring():
         check(False, f"art_slots.json parses ({e})")
         return
     groups = slots.get("groups") or {}
-    panel = (groups.get(GROUP) or {}).get("hero_banner") or {}
-    check(panel.get("mode") == "rotate", "panel hero_banner is mode rotate")
-    check(panel.get("source") == "data/{group}/banners.json",
-          "panel hero_banner sources the group's banners.json")
-    # An empty candidate list is not an oversight here: it is what keeps the
-    # manifest the single answer to "which banner", with the single kickoff
-    # webp reachable one tier down through $banners instead.
-    check(not (panel.get("candidates") or []),
-          "panel hero_banner declares no inline candidates")
-    for g in OTHER_GROUPS:
+    for g in ROTATORS:
+        spec = (groups.get(g) or {}).get("hero_banner") or {}
+        check(spec.get("mode") == "rotate", f"{g} hero_banner is mode rotate")
+        check(spec.get("source") == "data/{group}/banners.json",
+              f"{g} hero_banner sources the group's banners.json")
+        # An empty candidate list is not an oversight here: it is what keeps the
+        # manifest the single answer to "which banner", with the single kickoff
+        # webp reachable one tier down through $banners instead.
+        check(not (spec.get("candidates") or []),
+              f"{g} hero_banner declares no inline candidates")
+    for g in FIXED_GROUPS:
         spec = (groups.get(g) or {}).get("hero_banner") or {}
         check(spec.get("mode") == "fixed", f"{g} hero_banner is still mode fixed")
         check(spec.get("candidates") == ["assets/banners/{group}.webp"],
@@ -723,55 +753,83 @@ def one_rotator():
               f"{name} carries no rules for the deleted slot")
 
 
-def panel_only():
-    """Scope guard for this pass: the other three mastheads are untouched."""
-    for g in OTHER_GROUPS:
+def scope():
+    """Which groups rotate and which do not, asserted both ways.
+
+    Was panel_only(). The list moved rather than loosened: a group is either in
+    ROTATORS, in which case it must have a manifest, a published directory AND
+    still keep its single kickoff banner as the fallback tier, or it is in
+    FIXED_GROUPS, in which case it must have neither of the first two. What is
+    NOT allowed is a group in neither list, which is how a fourth rotator would
+    get published with nothing checking its framing."""
+    for g in FIXED_GROUPS:
         check(not (ROOT / "docs" / "data" / g / "banners.json").exists(),
-              f"{g} has no banner manifest (panel only this pass)")
+              f"{g} has no banner manifest (still mode fixed)")
         check(not (ROOT / "docs" / "assets" / "banners" / g).is_dir(),
               f"{g} has no published banner directory")
         check((ROOT / "docs" / "assets" / "banners" / f"{g}.webp").is_file(),
               f"{g} still has its single kickoff banner")
-    check((ROOT / "docs" / "assets" / "banners" / f"{GROUP}.webp").is_file(),
-          "panel still has its single kickoff banner as the rotate fallback")
+    for g in ROTATORS:
+        check((ROOT / "docs" / "data" / g / "banners.json").exists(),
+              f"{g} has a banner manifest")
+        check((ROOT / "docs" / "assets" / "banners" / g).is_dir(),
+              f"{g} has a published banner directory")
+        check((ROOT / "docs" / "assets" / "banners" / f"{g}.webp").is_file(),
+              f"{g} still has its single kickoff banner as the rotate fallback")
+
+    known = set(ROTATORS) | set(FIXED_GROUPS)
+    declared = set((json.loads(SLOTS.read_text(encoding="utf-8"))
+                    .get("groups") or {}))
+    check(declared <= known,
+          f"every group in art_slots.json is classified here: {sorted(declared - known)}")
 
 
 def main() -> int:
-    print("manifest shape")
-    doc = load()
-    if doc is None:
-        print(f"\n{len(FAILURES)} FAILED (manifest unreadable)")
-        return 1
-    banners = manifest_shape(doc)
+    # The group-scoped battery, once per rotator. Everything in here reads the
+    # paths _select() rebinds; everything after the loop is about surfaces and
+    # wiring, which are properties of the site rather than of one group.
+    for group in ROTATORS:
+        _select(group)
+        print(f"===== {group} =====")
+        print("manifest shape")
+        doc = load()
+        if doc is None:
+            print(f"\n{len(FAILURES)} FAILED (manifest unreadable)")
+            return 1
+        banners = manifest_shape(doc)
 
-    print("\npublished files")
-    published(banners)
-    no_extras(banners)
+        print("\npublished files")
+        published(banners)
+        no_extras(banners)
 
-    print("\npublish budget")
-    budget(banners)
+        print("\npublish budget")
+        budget(banners)
 
-    print("\nalt text")
-    alt_text(banners)
+        print("\nalt text")
+        alt_text(banners)
 
-    print("\nframing")
-    focal(banners)
-    cap_floor(banners)
-    focal_clears_faces(banners)
-    focal_sidecar(banners)
+        print("\nframing")
+        focal(banners)
+        cap_floor(banners)
+        focal_clears_faces(banners)
+        focal_sidecar(banners)
+        framing_wiring(banners)
+
+        print("\nre-encode reproducibility")
+        reproducible(banners)
+
+        print("\nbuilder guards")
+        empty_source_guard()
+        unscanned_is_reported()
+        check_is_dry()
+        print()
+
+    print("===== site =====")
+    print("framing guards")
     focal_guards()
-    framing_wiring(banners)
-
-    print("\nre-encode reproducibility")
-    reproducible(banners)
-
-    print("\nbuilder guards")
-    empty_source_guard()
-    unscanned_is_reported()
-    check_is_dry()
 
     print("\nscope")
-    panel_only()
+    scope()
 
     print("\nslot wiring")
     slot_wiring()
