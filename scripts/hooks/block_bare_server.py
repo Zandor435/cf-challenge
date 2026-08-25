@@ -40,6 +40,24 @@ mistaken for a guard that is on beyond the next test run.
 
 The asymmetry is the argument: the worst case of allowing is one unguarded
 command, and the worst case of erroring is a repo where nothing runs at all.
+
+EVERY SHELL TOOL, NOT JUST BASH. main() has always accepted a PowerShell
+payload, but the matcher in .claude/settings.json read "Bash", so this hook was
+never invoked for one -- the same command that was denied through Bash ran
+unguarded through PowerShell. That was not theoretical either: a session
+recovered from the broken-hook state above by reaching for PowerShell, which is
+how it surfaced. The matcher is "Bash|PowerShell" now, and
+test_server_ownership.py asserts BOTH the matcher covers PowerShell and that a
+PowerShell payload is actually denied -- the pair matters, because the matcher
+alone is what silently regressed. A new shell tool would need adding to both.
+
+THE REGISTRATION'S FALLBACK ASSUMES A POSIX SHELL (`||`, `{ ...; }`, `>&2`).
+That is not a new dependency and it is not worth removing: the command already
+expands $CLAUDE_PROJECT_DIR, which is POSIX-only too, so the whole line requires
+sh/bash long before the fallback does. Under cmd.exe the hook would not resolve
+its own path, fallback or no fallback. If this repo ever runs hooks under a
+non-POSIX shell, the fix is the path expansion and the fallback together -- not
+a second fallback bolted on for a machine that does not exist yet.
 """
 
 import json
