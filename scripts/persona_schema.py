@@ -34,15 +34,15 @@ module block with a typo'd sub-key. Those fail the build and name the offender,
 per the playbook's rule 4: a silent creative-data miss renders a broken page,
 which is exactly as bad as silently dropping points.
 
-TONE INTERACTS WITH `modules`, and this is the subtle part. The three
-roast-register blocks (fatal_flaw, running_gag, rival) already gate on their
-flat field. `modules` only ever ENRICHES a flat field -- it carries the label,
-headline and art slot, never the body prose, which stays in the flat field. So
-when a register withholds `fatal_flaw`, withholding modules['fatal_flaw']
-alongside it is mandatory, or a straight-tone profile ships a headline reading
-"Special Teams PTSD" with no body under it. strip_modules_for_tone() is that
-step, and sync_personas.py calls it inside the same loop that nulls the flat
-fields.
+`modules` ONLY EVER ENRICHES A FLAT FIELD -- it carries the label, headline and
+art slot, never the body prose, which stays in the flat field. A module block
+authored over an empty flat field is therefore a headline with nothing under
+it, and that is a hard failure here rather than a page that renders "Special
+Teams PTSD" over blank space. This used to matter twice over, because the tone
+registers could null a flat field out from under its module block; the
+registers were retired on 2026-08-25 and the paired stripper with them, so the
+build-time check below is now the only thing standing between an authored
+module and an empty body.
 """
 
 import re
@@ -66,9 +66,9 @@ import re
 LAYOUTS = ("sideline", "headliner", "dossier", "program")
 DEFAULT_LAYOUT = "sideline"
 
-# The four blocks `modules` may enrich. Keyed by the flat field they decorate,
-# which is what keeps the tone gate honest -- there is no module key that does
-# not correspond to a field the register already knows how to withhold.
+# The four blocks `modules` may enrich. Keyed by the flat field they decorate:
+# there is no module key that does not correspond to a real prose field, which
+# is what makes "authored module, empty body" a decidable check.
 MODULE_KEYS = ("draft_tendency", "fatal_flaw", "running_gag", "rival")
 MODULE_SUBKEYS = ("label", "headline", "art")
 
@@ -262,26 +262,3 @@ def validate_manager(group_id, mid, src):
     if ns is not None and not _is_str(ns):
         _err(group_id, mid, "north_star must be a non-empty string or null")
 
-
-def strip_modules_for_tone(rec, withheld):
-    """Null the module block of every field this tone register withholds.
-
-    `withheld` is TONE_POLICY[tone] -- the tuple of flat fields already nulled.
-    Called with the record AFTER the flat nulling; mutates in place.
-
-    This is the second half of the tone gate for the profile system. Without
-    it a straight-register manager keeps modules['fatal_flaw'] = {label,
-    headline} while the flat fatal_flaw is null, and the page renders the label
-    and headline over an empty body -- printing "Fatal Flaw" under somebody's
-    father's name, which is the precise outcome the register exists to prevent.
-    """
-    mods = rec.get("modules")
-    if not isinstance(mods, dict):
-        return
-    for k in withheld:
-        if k in mods:
-            mods[k] = None
-    # An all-null modules dict is indistinguishable from no modules at all, and
-    # the page should test one thing (falsy) rather than "present but empty".
-    if not any(v for v in mods.values()):
-        rec["modules"] = None

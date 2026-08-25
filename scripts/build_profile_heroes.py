@@ -11,10 +11,11 @@ WHICH GROUPS. panel, church and browns only. Their art is the AI coach-poster
 treatment, which is where a painted tear belongs. FAMILY IS DELIBERATELY
 EXCLUDED and that is not an oversight: art_slots.json documents its art as
 "real family photographs and period gag artifacts rather than the AI
-coach-card treatment -- a deliberate difference in kind", and family is also
-the group carrying the straight-tone profiles. Tearing a joke edge onto a
-photograph of somebody's father is the same error the tone gate exists to
-prevent. Family gets the same page, with its photograph presented straight.
+coach-card treatment -- a deliberate difference in kind". A painted tear reads
+as a joke edge, and a joke edge on a real photograph of somebody's father is
+a different register from one on a generated coach poster. That distinction is
+about the ART, not about the prose, so it survives the retirement of the tone
+gate. Family gets the same page, with its photograph presented straight.
 
 BLAINE IS SKIPPED. His cut comes from a hand-painted source with a real brush
 edge (output/personas/panel/panel_blaine_ripped_01.png) via

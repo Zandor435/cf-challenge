@@ -525,27 +525,46 @@ def test_conference_spread_suppressed_where_the_rule_is_advisory():
 def test_persona_material_tolerates_absence():
     """Missing persona fields mean less material -- never a crash, never a rule.
 
-    John, Rachel and Vic are authored `straight` with fatal_flaw, running_gag
-    and rival all null, deliberately and permanently. The builder must read that
-    board without raising and without emitting the nulls, because a packet full
-    of "fatal_flaw": null is a checklist of what each manager lacks rather than
-    a description of who they are.
+    UNAUTHORED, not withheld. This used to lean on the `straight` register,
+    which nulled fatal_flaw, running_gag and rival for John, Rachel and Vic;
+    that register was retired on 2026-08-25 and all three now author the full
+    set. The property it was really testing has nothing to do with tone and
+    still holds: a manager who simply never had a field written must reach the
+    packet with that key ABSENT, because a packet full of "fatal_flaw": null is
+    a checklist of what each manager lacks rather than a description of who
+    they are.
+
+    Holly is the live case -- roast like everyone else, with no fatal flaw ever
+    authored. If she ever gets one, move this to whoever is still short a
+    field rather than deleting it; the packet has to survive a sparse persona
+    for as long as personas are optional.
     """
     print("\nPersona material survives absent fields:")
     family = PB.build_week0_packet("family")
     personas = family["manager_personas"]
 
+    holly = personas.get("holly", {})
+    check("holly still contributes material", bool(holly), f"{sorted(holly)}")
+    check("holly carries no null-valued field",
+          all(v not in (None, "") for v in holly.values()))
+    check("her unauthored fatal_flaw is absent, not null",
+          "fatal_flaw" not in holly, f"{sorted(holly)}")
+    check("and the fields she DID author still arrive",
+          {"running_gag", "rival"} <= set(holly), f"{sorted(holly)}")
+
+    # The formerly-straight three now author the full set, and it must all
+    # reach the packet -- the flip is only real if the material follows it.
     for mid in ("john", "rachel", "vic"):
         block = personas.get(mid, {})
         check(f"{mid} still contributes material", bool(block),
               f"{sorted(block)}")
         check(f"{mid} carries no null-valued field",
               all(v not in (None, "") for v in block.values()))
-        check(f"{mid}'s absent fields are absent, not null",
-              not ({"fatal_flaw", "running_gag", "rival"} & set(block)),
+        check(f"{mid}: the blocks the straight register used to withhold now ship",
+              {"fatal_flaw", "running_gag", "rival"} <= set(block),
               f"{sorted(block)}")
 
-    check("a roast-tone manager still brings the fields they DO have",
+    check("a long-standing roast manager still brings the fields they DO have",
           {"fatal_flaw", "running_gag", "rival"} <= set(personas.get("gayden", {})),
           f"{sorted(personas.get('gayden', {}))}")
     check("rival is resolved to a display name, never a raw manager_id",

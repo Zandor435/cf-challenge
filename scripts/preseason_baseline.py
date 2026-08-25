@@ -310,10 +310,10 @@ CONFERENCE_SPREAD_FIELDS = ("conference_spread", "largest_conference_share")
 
 # Persona fields the column may work from. `tone` is deliberately ABSENT: the
 # register is one pinned voice for every group (ARCHITECTURE §12) and the column
-# does not get gentler for anyone. The site's tone gate withholds fields at the
-# DATA layer instead -- John, Rachel and Vic are authored with fatal_flaw,
-# running_gag and rival all null -- so a missing field here means SVP has less
-# material, never that a manager is off limits.
+# does not get gentler for anyone. That was true while the site's tone gate
+# withheld fields at the DATA layer, and it stays true now that the gate is
+# retired and every manager is `roast` -- a missing field here means SVP has
+# less material, never that a manager is off limits.
 PERSONA_FIELDS = ("epithet", "tagline", "backstory", "draft_tendency",
                   "fatal_flaw", "running_gag", "rival")
 

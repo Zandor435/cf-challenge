@@ -78,7 +78,7 @@ Five rules the design holds to:
 | Type scale and families | Layout variant (`layout`) |
 | Block order within a variant | Which blocks exist at all |
 | The four distress treatments | Which assets exist |
-| Tone-gate behaviour | Tone register (`tone`) |
+| Which blocks a persona may have | Which blocks it actually authored |
 
 ---
 
@@ -88,7 +88,7 @@ Five rules the design holds to:
 groups/<id>/personas.json      SOURCE — prose + creative direction (hand-authored)
   │
   ├─ scripts/persona_schema.py     the field contract + fail-loud validation
-  └─ scripts/sync_personas.py      projects to the site shape, applies the tone gate
+  └─ scripts/sync_personas.py      projects to the site shape (withholds nothing)
         │
         ▼
 docs/data/<id>/personas.json   PUBLISHED — what the browser may see
@@ -158,31 +158,54 @@ the body prose stays in the flat field, so this would render a headline with
 nothing under it.
 ```
 
-That is also what keeps the tone gate honest — see below.
+It is now the only thing standing between an authored module and an empty
+body — see §4.
 
 ---
 
-## 4. The tone gate
+## 4. The tone gate (retired 2026-08-25)
 
-Three registers. Each withholds a set of flat fields, **and each withheld field
-takes its module block with it.**
+**There is no tone gate any more.** Every manager in every group is `roast` and
+every authored block publishes. This section is kept because the shape of what
+was removed is the argument for how to put it back.
 
-| Register | Withholds | Used by |
+It was three registers, each withholding a set of flat fields, and each
+withheld field took its module block with it:
+
+| Register | Withheld | Was used by |
 |---|---|---|
 | `roast` | nothing | The Panel, The Browns |
 | `warm` | `fatal_flaw` | CEC |
 | `straight` | `fatal_flaw`, `running_gag`, `rival` | Family — John, Rachel, Vic |
 
-Two independent gates, deliberately: `sync_personas.py` nulls what a register
-withholds *before it leaves the repo*, and `managers.js` refuses to render it
-even if it arrives. Anything not one of the three keys is treated as `straight`,
-the most restrictive — a typo must fail toward the quiet version, because the
-failure in the other direction is somebody's father captioned with a fatal flaw
-on a page his family reads.
+It ran as two independent gates: `sync_personas.py` nulled what a register
+withheld *before it left the repo*, and `managers.js` refused to render it even
+if it arrived. Anything not one of the three keys fell to `straight`, the most
+restrictive, so a typo failed toward the quiet version.
 
-**The acceptance criterion:** a straight profile must not look like a roast page
-with holes. Withheld blocks never enter the markup, so the surviving blocks
-close up around them. `family/john` is the worked example.
+**Why it went.** Family's three straight managers were flipped to roast and
+authored the blocks they had been withholding; church's five warm managers went
+with them, for the same reason and in the same commit. That left the gate with
+no input, and a branch that can never be taken is a branch that has stopped
+being tested. `tone` survives as required data — `sync_personas.VALID_TONES` is
+`("roast",)` — so the roster cannot drift back into a withholding register by
+accident.
+
+**What replaced it is a writing rule, not code:** aim the joke at the board, not
+the person. Both retired registers existed because those groups are somebody's
+parents, and that fact did not change when the branching did. The eight flaws
+authored at the flip are picks-first by construction; a replacement must be too.
+
+**If you need withholding again**, restore a real gate in *both* halves — the
+publish path and the page. Do not lean on leaving a field unauthored: an
+unauthored block and a withheld one used to be indistinguishable on the page and
+are not any more, because nothing is nulled on the way out.
+
+**The acceptance criterion survives the gate and still binds:** a profile with
+fewer blocks must not look like a full page with holes. An absent block composes
+to the empty string and never enters the markup, so the surviving blocks close
+up around it. `family/holly`, roast with no fatal flaw ever authored, is the
+worked example.
 
 ---
 
@@ -306,10 +329,6 @@ regenerated asset is reproducible. Not yet implemented.
 **Do not mask a torn asset twice.** `art_slots.json` distinguishes the torn cut
 (`profile_page_hero`) from the opaque rectangle (`profile_hero`); the synthetic
 torn edge is applied only to the latter.
-
-> **Hard exclusion:** `output/personas/jonno/Fat/` must never be read, globbed,
-> swept or referenced by any operation. It contains source photographs of real
-> people.
 
 ---
 

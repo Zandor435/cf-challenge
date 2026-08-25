@@ -1,17 +1,17 @@
 {
-  "_note": "Authored 2026-08-20 from groups/church/personas.md (the hand-written prose source). Every manager is `warm`: the register aims jokes at picks rather than people, but each manager has an affectionate running gag authored and zach <-> david is a real, reciprocated pair. `warm` publishes the gag and the rival and NEVER a fatal_flaw -- see TONE_POLICY in scripts/sync_personas.py. No fatal_flaw is authored here and none should be. `team` and `color` are null throughout: the prose names affiliations (Stanford/UVA, Texas A&M, Richmond/Georgia, Virginia, Wake Forest) but declares none of them as data, and the art carries them well enough. manager_id `john_tamu` is PERMANENT -- only his display_name changed, to \"John K\".",
+  "_note": "Authored 2026-08-20 from groups/church/personas.md (the hand-written prose source). Every manager is `roast`, as of 2026-08-25: this group was the last holder of the `warm` register -- gag and rival, never a fatal_flaw -- and was promoted deliberately so the tone gate could be retired. Every register key, TONE_POLICY included, is gone; every authored block now publishes. The register's editorial intent survives it and is now a WRITING rule rather than a code gate: aim the joke at the board, not the person. The five fatal_flaws authored here are picks-first by construction and any replacement must be too. `team` and `color` are null throughout: the prose names affiliations (Stanford/UVA, Texas A&M, Richmond/Georgia, Virginia, Wake Forest) but declares none of them as data, and the art carries them well enough. manager_id `john_tamu` is PERMANENT -- only his display_name changed, to \"John K\".",
   "group_id": "church",
   "seeded": "2026-08-20",
   "managers": {
 "brian": {
       "display_name": "Brian",
-      "tone": "warm",
+      "tone": "roast",
       "epithet": "The Cardinal",
       "tagline": null,
       "backstory": "The one nobody sees coming. Software engineer by training, reader by habit, quietly one of the smartest guys at the table — and then he opens his mouth about college football and you realize he’s been paying real attention this whole time. A Stanford man with a UVA soft spot, which in Charlottesville makes him either a diplomat or a man with divided loyalties, depending on the week. Recently moved closer to town. His son Sam started kindergarten this year, which means Brian is now on the same schedule as everyone else in this pool and has considerably less time to research.\n\nThe \"diplomat or divided loyalties\" question resolved itself at the draft — he took Stanford over 3.5, no hedge. The rest of the board reads exactly like the guy who reads everything: a blue-blood over in Texas, a deep-cut Pac-12-remnant over in Washington State, and the one team with real brand equity, USC, is the one he doesn't trust.",
       "running_gag": "Nobody expects the depth of the football knowledge. It gets them every year — least of all on the Stanford pick, which everybody should have seen coming.",
       "draft_tendency": "Reads everything. Picks like someone who read everything.",
-      "fatal_flaw": null,
+      "fatal_flaw": "Read everything, then took Stanford over 3.5 anyway. The research was never going to win that argument.",
       "rival": null,
       "team": null,
       "color": null,
@@ -37,7 +37,8 @@
       },
       "modules": {
         "draft_tendency": { "label": "Draft tendency", "headline": "Reads Everything", "art": null },
-        "running_gag": { "label": "Running gag", "headline": "Nobody Expects It", "art": null }
+        "running_gag": { "label": "Running gag", "headline": "Nobody Expects It", "art": null },
+        "fatal_flaw": { "label": "Fatal flaw", "headline": "The Research Never Stood A Chance", "art": null }
       },
       "pull_quote": {
         "text": "The 'diplomat or divided loyalties' question resolved itself at the draft.",
@@ -50,13 +51,13 @@
     },
 "david": {
       "display_name": "David",
-      "tone": "warm",
+      "tone": "roast",
       "epithet": "The Spider",
       "tagline": null,
       "backstory": "The best joker in the group and he knows it. Richmond man — a genuine Spiders fan, which is a commitment — and a Georgia fan by way of his son, who went there and takes him to games. Former CPA with some real estate in the mix, which means he’s spent a career around numbers and will not be taking the numbers seriously in this pool. He’s here for the material.\n\nTwo ACC-region overs paired against two contrarian unders — one against a service academy, one against a preseason blue-blood darling in Penn State. A board built for material, not chalk, same as always.",
       "running_gag": "Richmond and Georgia in the same heart. He’ll defend both.",
       "draft_tendency": "Picks for the story, not the spread. Penn State under is the story.",
-      "fatal_flaw": null,
+      "fatal_flaw": "A career spent around numbers and a board built for the story instead. He would rather have the material than the points.",
       "rival": "zach",
       "team": null,
       "color": null,
@@ -85,7 +86,8 @@
       "modules": {
         "draft_tendency": { "label": "Draft tendency", "headline": "The Story Over the Spread", "art": null },
         "running_gag": { "label": "Running gag", "headline": "Two Teams, One Heart", "art": null },
-        "rival": { "label": "Rival", "headline": "The Commissioner", "art": null }
+        "rival": { "label": "Rival", "headline": "The Commissioner", "art": null },
+        "fatal_flaw": { "label": "Fatal flaw", "headline": "Material Over Points", "art": null }
       },
       "pull_quote": {
         "text": "A career around numbers is exactly why I'm not taking these ones seriously.",
@@ -115,13 +117,13 @@
     },
 "john_tamu": {
       "display_name": "John K",
-      "tone": "warm",
+      "tone": "roast",
       "epithet": "Aggie by Blood",
       "tagline": null,
       "backstory": "Texas born, Texas A&M all the way, and the head of a genuinely serious college football household — both his sons are die-hards and one of them actually runs a college football site, which means John has in-house analytics the rest of us do not. Works for a defense contractor. As decent a guy as there is in this group, which is unfortunate, because his picks are going to get roasted regardless.\n\nThe Aggie pick is the over, obviously — never neutral, and this year that means bullish. The real tell is Texas Tech under 10.5: the market has decided they're a contender, and the guy with two football-obsessed sons and in-house analytics has decided the market is wrong.",
       "running_gag": "Whatever he does with Texas A&M. It’s never neutral.",
       "draft_tendency": "Has better information than he lets on. Ask him about Texas Tech.",
-      "fatal_flaw": null,
+      "fatal_flaw": "In-house analytics from two football-obsessed sons, and he still took the Aggies over on feel.",
       "rival": null,
       "team": null,
       "color": null,
@@ -147,7 +149,8 @@
       },
       "modules": {
         "draft_tendency": { "label": "Draft tendency", "headline": "Better Information", "art": null },
-        "running_gag": { "label": "Running gag", "headline": "Whatever He Does With A&M", "art": null }
+        "running_gag": { "label": "Running gag", "headline": "Whatever He Does With A&M", "art": null },
+        "fatal_flaw": { "label": "Fatal flaw", "headline": "The Aggie Pick Was Never Analytics", "art": null }
       },
       "pull_quote": {
         "text": "The market has decided Texas Tech is a contender. John has decided the market is wrong.",
@@ -160,13 +163,13 @@
     },
 "john_wells": {
       "display_name": "John Wells",
-      "tone": "warm",
+      "tone": "roast",
       "epithet": "Wahoo",
       "tagline": null,
       "backstory": "Die-hard Virginia, degree from Virginia, financial planner in Charlottesville at Morris & Wells. His kids are at Sunrise Elementary with Zach’s, which is roughly how everyone in this group ends up connected to everyone else. The most measured guy in the pool and the one most likely to have actually done the arithmetic on his own picks before submitting them.\n\nThen he turned in a board of four straight overs, three of them ACC, concentrated enough that the site itself had to turn off its own conference rule to let it through — a financial planner's risk-tolerance question, answered by going all-in.",
       "running_gag": "A financial planner betting on Virginia is a risk-tolerance question. A financial planner betting on Virginia, Florida State, James Madison, and California, all in the same direction, is a different question entirely.",
       "draft_tendency": "Conservative. Won't reach — except this year, when he reached four times in the same direction and broke the conference-minimum rule doing it.",
-      "fatal_flaw": null,
+      "fatal_flaw": "The most measured man in the pool turned in four overs in the same direction and made the site suspend its own conference rule to accept them.",
       "rival": null,
       "team": null,
       "color": null,
@@ -192,7 +195,8 @@
       },
       "modules": {
         "draft_tendency": { "label": "Draft tendency", "headline": "Conservative (Except This Year)", "art": null },
-        "running_gag": { "label": "Running gag", "headline": "The Risk-Tolerance Question", "art": null }
+        "running_gag": { "label": "Running gag", "headline": "The Risk-Tolerance Question", "art": null },
+        "fatal_flaw": { "label": "Fatal flaw", "headline": "Measured Until He Was Not", "art": null }
       },
       "pull_quote": {
         "text": "Conservative. Won't reach — except this year, when he reached four times in the same direction.",
@@ -205,13 +209,13 @@
     },
 "zach": {
       "display_name": "Zach",
-      "tone": "warm",
+      "tone": "roast",
       "epithet": "The Commissioner",
       "tagline": null,
       "backstory": "Wake Forest alum, Baton Rouge raised, LSU heart — and the man who took a weekly after-church conversation about college football and turned it into a scoring engine, a projection model, and a website. He loves AI, loves building sites for reasons that do not justify the effort, and has now done this three separate times for three separate groups of people who would have been fine with a spreadsheet. He and David have an ongoing thing that neither of them intends to resolve. Everyone here understands the man who wrote the scoring is also in the standings, and everyone has agreed to let it go.\n\nLSU over is the heart pick, same as it's always been. Notre Dame under 11.5 is betting against the market darling with the model he built himself — which is either conviction or something to answer for in the standings.",
       "running_gag": "Elaborate infrastructure, trivial stakes. Also: David. Also, betting against Notre Dame with his own math.",
       "draft_tendency": "Overthinks it, then takes the model’s number anyway.",
-      "fatal_flaw": null,
+      "fatal_flaw": "Wrote the scoring, the projection and the site, and is still in the standings getting beaten by his own numbers.",
       "rival": "david",
       "team": null,
       "color": null,
@@ -237,7 +241,8 @@
       },
       "modules": {
         "draft_tendency": { "label": "Draft tendency", "headline": "The Model's Number", "art": null },
-        "running_gag": { "label": "Running gag", "headline": "Infrastructure, Stakes, David", "art": null }
+        "running_gag": { "label": "Running gag", "headline": "Infrastructure, Stakes, David", "art": null },
+        "fatal_flaw": { "label": "Fatal flaw", "headline": "Beaten By His Own Math", "art": null }
       },
       "pull_quote": {
         "text": "Everyone here understands the man who wrote the scoring is also in the standings.",

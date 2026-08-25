@@ -181,9 +181,6 @@ Correct unit: **one bump per `do_post()` attempt**, i.e. inside the shell.
   `selection.json` — neither exists under `output/` or `data/`.
 - `data/persona_selections.json` records only the **panel 2026-08-18** decisions,
   and that sweep *did* run (rejects in `output/archive/...`, 2026-08-21 bookkeeping note).
-- `output/personas/jonno/Fat/` does **not** exist in this clone (0 files); the
-  only `jonno/Fat` paths are `output/archive/duplicates/personas/jonno/Fat/` (4 files)
-  and `output/archive/duplicates/personas/Fat friends/Fat/` (2). Untouched.
 - Disk counts (shared checkout): 292 files under `output/`; per-dir top:
   scenes/panel 65, posters/panel 28, matchups/panel 18, personas/{panel 5, church 5,
   family 8, browns 6}.
@@ -415,7 +412,7 @@ browns-analytics        Y      -     0       0        no
 ## 4. Needs Z's call
 1. **Merge** `overnight-audit-2026-08-21` (4 commits + this report). Nothing merged; main untouched.
 2. **Live verification** of c9e2df1 (budget counter) on the next real image-gen run: tally ≥ images, and it grows on retry lines.
-3. **77-keep sweep**: no keep list exists in the repo. Export the selection sheet's KEEP list ("Copy KEEP list" / downloaded `selection.json`) into the repo, then a sweep script can be written with the permanent `output/personas/jonno/Fat/` exclusion + test. Nothing was moved tonight. (`output/personas/jonno/Fat/` does not exist in this clone; the only `jonno/Fat` dirs are under `output/archive/duplicates/`.)
+3. **77-keep sweep**: no keep list exists in the repo. Export the selection sheet's KEEP list ("Copy KEEP list" / downloaded `selection.json`) into the repo, then a sweep script can be written against it. Nothing was moved tonight.
 4. F1/F2 art generation (paid), F3 svp stub copy, F4 board regen, F5 lock wording.
 5. The shared checkout's foreign uncommitted change (F9).
 6. The sibling worktree `c:\Users\zacha\Claude Code\cf-challenge-overnight` can be removed after review (`git worktree remove cf-challenge-overnight`).

@@ -6,10 +6,9 @@
   "Art-pipeline fields (traits, silhouette_cue/s) and the editorial-profile",
   "creative brief (north_star, motifs, easter_eggs) are deliberately NOT",
   "published -- they are image-prompt inputs, not page copy.",
-  "tone withholds fields per register: straight nulls fatal_flaw,",
-  "running_gag and rival; warm nulls fatal_flaw; roast nulls nothing.",
-  "A withheld field takes its modules[<field>] block with it, so a",
-  "withheld block can never render as a headline with no body.",
+  "tone is published as data and withholds nothing: the registers",
+  "that nulled fields per tone were retired 2026-08-25 and every",
+  "manager is `roast`. What a persona authors is what ships.",
   "profile_order is DERIVED, not authored: it is each manager's index",
   "in groups/family/personas.json, and managers.js alternates the sideline",
   "layout off it so a manager's side cannot move when their rank does."
@@ -18,15 +17,15 @@
  "group_id": "family",
  "managers": {
   "rachel": {
-   "tone": "straight",
+   "tone": "roast",
    "display_name": "Rachel",
    "epithet": "The Real Fan",
    "tagline": "Three unders and no announcement.",
    "backstory": "Baton Rouge raised, one of a big family, Ole Miss undergrad and LSU Law — the same track as John, which tells you something about how this household ended up. A genuine college football fan in her own right, not a spouse-adjacent one, a distinction she has never once had to make because everybody in this family already knows it. She turned in the quietest board in the group and the most contrarian one — Notre Dame under, Utah under, Auburn under, and James Madison over as the only swing anybody has to look up. Same bayou, same house, same water line on the wall. She has watched it come up and watched it go back down, and she tells that story at parties without once dropping her voice.",
-   "running_gag": null,
+   "running_gag": "James Madison. The whole group had to look it up. She did not.",
    "draft_tendency": "Sneaky-good. Doesn't announce anything.",
-   "fatal_flaw": null,
-   "rival": null,
+   "fatal_flaw": "Three of her four picks need somebody to be bad. She spends the fall quietly hoping.",
+   "rival": "john",
    "color": null,
    "archetype": "The Real Fan",
    "thesis": "Quietest board. Most contrarian. Same bayou.",
@@ -43,6 +42,21 @@
     "draft_tendency": {
      "label": "Draft tendency",
      "headline": "The Quiet Contrarian",
+     "art": null
+    },
+    "fatal_flaw": {
+     "label": "Fatal flaw",
+     "headline": "Needs Everyone To Be Worse",
+     "art": null
+    },
+    "running_gag": {
+     "label": "Running gag",
+     "headline": "Everybody Had To Look It Up",
+     "art": null
+    },
+    "rival": {
+     "label": "Rival",
+     "headline": "Same House, Opposite Board",
      "art": null
     }
    },
@@ -65,15 +79,15 @@
    "profile_order": 0
   },
   "john": {
-   "tone": "straight",
+   "tone": "roast",
    "display_name": "John",
    "epithet": "The Counselor",
    "tagline": "Ole Miss first, LSU second, and he’d like the record to reflect that.",
    "backstory": "McComb, Mississippi, and still the best football conversation in the family. He was a high school star in McComb before most of this roster’s parents were born, went to Ole Miss undergrad, then LSU Law, then spent years in the Attorney General’s office building arguments for a living. He is an Ole Miss man first and an LSU man immediately after, and he will explain the ordering with the patience of someone who has explained harder things to worse audiences. Every college football take Zach has ever had was pressure-tested against this man first. His board is the argument stated out loud — Ole Miss over, Mississippi State under, and a straight face while his own brother takes the other side of it. The house is on the bayou and the bayou has been in the house. He has rebuilt once already, and he will walk you through the whole thing the way he walks you through an argument — in order, start to finish, no flinching.",
-   "running_gag": null,
+   "running_gag": "Ole Miss first, LSU second. Nobody asks for the ordering. Everybody gets the ordering.",
    "draft_tendency": "Backed Ole Miss, faded Mississippi State, and can tell you why in order.",
-   "fatal_flaw": null,
-   "rival": null,
+   "fatal_flaw": "Has never conceded a point in his life. He only restates it more precisely.",
+   "rival": "vic",
    "color": null,
    "archetype": "The Counselor",
    "thesis": "Ole Miss first, LSU second, and he'd like the record to reflect that.",
@@ -90,6 +104,21 @@
     "draft_tendency": {
      "label": "Draft tendency",
      "headline": "The Argument, Stated Out Loud",
+     "art": null
+    },
+    "fatal_flaw": {
+     "label": "Fatal flaw",
+     "headline": "Never Concedes, Only Restates",
+     "art": null
+    },
+    "running_gag": {
+     "label": "Running gag",
+     "headline": "First, Second, In That Order",
+     "art": null
+    },
+    "rival": {
+     "label": "Rival",
+     "headline": "His Own Brother",
      "art": null
     }
    },
@@ -115,15 +144,15 @@
    "profile_order": 1
   },
   "vic": {
-   "tone": "straight",
+   "tone": "roast",
    "display_name": "Vic",
    "epithet": "Abita Springs",
    "tagline": null,
    "backstory": "John’s brother and Zach’s uncle. McComb-born, spent years in Diamondhead, and recently moved to Abita Springs, Louisiana — a decision he is delighted with. He is here because he likes being in it with everybody, which is a better reason than most people in this pool have. He is the only manager who took every pick to the over, which is either conviction or the refusal to overthink a $10 bet, and with Vic those have always been the same thing. He is also on the far side of Mississippi State from his own brother. He is a bayou man too, and he has had the water in the house and rebuilt after it — a thing he brings up as easily as the move to Abita Springs, and with about the same shrug.",
-   "running_gag": null,
+   "running_gag": "Abita Springs. You will hear about Abita Springs.",
    "draft_tendency": "Unbothered. Four overs, no hedge, moves on.",
-   "fatal_flaw": null,
-   "rival": null,
+   "fatal_flaw": "Four overs and no hedge, so there is no version of a bad season where he is fine.",
+   "rival": "john",
    "color": null,
    "archetype": "Abita Springs",
    "thesis": "Four overs, no hedge, moved to Abita Springs.",
@@ -140,6 +169,21 @@
     "draft_tendency": {
      "label": "Draft tendency",
      "headline": "Four Overs, No Hedge",
+     "art": null
+    },
+    "fatal_flaw": {
+     "label": "Fatal flaw",
+     "headline": "No Hedge, No Floor",
+     "art": null
+    },
+    "running_gag": {
+     "label": "Running gag",
+     "headline": "Have You Heard About Abita Springs",
+     "art": null
+    },
+    "rival": {
+     "label": "Rival",
+     "headline": "Mississippi State, Both Ways",
      "art": null
     }
    },

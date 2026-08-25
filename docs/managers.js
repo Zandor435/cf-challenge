@@ -41,22 +41,15 @@
 
    The consequence worth stating: because an absent block is an empty string
    rather than a placeholder, a variant composes identically whether it was
-   handed eight blocks or two. That is what makes the tone gate safe. A
-   straight-register profile is not a roast page with holes in it — the holes
-   never enter the markup, and the surviving blocks close up around them.
-
-   THE TONE GATE is the one rule in here that is not cosmetic. See TONE_BLOCKS
-   in site.js. Two independent gates, because the strict register is somebody's
-   parents: sync_personas.py nulls what a register withholds before it leaves
-   the repo, and this file refuses to render it even if it arrives.
+   handed eight blocks or two. A profile carrying fewer authored blocks is not
+   a full page with holes in it — the holes never enter the markup, and the
+   surviving blocks close up around them.
    ========================================================================== */
 'use strict';
 
-// fmtSigned / fmtLine / pct, the TONE_BLOCKS gate, toneOf() and has() live in
-// site.js. They stay there because the tone gate is the one rule on this site
-// where a second copy would be a second, silently-drifting answer to "may this
-// person be captioned with a fatal flaw". These are classic scripts sharing
-// one global lexical scope, so they are in scope here by name.
+// fmtSigned / fmtLine / pct and has() live in site.js. These are classic
+// scripts sharing one global lexical scope, so they are in scope here by
+// name.
 
 // ---------------------------------------------------------------------------
 // LAYOUT VARIANTS. The key comes from persona `layout`; scripts/persona_schema.py
@@ -466,24 +459,23 @@ function blockScouting(p) {
 }
 
 // ---------- block 6 — personality modules ----------------------------------
-// TONE-GATED, and this is the gate that matters. `allow` comes from toneOf();
-// a withheld block never enters the markup — it is not hidden with CSS, it is
-// not rendered.
+// Every authored module renders; what a manager gets is what a manager wrote.
+// An unauthored block is simply absent — not hidden with CSS, not rendered.
 //
 // COMPOSITION IS NOT THREE IDENTICAL CARDS. The first module takes .is-lead —
 // full width, accent rule, tinted ground — and the rest sit in the auto-fit
-// band beside it. auto-fit is load-bearing rather than cosmetic: the tone gate
-// decides how many modules exist, a straight-register manager gets exactly one
-// and a roast-register manager with a full persona gets four, and every count
-// between happens. A fixed column count sits the one-module manager beside
-// that many empty cells.
+// band beside it. auto-fit is load-bearing rather than cosmetic: how many
+// modules exist is however many the persona authored — one for a manager
+// carrying only a draft tendency, four for a full one, and every count
+// between. A fixed column count sits the one-module manager beside that many
+// empty cells.
 //
 // Rival is a SAME-PAGE anchor, and only when the rival is someone this render
 // actually produced — an id that never rendered would be a dead jump.
 // sync_personas.py already rejects a rival that is not a manager_id in the
 // group; this catches the narrower case where the roster and this render
 // disagree.
-function blockModules(p, allow, names) {
+function blockModules(p, names) {
   if (!p) return '';
   const out = [];
 
@@ -501,9 +493,9 @@ function blockModules(p, allow, names) {
   };
 
   if (has(p.draft_tendency)) push('draft_tendency', esc(p.draft_tendency));
-  if (allow.fatal_flaw && has(p.fatal_flaw)) push('fatal_flaw', esc(p.fatal_flaw));
-  if (allow.running_gag && has(p.running_gag)) push('running_gag', esc(p.running_gag));
-  if (allow.rival && has(p.rival) &&
+  if (has(p.fatal_flaw)) push('fatal_flaw', esc(p.fatal_flaw));
+  if (has(p.running_gag)) push('running_gag', esc(p.running_gag));
+  if (has(p.rival) &&
       Object.prototype.hasOwnProperty.call(names, String(p.rival))) {
     const rid = String(p.rival);
     push('rival', `<a href="#${encodeURIComponent(rid)}">${esc(names[rid])}</a>`);
@@ -577,7 +569,6 @@ function blockJump(m) {
 // ---------- one profile ----------------------------------------------------
 function profile(m, persona, ctx, index) {
   const p = persona || null;
-  const allow = toneOf(p);
 
   // Computed BEFORE the portrait, because it decides which cut of the art the
   // portrait asks for — not just which side the finished block sits on.
@@ -610,7 +601,7 @@ function profile(m, persona, ctx, index) {
     dossier: blockDossier(m, p),
     picks: blockPicks(m, ctx),
     scouting: blockScouting(p),
-    modules: blockModules(p, allow, ctx.names),
+    modules: blockModules(p, ctx.names),
     quote: blockQuote(m, p),
     band: blockBand(m, p),
     jump: blockJump(m),
@@ -836,8 +827,8 @@ async function main() {
   //
   // The VARIANT has to be rewritten too, not just the class: a SIDELINE
   // profile whose picture 404s is a two-column composition with an empty
-  // column, which is the "straight profile that looks like a roast page with
-  // holes" failure in a different costume.
+  // column — a page with a hole in it, which is the failure the
+  // blocks-compose-to-empty-string design exists to avoid.
   $('mgr-list').querySelectorAll('.pf-portrait img').forEach((img) => {
     const drop = () => {
       const fig = img.closest('.pf-portrait');
