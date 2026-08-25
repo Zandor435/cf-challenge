@@ -307,10 +307,6 @@ regenerated asset is reproducible. Not yet implemented.
 (`profile_page_hero`) from the opaque rectangle (`profile_hero`); the synthetic
 torn edge is applied only to the latter.
 
-> **Hard exclusion:** `output/personas/jonno/Fat/` must never be read, globbed,
-> swept or referenced by any operation. It contains source photographs of real
-> people.
-
 ---
 
 ## 9. How to add a manager
