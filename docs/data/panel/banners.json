@@ -16,6 +16,12 @@
   "object-position the page crops this one image to when the",
   "band's height cap bites. Absent means the frontend default,",
   "which biases toward the top of the frame.",
+  "'face_band' is optional, comes from",
+  "output/banners/<group>/faces.json, and is [top%, bottom%] of",
+  "the frame between the highest hairline and the lowest chin.",
+  "It is what the focal was measured against and what bounds the",
+  "band's height cap from below; test_banners.py fails the build",
+  "if any of them stops fitting the cap in style.css.",
   "'dir' is docs-relative; 'alt' is optional, comes from",
   "output/banners/<group>/alt.json, and overrides the frontend's",
   "generic fallback for that one image."
@@ -29,6 +35,10 @@
    "width": 1584,
    "height": 672,
    "focal": "50% 0%",
+   "face_band": [
+    4.0,
+    34.0
+   ],
    "alt": "Illustrated poster of the league's four managers as college football coaches, standing shoulder to shoulder in Oklahoma State orange, Colorado black and gold, Texas Tech red and Wake Forest gold, lit by stadium floodlights and streaks of orange light."
   },
   {
@@ -36,6 +46,10 @@
    "width": 1584,
    "height": 672,
    "focal": "50% 0%",
+   "face_band": [
+    5.0,
+    30.0
+   ],
    "alt": "Illustrated poster of the four managers as coaches in full-length pose on a field, arms crossed or hands on hips, against a sunburst of orange and crimson."
   },
   {
@@ -43,6 +57,10 @@
    "width": 1584,
    "height": 672,
    "focal": "50% 0%",
+   "face_band": [
+    4.0,
+    32.0
+   ],
    "alt": "Illustrated poster of the four managers as coaches lined up at midfield at sunset, a packed stadium and confetti behind them."
   },
   {
@@ -50,6 +68,10 @@
    "width": 1600,
    "height": 640,
    "focal": "50% 0%",
+   "face_band": [
+    5.0,
+    45.0
+   ],
    "alt": "Broadcast-style promo image of the four managers as coaches in a dark studio, staggered from front to back with sparks and stadium lights behind them and a bank of press microphones at the right."
   },
   {
@@ -57,6 +79,10 @@
    "width": 1584,
    "height": 672,
    "focal": "50% 0%",
+   "face_band": [
+    6.0,
+    38.0
+   ],
    "alt": "Comic-book panel of the four managers as coaches in team jackets, drawn in heavy ink lines with speed lines radiating behind them and a daylight stadium beyond."
   },
   {
@@ -64,6 +90,10 @@
    "width": 1584,
    "height": 672,
    "focal": "50% 0%",
+   "face_band": [
+    9.0,
+    40.0
+   ],
    "alt": "Comic-book panel of the four managers as coaches under night stadium lights, drawn in flat color with a deep blue sky behind them."
   },
   {
@@ -71,6 +101,10 @@
    "width": 1584,
    "height": 672,
    "focal": "50% 0%",
+   "face_band": [
+    5.0,
+    30.0
+   ],
    "alt": "Comic-book panel of the four managers as coaches grinning at the camera, framed by red and yellow action rays over a crowded stadium."
   },
   {
@@ -78,6 +112,10 @@
    "width": 1584,
    "height": 672,
    "focal": "50% 0%",
+   "face_band": [
+    7.0,
+    33.0
+   ],
    "alt": "Comic-book panel of the four managers as coaches in matching team tracksuits, drawn against a dusk sky and speed lines."
   },
   {
@@ -85,6 +123,10 @@
    "width": 1584,
    "height": 672,
    "focal": "50% 0%",
+   "face_band": [
+    5.0,
+    34.0
+   ],
    "alt": "Comic-book panel of the four managers as coaches in a close group portrait, halftone shading and a white starburst behind them."
   },
   {
@@ -92,6 +134,10 @@
    "width": 1600,
    "height": 800,
    "focal": "50% 0%",
+   "face_band": [
+    2.0,
+    77.0
+   ],
    "alt": "Four-panel comic collage, one manager per torn-edged panel, each pointing at the viewer over halftone team-colored backgrounds and chalkboard play diagrams."
   },
   {
@@ -99,6 +145,10 @@
    "width": 1600,
    "height": 640,
    "focal": "50% 10%",
+   "face_band": [
+    9.0,
+    52.0
+   ],
    "alt": "Dim locker-room scene: the four managers lean over a lit tactics table, one drawing a play in glowing chalk while the others study it, rain-streaked windows and stadium light behind them."
   },
   {
@@ -106,6 +156,10 @@
    "width": 1600,
    "height": 800,
    "focal": "50% 0%",
+   "face_band": [
+    2.0,
+    74.0
+   ],
    "alt": "Vintage game-program illustration of the four managers as coaches, their portraits arranged on a cream and orange field of chalkboard X-and-O diagrams, with an empty panel at the left for the program title."
   },
   {
@@ -113,6 +167,10 @@
    "width": 1600,
    "height": 533,
    "focal": "50% 0%",
+   "face_band": [
+    3.0,
+    27.0
+   ],
    "alt": "Painted sideline scene: each of the four managers sits astride a blocking sled, shouting and gesturing while a line of players in matching uniforms drives the sleds through the mud of a practice field."
   },
   {
@@ -120,6 +178,10 @@
    "width": 1584,
    "height": 672,
    "focal": "50% 1%",
+   "face_band": [
+    8.0,
+    42.0
+   ],
    "alt": "Trading-card style illustration of the four managers as coaches in front of a blurred night crowd, one at a lectern with a microphone."
   },
   {
@@ -127,6 +189,10 @@
    "width": 1600,
    "height": 533,
    "focal": "50% 0%",
+   "face_band": [
+    13.0,
+    44.0
+   ],
    "alt": "Painted panorama of the four managers diving from left and right toward a gold championship trophy on a cracked stone plinth at the centre, each arriving out of his own team's backdrop -- Colorado black and gold confetti, shattering Oklahoma State orange, a Texas Tech chalkboard of red play diagrams, and a Wake Forest press curtain of microphones."
   },
   {
@@ -134,6 +200,10 @@
    "width": 1584,
    "height": 672,
    "focal": "50% 0%",
+   "face_band": [
+    10.0,
+    32.0
+   ],
    "alt": "Faded 1970s team photograph of the four managers as coaches standing hands-on-hips on a winter practice field, a scoreboard and bare trees behind them."
   }
  ]
