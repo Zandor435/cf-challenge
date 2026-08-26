@@ -37,7 +37,7 @@
   --body:    'Inter', system-ui, -apple-system, sans-serif;
   --mono:    'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
-  --maxw: 1400px;
+  --maxw: 1240px;   /* one site-wide container; see the masthead note below */
   --gap: 12px;
 
   /* Manager row grid — shared by the standings header and every card so the
@@ -751,8 +751,11 @@ a { color: inherit; }
    ========================================================================== */
 .svp-masthead { background: var(--ink-panel); border-bottom: 4px solid var(--accent); }
 .svp-masthead-inner {
-  /* Tracks .svp-page (1240) so the nav bar does not jump width between the
-     column and the rest of the site. .mgr-masthead pins its own 1080 below. */
+  /* 1240 EVERYWHERE, and that is the whole point: the masthead is the one
+     element every page shares, so a per-page container width made the nav bar
+     visibly change size on navigation. It used to run three different widths
+     -- 1400 on index (--maxw), 1240 here, 1080 on managers/analytics via the
+     .mgr-masthead override. All three now read 1240. */
   max-width: 1240px; margin: 0 auto; padding: 14px 20px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
@@ -796,9 +799,8 @@ a { color: inherit; }
    mode this split exists to avoid -- the cap on .svp-column p, not this number,
    is what keeps the measure honest. Read the two as a pair.
 
-   Only svp.html is affected: managers.html and analytics.html carry
-   .mgr-masthead, whose 1080px override outranks the masthead rule below, and
-   index.html uses .masthead-inner instead. */
+   Every page now shares this width -- index via --maxw, managers/analytics via
+   the .mgr-masthead override, profiles via .pf-page, which was already 1240. */
 body.svp-doc { background: var(--paper); }
 
 .svp-page { max-width: 1240px; margin: 0 auto; padding: 0 24px 72px; }
@@ -973,9 +975,13 @@ body.svp-doc { background: var(--paper); }
    layout is unchanged.
    ========================================================================== */
 
-.mgr-masthead .svp-masthead-inner { max-width: 1080px; }
+/* Kept as an explicit pin rather than deleted, so the profiles/analytics
+   masthead stays a deliberate decision and not an inherited accident. It now
+   MATCHES the 1240 base -- if that base ever moves, THIS MUST MOVE WITH IT or
+   the nav bar starts changing width on navigation again. */
+.mgr-masthead .svp-masthead-inner { max-width: 1240px; }
 
-.mgr-page { max-width: 1080px; margin: 0 auto; padding: 24px 20px 60px; }
+.mgr-page { max-width: 1240px; margin: 0 auto; padding: 24px 20px 60px; }
 
 /* ---- page intro ---- */
 .mgr-intro { border-bottom: 3px solid var(--text); padding-bottom: 14px; margin-bottom: 8px; }

@@ -101,15 +101,22 @@ def _select(group):
 
 FAILURES = []
 
-# The widest the band ever renders: --maxw (1400px) less .page's 20px of
+# The widest the band ever renders: --maxw (1240px) less .page's 20px of
 # padding either side. .hero-banner's negative margins cancel .hero's padding,
-# so the band spans that full 1360 and no more -- confirmed by measurement at
-# 1440 and 1920 viewports, where it is 1360 at both. This is the WORST CASE for
+# so the band spans that full 1200 and no more. This is the WORST CASE for
 # cropping: the wider the band, the taller the un-clamped image, so the smaller
 # the fraction of it a fixed pixel cap can show. A focal that clears the faces
-# here clears them at every narrower viewport. css_maxw() re-checks the 1400 so
+# here clears them at every narrower viewport. css_maxw() re-checks the 1240 so
 # this constant cannot quietly stop being true.
-BAND_W = 1360
+#
+# WAS 1360, against --maxw: 1400px. The site-width pass unified every page
+# container at 1240 so the masthead stops changing width on navigation, and this
+# constant is DERIVED from that token -- it is not an independent number. The
+# move is in the safe direction by the worst-case argument above: a narrower
+# band renders a shorter un-clamped image, so the same fixed cap now shows a
+# LARGER fraction of every banner than it did at 1360. No focal that passed at
+# 1360 can fail at 1200; the floors below all got slack, none got tighter.
+BAND_W = 1200
 
 
 def local_sources():
@@ -462,9 +469,9 @@ def cap_floor(banners):
     std, tall_cap = _css_caps()
     if std is None or tall_cap is None:
         return
-    check(re.search(r"--maxw:\s*1400px", (DOCS / "style.css").read_text(encoding="utf-8"))
+    check(re.search(r"--maxw:\s*1240px", (DOCS / "style.css").read_text(encoding="utf-8"))
           is not None,
-          f"--maxw is still 1400px, so BAND_W={BAND_W} is still the widest band")
+          f"--maxw is still 1240px, so BAND_W={BAND_W} is still the widest band")
 
     floors = []
     for b in banners:
