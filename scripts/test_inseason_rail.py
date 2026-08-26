@@ -19,7 +19,10 @@ THE SHAPE ASSERTION IS AGAINST PRESEASON ITSELF, not against a copy of its key
 list written out here. preseason_baseline._collisions is run over an equivalent
 fixture and the key sets are compared, so the day someone adds a field to one
 builder and not the other, this fails instead of the rail quietly losing a
-value six months later.
+value six months later. The two fields the in-season block deliberately does
+NOT carry are pinned as an exact set rather than waved through, so dropping a
+third one is a failure and not a silent narrowing -- see
+test_shape_is_a_pinned_subset_of_preseason for why those two are absent.
 """
 
 import sys
@@ -60,13 +63,11 @@ PROJ_ROWS = {
                             "p_beat_line": 0.797449},
 }
 
-SP = {"Texas": {"ranking": 6}, "Indiana": {"ranking": 14}}
-
 BEAT = {"manager_id": "blaine", "team": "Indiana", "line": 10.5, "direction": "U"}
 
 
 def collisions():
-    return bwp.detect_collisions(CUR, PROJ_ROWS, GROUP, SP)
+    return bwp.detect_collisions(CUR, PROJ_ROWS, GROUP)
 
 
 # --- the collision block -----------------------------------------------------
@@ -96,11 +97,25 @@ def test_same_side_is_a_shared_bet_not_a_collision():
     }
     rows = {("a", "Texas"): PROJ_ROWS[("chris", "Texas")],
             ("b", "Texas"): PROJ_ROWS[("chris", "Texas")]}
-    assert bwp.detect_collisions(same, rows, GROUP, SP) == []
+    assert bwp.detect_collisions(same, rows, GROUP) == []
 
 
-def test_shape_matches_preseason_exactly():
-    """The key sets, compared against preseason's own builder."""
+def test_shape_is_a_pinned_subset_of_preseason():
+    """Compared against preseason's own builder, with the delta pinned.
+
+    The in-season block carries every collision key preseason does EXCEPT
+    sp_ranking and games_scheduled. Those two are not omitted for tidiness:
+    reading them means utils.season_sp_ratings()/utils.team_state(), both of
+    which memoise the parsed cache for the whole process, and build_packet is
+    called by test_commentary_prompt with utils.load_cache stubbed to a
+    synthetic played slate -- which that memo then served to every later test
+    in the run. Four preseason tests died on "LSU: 1 game(s) already played".
+    build_rail.py reads neither field, so the fix is to not emit them.
+
+    Asserted as a subset PLUS an exact delta. Subset alone would let a real
+    drift through; equality is not true and pinning the difference says which
+    two are missing and makes a third one a failure.
+    """
     by_mgr = {
         "blaine": [{"team": "Texas", "line": 9.5, "direction": "U",
                     "implied_expected_wins": 7.819, "market_gap": 1.681,
@@ -114,16 +129,22 @@ def test_shape_matches_preseason_exactly():
     want = pre._collisions(by_mgr, {"blaine": "Blaine", "chris": "Chris"})[0]
     got = collisions()[0]
 
-    assert set(got) == set(want), (
-        "in-season collision keys drifted from preseason's: "
-        f"only in-season={set(got) - set(want)}, only preseason={set(want) - set(got)}")
+    assert set(got) <= set(want), (
+        "in-season collisions carry a key preseason does not: "
+        f"{set(got) - set(want)}")
+    assert set(want) - set(got) == {"sp_ranking", "games_scheduled"}, (
+        "the preseason/in-season key delta moved: "
+        f"{set(want) - set(got)}")
+    # The sides, where there is no delta at all.
     assert set(got["sides"][0]) == set(want["sides"][0])
+    # And everything build_rail actually reads is present.
+    assert {"team", "line", "implied_expected_wins", "sides"} <= set(got)
 
 
 # --- the featured pick -------------------------------------------------------
 
 def test_featured_pick_reshapes_the_coda_it_is_given():
-    f = bwp.featured_pick_from_coda(BEAT, CUR, PROJ_ROWS, GROUP, SP)
+    f = bwp.featured_pick_from_coda(BEAT, CUR, PROJ_ROWS, GROUP)
     assert f["manager_id"] == "blaine"
     assert f["name"] == "Blaine"
     assert f["team"] == "Indiana"
@@ -136,12 +157,12 @@ def test_featured_pick_reshapes_the_coda_it_is_given():
 
 
 def test_no_coda_means_no_featured_pick():
-    assert bwp.featured_pick_from_coda(None, CUR, PROJ_ROWS, GROUP, SP) is None
+    assert bwp.featured_pick_from_coda(None, CUR, PROJ_ROWS, GROUP) is None
 
 
 def test_degraded_projection_drops_the_block_rather_than_publishing_a_blank():
-    assert bwp.featured_pick_from_coda(BEAT, CUR, {}, GROUP, SP) is None
-    assert bwp.detect_collisions(CUR, {}, GROUP, SP) == []
+    assert bwp.featured_pick_from_coda(BEAT, CUR, {}, GROUP) is None
+    assert bwp.detect_collisions(CUR, {}, GROUP) == []
 
 
 # --- the handoff: build_rail reads it with no edit ---------------------------
@@ -157,7 +178,7 @@ def test_build_rail_reads_the_in_season_packet():
     rail = build_rail.build_rail(packet(
         collisions=collisions(),
         worst_pick_on_the_board=bwp.featured_pick_from_coda(
-            BEAT, CUR, PROJ_ROWS, GROUP, SP)))
+            BEAT, CUR, PROJ_ROWS, GROUP)))
 
     assert rail["collision"]["team"] == "Texas"
     assert rail["collision"]["line"] == 9.5
@@ -174,7 +195,7 @@ def test_build_rail_reads_the_in_season_packet():
 def test_absent_collision_omits_the_key_and_keeps_the_other_card():
     rail = build_rail.build_rail(packet(
         worst_pick_on_the_board=bwp.featured_pick_from_coda(
-            BEAT, CUR, PROJ_ROWS, GROUP, SP)))
+            BEAT, CUR, PROJ_ROWS, GROUP)))
     assert "collision" not in rail
     assert rail["featured_pick"]["team"] == "Indiana"
 

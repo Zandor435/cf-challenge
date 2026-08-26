@@ -898,11 +898,30 @@ def build_bad_beats(cur, cache, lo_week, hi_week):
 # season. These emit the same two keys, in the same shapes, so build_rail needs
 # no knowledge of which builder produced the packet -- and needed no edit.
 #
-# NO NEW SOURCE AND NO NEW MATH. Everything below is read off the two boards
-# this builder already loads (standings.json via `cur`, projection.json via
-# proj_rows) plus the cache helpers utils already exposes. Nothing recomputes a
-# probability, a win total or a gap; the projector's published numbers are
-# copied.
+# NO NEW SOURCE, NO NEW MATH, AND NO CACHE READ. Everything below comes off the
+# two boards this builder already loads -- standings.json via `cur`,
+# projection.json via proj_rows. Nothing recomputes a probability, a win total
+# or a gap; the projector's published numbers are copied.
+#
+# THE CACHE RULE IS LOAD-BEARING AND WAS LEARNED THE HARD WAY. A first version
+# emitted preseason's `sp_ranking` and `games_scheduled` too, which meant
+# calling utils.season_sp_ratings() and utils.team_state(). Both go through
+# utils._season_cache(), which MEMOISES the parsed cache for the whole process.
+# test_commentary_prompt.seed_packet() stubs utils.load_cache to a synthetic
+# played slate and calls build_packet to get a contract-shaped packet in
+# preseason; with a memoising read in this path, that synthetic slate was
+# cached permanently and every later test in the process saw a season where
+# games had been played. Four test_preseason_baseline tests died on "LSU: 1
+# game(s) already played".
+#
+# The stub is restored in a finally and conftest re-binds _SEASON_CACHE after
+# each test, so this looked isolated and was not: the memo is mutated IN PLACE,
+# and rebinding a name to the same mutated dict restores nothing.
+#
+# Neither field is read by build_rail.py, so both are dropped rather than
+# worked around. The in-season block is a strict SUBSET of preseason's shape,
+# the delta is pinned by test_inseason_rail, and this function touches no cache
+# at all -- which is the property that makes it safe to call from anywhere.
 
 
 def projection_rows(projection):
@@ -920,7 +939,7 @@ def projection_rows(projection):
     return out
 
 
-def detect_collisions(cur, proj_rows, config, sp_ratings):
+def detect_collisions(cur, proj_rows, config):
     """Teams held by two or more managers on OPPOSITE sides.
 
     THE SAME RULE PRESEASON USES, deliberately, and it is worth being precise
@@ -986,14 +1005,12 @@ def detect_collisions(cur, proj_rows, config, sp_ratings):
             "team": team,
             "line": line,
             "implied_expected_wins": implied,
-            "sp_ranking": (sp_ratings.get(team) or {}).get("ranking"),
-            "games_scheduled": utils.team_state(team, config)["games_scheduled"],
             "sides": sides,
         })
     return out
 
 
-def featured_pick_from_coda(beat, cur, proj_rows, config, sp_ratings):
+def featured_pick_from_coda(beat, cur, proj_rows, config):
     """`worst_pick_on_the_board` shape, built from the coda already selected.
 
     NO SECOND RANKING. build_bad_beats orders the pool and
@@ -1032,8 +1049,6 @@ def featured_pick_from_coda(beat, cur, proj_rows, config, sp_ratings):
         "implied_expected_wins": implied,
         "market_gap": pr.get("expected_delta"),
         "p_beat_line": pr.get("p_beat_line"),
-        "games_scheduled": utils.team_state(team, config)["games_scheduled"],
-        "sp_ranking": (sp_ratings.get(team) or {}).get("ranking"),
         "selected_by": ("the week's bad-beat coda, after the lead-subject "
                         "filter — the same selection the column's second beat "
                         "uses, never a second ranking computed for the rail"),
@@ -1325,10 +1340,9 @@ def build_packet(group_id, cli_week=None):
     # had its say, or the rail would name a pick the column was told not to
     # write about.
     proj_rows = projection_rows(projection)
-    sp_ratings = utils.season_sp_ratings(season)
-    collisions = detect_collisions(cur, proj_rows, config, sp_ratings)
+    collisions = detect_collisions(cur, proj_rows, config)
     featured = featured_pick_from_coda(bad_beats[0] if bad_beats else None,
-                                       cur, proj_rows, config, sp_ratings)
+                                       cur, proj_rows, config)
 
     return {
         "group_id": group_id,
