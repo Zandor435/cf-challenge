@@ -198,7 +198,22 @@ American-Football). Prioritized:
     build and name the "do not touch" files explicitly in each prompt.
 19. **Definition of Done = committed, pushed, and confirmed on the remote** (and the
     deploy succeeded if the change is user-facing). Local-only work isn't done.
-20. **Full pipeline smoke test before launch:** bypass the gates, trigger real API
+20. **Definition of Done also requires the FULL test suite green, not the files you
+    touched.** Running a subset and reporting done is how a red suite shipped twice
+    on `feature/svp-factual-guard`. A subset is a debugging tool, never the gate:
+    the failures a subset misses are exactly the cross-test ones — shared process
+    state, import order, a fixture one module leaves behind — which by definition
+    cannot appear in the file you were working in. Paste the count.
+21. **Cross-test state is the reason for #20, and `utils._season_cache()` is the
+    live example.** It memoises the parsed cache into a module-level dict **in
+    place**, so saving `utils._SEASON_CACHE` and rebinding it afterwards restores
+    nothing — it hands back the same dict, still polluted. One test stubbing
+    `utils.load_cache` to a synthetic played slate poisons every later test in the
+    process, and it only reproduces in a full-suite run. Anything reaching for
+    `utils.team_state()` / `season_sp_ratings()` from a packet builder should
+    expect this; `build_week_packet.featured_pick_from_coda` drops two fields
+    rather than pay it.
+22. **Full pipeline smoke test before launch:** bypass the gates, trigger real API
     calls, confirm fetch → validate → score → derive → render end-to-end produces
     what the site expects. Don't discover a broken step the day real data arrives.
 

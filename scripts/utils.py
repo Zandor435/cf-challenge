@@ -400,7 +400,27 @@ def _season_cache(season):
     """Memoized, season-guarded full cache for `season`. Loads via load_cache(),
     so a cache tagged for a different season raises SeasonMismatchError (§4)
     rather than silently returning the wrong season's data. Centralizing cache
-    reads here keeps the scorers off the raw cache (test_cache_access.py guard)."""
+    reads here keeps the scorers off the raw cache (test_cache_access.py guard).
+
+    THE MEMO IS PROCESS-WIDE AND MUTATED IN PLACE, which makes it a cross-test
+    leak and not a local one. `_SEASON_CACHE[season] = ...` writes into the
+    existing dict, so the save/restore idiom does NOT undo it: saving
+    utils._SEASON_CACHE keeps a reference to that same dict, and rebinding the
+    name afterwards hands back the polluted object. conftest's
+    _utils_process_state fixture restores the name and looks like isolation;
+    it is not. pin_contract_fixture() is the one path that genuinely clears it,
+    because it rebinds _SEASON_CACHE to a NEW {}.
+
+    So one test stubbing load_cache to a synthetic slate poisons every later
+    test in the run, and the failure surfaces nowhere near the cause -- four
+    test_preseason_baseline tests died on "LSU: 1 game(s) already played" after
+    test_commentary_prompt seeded a played season. It also only reproduces in a
+    FULL-SUITE run: the polluted module never outlives a single-file run, so a
+    subset goes green on exactly the bug the suite is red on.
+
+    Anything reaching for team_state() / season_sp_ratings() from a packet
+    builder inherits all of the above -- see the CACHE RULE comment in
+    build_week_packet.py, which drops two fields rather than pay it."""
     if season not in _SEASON_CACHE:
         _SEASON_CACHE[season] = load_cache(season)
     return _SEASON_CACHE[season]
