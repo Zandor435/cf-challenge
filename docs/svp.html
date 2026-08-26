@@ -138,6 +138,26 @@
     <a href="index.html">board</a>.</p>
 
   </div><!-- /.svp-main -->
+
+  <!-- THE RAIL. Every card here is filled by renderRail()/railCard() below,
+       and every row in it is a field read verbatim out of a file this page
+       already fetches. A card with no rows stays hidden and the rail hides
+       with its last card, so nothing here can render a label over a blank.
+
+       The mockup this page was built to also carried a two-sided dispute card
+       and a per-team model outlook card. Both are absent on purpose -- see the
+       comment over renderRail(). -->
+  <aside class="svp-rail" id="svp-rail" aria-label="Column data" hidden>
+    <section class="svp-card" id="svp-card-file" hidden>
+      <h2 class="svp-card-head">Column file</h2>
+      <dl class="svp-card-body" id="svp-kv-file"></dl>
+    </section>
+    <section class="svp-card" id="svp-card-board" hidden>
+      <h2 class="svp-card-head">The board</h2>
+      <dl class="svp-card-body" id="svp-kv-board"></dl>
+    </section>
+  </aside>
+
  </div><!-- /.svp-shell -->
 </main>
 
@@ -287,6 +307,15 @@
       var w = d.meta.as_of_week;
       if (w === null || w === undefined) label.textContent = 'Preseason';
       else if (Number.isInteger(w)) label.textContent = weekLabel(w, false);
+
+      // THE BOARD, in the rail, off the same two fields the masthead label is
+      // read from plus draft_status. This card does not wait on a column: it
+      // describes the board, which is real whether or not a column has been
+      // filed for the current week.
+      railCard('svp-card-board', 'svp-kv-board', [
+        ['Week', label.textContent],
+        ['Draft', d.meta.draft_status],
+      ]);
     });
 
     // 3 + 4 + 5 -- the archive. art_slots.json is fetched alongside rather than
@@ -308,6 +337,52 @@
       renderCurrent(entries[0]);
       renderArchive(entries.slice(1));
     });
+
+    // WHAT THE RAIL IS ALLOWED TO SAY.
+    //
+    // The design asked for two more cards than are built here: a dispute card
+    // (one team, two managers, opposite sides, each with a model probability)
+    // and a team outlook card (a manager's pick, the model-implied win total,
+    // the market gap). Of the four values those need, three DO exist as fields
+    // in data/<group>/projection.json -- p_beat_line, expected_final_wins and
+    // expected_delta, one row per manager per pick. The fourth does not: no
+    // file published under docs/ carries the opposite-side pairing, or the
+    // "which pick is the story this week" selection either card is keyed on.
+    // Both of those exist, as literal fields, in the engine's week packet
+    // (output/<group>/week_N_packet.json, `collisions` and
+    // `worst_pick_on_the_board`) -- but that file is an untracked intermediate,
+    // not site data, and publishing it is a pipeline change, not a restyle.
+    //
+    // Deriving the pairing here instead -- grouping picks by team and line and
+    // looking for two directions -- would put the engine's job in the browser
+    // and give the page a second, drifting answer to a question the engine
+    // already answers. So the cards are omitted rather than faked, and what is
+    // left is every rail value that IS a field: the column's own filing
+    // metadata and the board's.
+    //
+    // rows is [label, value]; a row whose value is null, undefined or blank is
+    // dropped, a card with no surviving rows stays hidden, and the rail itself
+    // appears only once some card has something to show.
+    function railCard(cardId, listId, rows) {
+      var card = document.getElementById(cardId);
+      var list = document.getElementById(listId);
+      if (!card || !list) return;
+
+      var html = rows.filter(function (r) {
+        return r[1] !== null && r[1] !== undefined && String(r[1]).trim() !== '';
+      }).map(function (r) {
+        return '<div class="svp-kv">' +
+          '<dt class="svp-kv-k">' + esc(r[0]) + '</dt>' +
+          '<dd class="svp-kv-v">' + esc(String(r[1])) + '</dd>' +
+        '</div>';
+      }).join('');
+      if (!html) return;
+
+      list.innerHTML = html;
+      card.hidden = false;
+      var rail = document.getElementById('svp-rail');
+      if (rail) rail.hidden = false;
+    }
 
     // The newest column, in full, in place of the teaser.
     function renderCurrent(entry) {
@@ -337,6 +412,18 @@
         if (metaEl) metaEl.textContent = bits.join(' \u00b7 ');
         var byline = document.getElementById('svp-byline');
         if (byline) byline.hidden = false;
+
+        // COLUMN FILE. Four fields, verbatim: meta.season, the week label this
+        // page already computes for the byline and the archive, meta.
+        // generated_at truncated to its date exactly as filedOn() does for the
+        // byline, and the word_count the generator wrote into the file. Any
+        // one of them missing simply drops its row.
+        railCard('svp-card-file', 'svp-kv-file', [
+          ['Season', meta.season],
+          ['Edition', bits[0]],
+          ['Filed', filed],
+          ['Words', doc.column && doc.column.word_count],
+        ]);
 
         // The avatar. resolveArt() reads the module-level ART_SLOTS in site.js,
         // so it has to be seeded first; a missing manifest leaves it {} and

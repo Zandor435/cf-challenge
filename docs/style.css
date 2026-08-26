@@ -1422,3 +1422,52 @@ body.svp-doc { background: var(--paper); }
   .svp-arc-mark { order: 2; margin-left: auto; }
   .svp-arc-meta { order: 3; flex-basis: 100%; }
 }
+
+/* ==========================================================================
+   The column page's data rail (svp.html)
+
+   Black header bar, cream body, one hairline, square corners. No shadow, no
+   gradient, no radius, no chart -- it sits beside a page of prose and has to
+   stay quieter than the prose.
+
+   WHAT IS AND IS NOT IN HERE is the point of the rail, not its styling. Every
+   value below is a field read verbatim out of a file this page already
+   fetches. The design called for two more cards -- a two-sided dispute on one
+   team, and a per-team model outlook -- and neither is here, because the
+   pairing and the pick selection those cards are built on are not fields in
+   anything published under docs/. See the comment over renderRail() in
+   svp.html for exactly what exists and what does not.
+   ========================================================================== */
+.svp-rail { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+
+.svp-card { background: #fff; border: 1px solid var(--paper-line); }
+.svp-card-head {
+  background: var(--ink-panel); color: #fff;
+  font-family: var(--display); font-weight: 900; font-size: .82rem;
+  text-transform: uppercase; letter-spacing: .07em; padding: 10px 13px;
+}
+.svp-card-body { padding: 0 13px; }
+
+/* Label left, value right, hairline between. dt/dd inside a wrapper div
+   because a <dl> needs the pair grouped to lay a row out with flex. */
+.svp-kv {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; padding: 11px 0;
+}
+.svp-kv + .svp-kv { border-top: 1px solid var(--border-soft); }
+.svp-kv-k {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--text-muted); flex: 0 0 auto;
+}
+.svp-kv-v {
+  font-family: var(--mono); font-size: .82rem; font-weight: 700;
+  text-transform: uppercase; color: var(--text);
+  text-align: right; min-width: 0; word-break: break-word;
+}
+
+@media (max-width: 860px) {
+  /* The rail is already last in the source order, so stacking it under the
+     whole article is what the single-column grid does on its own. It only
+     needs to stop being a 292px column of its own. */
+  .svp-rail { flex-direction: column; }
+}
