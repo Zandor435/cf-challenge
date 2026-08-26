@@ -107,6 +107,15 @@ jobs:
       # verified locally, minus generated_at. Nothing here is fetched and no
       # API key is needed, which is why it belongs in this read-only job.
       #
+      # AND IT HOLDS ONLY WHILE THAT IS TRUE. The moment anything on the
+      # --week0-packet path touches CFBD -- a live fetch, a cache refresh, a
+      # rating pulled at build time -- this step becomes network-dependent and
+      # secret-dependent inside a read-only job with no API key, and the
+      # rail-staleness diff below stops being a comparison against committed
+      # inputs and starts being a comparison against whatever the API said this
+      # morning. If that ever changes, this step does not belong here: move it
+      # to a job that has the key, or pin the packet to a committed fixture.
+      #
       # SIDE EFFECT, PUT TO WORK. --week0-packet also rewrites
       # docs/data/<group>/columns/rail.json through build_rail, and rail.json
       # IS committed (unlike the packets). So the regenerated tree is a free
