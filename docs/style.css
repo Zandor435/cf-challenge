@@ -751,7 +751,7 @@ a { color: inherit; }
    ========================================================================== */
 .svp-masthead { background: var(--ink-panel); border-bottom: 4px solid var(--accent); }
 .svp-masthead-inner {
-  max-width: 1084px; margin: 0 auto; padding: 14px 20px;
+  max-width: 1072px; margin: 0 auto; padding: 14px 20px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
 .svp-wordmark {
@@ -781,13 +781,13 @@ a { color: inherit; }
 
 /* The page is the editorial shell now: one wide container holding a narrow
    article and a narrow rail, rather than a single 720px measure. The article
-   track deliberately stays close to what it was -- 1084 - 48 padding - 292 rail
-   - 32 gap = 712px -- because the thing that got wider is the PAGE, not the
-   line length. Prose set to the full width of a 1084px container is unreadable
-   and is the failure mode this split exists to avoid. */
+   track lands at 700px -- 1072 - 48 padding - 292 rail - 32 gap -- and stays
+   close to the 720 the measure already was, because the thing that got wider
+   is the PAGE, not the line length. Prose set across the full 1072px container
+   is unreadable and is the failure mode this split exists to avoid. */
 body.svp-doc { background: var(--paper); }
 
-.svp-page { max-width: 1084px; margin: 0 auto; padding: 0 24px 72px; }
+.svp-page { max-width: 1072px; margin: 0 auto; padding: 0 24px 72px; }
 
 .svp-shell {
   display: grid;
@@ -1297,25 +1297,37 @@ body.svp-doc { background: var(--paper); }
 .svp-sec-line { flex: 1 1 auto; min-width: 0; height: 1px; background: var(--paper-line); }
 
 /* The column itself. Set as running prose: the body face, not the mono the
-   metadata uses. 68ch rather than the full 712px track -- at 16px Inter the
-   track is ~78 characters, which is past the point where the eye reliably
-   finds the next line. */
-.svp-column { margin-top: 0; max-width: 68ch; }
-.svp-column p { font-size: 1rem; line-height: 1.62; color: #2a2a2a; }
-.svp-column p + p { margin-top: 16px; }
+   metadata uses.
+
+   It runs the full 700px article track, flush with the section rules above it
+   and the byline card above those, rather than stopping short at a tighter
+   measure. Flush is what makes the block read as one composed column instead
+   of as text that failed to reach its own rules, and 700px is the price: ~85
+   characters, past the 45-75 rule of thumb. 17px at 1.7 is what pays it -- the
+   leading is what carries a long line, and both numbers are the top of the
+   range this restyle was specified against. */
+.svp-column { margin-top: 0; max-width: none; }
+.svp-column p { font-size: 1.06rem; line-height: 1.7; color: #2a2a2a; }
+.svp-column p + p { margin-top: 17px; }
 
 /* PULL QUOTE. Selected from the filed prose by the script -- see pullQuoteOf()
    in svp.html -- and never written here or there. Gold bar and condensed caps,
    no quotation marks and no card: it is a change of scale inside the article,
    not a box beside it. aria-hidden in the markup because it is a second
    printing of a sentence the reader is already being read. */
-.svp-pull {
+/* .svp-column .svp-pull, not .svp-pull: the quote is a <p> inside the article,
+   so the plain class (0,1,0) loses to `.svp-column p` (0,1,1) and the quote
+   silently sets at body size in the body face. Two classes (0,2,0) is what
+   actually wins. Every property here has a counterpart in that rule and every
+   one of them was being overridden.
+   No max-width -- across the 700px track this sets as two lines of display
+   caps, which is the shape being drawn. */
+.svp-column .svp-pull {
   margin: 30px 0; padding: 2px 0 2px 20px;
   border-left: 6px solid var(--accent);
   font-family: var(--display); font-weight: 900;
-  font-size: 1.85rem; line-height: 1.14; letter-spacing: -.01em;
+  font-size: 2.1rem; line-height: 1.16; letter-spacing: -.01em;
   text-transform: uppercase; color: var(--text);
-  max-width: 26ch;
 }
 /* The sign-off is the last paragraph, every issue, verbatim. Nothing marks it
    in the data — giving it a class would ask the generator to label prose — so
@@ -1398,7 +1410,7 @@ body.svp-doc { background: var(--paper); }
    database row. Indented and rule-marked to keep it clearly subordinate. */
 .svp-arc-body {
   padding: 2px 0 20px 14px; border-left: 2px solid var(--paper-line);
-  margin-bottom: 4px; max-width: 68ch;
+  margin-bottom: 4px;
 }
 .svp-arc-body p { font-size: .96rem; line-height: 1.62; color: #2a2a2a; }
 .svp-arc-body p + p { margin-top: 14px; }
@@ -1412,7 +1424,9 @@ body.svp-doc { background: var(--paper); }
      filler rule do the collapsing -- it is the only flexible track. */
   .svp-sec { margin: 32px 0 16px; gap: 10px; }
   .svp-sec-dash { flex-basis: 16px; }
-  .svp-pull { font-size: 1.5rem; margin: 26px 0; padding-left: 16px; }
+  /* Same two-class selector as the desktop rule, and for the same reason --
+     the .svp-column p font-size below this would otherwise win. */
+  .svp-column .svp-pull { font-size: 1.55rem; margin: 26px 0; padding-left: 16px; }
 }
 
 @media (max-width: 700px) {
@@ -1438,7 +1452,9 @@ body.svp-doc { background: var(--paper); }
    anything published under docs/. See the comment over renderRail() in
    svp.html for exactly what exists and what does not.
    ========================================================================== */
-.svp-rail { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+/* margin-top matches .svp-kicker's, so the first card's top edge lines up with
+   the kicker across the gutter instead of riding up against the masthead. */
+.svp-rail { display: flex; flex-direction: column; gap: 18px; min-width: 0; margin-top: 36px; }
 
 .svp-card { background: #fff; border: 1px solid var(--paper-line); }
 .svp-card-head {
@@ -1467,7 +1483,9 @@ body.svp-doc { background: var(--paper); }
 
 @media (max-width: 860px) {
   /* The rail is already last in the source order, so stacking it under the
-     whole article is what the single-column grid does on its own. It only
-     needs to stop being a 292px column of its own. */
-  .svp-rail { flex-direction: column; }
+     whole article is what the single-column grid does on its own. The only
+     thing to undo is the desktop alignment margin -- under the article there
+     is no kicker across the gutter to line up with. */
+  .svp-rail { margin-top: 0; }
+  .svp-column p { font-size: 1rem; line-height: 1.62; }
 }
