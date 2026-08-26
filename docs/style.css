@@ -751,7 +751,9 @@ a { color: inherit; }
    ========================================================================== */
 .svp-masthead { background: var(--ink-panel); border-bottom: 4px solid var(--accent); }
 .svp-masthead-inner {
-  max-width: 1072px; margin: 0 auto; padding: 14px 20px;
+  /* Tracks .svp-page (1240) so the nav bar does not jump width between the
+     column and the rest of the site. .mgr-masthead pins its own 1080 below. */
+  max-width: 1240px; margin: 0 auto; padding: 14px 20px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
 .svp-wordmark {
@@ -779,19 +781,31 @@ a { color: inherit; }
 .svp-nav .nav-btn:hover { background: #1e1e1e; }
 .svp-nav .nav-btn[aria-current="true"] { background: var(--accent); color: var(--text); border-color: var(--accent); }
 
-/* The page is the editorial shell now: one wide container holding a narrow
-   article and a narrow rail, rather than a single 720px measure. The article
-   track lands at 700px -- 1072 - 48 padding - 292 rail - 32 gap -- and stays
-   close to the 720 the measure already was, because the thing that got wider
-   is the PAGE, not the line length. Prose set across the full 1072px container
-   is unreadable and is the failure mode this split exists to avoid. */
+/* The page is the editorial shell: one wide container holding an article track
+   and a rail, rather than a single 720px measure. The article track lands at
+   840px -- 1240 - 48 padding - 320 rail - 32 gap.
+
+   WIDENED FROM 1072/292 (article track 700px). The old container left ~370px of
+   dead margin on a 1440 display while the column ran 2.6 screens tall, and the
+   prose cap meant 90px of that 700px track was empty gutter -- so the page read
+   as narrow AND scrolled long at the same time. Both numbers moved together on
+   purpose: widening the container alone would only have grown the gutter,
+   because the measure cap below is what actually decides the line count.
+
+   Prose set across the full 1240px container is unreadable and is the failure
+   mode this split exists to avoid -- the cap on .svp-column p, not this number,
+   is what keeps the measure honest. Read the two as a pair.
+
+   Only svp.html is affected: managers.html and analytics.html carry
+   .mgr-masthead, whose 1080px override outranks the masthead rule below, and
+   index.html uses .masthead-inner instead. */
 body.svp-doc { background: var(--paper); }
 
-.svp-page { max-width: 1072px; margin: 0 auto; padding: 0 24px 72px; }
+.svp-page { max-width: 1240px; margin: 0 auto; padding: 0 24px 72px; }
 
 .svp-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 292px;
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 32px;
   align-items: start;
 }
@@ -1314,20 +1328,33 @@ body.svp-doc { background: var(--paper); }
    metadata uses.
 
    THE PARAGRAPHS ARE CAPPED; NOTHING ELSE IS. .svp-column itself stays at the
-   full 700px article track, so every rule drawn inside it -- the section
+   full 840px article track, so every rule drawn inside it -- the section
    headers above it, the pull quote, the sign-off hairline -- still runs edge
-   to edge. Only the running text stops early: ~609px, about 73 characters,
-   against the ~85 it ran at across the whole track.
+   to edge. Only the running text stops early: ~706px, about 84 characters,
+   leaving a 134px gutter rather than filling the track.
 
-   57ch, AND THE NUMBER IS NOT THE ONE IT LOOKS LIKE. `ch` is the width of the
+   66ch. THE SETTLED VALUE, arrived at from both directions: up from 57ch
+   (~609px, ~73 characters), which left 90px of the old 700px track empty and
+   ran the column 2.6 screens tall, then back down from 72ch (~770px, ~92
+   characters), which bought the scroll but set a measure past anything a book
+   would use. 84 characters is still above the 65-75 of a print measure and is
+   a deliberate trade -- this is a screen column read at arm's length, and the
+   scroll length was the original complaint.
+
+   This is the cap that decides how tall the column is, so it moves with the
+   container and not independently of it: at the old measure a wider container
+   would have bought nothing but a wider empty gutter. If the measure ever
+   needs adjusting again, THIS number is the one to move, NOT the 1240px
+   container or the 320px rail -- both of those are settled.
+
+   AND THE NUMBER IS NOT THE ONE IT LOOKS LIKE. `ch` is the width of the
    element's own "0", so it moves with font-size. The cap used to sit on
    .svp-column, which sets no font-size and inherits body's 14px -- 68ch there
-   was 600px. On the paragraph, at 17px, 68ch is 727px: wider than the 700px
-   track, and a completely silent no-op. 57ch here is the same physical measure
-   the old 68ch produced. Anything expressed in ch has to be re-derived when it
-   moves between elements of different size. */
+   was 600px. On the paragraph, at 17px, 68ch is 727px. Anything expressed in
+   ch has to be re-derived when it moves between elements of different size,
+   which is why this reads 66ch and not the 78ch that would fill the track. */
 .svp-column { margin-top: 0; max-width: none; }
-.svp-column p { font-size: 1.06rem; line-height: 1.7; color: #2a2a2a; max-width: 57ch; }
+.svp-column p { font-size: 1.06rem; line-height: 1.7; color: #2a2a2a; max-width: 66ch; }
 .svp-column p + p { margin-top: 17px; }
 
 /* PULL QUOTE. Selected from the filed prose by the script -- see pullQuoteOf()
