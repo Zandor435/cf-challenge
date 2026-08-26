@@ -287,6 +287,10 @@
       return best;
     }
 
+    // The sign-off is ~100 characters. 200 leaves room for a columnist who
+    // adds a clause to it and still cannot swallow a beat, which runs 400+.
+    var CODA_MAX_CHARS = 200;
+
     // isCurrent is false for archive entries: an opened back issue is
     // subordinate to the column above it and gets neither the pull quote's
     // display typography nor the sign-off rule competing with the current week.
@@ -306,15 +310,23 @@
         if (pull && i === at) {
           html += '<p class="svp-pull" aria-hidden="true">' + esc(pull) + '</p>';
         }
-        // The sign-off rule. Emitted here rather than drawn as a border on the
-        // paragraph because the paragraph is capped at the reading measure and
-        // its border would be capped with it, 64px short of every other rule on
-        // the page. Position, not a label -- the packet does not mark a coda,
-        // and asking it to would be asking the generator to tag its own prose.
-        if (isCurrent && i === last && paras.length > 1) {
-          html += '<hr class="svp-coda-rule">';
-        }
-        return html + '<p>' + esc(String(x)) + '</p>';
+        // THE SIGN-OFF. Set apart by POSITION AND SHAPE, never by a label
+        // in the data and never by matching its text -- the sign-off's wording
+        // lives in templates/svp_persona.md and a copy of it in here would be
+        // a second place it has to be changed.
+        //
+        // The shape half is load-bearing. The persona template makes the
+        // sign-off the last LINE of Beat 2, not a paragraph of its own, so a
+        // column that runs it onto the end of that beat is conformant -- and
+        // position alone would then grey out an entire 150-word beat and draw
+        // a rule above it. Only a last paragraph short enough to BE the
+        // sign-off gets the treatment; a long one is just where the column
+        // ended, and is left as ordinary prose.
+        var coda = isCurrent && i === last && paras.length > 1
+                   && String(x).length <= CODA_MAX_CHARS;
+        if (coda) html += '<hr class="svp-coda-rule">';
+        return html + '<p' + (coda ? ' class="svp-coda"' : '') + '>' +
+               esc(String(x)) + '</p>';
       }).join('');
     }
 
@@ -520,7 +532,24 @@
         if (!article) return;
         article.innerHTML = proseHTML(paras, true);
         article.hidden = false;
-        if (teaser) teaser.hidden = true;
+
+        // THE DECK, and the teaser element is the slot it lands in. One
+        // element for one position on the page: a second <p> under the
+        // headline that is hidden whenever this one is visible is two
+        // elements for one job, and they drift.
+        //
+        // No deck means the element goes away, exactly as it did before decks
+        // existed. The standing teaser copy is the ABSENT state's deck -- "the
+        // desk is dark until the games start" -- and printing that under a
+        // column that is manifestly on the page would be the page contradicting
+        // itself. Columns filed before column.deck existed, and every group
+        // whose next run has not happened yet, take this path.
+        var deck = (doc.column && typeof doc.column.deck === 'string')
+          ? doc.column.deck.trim() : '';
+        if (teaser) {
+          if (deck) { teaser.textContent = deck; teaser.hidden = false; }
+          else { teaser.hidden = true; }
+        }
         var sec = document.getElementById('svp-sec-column');
         if (sec) sec.hidden = false;
 

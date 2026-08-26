@@ -840,7 +840,11 @@ body.svp-doc { background: var(--paper); }
    so a filed column simply has no deck rather than an invented one. */
 .svp-teaser {
   font-size: 1.16rem; line-height: 1.5; color: #3a3a3a;
-  margin-top: 22px; max-width: 46ch;
+  margin-top: 22px;
+  /* 52ch holds a 15-25 word deck -- the length the generator is asked for --
+     on two lines. 46ch put the same sentence on three, which is a paragraph,
+     not a standfirst. */
+  max-width: 52ch;
 }
 .svp-rule { border: 0; border-top: 1px solid var(--paper-line); margin: 40px 0 14px; }
 .svp-foot-note { font-family: var(--mono); font-size: .66rem; color: var(--text-faint); }
@@ -1339,20 +1343,22 @@ body.svp-doc { background: var(--paper); }
      own line count, not running text. */
   max-width: none;
 }
-/* The sign-off is the last paragraph, every issue, verbatim. Nothing marks it
-   in the data — giving it a class would ask the generator to label prose — so
-   it is set apart by position alone, and the <hr> above it is emitted by
-   position too (proseHTML, in svp.html), never by a label in the packet.
+/* The sign-off, every issue, verbatim. Nothing marks it in the data — giving
+   it a class in the PACKET would ask the generator to label its own prose — so
+   the page decides, from position and length together, and hands out .svp-coda
+   itself. See proseHTML in svp.html for why length is half of the test: a
+   column that runs the sign-off onto the end of Beat 2 is conformant with the
+   persona template, and position alone would grey out that whole beat.
 
-   The rule is an <hr> rather than a border-top on the paragraph because the
-   paragraph is capped at 68ch and its border would be capped with it, leaving
-   the one hairline inside the article 64px short of every other rule on the
-   page. An <hr> is not running text and is not capped. */
+   The rule above it is an <hr> rather than a border-top on the paragraph
+   because the paragraph is capped at the reading measure and its border would
+   be capped with it, leaving the one hairline inside the article 90px short of
+   every other rule on the page. An <hr> is not running text and is not capped. */
 .svp-column .svp-coda-rule {
   border: 0; border-top: 1px solid var(--paper-line);
   margin: 26px 0 0; height: 0;
 }
-.svp-column p:last-child {
+.svp-column p.svp-coda {
   margin-top: 18px;
   color: var(--text-muted);
 }

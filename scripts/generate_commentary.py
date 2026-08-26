@@ -731,6 +731,49 @@ def build_prompt(group_id, packet_override=None):
         # a rule stated once at 18% of a 55KB prompt did not survive to the
         # output, twice. This costs one sentence and puts the check after
         # everything else the model has been asked to hold.
+        # THE DECK, and it is specified HERE rather than at the top for the
+        # same reason the house style is: it is an output-shape instruction,
+        # and it belongs at the point the model is told what to hand back.
+        #
+        # It rides this call. A second call would double the cost of every
+        # column to buy one sentence, and — worse — a deck written by a
+        # separate call has not read the column it is decking, so it would be a
+        # summary of the packet rather than of the prose that was actually
+        # filed. Same reply, written last, having just written the thing.
+        #
+        # Every prohibition above applies to it WITHOUT BEING RESTATED: they
+        # are stated over this whole reply, and the deck is part of this reply.
+        # Restating them here is how a second, shorter, drifting copy of the
+        # ban list gets created — the bans are named once and the deck is told
+        # it is not exempt.
+        "FIRST LINE OF YOUR REPLY: a deck. Write \"DECK: \" and then ONE "
+        "sentence of 15-25 words saying what this column is about — the "
+        "standfirst a reader sees under the headline before they start. Then "
+        "one blank line, then the column itself. The deck is prose like "
+        "everything else here and EVERY rule above applies to it unchanged: no "
+        "banned prior-season word, no internal structure named, no field name "
+        "read aloud, no superlative, no probability as a decimal, nothing "
+        "about what anyone is playing for. It is one sentence, not a headline "
+        "and not a label — no colon-separated title, no \"In this week's "
+        "column\", and it does not name the column or the reader. "
+        "THE DECK IS NOT PART OF THE COLUMN'S LENGTH and does not come out of "
+        "it: the 350-450 words above are the column BELOW the deck, still in "
+        "the beats and the paragraphs described above. Panel wk0 answered the "
+        "first version of this instruction with a good deck over 261 words in "
+        "two paragraphs, which is a different column, not a decked one.",
+        # PARAGRAPHING, and it is here because it is the other thing the deck
+        # instruction cost. Every column filed before decks existed put the
+        # sign-off on its own line; the first two decked drafts ran it onto the
+        # end of Beat 2. Nothing above ever said it stood alone -- the persona
+        # template makes it the last line OF Beat 2 -- so the model was not
+        # wrong, it just stopped doing the thing it had always done. The page
+        # sets the sign-off apart by POSITION, so it has to be its own
+        # paragraph for the typography to find it.
+        "PARAGRAPHS: separate them with ONE BLANK LINE, and give the fixed "
+        "sign-off a paragraph of its own -- a blank line before it, nothing "
+        "after it. Beat 1 runs to more than one paragraph when the story has "
+        "more than one move in it; do not compress the whole column into two "
+        "blocks.",
         "Before you return it, read the column back and check six things: no "
         "banned prior-season word is in it (again, still, once more, finally, "
         "no longer, used to, back, return, returning, resurgence, comeback, "
@@ -741,8 +784,15 @@ def build_prompt(group_id, packet_override=None):
         "\"narrative score\"); no superlative or hedged superlative ranks "
         "one pick, gap or probability against another (lowest, highest, only, "
         "most, biggest, worst, best — including \"one of the\" and \"outside "
-        "X\" forms); and nothing says or implies what anyone is playing for.",
-        "Return ONLY the column text. No preamble, no title, no explanation.",
+        "X\" forms); and nothing says or implies what anyone is playing for. "
+        "Read the DECK back against the same six, and against the superlative "
+        "rule especially -- a deck is one sentence trying to say why the "
+        "column matters, which is the exact shape that reaches for \"the "
+        "biggest\", \"the most\" or \"the only\". A decked draft filed "
+        "\"the season's most direct conflict\"; say what the conflict IS "
+        "instead of where it ranks.",
+        "Return ONLY the DECK line and the column text. No preamble, no title, "
+        "no explanation.",
     ]
     return system_text, "\n".join(parts), packet
 
@@ -812,7 +862,37 @@ def _backoff(attempt, why):
 
 # --- Publish -----------------------------------------------------------------
 
-def publish_doc(group_id, packet, column):
+DECK_PREFIX = "DECK:"
+DECK_MAX_CHARS = 400
+
+
+def split_deck(reply):
+    """(deck, column) from one model reply. deck is '' when there is none.
+
+    FAIL SOFT, ALWAYS. A reply with no DECK line is the whole reply as the
+    column and no deck — which is exactly the state every column filed before
+    this existed, and the state the page already renders (it falls back to the
+    standing teaser). A model that forgets the line must cost us a standfirst,
+    never the column.
+
+    The line is only taken when it is the FIRST non-empty line: a "DECK:" that
+    turns up in the middle of the prose is the column talking, not the shape
+    instruction being obeyed late, and lifting it would silently delete a
+    paragraph's opening. The length cap is the same guard from the other side —
+    a model that ignores the blank line and returns the entire column on one
+    line would otherwise have all of it lifted into the deck.
+    """
+    text = reply.replace("\r\n", "\n").lstrip("\n")
+    head, sep, rest = text.partition("\n")
+    if not head.strip().upper().startswith(DECK_PREFIX):
+        return "", reply
+    deck = head.strip()[len(DECK_PREFIX):].strip()
+    if not deck or len(deck) > DECK_MAX_CHARS:
+        return "", reply
+    return deck, rest.lstrip("\n") if sep else ""
+
+
+def publish_doc(group_id, packet, column, deck=""):
     """The site's shape for one filed column. Everything the page shows is
     computed HERE — the site renders JSON and computes nothing (playbook P2 #12).
 
@@ -837,7 +917,14 @@ def publish_doc(group_id, packet, column):
             "source": f"groups/{group_id}/output/column_week_{packet.get('week')}.md",
         },
         "column": {
+            # The standfirst under the headline. OMITTED, not null, when the
+            # model did not return one — the page's absent-state teaser is the
+            # fallback and it tests presence, so an empty string here would be
+            # a deck that renders as a blank line under the headline.
+            **({"deck": deck} if deck else {}),
             "paragraphs": paragraphs,
+            # Prose only. The deck is not part of the column's length and is
+            # not what the archive list is reporting when it says "332 words".
             "word_count": len(column.split()),
         },
     }
@@ -958,9 +1045,21 @@ def run_live(group_id, packet_override=None):
 
     system_text, user_text, packet = build_prompt(group_id, packet_override)
     week = packet.get("week")
-    column = call_openai(system_text, user_text, api_key)
-    if not column:
+    reply = call_openai(system_text, user_text, api_key)
+    if not reply:
         raise RuntimeError("OpenAI returned an empty column")
+
+    # The deck comes off the front before anything is written, so the .md and
+    # the published JSON hold the same prose. The .md is THE COLUMN — it is fed
+    # back to the next week's prompt as memory, and a DECK: line sitting in
+    # that memory is an instruction artifact the model would learn to imitate.
+    deck, column = split_deck(reply)
+    if not column.strip():
+        raise RuntimeError("OpenAI returned a deck with no column")
+    if not deck:
+        print(f"::warning:: [{group_id}] no DECK line in the reply; filing the "
+              f"column without a deck (the page falls back to its standing "
+              f"teaser).", file=sys.stderr)
 
     path = column_path(group_id, week)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -972,7 +1071,7 @@ def run_live(group_id, packet_override=None):
     # different columns. This opens week N's file and no other — every earlier
     # column is untouched by construction, not by being carefully merged.
     utils.save_json_atomic(publish_path(group_id, week),
-                           publish_doc(group_id, packet, column))
+                           publish_doc(group_id, packet, column, deck))
     # Then the manifest, rebuilt from what is now on disk. Second, so a crash
     # between the two leaves an unindexed column (invisible, recoverable with
     # --reindex) rather than an index naming a file that was never written.
@@ -985,7 +1084,8 @@ def run_live(group_id, packet_override=None):
     cols.append(path.name)
     memory["columns"] = cols[-MEMORY_COLUMNS_KEPT:]
     utils.save_json_atomic(memory_path(group_id), memory)
-    print(f"  [{group_id}] filed column_week_{week}.md ({len(column.split())} words)")
+    print(f"  [{group_id}] filed column_week_{week}.md ({len(column.split())} words"
+          f"{', + deck' if deck else ', NO deck'})")
     return 0
 
 
