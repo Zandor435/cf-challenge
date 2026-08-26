@@ -54,10 +54,15 @@
   "panel": {
    "hero_banner": {
     "$why": [
-     "The ONLY rotate slot in this file. panel has sixteen published banners",
-     "(the four managers drawn as coaches, in eight treatments); the other",
-     "three groups have exactly one apiece and stay `fixed` -- a rotate slot",
-     "with one candidate is a fixed slot that costs an extra request.",
+     "The FIRST rotate slot in this file, and the largest: panel has sixteen",
+     "published banners (the four managers drawn as coaches, in eight",
+     "treatments). browns and church rotate too, on one banner apiece -- see",
+     "their notes for why one is still worth rotating, which is the opposite",
+     "of what this note used to claim. The old reasoning was that a rotate",
+     "slot with one candidate is a fixed slot costing an extra request; what",
+     "it missed is that `fixed` names a flat webp carrying NO metadata, so a",
+     "fixed banner cannot hold a measured focal or face_band and is invisible",
+     "to cap_floor / focal_clears_faces. family is the last `fixed` group.",
      "`candidates` is empty and that is correct: a rotate slot's pool comes",
      "from `source`, never from a list here. Leaving the old",
      "assets/banners/{group}.webp in candidates would put a SECOND answer to",
@@ -261,14 +266,37 @@
   "church": {
    "hero_banner": {
     "$why": [
-     "church_comic_02, generated 2026-08-21 from the five fat coach portraits.",
-     "Colors are passed as literal hex, not team names: Stanford and Georgia",
-     "both resolve to 'crimson red' through color_name(), so David uses the",
-     "black of the Georgia polo he actually wears in his portrait and the five",
-     "read as five. Hex also leaves no team wordmark for the render to leak."
+     "ROTATE, on one banner -- the same move browns made, and made for the",
+     "same reason. build_banners.py publishes into",
+     "docs/assets/banners/<group>/ and writes docs/data/<group>/banners.json,",
+     "which IS the rotate slot's input shape. The `fixed` tier this replaced",
+     "named the flat assets/banners/church.webp, written by a DIFFERENT tool",
+     "(prepare_portraits.publish_banner) and carrying no metadata at all.",
+     "focal and face_band live only in the manifest, and cap_floor /",
+     "focal_clears_faces in test_banners.py read them from there -- so a",
+     "`fixed` church banner could not carry a measured crop nor be covered by",
+     "the framing guards. Rotate is what publishing through the script and",
+     "being framed by the tests both require.",
+     "",
+     "church_trophychase_01 is the only entry: the five CEC coaches reaching",
+     "for the playoff trophy, face band [15, 46], which needs 141px of the",
+     "280px cap. Banners two and up are a DATA change from here -- drop the",
+     "art in output/banners/church/, add its focal, faces and alt entries,",
+     "re-run the script, commit. No code, no slot edit, no page change.",
+     "",
+     "church_comic_01/02 and church_gamechangers_01 are parked in",
+     "output/banners/church/_alts/ rather than published. The comics can come",
+     "back as pure data whenever somebody measures them; gamechangers is",
+     "1024x434 and would render visibly soft beside 2172px art.",
+     "",
+     "The single kickoff banner (assets/banners/church.webp, church_comic_02)",
+     "is untouched and is still the fallback one tier down, reached through",
+     "the $banners list in the portraits manifest. Same arrangement panel and",
+     "browns have."
     ],
-    "mode": "fixed",
-    "candidates": ["assets/banners/{group}.webp"]
+    "mode": "rotate",
+    "source": "data/{group}/banners.json",
+    "candidates": []
    },
    "manager_avatar": {
     "$why": [
@@ -308,9 +336,14 @@
    },
    "profile_hero":   {
     "$why": [
-     "One image per manager, so `fixed`, same as panel. manager_avatar and",
-     "hero_banner stay empty: CEC has profile art and nothing else yet, and a",
-     "declared-but-missing candidate is a 404 on the live page."
+     "One image per manager, so `fixed`, same as panel.",
+     "This note used to end 'manager_avatar and hero_banner stay empty: CEC",
+     "has profile art and nothing else yet.' Both halves stopped being true:",
+     "manager_avatar resolves img/avatars/{group}/{id} and hero_banner is a",
+     "rotate slot reading data/{group}/banners.json. A declared-but-missing",
+     "candidate is still a 404 on the live page -- that part was always the",
+     "real rule, and it is why each of those slots was filled only once the",
+     "art behind it existed."
     ],
     "mode": "fixed",
     "candidates": ["assets/profiles/{group}/{id}.webp"]

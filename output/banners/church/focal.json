@@ -1,0 +1,24 @@
+{
+ "_note": [
+  "filename -> CSS object-position, read by scripts/build_banners.py and",
+  "published into docs/data/church/banners.json as 'focal'. It is where the",
+  "page crops THIS image when the masthead's height cap bites.",
+  "",
+  "Measured, not guessed, by the method panel's focal.json documents: the",
+  "art was overlaid with a 5% horizontal grid and the face band read off",
+  "it, then y set to the smallest object-position that puts the window's",
+  "top edge at or above that band at the widest desktop band (1360px,",
+  "where the crop is deepest). Narrower viewports crop less, so a value",
+  "that clears the faces at 1360 clears them everywhere.",
+  "",
+  "0% here is CHOSEN, not forced -- unlike browns_trophychase_01, whose",
+  "back row is cut by the source frame. At 1360 this 3:1 frame renders",
+  "453px tall and the 280px cap shows 61.8% of it, so the window is",
+  "0-61.8% and the faces at 15-46% sit inside it with 15% of frame clear",
+  "above and 16% clear below: as close to centred as the value can get.",
+  "Anything up to 39% still clears the band, but every step down trades",
+  "the trophy's crown -- which starts at ~3% -- for floor and dust.",
+  "The five reaching hands, at 48-62%, stay in frame either way."
+ ],
+ "church_trophychase_01.png": "50% 0%"
+}
