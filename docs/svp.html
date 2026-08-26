@@ -287,23 +287,32 @@
       return best;
     }
 
-    // withPull is false for archive entries: an opened back issue is
-    // subordinate to the column above it and does not get the same display
-    // typography competing with the current week.
-    function proseHTML(paras, withPull) {
-      var pull = withPull ? pullQuoteOf(paras) : '';
+    // isCurrent is false for archive entries: an opened back issue is
+    // subordinate to the column above it and gets neither the pull quote's
+    // display typography nor the sign-off rule competing with the current week.
+    function proseHTML(paras, isCurrent) {
+      var pull = isCurrent ? pullQuoteOf(paras) : '';
       // Set BEFORE the paragraph it was taken from, not after it. After, the
       // reader meets the sentence twice in a row -- once at 30px and again as
       // the last line of the paragraph directly under it. Before, the quote
       // reads as the promise the paragraph then keeps, which is what a pull
       // quote is for, and it lands mid-article either way.
       var at = Math.floor(paras.length / 2);
+      var last = paras.length - 1;
       return paras.map(function (x, i) {
         var html = '';
         // aria-hidden: this is a second printing of a sentence the reader is
         // already being read, and it is decoration in the reading order.
         if (pull && i === at) {
           html += '<p class="svp-pull" aria-hidden="true">' + esc(pull) + '</p>';
+        }
+        // The sign-off rule. Emitted here rather than drawn as a border on the
+        // paragraph because the paragraph is capped at the reading measure and
+        // its border would be capped with it, 64px short of every other rule on
+        // the page. Position, not a label -- the packet does not mark a coda,
+        // and asking it to would be asking the generator to tag its own prose.
+        if (isCurrent && i === last && paras.length > 1) {
+          html += '<hr class="svp-coda-rule">';
         }
         return html + '<p>' + esc(String(x)) + '</p>';
       }).join('');

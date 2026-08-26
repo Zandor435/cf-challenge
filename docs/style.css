@@ -1299,15 +1299,21 @@ body.svp-doc { background: var(--paper); }
 /* The column itself. Set as running prose: the body face, not the mono the
    metadata uses.
 
-   It runs the full 700px article track, flush with the section rules above it
-   and the byline card above those, rather than stopping short at a tighter
-   measure. Flush is what makes the block read as one composed column instead
-   of as text that failed to reach its own rules, and 700px is the price: ~85
-   characters, past the 45-75 rule of thumb. 17px at 1.7 is what pays it -- the
-   leading is what carries a long line, and both numbers are the top of the
-   range this restyle was specified against. */
+   THE PARAGRAPHS ARE CAPPED; NOTHING ELSE IS. .svp-column itself stays at the
+   full 700px article track, so every rule drawn inside it -- the section
+   headers above it, the pull quote, the sign-off hairline -- still runs edge
+   to edge. Only the running text stops early: ~609px, about 73 characters,
+   against the ~85 it ran at across the whole track.
+
+   57ch, AND THE NUMBER IS NOT THE ONE IT LOOKS LIKE. `ch` is the width of the
+   element's own "0", so it moves with font-size. The cap used to sit on
+   .svp-column, which sets no font-size and inherits body's 14px -- 68ch there
+   was 600px. On the paragraph, at 17px, 68ch is 727px: wider than the 700px
+   track, and a completely silent no-op. 57ch here is the same physical measure
+   the old 68ch produced. Anything expressed in ch has to be re-derived when it
+   moves between elements of different size. */
 .svp-column { margin-top: 0; max-width: none; }
-.svp-column p { font-size: 1.06rem; line-height: 1.7; color: #2a2a2a; }
+.svp-column p { font-size: 1.06rem; line-height: 1.7; color: #2a2a2a; max-width: 57ch; }
 .svp-column p + p { margin-top: 17px; }
 
 /* PULL QUOTE. Selected from the filed prose by the script -- see pullQuoteOf()
@@ -1328,13 +1334,26 @@ body.svp-doc { background: var(--paper); }
   font-family: var(--display); font-weight: 900;
   font-size: 2.1rem; line-height: 1.16; letter-spacing: -.01em;
   text-transform: uppercase; color: var(--text);
+  /* Explicit, because .svp-column p now caps the measure and this selector is
+     the only thing that outranks it. The quote is display type sized by its
+     own line count, not running text. */
+  max-width: none;
 }
 /* The sign-off is the last paragraph, every issue, verbatim. Nothing marks it
    in the data — giving it a class would ask the generator to label prose — so
-   it is set apart by position alone. */
+   it is set apart by position alone, and the <hr> above it is emitted by
+   position too (proseHTML, in svp.html), never by a label in the packet.
+
+   The rule is an <hr> rather than a border-top on the paragraph because the
+   paragraph is capped at 68ch and its border would be capped with it, leaving
+   the one hairline inside the article 64px short of every other rule on the
+   page. An <hr> is not running text and is not capped. */
+.svp-column .svp-coda-rule {
+  border: 0; border-top: 1px solid var(--paper-line);
+  margin: 26px 0 0; height: 0;
+}
 .svp-column p:last-child {
-  margin-top: 24px; padding-top: 18px;
-  border-top: 1px solid var(--paper-line);
+  margin-top: 18px;
   color: var(--text-muted);
 }
 
