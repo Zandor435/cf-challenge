@@ -696,6 +696,27 @@ def build_prompt(group_id, packet_override=None):
         "",
         "=== YOUR ASSIGNMENT ===",
         "File this week's column now, following the template exactly:",
+        # LENGTH, FIRST, AND AS A FLOOR. It used to sit after the assignment,
+        # underneath the house style, the deck rule and the paragraphing rule
+        # -- at the bottom of an unbroken run of prohibitions. Three
+        # consecutive columns came back at 261, 290 and 319 words against a
+        # 350-450 "target", and nothing in any of them was wrong: that is what
+        # a page of bans reads as when the length rule is the last thing under
+        # it. The safest column is the short one. So the requirement is stated
+        # BEFORE the prohibitions rather than after them, and as a minimum
+        # rather than as a range a writer can approach from below.
+        "LENGTH — READ THIS BEFORE ANYTHING ELSE BELOW: MINIMUM 350 WORDS. "
+        "350-450 is the target and 350 is a floor, not an aspiration. Beat 1 "
+        "(the One Big Thing) is 250-300 of them on its own. A column under "
+        "350 words is not a tighter column, it is an unfinished one, and it "
+        "is the single most common way this assignment is failed.",
+        "The rules further down are absolute and none of them is relaxed by "
+        "the length floor — but they must not clip the column short either. "
+        "When a sentence has to go, REPLACE IT: expand the prose around the "
+        "picks (character, what the disagreement claims, what is at stake) "
+        "rather than shortening the column overall. Every number is carried "
+        "for you, so the column earns its length in voice, not in stat "
+        "recitation.",
         beat1_line,
         beat2_line,
         "  End with the sign-off verbatim.",
@@ -704,25 +725,6 @@ def build_prompt(group_id, packet_override=None):
         "Every number verbatim from the packet; if a number you want is not "
         "there, write around it. Character roasts must cite behavior visible in "
         "manager_profiles, not invented history.",
-        # LENGTH, and it is here because the three blocks below took 150 words
-        # off the column. The word-level ban, the house style and the rounding
-        # rule landed together in 221613d and the next panel column came back
-        # at 252 words against ~400, with Beat 1 at 160 against 250-300 --
-        # nothing in it was wrong, there was just less of it. That is the
-        # predictable reading of a page of prohibitions: the safest column is
-        # the short one. So the target is stated as a floor as well as a
-        # ceiling, and the escape route is named, because "delete the
-        # sentence" without "and write another one" is an instruction to
-        # shrink.
-        "LENGTH: TARGET 350-450 WORDS TOTAL, with Beat 1 (the One Big Thing) "
-        "at 250-300 of them. Nothing above is relaxed here — the prose bans "
-        "are absolute — but they must not clip the column short. When a "
-        "sentence has to go, replace it: expand the prose around the picks "
-        "(context, character, what is at stake) rather than shortening the "
-        "column overall. The numbers are already carried for you, so the "
-        "column earns its length in voice, not in stat recitation. A column "
-        "that comes in at 250 words is not a tighter column, it is an "
-        "unfinished one.",
         # Same failure mode, one level down: a constrained writer reaches for
         # scaffolding. Week 0 panel filed "fortified by Texas's implications",
         # which is not a sentence a person says.
