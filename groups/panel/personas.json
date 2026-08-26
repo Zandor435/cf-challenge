@@ -2,6 +2,13 @@
   "_note": "Physical traits for persona art prompts. This file did NOT exist before 2026-08-18 and was seeded from the only traits stated explicitly by Z; nothing here is inferred from the artwork, because inventing traits is precisely what it must prevent. Character consistency comes from the REFERENCE IMAGES on each call — these strings are a backstop that keeps a distinguishing cue readable when a figure is small, in silhouette, or at depth, where the reference cannot carry it. `team` matches teams_canonical.json exactly; colors are looked up from it at prompt-build time and never hardcoded here.",
   "group_id": "panel",
   "seeded": "2026-08-18",
+
+  "_columnist_note": "2026-08-26: THE COLUMN'S BYLINE, not a manager. It sits at the top level rather than under `managers` because sync_personas.py reconciles that map against config.json's roster in both directions and fails loud on any id with no roster slot -- which is correct, and which the columnist would trip, because he writes about the group rather than playing in it. STATIC COPY, never generated: the column's prose comes from the model and this does not. `name` is the same name svp.html and index.html already print in their bylines; it is published so the two cannot drift, but neither page has been switched to read it -- they still hardcode it, and that is the next thing to tidy here. `role` is the line under the name on the column page's byline card; absent, the card runs name straight into the metadata, which is what every group without this block does.",
+  "columnist": {
+    "name": "Fat Van Pelt",
+    "role": "Chief Overthinker & Professional Uncle"
+  },
+
   "managers": {
     "blaine": {
       "display_name": "Blaine",

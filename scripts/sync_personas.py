@@ -143,11 +143,59 @@ def team_colors():
     return {t["school"]: t.get("color") for t in doc.get("teams", [])}
 
 
+# The columnist block -- the column page's byline, not a manager. Only these
+# keys leave the repo; anything else authored alongside them stays source, on
+# the same rule that keeps traits and silhouette_cue out of docs/.
+COLUMNIST_FIELDS = ("name", "role")
+
+
+def columnist_payload(group_id, personas):
+    """The `columnist` block, or None when the group does not declare one.
+
+    NOT a manager, and that is the whole reason it is a separate function.
+    build_payload reconciles `managers` against config.json's roster in both
+    directions and exits 1 on an id with no roster slot -- which is right, and
+    which the columnist would trip, because he writes about the group rather
+    than playing in it. So he lives at the top level of personas.json and is
+    projected here.
+
+    ABSENT IS ORDINARY. Three of the four groups declare no columnist today and
+    simply publish no block; the byline card then runs the name straight into
+    the metadata, exactly as it did before this existed. A block that IS
+    declared must carry a non-empty `name` -- a role line under no name is a
+    subtitle for nobody -- and that fails loud (playbook rule 4).
+    """
+    src = personas.get("columnist")
+    if src is None:
+        return None
+    if not isinstance(src, dict):
+        sys.exit("FAIL [{g}]: `columnist` is {t}, not an object.".format(
+            g=group_id, t=type(src).__name__))
+
+    name = (src.get("name") or "").strip()
+    if not name:
+        sys.exit(
+            "FAIL [{g}]: `columnist` declares no `name`. A role line under no "
+            "name is a subtitle for nobody -- give it a name or remove the "
+            "block.".format(g=group_id))
+
+    out = {}
+    for key in COLUMNIST_FIELDS:
+        value = src.get(key)
+        # Omitted, not nulled: the page tests presence, and an empty role would
+        # render as a blank line between the name and the metadata.
+        if isinstance(value, str) and value.strip():
+            out[key] = value.strip()
+    return out
+
+
 def build_payload(group_id, config, personas, colors):
     """Reconcile config <-> personas and project to the site shape.
 
     Fails loud on ANY mismatch. Returns the dict to publish.
     """
+    columnist = columnist_payload(group_id, personas)
+
     cfg_ids = [m["manager_id"] for m in config.get("managers", [])]
     cfg_names = {m["manager_id"]: m.get("display_name") for m in config.get("managers", [])}
     per = personas.get("managers", {})
@@ -262,9 +310,17 @@ def build_payload(group_id, config, personas, colors):
             "profile_order is DERIVED, not authored: it is each manager's index",
             "in groups/{g}/personas.json, and managers.js alternates the sideline".format(g=group_id),
             "layout off it so a manager's side cannot move when their rank does.",
+            "columnist is the COLUMN'S byline, not a manager -- static copy,",
+            "published only when groups/{g}/personas.json declares it.".format(g=group_id),
         ],
         "$version": 1,
         "group_id": group_id,
+        # Omitted entirely for a group that declares no columnist -- see
+        # columnist_payload. Placed before `managers` because it describes the
+        # file's one non-roster subject and reads better at the top; nothing
+        # depends on key order here (unlike groups/<g>/personas.json, where it
+        # is load-bearing -- see persona_order above).
+        **({"columnist": columnist} if columnist else {}),
         "managers": out,
     }
 

@@ -87,13 +87,17 @@
        text (the image track is `auto`, not a fixed width) rather than holding
        open an empty 288px box.
 
-       No role line. The mockup carried one; no role or subtitle for the
-       columnist exists in any committed data, so the card runs name over
-       metadata instead of inventing a title for him. -->
+       The role line under the name is STATIC PERSONA COPY, published from
+       groups/<group>/personas.json through sync_personas.py -- it is not
+       generated and it is not written here. Empty in the markup and filled by
+       the script; a group that declares no columnist leaves it empty and the
+       card runs the name straight into the metadata, which is what it did
+       before the block existed and what three of the four groups still do. -->
   <div class="svp-byline" id="svp-byline" hidden>
     <img class="svp-byline-avatar" id="svp-byline-avatar" alt="" width="288" height="200" hidden>
     <div class="svp-byline-text">
       <span class="svp-byline-name">Fat Van Pelt</span>
+      <span class="svp-byline-role" id="svp-byline-role" hidden></span>
       <span class="svp-byline-meta" id="svp-byline-meta"></span>
     </div>
   </div>
@@ -360,14 +364,24 @@
     // same reason art_slots.json is: a 404 is its ordinary answer and the
     // column must not wait on it. It is fetched alongside, and renderRail
     // returns immediately on the null a 404 produces.
+    // personas.json is fetched for ONE string: the columnist's role line. The
+    // page could hardcode it -- it hardcodes his name two lines above -- but
+    // then the same copy would live in groups/<g>/personas.json and in here,
+    // and the whole point of the sync_personas path is that docs/ never
+    // carries hand-written persona copy. Fetched alongside, never awaited by
+    // anything: a 404 (the state for every group with no columnist block) and
+    // a group whose file has no columnist both land on the same no-role path
+    // the card had before this existed.
     Promise.all([
       getJSON(COLUMNS + 'index.json'),
       getJSON('assets/art_slots.json'),
       getJSON(COLUMNS + 'rail.json'),
+      getJSON('data/' + group + '/personas.json'),
     ]).then(function (res) {
       var index = res[0];
       var slots = res[1];
       renderRail(res[2]);
+      renderColumnistRole(res[3]);
       var entries = (index && Array.isArray(index.columns)) ? index.columns : [];
       // No manifest, or a manifest with nothing in it, is the ordinary
       // pre-Week-0 state and is treated exactly as no column at all: the teaser
@@ -516,6 +530,17 @@
       if (card) card.hidden = false;
       var rail = document.getElementById('svp-rail');
       if (rail) rail.hidden = false;
+    }
+
+    // The columnist's role line. Static copy, straight out of the published
+    // persona file -- nothing here composes, defaults or abbreviates it.
+    function renderColumnistRole(personas) {
+      var role = personas && personas.columnist && personas.columnist.role;
+      if (typeof role !== 'string' || !role.trim()) return;
+      var el = document.getElementById('svp-byline-role');
+      if (!el) return;
+      el.textContent = role.trim();
+      el.hidden = false;
     }
 
     // The newest column, in full, in place of the teaser.

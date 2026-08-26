@@ -1255,14 +1255,24 @@ body.svp-doc { background: var(--paper); }
   display: block; background: var(--bg-subtle);
   border-right: 1px solid var(--paper-line);
 }
+/* gap, not margins, so the card is correct with two children (no role line)
+   and with three. 10px reads as one block of byline rather than three stacked
+   labels; the name's own 2rem cap height supplies the rest of the separation. */
 .svp-byline-text {
   display: flex; flex-direction: column; justify-content: center;
-  gap: 14px; min-width: 0; padding: 22px 26px;
+  gap: 10px; min-width: 0; padding: 22px 26px;
 }
 .svp-byline-name {
   font-family: var(--display); font-weight: 900; font-size: 2rem;
   line-height: 1; text-transform: uppercase; letter-spacing: .05em;
   color: var(--text);
+}
+/* The role sits between the name and the metadata and has to read as neither:
+   the body face at reading size, not the display caps above it and not the
+   letterspaced mono below. */
+.svp-byline-role {
+  font-family: var(--body); font-size: .95rem; line-height: 1.35;
+  color: var(--text-muted);
 }
 .svp-byline-meta {
   font-family: var(--mono); font-size: .68rem; letter-spacing: .16em;
