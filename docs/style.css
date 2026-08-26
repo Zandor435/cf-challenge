@@ -1553,6 +1553,17 @@ body.svp-doc { background: var(--paper); }
 
 /* Arrow: a disc with a CSS triangle in it, rotated per side. Drawn rather
    than shipped so it inherits --side and cannot 404. */
+/* The footer strip. Full-bleed to the card's edges -- negative margins against
+   .svp-card-body's padding -- so it reads as a band under the two sides rather
+   than as a third row among them. */
+.svp-dispute-foot {
+  margin: 0 -13px; padding: 9px 13px;
+  border-top: 1px solid var(--paper-line);
+  background: var(--bg-subtle);
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+
 .svp-side-arrow {
   position: relative; flex: 0 0 40px; width: 40px; height: 40px;
   border-radius: 50%; background: var(--side-wash);

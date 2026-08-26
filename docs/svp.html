@@ -487,8 +487,18 @@
       });
       if (rows.indexOf(null) !== -1) return;   // one unreadable side kills the card
 
+      // The footer strip: the model's win total for the disputed team, which
+      // is what both sides are actually arguing about. Its own key, and its
+      // own absence path -- a rail.json written before the field existed, or a
+      // packet that stops carrying it, drops the strip and keeps the card.
+      var html = rows.join('');
+      if (c.implied_expected_wins !== null && c.implied_expected_wins !== undefined) {
+        html += '<p class="svp-dispute-foot">Model implied total: ' +
+                esc(String(c.implied_expected_wins)) + ' wins</p>';
+      }
+
       document.getElementById('svp-dispute-head').textContent = 'The ' + c.team + ' dispute';
-      document.getElementById('svp-dispute-body').innerHTML = rows.join('');
+      document.getElementById('svp-dispute-body').innerHTML = html;
       showCard('svp-card-dispute');
     }
 

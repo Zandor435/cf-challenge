@@ -64,10 +64,12 @@ import utils
 # by each packet builder's existing per-group loop and has no per-group code in
 # it at all.
 #
-# It starts at panel alone because panel is the only group whose rail has been
-# looked at on a page. The other three publish the same shape the moment they
-# are added here.
-RAIL_GROUPS = ("panel",)
+# It started at panel alone, on a pass where only panel's rail had been looked
+# at on a page. All four are enabled now: every group's Week 0 packet was
+# confirmed present and carrying a worst_pick_on_the_board first, and church --
+# which has no collisions at all -- is what proves the absent-key path is real
+# rather than theoretical.
+RAIL_GROUPS = ("panel", "family", "church", "browns")
 
 
 def is_enabled(group_id):
@@ -119,6 +121,9 @@ def build_rail(packet):
             "The column page's data rail. DERIVED -- every value is copied out",
             "of the week packet by scripts/build_rail.py, which computes",
             "nothing and re-selects nothing. Regenerable with no network.",
+            "collision.implied_expected_wins is the model's win total for the",
+            "collided team -- the dispute card's footer strip. Absent, the",
+            "strip is omitted and the card still renders.",
             "p_beat_line is a RENDERED PERCENT STRING, not a probability: the",
             "page is not allowed to do arithmetic, so the rounding happens in",
             "Python. line / expected_final_wins / expected_delta are the",
@@ -149,6 +154,13 @@ def build_rail(packet):
         doc["collision"] = {
             "team": _need(group_id, c, "team", where),
             "line": _need(group_id, c, "line", where),
+            # The card's footer strip. _need, not .get: a collision block that
+            # has lost this is a packet-shape change and should stop the run,
+            # not quietly publish a card with its footer missing. The page
+            # omits the strip when the key is absent, which covers a rail.json
+            # written before this field existed.
+            "implied_expected_wins": _need(group_id, c, "implied_expected_wins",
+                                           where),
             "picks": [
                 {
                     # `name` is the display name the packet already resolved
