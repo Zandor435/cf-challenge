@@ -883,6 +883,20 @@ def build_week0_packet(group_id, baseline_path=None):
         "market_gap": worst["market_gap"],
         "p_beat_line": worst["p_beat_line"],
         "games_scheduled": worst["games_scheduled"],
+        # THE CARD'S HEAD, written here because THIS builder is the only thing
+        # that knows what its own coda selected. The rail card used to be
+        # titled "<team> outlook" in JS regardless of which coda produced it,
+        # so a reader who followed the page from Week 0 into Week 1 watched the
+        # card silently change subject -- preseason's "the pick the model likes
+        # least" became in-season's "the pick that died ugliest" under an
+        # unchanged heading. The selection was right; only the label lied.
+        #
+        # PRESEASON'S WORDING IS THE ONE THE PAGE ALREADY SHIPPED, character
+        # for character, so publishing this field changes nothing readers see
+        # in Week 0. build_week_packet.featured_pick_from_coda writes the
+        # in-season counterpart. The page prints whichever string it is handed
+        # and decides nothing.
+        "card_title": f"{worst['team']} outlook",
         "selected_by": ("lowest market_gap on the board that does NOT share a "
                         "manager or team with the One Big Thing lead — computed "
                         "here, never chosen by the model"),

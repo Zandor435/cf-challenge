@@ -128,6 +128,12 @@ def build_rail(packet):
             "page is not allowed to do arithmetic, so the rounding happens in",
             "Python. line / expected_final_wins / expected_delta are the",
             "packet's own decimals, verbatim.",
+            "featured_pick.card_title is the LITERAL card heading, written by",
+            "whichever builder selected the pick, because preseason and",
+            "in-season answer different selection questions with the same",
+            "fields. Consumers print it verbatim and must not infer a title",
+            "from `week` or any other field; absent, fall back to the",
+            "preseason wording rather than dropping the card.",
             "A missing `collision` or `featured_pick` key is an ORDINARY state",
             "(no collision this week / no pick selected) and every consumer",
             "must drop that card rather than render a placeholder. A 404 on",
@@ -186,6 +192,21 @@ def build_rail(packet):
     if w:
         where = "worst_pick_on_the_board"
         doc["featured_pick"] = {
+            # THE CARD'S HEAD, copied like everything else here. Both builders
+            # write card_title into the packet because each one -- and only
+            # each one -- knows which coda it selected: preseason's "the pick
+            # the model likes least" and in-season's "the pick that died
+            # ugliest" are different questions wearing the same fields, and the
+            # card was titled the same in both, so week 1 swapped its subject
+            # under an unchanged heading.
+            #
+            # NAMED FOR THE PACKET'S KEY, on the same provenance rule
+            # p_beat_line follows. _need, not .get: both builders emit it, so
+            # an absent one is a packet-shape change and stops the run (fail
+            # loud in Python). svp.html falls back to the preseason wording for
+            # a rail.json written before this field existed -- fail soft at
+            # render, and that fallback is on PRESENCE, never on week.
+            "card_title": _need(group_id, w, "card_title", where),
             "manager": _need(group_id, w, "name", where),
             "team": _need(group_id, w, "team", where),
             "direction": _need(group_id, w, "direction", where),

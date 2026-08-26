@@ -37,6 +37,8 @@ import build_week_packet as bwp
 import preseason_baseline as pre
 
 
+NL = chr(10)   # the source-scanning tests below split on it
+
 GROUP = {"group_id": "test-fixture"}
 
 # Two sides of one line, plus a pick nobody else holds.
@@ -202,6 +204,78 @@ def test_absent_collision_omits_the_key_and_keeps_the_other_card():
 
 def test_neither_block_means_no_rail_at_all():
     assert build_rail.build_rail(packet()) is None
+
+
+# --- the card's title --------------------------------------------------------
+#
+# The two builders answer DIFFERENT selection questions with the SAME fields --
+# preseason picks the lowest market_gap, in season it is the bad-beat coda --
+# and the card was titled "<team> outlook" in both, so week 1 changed the
+# card's subject under an unchanged heading. The title is a published field
+# now, and these pin that it is written in Python, differs between the two
+# states, and reaches the rail unedited.
+
+def test_in_season_title_is_the_coda_not_the_outlook():
+    f = bwp.featured_pick_from_coda(BEAT, CUR, PROJ_ROWS, GROUP)
+    assert f["card_title"] == "Indiana bad beat"
+    # The team survives into the head, which is the ONLY place the card prints
+    # one -- the body is manager / pick / model implied / market gap.
+    assert f["team"] in f["card_title"]
+
+
+def test_preseason_title_is_the_wording_the_page_already_shipped():
+    """Character for character what svp.html used to build in JS, so
+    publishing the field changes nothing a Week 0 reader sees."""
+    import re
+    src = (Path(__file__).resolve().parent / "preseason_baseline.py").read_text(
+        encoding="utf-8")
+    assert re.search(r'"card_title":\s*f"\{worst\[.team.\]\} outlook"', src), (
+        "preseason's card_title is no longer the '<team> outlook' string the "
+        "page rendered before the field existed")
+
+
+def test_the_two_states_do_not_share_a_title():
+    """The whole point. If these ever converge the card is back to swapping
+    subject silently."""
+    in_season = bwp.featured_pick_from_coda(BEAT, CUR, PROJ_ROWS, GROUP)
+    assert in_season["card_title"] != f"{in_season['team']} outlook"
+
+
+def test_build_rail_copies_the_title_verbatim():
+    rail = build_rail.build_rail(packet(
+        worst_pick_on_the_board=bwp.featured_pick_from_coda(
+            BEAT, CUR, PROJ_ROWS, GROUP)))
+    assert rail["featured_pick"]["card_title"] == "Indiana bad beat"
+
+
+def test_a_pick_with_no_title_stops_the_run(capsys):
+    """Fail loud in Python (playbook rule 4). Both builders emit it, so an
+    absent one is a packet-shape change, not the ordinary absence the missing
+    `featured_pick` KEY represents. svp.html's fallback covers the other case
+    -- a rail.json written before the field existed -- and is on presence, not
+    on week."""
+    w = bwp.featured_pick_from_coda(BEAT, CUR, PROJ_ROWS, GROUP)
+    del w["card_title"]
+    with pytest.raises(SystemExit) as e:
+        build_rail.build_rail(packet(worst_pick_on_the_board=w))
+    assert e.value.code == 1
+    assert "card_title" in capsys.readouterr().err
+
+
+def test_the_page_never_infers_the_title_from_the_week():
+    """The rule the fix depends on: the frontend prints the field and decides
+    nothing. A conditional on week/preseason in this function would put the
+    state machine back in JS, which is what shipped the wrong heading."""
+    src = (Path(__file__).resolve().parents[1] / "docs" / "svp.html").read_text(
+        encoding="utf-8")
+    body = src.split("function renderOutlook(f) {")[1].split(NL + "    }")[0]
+    code = NL.join(ln for ln in body.splitlines()
+                   if not ln.lstrip().startswith("//"))
+    assert "card_title" in code
+    for banned in ("week", "preseason"):
+        assert banned not in code, (
+            f"renderOutlook now reads {banned!r}; the card title must come "
+            f"from rail.json, not from the page's idea of the season state")
 
 
 if __name__ == "__main__":

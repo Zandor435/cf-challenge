@@ -530,7 +530,21 @@
       }).join('');
       if (!rows) return;
 
-      document.getElementById('svp-outlook-head').textContent = f.team + ' outlook';
+      // THE HEAD IS A FIELD, not a sentence built here. What this card is
+      // ABOUT changes at week 1 -- preseason it is the pick the model likes
+      // least, in season it is the bad-beat coda, the pick that died ugliest
+      // -- and both arrive in identical fields, so a title composed on this
+      // side would have to guess the state from `week` or a preseason flag.
+      // It does not: build_rail.py publishes card_title and this prints it.
+      //
+      // The fallback is on PRESENCE ONLY -- a rail.json written before the
+      // field existed -- and it restores the exact string this line used to
+      // build, so an old file renders as it always did. It is not a second
+      // opinion about which state the page is in.
+      var title = (typeof f.card_title === 'string' && f.card_title.trim())
+        ? f.card_title.trim()
+        : f.team + ' outlook';
+      document.getElementById('svp-outlook-head').textContent = title;
       document.getElementById('svp-outlook-body').innerHTML = rows;
       showCard('svp-card-outlook');
     }

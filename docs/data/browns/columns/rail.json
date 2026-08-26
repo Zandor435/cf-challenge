@@ -10,6 +10,12 @@
     "page is not allowed to do arithmetic, so the rounding happens in",
     "Python. line / expected_final_wins / expected_delta are the",
     "packet's own decimals, verbatim.",
+    "featured_pick.card_title is the LITERAL card heading, written by",
+    "whichever builder selected the pick, because preseason and",
+    "in-season answer different selection questions with the same",
+    "fields. Consumers print it verbatim and must not infer a title",
+    "from `week` or any other field; absent, fall back to the",
+    "preseason wording rather than dropping the card.",
     "A missing `collision` or `featured_pick` key is an ORDINARY state",
     "(no collision this week / no pick selected) and every consumer",
     "must drop that card rather than render a placeholder. A 404 on",
@@ -19,7 +25,7 @@
   "$version": 1,
   "group_id": "browns",
   "week": 0,
-  "generated_at": "2026-08-26T01:34:24.229509+00:00",
+  "generated_at": "2026-08-26T02:39:13.934873+00:00",
   "collision": {
     "team": "South Florida",
     "line": 8.5,
@@ -38,6 +44,7 @@
     ]
   },
   "featured_pick": {
+    "card_title": "Indiana outlook",
     "manager": "Mark",
     "team": "Indiana",
     "direction": "O",

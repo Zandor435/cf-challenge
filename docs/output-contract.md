@@ -65,11 +65,25 @@ always about the same picks.
                { "manager": "Chris",  "direction": "O", "p_beat_line": "14%" } ]
   },
   "featured_pick": {
+    "card_title": "Oregon outlook",
     "manager": "Jonathan", "team": "Oregon", "direction": "O", "line": 10.5,
     "expected_final_wins": 9.456, "expected_delta": -1.044
   }
 }
 ```
+
+`featured_pick.card_title` is the **literal card heading**, written by
+whichever builder selected the pick and printed verbatim. It exists because the
+two builders answer *different selection questions* with the same fields:
+preseason's `worst_pick_on_the_board` is "the pick the model likes least"
+(lowest `market_gap`), while in season it is the bad-beat coda, "the pick that
+died ugliest". Both are correct; titling both `<team> outlook` meant the card
+changed subject at week 1 with nothing on the page saying so. Preseason emits
+`"<team> outlook"` — the exact wording the page shipped before this field —
+and `build_week_packet.py` emits `"<team> bad beat"`, the column's own name for
+that coda. Consumers **must not** infer the title from `week`, a preseason
+flag, or anything else; if the field is absent (a `rail.json` written before it
+existed) fall back to `"<team> outlook"` and still render the card.
 
 `p_beat_line` is a **rendered percent string**, not a probability. The site
 renders JSON and computes nothing, so the rounding happens in Python; the key
@@ -85,9 +99,11 @@ removes the file outright rather than leaving a stale card standing, so a 404
 here is the normal state for most groups and every consumer must render
 without it.
 
-Today `collisions` and `worst_pick_on_the_board` are built only by the Week 0
-packet (`preseason_baseline.py --week0-packet`); `build_week_packet.py` has no
-in-season counterpart, so the first packed real week clears the rail.
+Both builders produce `collisions` and `worst_pick_on_the_board`:
+`preseason_baseline.py --week0-packet` for Week 0, and `build_week_packet.py`
+for every packed real week thereafter. (This paragraph previously said the
+in-season counterpart did not exist and the first real week cleared the rail —
+that stopped being true when the in-season blocks landed.)
 
 ##### `week_<N>.json` — one filed column
 

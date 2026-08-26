@@ -1049,6 +1049,19 @@ def featured_pick_from_coda(beat, cur, proj_rows, config):
         "implied_expected_wins": implied,
         "market_gap": pr.get("expected_delta"),
         "p_beat_line": pr.get("p_beat_line"),
+        # THE CARD'S HEAD, and the reason this field exists at all. See the
+        # paragraph above: the fields are identical to preseason's but the
+        # SELECTION QUESTION is not, and the card carried preseason's
+        # "<team> outlook" heading in both states, so week 1 swapped the
+        # card's subject with nothing on the page saying so.
+        #
+        # "bad beat" is the column's own name for this coda -- Beat 2 is
+        # literally titled Bad Beat of the Week -- so the card and the prose
+        # beside it now agree on what the reader is looking at. THE TEAM STAYS
+        # IN THE STRING because the head is the only place the card prints a
+        # team at all: the body is manager / pick / model implied / market gap.
+        # A bare "The bad beat" would read fine and lose the team entirely.
+        "card_title": f"{team} bad beat",
         "selected_by": ("the week's bad-beat coda, after the lead-subject "
                         "filter — the same selection the column's second beat "
                         "uses, never a second ranking computed for the rail"),
