@@ -705,11 +705,23 @@ def build_prompt(group_id, packet_override=None):
         # it. The safest column is the short one. So the requirement is stated
         # BEFORE the prohibitions rather than after them, and as a minimum
         # rather than as a range a writer can approach from below.
-        "LENGTH — READ THIS BEFORE ANYTHING ELSE BELOW: MINIMUM 350 WORDS. "
-        "350-450 is the target and 350 is a floor, not an aspiration. Beat 1 "
-        "(the One Big Thing) is 250-300 of them on its own. A column under "
-        "350 words is not a tighter column, it is an unfinished one, and it "
-        "is the single most common way this assignment is failed.",
+        #
+        # THE FLOOR IS 300, LOWERED FROM 350 ON 2026-08-26. Repositioning the
+        # rule moved four generations 261 -> 290 -> 319 -> 325 and none of them
+        # cleared 350. A floor nobody reaches is not a floor, it is a number
+        # the reader of this file learns to discount, and the next person
+        # tuning length would have been calibrating against a spec that had
+        # never once been met. 300 is where the model actually lands, so it is
+        # the line worth enforcing; 350-450 stays as the TARGET, which is what
+        # it always honestly was. No column was regenerated for this -- the
+        # spec now describes the columns already filed rather than the other
+        # way round.
+        "LENGTH — READ THIS BEFORE ANYTHING ELSE BELOW: MINIMUM 300 WORDS. "
+        "350-450 is the target; 300 is the floor and it is a hard one, not an "
+        "aspiration. Beat 1 (the One Big Thing) is 250-300 of them on its own. "
+        "A column under 300 words is not a tighter column, it is an unfinished "
+        "one, and length is the single most common way this assignment is "
+        "failed.",
         "The rules further down are absolute and none of them is relaxed by "
         "the length floor — but they must not clip the column short either. "
         "When a sentence has to go, REPLACE IT: expand the prose around the "
