@@ -67,9 +67,17 @@ HARD_BANNED = (
     # sentence placing a game somewhere or against someone is recall.
     "travel to", "travels to", "road trip", "at home against",
     "opens against", "opens the season against", "rivalry game",
-    "january", "february", "march", "april", "may ", "june", "july",
-    "august", "september", "october", "november", "december",
 )
+
+# MONTHS, matched CASE-SENSITIVELY as proper nouns and not as substrings of the
+# lowercased column. As lowercase substrings they are a false-positive machine:
+# "may" is a modal verb, "march" and "august" are ordinary words, and the first
+# regenerated column under this guard was rejected for "SP+ predictions may
+# suggest an outcome" -- which asserts nothing about a calendar at all. A date
+# in a column is a capitalised month, so that is what this looks for.
+MONTH_RE = re.compile(
+    r"\b(January|February|March|April|May|June|July|August|September|"
+    r"October|November|December)\b")
 
 # A win-loss record. No packet field carries one -- standings.json counts
 # BANKED DELTA against a line, never a team's record -- so any W-L pair is
@@ -260,6 +268,13 @@ def check_column(text, packet):
     out = []
     for sent in sentences(text):
         low = sent.lower()
+
+        for m in MONTH_RE.finditer(sent):
+            out.append(Violation(
+                "UNSUPPORTABLE",
+                f"{m.group(0)!r} places a game on the calendar; the packet "
+                f"carries no dates and no opponent schedule",
+                sent))
 
         for m in RECORD_RE.finditer(sent):
             out.append(Violation(
