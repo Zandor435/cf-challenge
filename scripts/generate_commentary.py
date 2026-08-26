@@ -1155,7 +1155,14 @@ def run_live(group_id, packet_override=None):
         # as an exemplar. Nothing appends it to memory either.
         reject = out_dir(group_id) / f"column_week_{week}.rejected.md"
         reject.parent.mkdir(parents=True, exist_ok=True)
-        reject.write_text(column + "\n", encoding="utf-8")
+        # The DECK goes in the quarantine file too. It is split off the reply
+        # before this point and is not part of `column`, so writing only the
+        # prose drops it on the floor -- which is exactly what happened to the
+        # 352-word draft the month false positive rejected: it was the better
+        # column and could not be recovered, because recovering it meant
+        # regenerating the deck it had already been paid for.
+        header = f"DECK: {deck}\n\n" if deck else ""
+        reject.write_text(header + column + "\n", encoding="utf-8")
         print(f"::warning:: [{group_id}] rejected draft kept at {reject} for "
               f"inspection. NOTHING under docs/ was touched: the previously "
               f"published column for this week, if any, still stands.",
