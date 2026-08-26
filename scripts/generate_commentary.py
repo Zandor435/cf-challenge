@@ -64,6 +64,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
+import column_guard
 
 # --- Knobs -------------------------------------------------------------------
 
@@ -502,6 +503,53 @@ def build_prompt(group_id, packet_override=None):
         "is interesting because of what it claims, not because of where it "
         "sits in a sorted list.")
 
+    # NOTHING OUTSIDE THE PACKET, and it sits with the other two word-tests
+    # because it is the same kind of rule and fails the same way: the model
+    # knows real college football, the packet is a thin slice of it, and the
+    # gap between them gets filled silently and fluently.
+    #
+    # IT NAMES WHAT IS ALLOWED FIRST, and that ordering is the lesson from the
+    # incident that prompted it. Panel wk0 filed "a challenging SEC schedule,
+    # which boasts eight top-25 opponents" and it was read as recall. It is
+    # not: strength_of_schedule.opponents_sp_top25 is 8 for Texas and the
+    # sentence is exactly right. A rule written as "never mention opponents or
+    # rankings" would have banned a true sentence quoting a real field, and a
+    # rule the writer discovers is wrong is a rule the writer stops trusting.
+    # So the boundary is drawn at the FIELD, not at the topic.
+    packet_only_line = (
+        "NOTHING OUTSIDE THE PACKET IS A FACT YOU HAVE. You know real college "
+        "football. This packet is a narrow slice of it. Everything you know "
+        "that is not in the packet is unavailable to you this week, and the "
+        "gap between the two gets filled fluently and silently if you let "
+        "it.\n"
+        "  THE TEST IS A FIELD, NOT A TOPIC. If a number or a claim IS in the "
+        "packet, print it — including the ones that sound like recall. "
+        "strength_of_schedule carries mean_opponent_sp_rating and "
+        "opponents_sp_top25, so \"eight top-25 opponents\" is CORRECT when "
+        "the packet says 8, and you should write it. If it is not in the "
+        "packet, you do not have it, however certain it feels.\n"
+        "  THESE HAVE NO FIELD ANYWHERE IN THE PACKET AND ARE BANNED "
+        "OUTRIGHT: a team's win-loss record; a national ranking or poll "
+        "position; the name of any team nobody in this group drafted; any "
+        "specific opponent, date, month, venue, home/away split or kickoff; "
+        "any player, coach, coordinator, transfer, recruit or injury; any "
+        "conference title, bowl or playoff; any result, expectation or "
+        "narrative from a prior season.\n"
+        "  THE PACKET NAMES NO OPPONENTS. It carries COUNTS about a schedule "
+        "— how many games, how many top-25 opponents, the mean opponent "
+        "rating — and not one opponent's name. \"They travel to Georgia in "
+        "October\" is invented in every particular even when the team is real "
+        "and the trip is plausible.\n"
+        "  WHERE THE PACKET IS SILENT, THE COLUMN IS SILENT. Do not "
+        "characterize, contextualize or explain a team beyond its numbers. If "
+        "you want to say WHY a team is rated where it is, you cannot — say "
+        "what the number is, or write about the manager instead, which is the "
+        "half of this column that never needed the packet's permission.\n"
+        "  THIS IS CHECKED AFTER YOU FILE. A deterministic scan reads the "
+        "column against the packet's own fields, and a column that fails it is "
+        "not published at all. A sentence you are unsure of costs the whole "
+        "column; cut it.")
+
     # The two beats. Beat 2 is the recurring coda and it SWAPS in preseason:
     # "Bad Beat of the Week" needs a pick that died, and in Week 0 nothing has
     # died. "Worst Pick on the Board" keeps the coda's DNA — one target, direct
@@ -618,6 +666,7 @@ def build_prompt(group_id, packet_override=None):
         uniform_line,
         prior_season_line,
         superlative_line,
+        packet_only_line,
         stakes_line,
     ]
     if suppressed_line:
@@ -1005,6 +1054,27 @@ def build_index(group_id):
 
 # --- Modes -------------------------------------------------------------------
 
+def check_published(group_id, packet_override=None):
+    """Guard the column already on the site. No network, writes nothing."""
+    packet = read_json(packet_override or packet_path(group_id), "week packet")
+    week = packet.get("week")
+    doc_path = publish_path(group_id, week)
+    if not doc_path.exists():
+        print(f"  [{group_id}] no published column for week {week} — nothing to check")
+        return 0
+    doc = read_json(doc_path, "published column")
+    paras = (doc.get("column") or {}).get("paragraphs") or []
+    text = "\n\n".join(paras)
+
+    violations = column_guard.check_column(text, packet)
+    if not violations:
+        print(f"  [{group_id}] week {week}: guard PASSES "
+              f"({len(text.split())} words, {len(paras)} paragraph(s))")
+        return 0
+    column_guard.report(group_id, violations)
+    return 1
+
+
 def run_dry(group_id, packet_override=None):
     system_text, user_text, packet = build_prompt(group_id, packet_override)
     preview = "\n".join([
@@ -1061,6 +1131,35 @@ def run_live(group_id, packet_override=None):
               f"column without a deck (the page falls back to its standing "
               f"teaser).", file=sys.stderr)
 
+    # THE FACTUAL GUARD, before anything is written anywhere the site or the
+    # next prompt can see. A column that asserts what the packet does not is
+    # not a column with a flaw in it -- sacred rule 1 is the whole basis on
+    # which a reader is asked to believe any number in it -- so it does not
+    # get published, indexed, or remembered.
+    #
+    # FAIL SOFT, LOUDLY. Rejection is not an exception: main() catches those
+    # and the pipeline continues either way (rule 3), but an exception here
+    # would read in the log as "the model call broke" when the model call was
+    # fine and the OUTPUT was wrong. Those want different fixes, so they get
+    # different exits. Standings and every other board are untouched.
+    violations = column_guard.check_column(column, packet)
+    if violations:
+        column_guard.report(group_id, violations)
+        # Quarantined, not discarded. The text is the evidence for whatever
+        # prompt change comes next, and reading it is the only way to tell a
+        # real fabrication from a guard that needs a rule loosened. A distinct
+        # name, NOT column_week_<N>.md: that path is the filed column, and
+        # last_column_text() would hand a rejected draft to next week's prompt
+        # as an exemplar. Nothing appends it to memory either.
+        reject = out_dir(group_id) / f"column_week_{week}.rejected.md"
+        reject.parent.mkdir(parents=True, exist_ok=True)
+        reject.write_text(column + "\n", encoding="utf-8")
+        print(f"::warning:: [{group_id}] rejected draft kept at {reject} for "
+              f"inspection. NOTHING under docs/ was touched: the previously "
+              f"published column for this week, if any, still stands.",
+              file=sys.stderr)
+        return 0
+
     path = column_path(group_id, week)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(column + "\n", encoding="utf-8")
@@ -1100,7 +1199,17 @@ def main():
     ap.add_argument("--reindex", action="store_true",
                     help="rebuild the archive manifest from the already-published "
                          "week files; NO network call, writes no column")
+    ap.add_argument("--check-published", action="store_true",
+                    help="run the factual guard over the column ALREADY published "
+                         "for this group's packet week and report; no network "
+                         "call, writes nothing. Exits 1 on a violation.")
     args = ap.parse_args()
+
+    # The guard, run against what is already on the site. A rule change can be
+    # tested against every filed column for the price of nothing, which is the
+    # difference between tuning this check and guessing at it.
+    if args.check_published:
+        return check_published(args.group, args.packet)
 
     # The no-fetch escape hatch (playbook rule 3 / P1 #6): regenerate the derived
     # layer from committed data with no API key and no packet, so a corrupted or
