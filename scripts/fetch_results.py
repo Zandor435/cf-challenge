@@ -13,6 +13,16 @@ scores-only cache produces a correct exact board next to a projection that never
 reseeds, and nothing errors. So SP+ is an explicit, guarded code path: if games
 are present but SP+ is empty, we REFUSE to write.
 
+That gate tests SP+ for EMPTINESS, which is only half the mode. A non-empty but
+UNCHANGED payload passes it, rewrites the cache with a fresh fetched_at, and
+leaves projection.json reporting a current ratings_asof over ratings that have
+stopped moving -- the same frozen Board 2, better camouflaged. warn_if_ratings_
+unchanged() below is the second half: it compares each pass's SP+ against the
+previous cache's and says so when the ratings held still while results moved.
+WARNING ONLY, never a failure -- CFBD can legitimately lag a day, and a hard
+stop here would take the pipeline dark over a provider's publish schedule
+(playbook rule 3).
+
 Hardening (§4): the client retries/backs off (see cfbd_client). On a persistent
 failure we fall back to the last good cache and exit non-fatally (commentary-
 bypass) — we NEVER overwrite a good cache with a partial/failed pull. Regular
@@ -27,6 +37,7 @@ Usage:
 """
 
 import argparse
+import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -205,6 +216,70 @@ def assert_fetch_complete(games, sp_ratings):
             "write a scores-only cache (ARCHITECTURE §6 — the silent no-reseed "
             "failure mode). Aborting without touching the existing cache."
         )
+
+
+def peek_prev_cache():
+    """The last good cache, or None. Best-effort by construction: this feeds a
+    warning and nothing else, so an absent or unreadable cache means "no
+    comparison available", never a failure. Must be called BEFORE save_cache."""
+    try:
+        if not utils.cache_exists():
+            return None
+        return utils.peek_cache()
+    except Exception:
+        return None
+
+
+def warn_if_ratings_unchanged(prev, sp_ratings, completed, season):
+    """§6, second face: SP+ that is present but FROZEN.
+
+    assert_fetch_complete catches an EMPTY SP+ block. It cannot catch a
+    non-empty one that never changes -- that fetch is indistinguishable from a
+    healthy one at the gate, writes a fresh fetched_at, and leaves Board 2
+    projecting off ratings that stopped reseeding while Board 1 stayed correct.
+    Nothing errors. That is the whole failure mode, and the only visible trace
+    is the pair of facts this function compares.
+
+    THE PREDICATE IS THE CONJUNCTION, and each half is load-bearing:
+      - ratings byte-identical to the last cache, AND
+      - counts.completed strictly HIGHER than the last cache's.
+    Identical ratings on their own are ordinary and expected: SP+ does not move
+    between two passes in the same rest day, and warning on that would train
+    everyone to ignore the warning. Identical ratings while games FINISHED is
+    the anomaly -- results moved and the model did not.
+
+    Same-season only. Across a season flip the ratings differ anyway and
+    completed resets to 0, so the comparison is meaningless rather than wrong.
+
+    WARNING, NEVER A FAILURE. CFBD publishes SP+ on its own schedule and can
+    legitimately lag a game day; failing here would take a whole pipeline run
+    dark over a provider's cadence (playbook rule 3). This says the thing out
+    loud and gets out of the way -- the operator decides what it means.
+
+    Returns True iff it warned, so a test can lock the predicate.
+    """
+    if not prev or prev.get("season") != season:
+        return False
+    prev_sp = prev.get("sp_ratings") or {}
+    if not prev_sp:
+        return False
+    # sort_keys so a pure key-ORDER change never reads as a ratings change.
+    if json.dumps(prev_sp, sort_keys=True) != json.dumps(sp_ratings, sort_keys=True):
+        return False
+    prev_completed = (prev.get("counts") or {}).get("completed")
+    if not isinstance(prev_completed, int) or completed <= prev_completed:
+        return False
+
+    print(f"::warning:: SP+ ratings are BYTE-IDENTICAL to the previous cache "
+          f"({len(sp_ratings)} teams, not one value moved) while completed games "
+          f"advanced {prev_completed} -> {completed}. Results moved and the "
+          f"model did not. The cache is still being written with a fresh "
+          f"fetched_at, so projection.json will report a current ratings_asof "
+          f"over ratings that have stopped reseeding (ARCHITECTURE §6). This is "
+          f"a WARNING, not a failure: CFBD can lag a game day legitimately. If "
+          f"it repeats across several passes with completed still climbing, the "
+          f"ratings feed is stale and Board 2 is frozen.")
+    return True
 
 
 def current_week(games):
@@ -388,6 +463,10 @@ def main():
         degraded_exit(str(e), season)                    # §4 season-guarded fallback
         return
 
+    # BEFORE save_cache: the staleness comparison needs the cache this pass is
+    # about to replace, so it must be read while it still exists.
+    prev_cache = peek_prev_cache()
+
     teams = build_team_index(games)
     completed = sum(1 for g in games if g["completed"])
     # Neutral cache: scheduled_games counts EVERY game on the slate, including
@@ -425,6 +504,9 @@ def main():
     }
     utils.save_cache(cache)
     archive_ratings(cache)          # BUILD 2: append this vintage (append-only, best-effort)
+    # §6 second face. AFTER the write on purpose: this never gates the cache,
+    # it only annotates a pass that already happened.
+    warn_if_ratings_unchanged(prev_cache, sp_ratings, completed, season)
 
     print(f"\n  season {season}: {len(games)} games "
           f"({completed} completed), {len(teams)} teams, "

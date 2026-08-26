@@ -12,6 +12,9 @@ three ways:
   2. The pre-write gate `assert_fetch_complete` raises on zero games and on
      empty SP+ (both caught by main -> degraded_exit -> no write).
   3. `archive_ratings` refuses to snapshot a cache with no SP+ ratings.
+  4. `warn_if_ratings_unchanged` fires on frozen-but-present SP+ ONLY when
+     completed games advanced -- §6's second face, and a warning, never a
+     failure.
 
 The keyless case forces CFB_API_KEY="" in the child env; utils.load_env_file uses
 setdefault, so the empty value is NOT overwritten by a real .env key — the child
@@ -175,11 +178,68 @@ def test_archive_is_append_only():
           f"first={first.get('week')}/{first.get('sp_ratings',{}).get('A')}")
 
 
+def test_unchanged_ratings_warn_only_when_results_moved():
+    """§6 second face: frozen-but-present SP+ warns iff completed advanced.
+
+    The conjunction is the whole point, so both halves are locked here. If the
+    "results moved" half were dropped the warning would fire on every ordinary
+    same-rest-day pass -- SP+ genuinely does not move between two passes in one
+    day -- and a warning that cries wolf on healthy runs is worse than none,
+    because it trains the operator to scroll past the one that matters.
+
+    Pure functions over literals: no cache file, no network, no ARCHIVE_DIR.
+    """
+    print("\n[5] SP+ staleness warning fires only on identical ratings + advanced results")
+
+    SP = {"Ohio State": {"rating": 32.7, "ranking": 1},
+          "Oregon": {"rating": 29.2, "ranking": 2}}
+
+    def prev(completed, sp=None):
+        return {"season": 2026, "sp_ratings": sp if sp is not None else SP,
+                "counts": {"completed": completed}}
+
+    # 1. THE ANOMALY: ratings frozen, results moved -> warn.
+    check("identical ratings + completed 12 -> 24 warns",
+          fr.warn_if_ratings_unchanged(prev(12), dict(SP), 24, 2026) is True)
+
+    # 2. THE ORDINARY CASE: ratings frozen, nothing finished -> silent.
+    check("identical ratings + completed unchanged (24 -> 24) does NOT warn",
+          fr.warn_if_ratings_unchanged(prev(24), dict(SP), 24, 2026) is False)
+
+    # 3. Ratings actually moved while results moved -> healthy, silent.
+    moved = {"Ohio State": {"rating": 33.1, "ranking": 1},
+             "Oregon": {"rating": 29.2, "ranking": 2}}
+    check("ratings that CHANGED do not warn even as results advance",
+          fr.warn_if_ratings_unchanged(prev(12), moved, 24, 2026) is False)
+
+    # 4. Key ORDER is not a ratings change -- sort_keys must absorb it.
+    reordered = {"Oregon": {"ranking": 2, "rating": 29.2},
+                 "Ohio State": {"ranking": 1, "rating": 32.7}}
+    check("key reordering still reads as identical (warns, not masked)",
+          fr.warn_if_ratings_unchanged(prev(12), reordered, 24, 2026) is True)
+
+    # 5. Guards that must stay quiet rather than throw.
+    check("no prior cache -> silent, no exception",
+          fr.warn_if_ratings_unchanged(None, dict(SP), 24, 2026) is False)
+    check("season flip -> silent (completed resets; comparison is meaningless)",
+          fr.warn_if_ratings_unchanged(prev(12), dict(SP), 24, 2025) is False)
+    check("prior cache with empty SP+ -> silent",
+          fr.warn_if_ratings_unchanged(prev(12, {}), dict(SP), 24, 2026) is False)
+    check("prior cache missing counts.completed -> silent, no exception",
+          fr.warn_if_ratings_unchanged(
+              {"season": 2026, "sp_ratings": SP}, dict(SP), 24, 2026) is False)
+
+    # 6. It is a warning, never a failure: the caller keeps running.
+    check("warn_if_ratings_unchanged returns a bool and never raises",
+          isinstance(fr.warn_if_ratings_unchanged(prev(12), dict(SP), 24, 2026), bool))
+
+
 def main():
     test_keyless_run_writes_nothing()
     test_pre_write_gate_rejects_incomplete_fetches()
     test_archive_refuses_a_ratingless_cache()
     test_archive_is_append_only()
+    test_unchanged_ratings_warn_only_when_results_moved()
 
     passed, total = sum(1 for r in _res if r[1]), len(_res)
     print(f"\nRESULT: {passed}/{total} checks passed")
