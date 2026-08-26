@@ -887,6 +887,159 @@ def build_bad_beats(cur, cache, lo_week, hi_week):
 
 
 
+# --- The rail blocks: collisions + the featured pick -------------------------
+#
+# WHY THEY ARE HERE AT ALL. docs/data/<group>/columns/rail.json is built by
+# scripts/build_rail.py straight off whatever the packet presents, and the Week
+# 0 packet (preseason_baseline.build_week0_packet) presents `collisions` and
+# `worst_pick_on_the_board`. This builder presented neither, so the first
+# PACKED REAL WEEK would have had write_rail delete every group's rail.json and
+# the column page's two data cards would have gone dark for the rest of the
+# season. These emit the same two keys, in the same shapes, so build_rail needs
+# no knowledge of which builder produced the packet -- and needed no edit.
+#
+# NO NEW SOURCE AND NO NEW MATH. Everything below is read off the two boards
+# this builder already loads (standings.json via `cur`, projection.json via
+# proj_rows) plus the cache helpers utils already exposes. Nothing recomputes a
+# probability, a win total or a gap; the projector's published numbers are
+# copied.
+
+
+def projection_rows(projection):
+    """{(manager_id, team): Board 2 pick}, read verbatim.
+
+    state_from_standings already builds this join and then keeps only
+    p_beat_line off it. Rebuilding it here rather than widening that function
+    keeps `cur` -- and therefore the packet's manager-facing shape and the
+    prompt the model reads -- byte-identical to what it was.
+    """
+    out = {}
+    for m in (projection or {}).get("managers", []):
+        for pk in m.get("picks", []):
+            out[(m["manager_id"], pk["team"])] = pk
+    return out
+
+
+def detect_collisions(cur, proj_rows, config, sp_ratings):
+    """Teams held by two or more managers on OPPOSITE sides.
+
+    THE SAME RULE PRESEASON USES, deliberately, and it is worth being precise
+    about what that rule IS: preseason_baseline._collisions applies NO ranking
+    at all. It emits every collision it finds, sorted by team name, and
+    build_rail.py takes [0]. There is no "best collision" heuristic to port,
+    so none is invented here -- this sorts by the same key and emits the same
+    set, and in-season [0] means exactly what preseason [0] means.
+
+    Grouped by (team, line) rather than by team alone. Preseason groups by team
+    and reads the line off the first holder, which is safe only because a
+    team's line is frozen once for the whole pool. Keying on both is identical
+    in every case that can occur today and does not silently merge two
+    different lines if that ever stops being true.
+
+    A shared SIDE is not a collision: two managers both taking the over on one
+    team is a shared bet, and the direction test is what separates them.
+    """
+    holders = defaultdict(list)
+    for mid, m in cur.items():
+        for team, pk in m["picks"].items():
+            if pk.get("line") is None or not pk.get("direction"):
+                continue
+            holders[(team, pk["line"])].append((mid, pk))
+
+    out = []
+    for (team, line), held in sorted(holders.items()):
+        if len(held) < 2:
+            continue
+        if len({pk["direction"] for _, pk in held}) < 2:
+            continue
+
+        # One implied-wins figure settles every side, so it is emitted once
+        # rather than per side -- preseason's comment, and its shape.
+        first_proj = proj_rows.get((held[0][0], team)) or {}
+        implied = first_proj.get("expected_final_wins")
+        if implied is None:
+            # Board 2 degraded for this pick. A collision card with no number
+            # on it is not worth publishing, and a null would reach the rail as
+            # a blank; skip the collision and keep the rest.
+            print(f"::warning:: [{config.get('group_id')}] collision on {team} "
+                  f"{line} skipped: projection carries no expected_final_wins "
+                  f"for it.", file=sys.stderr)
+            continue
+
+        sides = []
+        for mid, pk in sorted(held, key=lambda kv: kv[0]):
+            pr = proj_rows.get((mid, team)) or {}
+            sides.append({
+                "manager_id": mid,
+                "name": (cur.get(mid) or {}).get("display_name") or mid,
+                "direction": pk["direction"],
+                # Board 2's own names for the two numbers preseason calls
+                # market_gap and implied_expected_wins. Same quantities, same
+                # sign convention (positive = the projection agrees with the
+                # side taken); projection.json carries the gap at one fewer
+                # decimal place than the frozen baseline does.
+                "market_gap": pr.get("expected_delta"),
+                "p_beat_line": pr.get("p_beat_line"),
+            })
+
+        out.append({
+            "team": team,
+            "line": line,
+            "implied_expected_wins": implied,
+            "sp_ranking": (sp_ratings.get(team) or {}).get("ranking"),
+            "games_scheduled": utils.team_state(team, config)["games_scheduled"],
+            "sides": sides,
+        })
+    return out
+
+
+def featured_pick_from_coda(beat, cur, proj_rows, config, sp_ratings):
+    """`worst_pick_on_the_board` shape, built from the coda already selected.
+
+    NO SECOND RANKING. build_bad_beats orders the pool and
+    exclude_lead_subject has already dropped anything sharing a subject with
+    the lead storyline, so the caller hands us candidates[0] and this only
+    reshapes it. Choosing differently here would put one pick in the rail and
+    another in the prose.
+
+    WHAT IT MEANS SHIFTS BETWEEN THE TWO BUILDERS, and that is worth knowing
+    when reading the card. Preseason's worst_pick_on_the_board is "the pick the
+    model likes least" (lowest market_gap). In season the coda is the Bad Beat
+    of the Week -- "the pick that died ugliest" -- so the rail's outlook card
+    follows the column's coda rather than the projection's least-liked pick.
+    The FIELDS are the same and every number in them is still true of the pick
+    named; the selection question they answer is not.
+    """
+    if not beat:
+        return None
+    mid, team = beat.get("manager_id"), beat.get("team")
+    pk = ((cur.get(mid) or {}).get("picks") or {}).get(team) or {}
+    pr = proj_rows.get((mid, team)) or {}
+
+    implied = pr.get("expected_final_wins")
+    if implied is None:
+        print(f"::warning:: [{config.get('group_id')}] featured pick "
+              f"{mid}/{team} skipped: projection carries no "
+              f"expected_final_wins for it.", file=sys.stderr)
+        return None
+
+    return {
+        "manager_id": mid,
+        "name": (cur.get(mid) or {}).get("display_name") or mid,
+        "team": team,
+        "line": beat.get("line", pk.get("line")),
+        "direction": beat.get("direction", pk.get("direction")),
+        "implied_expected_wins": implied,
+        "market_gap": pr.get("expected_delta"),
+        "p_beat_line": pr.get("p_beat_line"),
+        "games_scheduled": utils.team_state(team, config)["games_scheduled"],
+        "sp_ranking": (sp_ratings.get(team) or {}).get("ranking"),
+        "selected_by": ("the week's bad-beat coda, after the lead-subject "
+                        "filter — the same selection the column's second beat "
+                        "uses, never a second ranking computed for the rail"),
+    }
+
+
 # --- Coda / lead subject separation ------------------------------------------
 #
 # THE RULE: the coda -- "Bad Beat of the Week" in season, "Worst Pick on the
@@ -1167,6 +1320,16 @@ def build_packet(group_id, cli_week=None):
         label="bad-beat", group_id=group_id)
     profiles = build_profiles(cur, picks)
 
+    # THE RAIL BLOCKS. Built after the coda filter on purpose: the featured
+    # pick IS bad_beats[0], so it has to be read after exclude_lead_subject has
+    # had its say, or the rail would name a pick the column was told not to
+    # write about.
+    proj_rows = projection_rows(projection)
+    sp_ratings = utils.season_sp_ratings(season)
+    collisions = detect_collisions(cur, proj_rows, config, sp_ratings)
+    featured = featured_pick_from_coda(bad_beats[0] if bad_beats else None,
+                                       cur, proj_rows, config, sp_ratings)
+
     return {
         "group_id": group_id,
         "week": week,
@@ -1190,6 +1353,13 @@ def build_packet(group_id, cli_week=None):
         "race": race,
         "storylines": stories,
         "bad_beat_candidates": bad_beats,
+        # OMITTED, not emitted empty, when there is nothing to say: a week with
+        # no two-sided team carries no `collisions` key and a week where
+        # nothing died ugly carries no `worst_pick_on_the_board`. build_rail
+        # drops the matching card and the page renders one card fewer. An empty
+        # list would be a stub, and a stub is a card that renders blank.
+        **({"collisions": collisions} if collisions else {}),
+        **({"worst_pick_on_the_board": featured} if featured else {}),
         # Audit trail for the rule above: which lead subject was excluded, how
         # many candidates it cost, and whether the degraded path was taken.
         "coda_exclusion": coda_exclusion,
