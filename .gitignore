@@ -43,6 +43,14 @@ docs/data/test/
 # continuity the pundit reads back), so they stay tracked.
 groups/*/output/week_packet.json
 groups/*/output/commentary_prompt_preview.txt
+# Drafts the factual guard refused (scripts/column_guard.py). They are kept on
+# disk deliberately -- a rejected draft is the evidence for whatever prompt or
+# scan change comes next, and reading it is the only way to tell a real
+# fabrication from a rule that needs loosening. But they are NOT columns: they
+# were never filed, never indexed and never appended to column_memory.json, and
+# committing one would put prose in the tree that the site does not serve and
+# next week's prompt must never read back as an exemplar.
+groups/*/output/column_week_*.rejected.md
 
 # Multi-year backtest cache for calibrate_spread.py. Fetched from CFBD on demand
 # (data/backtest_cache/{lines,sp,games}.json), regenerable with --refresh. Kept
