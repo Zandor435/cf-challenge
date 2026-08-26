@@ -107,9 +107,10 @@ jobs:
       # verified locally, minus generated_at. Nothing here is fetched and no
       # API key is needed, which is why it belongs in this read-only job.
       #
-      # SIDE EFFECT, stated: --week0-packet also rewrites
-      # docs/data/<group>/columns/rail.json through build_rail. Harmless in a
-      # job that never commits or deploys, and the tree is discarded after.
+      # SIDE EFFECT, PUT TO WORK. --week0-packet also rewrites
+      # docs/data/<group>/columns/rail.json through build_rail, and rail.json
+      # IS committed (unlike the packets). So the regenerated tree is a free
+      # staleness check on it -- see the diff step below.
       #
       # The group list comes off groups/ rather than being spelled out, so a
       # new league is covered without editing this file. A group with no
@@ -122,6 +123,53 @@ jobs:
             g=$(basename "$d")
             python scripts/generate_commentary.py --group "$g"               --packet "output/$g/week_0_packet.json" --check-published
           done
+
+      # THE RAIL IS COMMITTED; THE PACKET IT COMES FROM IS NOT. rail.json is
+      # the only published artifact build_rail writes, and the step above has
+      # just regenerated all four of them for free as a side effect of the
+      # packet rebuild. So the tree right now holds "what build_rail would
+      # write today" sitting on top of "what somebody committed", and diffing
+      # the two costs nothing and catches the one failure this file has no
+      # other guard against: a builder change (or a hand edit) that never got
+      # re-published, leaving the site serving a card the code no longer
+      # produces. sync_personas.py --check and build_team_marks.py --check
+      # already do exactly this for their own derived copies; this closes the
+      # third one.
+      #
+      # generated_at is EXCLUDED, not normalized. It is a wall-clock timestamp
+      # written at build time, so it differs on every single run and would make
+      # this check red always. Excluded via git's own -I rather than by
+      # rewriting the files first, for two reasons: rewriting would mutate the
+      # tree the guard step just produced (and any bug in the rewriter would
+      # read as a passing check), and -I is evaluated PER HUNK -- a hunk is
+      # ignored only when EVERY changed line in it matches, so a real value
+      # that changed alongside the timestamp still fails. Nothing here can hide
+      # a substantive diff.
+      #
+      # COMMITS NOTHING. It reads the working tree against HEAD and stops. The
+      # `git add` you might reach for on a red run belongs on your machine:
+      # re-run the builder locally and commit the result.
+      #
+      # `git diff` cannot see a rail.json that is NEW, so the untracked check
+      # is the second half of the same question -- a group that starts carrying
+      # a rail is just as unpublished as one whose rail went stale. A rail that
+      # build_rail DELETES does show up as a deletion in the diff.
+      - name: rail.json is published (regenerated == committed)
+        run: |
+          git diff --exit-code -I'"generated_at"' -- 'docs/data/*/columns/rail.json' || {
+            echo "::error::A committed rail.json does not match what build_rail.py"
+            echo "::error::produces from the packet. Re-run"
+            echo "::error::  python scripts/preseason_baseline.py --week0-packet all"
+            echo "::error::and commit the regenerated docs/data/*/columns/rail.json."
+            exit 1
+          }
+          new=$(git ls-files --others --exclude-standard -- 'docs/data/*/columns/rail.json')
+          if [ -n "$new" ]; then
+            echo "::error::build_rail.py produced a rail.json that is not committed:"
+            echo "$new"
+            exit 1
+          fi
+          echo "rail.json is current for every group."
 
       # LAST, and blocking like everything above it. selftest_10_1 is a health
       # check of the COMMITTED cache plus the commentary-bypass and season-guard
