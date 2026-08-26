@@ -981,7 +981,10 @@ def test_prior_season_ban_is_a_word_test():
           "delete any sentence that carries one" in selfcheck)
     check("the self-check is the LAST instruction before the return line",
           user_text.rindex("read the column back")
-          < user_text.rindex("Return ONLY the column text"))
+          # The deck made this line "Return ONLY the DECK line and the column
+          # text." The invariant is unchanged -- the self-check is last before
+          # the return instruction -- only the instruction's wording moved.
+          < user_text.rindex("Return ONLY the DECK line and the column text"))
 
 
 def test_house_style_structures_and_percentages():
@@ -1061,31 +1064,51 @@ def test_length_guidance_survives_the_bans():
     sentence" without "and write another one" is an instruction to shrink.
     These checks pin both, plus the per-beat number, plus the transitions line
     that came from the same reflex one level down.
+
+    UPDATED 2026-08-26, and the POSITION check below is the new part. Stating
+    the rule as a floor was not enough on its own: it was still the LAST thing
+    in an unbroken run of prohibitions, and four generations came back at
+    261 / 290 / 319 / 325 words. It now sits at the TOP of the assignment,
+    above the house style and the deck and paragraph rules, and that is the
+    invariant worth pinning -- an edit that files it back under the bans
+    reintroduces the exact failure this test is named for. The floor itself
+    moved 350 -> 300 in the same pass, because a floor four generations never
+    reached is a number the next reader learns to discount.
     """
     print("\nLength guidance, positioned so the bans cannot clip the column:")
     with sandbox("panel", _seeded_packet()):
         _, user_text, _ = G.build_prompt("panel")
     tail = user_text.split("=== YOUR ASSIGNMENT ===")[1]
 
-    check("length is stated at the assignment, beside the other constraints",
-          "LENGTH: TARGET 350-450 WORDS TOTAL" in tail)
+    check("length is stated as a hard minimum, not a range",
+          "MINIMUM 300 WORDS" in tail
+          and "300 is the floor and it is a hard one" in tail)
+    check("the 350-450 target survives alongside the floor",
+          "350-450 is the target" in tail)
     check("Beat 1 carries its own number, named as the One Big Thing",
           "Beat 1 (the One Big Thing)" in tail and "250-300 of them" in tail)
 
+    # THE POSITION, which is the half that took four columns to learn. The
+    # length rule has to come BEFORE the prohibition blocks in the assignment:
+    # underneath them it reads as one more argument for writing less.
+    for ban in ("HOUSE STYLE", "FIRST LINE OF YOUR REPLY", "PARAGRAPHS:"):
+        check("the length floor is stated above " + ban + ", not below it",
+              ban in tail and tail.index("MINIMUM 300 WORDS") < tail.index(ban))
+
     # The whole point: the bans stay absolute, and are told not to shorten.
     check("the bans are explicitly NOT relaxed by the length rule",
-          "Nothing above is relaxed here" in tail
-          and "the prose bans are absolute" in tail)
+          "The rules further down are absolute" in tail
+          and "none of them is relaxed by" in tail)
     check("...but are told not to clip the column short",
-          "they must not clip the column short" in tail)
+          "they must not clip the column short either" in tail)
     check("a deleted sentence is replaced, not simply removed",
-          "When a sentence has to go, replace it" in tail
+          "When a sentence has to go, REPLACE IT" in tail
           and "rather than shortening the column overall" in tail)
     check("expansion is pointed at prose, not at more numbers",
-          "context, character, what is at stake" in tail
+          "what the disagreement claims, what is at stake" in tail
           and "earns its length in voice, not in stat recitation" in tail)
-    check("the observed failure length is named as a floor breach",
-          "250 words is not a tighter column, it is an unfinished one" in tail)
+    check("the failure mode is named as a floor breach",
+          "under 300 words is not a tighter column, it is an unfinished" in tail)
 
     # The old rough-size line must be gone, or the prompt carries two targets.
     check("the superseded 'Roughly 400 words total' line is gone",
@@ -1099,10 +1122,12 @@ def test_length_guidance_survives_the_bans():
           "say the plain thing instead" in tail
           and tail.count("Write the joins in plain speech") == 1)
 
-    # It has to reach the model AFTER the packet dump, like the other two
+        # It has to reach the model AFTER the packet dump, like the other two
     # blocks -- a length target stated in the header is the one that failed.
+    # "LENGTH —" now, not "LENGTH: TARGET": the rule leads with the floor
+    # rather than with the range. Still the same assertion about position.
     check("length guidance sits after the packet, in the assignment",
-          user_text.rindex("LENGTH: TARGET")
+          user_text.rindex("LENGTH — READ THIS BEFORE")
           > user_text.rindex("=== WEEK PACKET"))
 
 
