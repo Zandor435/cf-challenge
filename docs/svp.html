@@ -148,6 +148,20 @@
        and a per-team model outlook card. Both are absent on purpose -- see the
        comment over renderRail(). -->
   <aside class="svp-rail" id="svp-rail" aria-label="Column data" hidden>
+    <!-- The two packet-derived cards, from data/<group>/columns/rail.json.
+         Both are FILLED BY SCRIPT and both stay hidden unless their key is in
+         that file: a group with no rail.json (every group but panel today)
+         404s on the fetch and lands here exactly as it did before the file
+         existed. The heads are empty in the markup because both name a team,
+         and a team name is data. -->
+    <section class="svp-card" id="svp-card-dispute" hidden>
+      <h2 class="svp-card-head" id="svp-dispute-head"></h2>
+      <div class="svp-card-body" id="svp-dispute-body"></div>
+    </section>
+    <section class="svp-card" id="svp-card-outlook" hidden>
+      <h2 class="svp-card-head" id="svp-outlook-head"></h2>
+      <dl class="svp-card-body" id="svp-outlook-body"></dl>
+    </section>
     <section class="svp-card" id="svp-card-file" hidden>
       <h2 class="svp-card-head">Column file</h2>
       <dl class="svp-card-body" id="svp-kv-file"></dl>
@@ -321,12 +335,18 @@
     // 3 + 4 + 5 -- the archive. art_slots.json is fetched alongside rather than
     // before, because the avatar is decoration on prose: the column must render
     // whether or not the slot manifest is reachable.
+    // rail.json is fetched here rather than gated on the column, for the
+    // same reason art_slots.json is: a 404 is its ordinary answer and the
+    // column must not wait on it. It is fetched alongside, and renderRail
+    // returns immediately on the null a 404 produces.
     Promise.all([
       getJSON(COLUMNS + 'index.json'),
       getJSON('assets/art_slots.json'),
+      getJSON(COLUMNS + 'rail.json'),
     ]).then(function (res) {
       var index = res[0];
       var slots = res[1];
+      renderRail(res[2]);
       var entries = (index && Array.isArray(index.columns)) ? index.columns : [];
       // No manifest, or a manifest with nothing in it, is the ordinary
       // pre-Week-0 state and is treated exactly as no column at all: the teaser
@@ -379,7 +399,100 @@
       if (!html) return;
 
       list.innerHTML = html;
-      card.hidden = false;
+      showCard(cardId);
+    }
+
+    // THE TWO PACKET CARDS. Everything they print is a literal field in
+    // rail.json: the manager names, the team, the line, the direction letter,
+    // the percent (already a rendered string -- scripts/build_rail.py rounds
+    // it, because this page does not divide), and the two decimals. Nothing
+    // here computes, rounds or derives.
+    //
+    // The only decisions made in JS are which WORD an existing letter maps to
+    // (U -> UNDER, O -> OVER) and which colour class a sign takes. Both are
+    // presentation of a value that is already in the file, not a new value.
+    //
+    // rail.json 404s for every group that has no rail, which is the ordinary
+    // state and the one three of the four groups are in: getJSON returns null,
+    // this returns immediately, and the page is byte-identical to what it was
+    // before the file existed.
+    var SIDE_WORD = { U: 'Under', O: 'Over' };
+
+    function renderRail(rail) {
+      if (!rail) return;
+      renderDispute(rail.collision);
+      renderOutlook(rail.featured_pick);
+    }
+
+    // DISPUTE. Two managers, one team, opposite sides. Green under, blue over,
+    // with an arrow drawn in CSS rather than shipped as a glyph so it cannot
+    // 404 and inherits the same colour as the side it belongs to.
+    function renderDispute(c) {
+      // A collision is two sides by definition; anything else is a shape this
+      // page does not know how to draw, and it draws nothing rather than a
+      // half card. Same contract as railCard(): absent is ordinary, silent.
+      if (!c || !Array.isArray(c.picks) || c.picks.length !== 2) return;
+      if (!c.team || c.line === null || c.line === undefined) return;
+
+      var rows = c.picks.map(function (p) {
+        var word = SIDE_WORD[p.direction];
+        if (!word || !p.manager) return null;
+        var cls = p.direction === 'U' ? 'is-under' : 'is-over';
+        return '<div class="svp-side ' + cls + '">' +
+          '<div class="svp-side-text">' +
+            '<span class="svp-side-mgr">' + esc(p.manager) + '</span>' +
+            '<span class="svp-side-call">' + esc(word) + ' ' + esc(String(c.line)) + '</span>' +
+            // The percent is printed exactly as the file carries it.
+            (p.p_beat_line
+              ? '<span class="svp-side-p">Model: ' + esc(String(p.p_beat_line)) + '</span>'
+              : '') +
+          '</div>' +
+          '<span class="svp-side-arrow" aria-hidden="true"></span>' +
+        '</div>';
+      });
+      if (rows.indexOf(null) !== -1) return;   // one unreadable side kills the card
+
+      document.getElementById('svp-dispute-head').textContent = 'The ' + c.team + ' dispute';
+      document.getElementById('svp-dispute-body').innerHTML = rows.join('');
+      showCard('svp-card-dispute');
+    }
+
+    // OUTLOOK. One manager's pick, the model's win total for that team, and
+    // the gap between them. The gap's colour is chosen from the sign of a
+    // number already in the file -- a comparison, not a calculation -- and a
+    // gap that is not a number simply renders uncoloured.
+    function renderOutlook(f) {
+      if (!f || !f.team || !f.manager) return;
+      var word = SIDE_WORD[f.direction];
+      if (!word || f.line === null || f.line === undefined) return;
+
+      var gapCls = '';
+      if (typeof f.expected_delta === 'number') {
+        gapCls = f.expected_delta < 0 ? ' is-negative' : ' is-positive';
+      }
+      var rows = [
+        ['Manager', f.manager],
+        ['Pick', word + ' ' + f.line],
+        ['Model implied', f.expected_final_wins],
+        ['Market gap', f.expected_delta, gapCls],
+      ].filter(function (r) {
+        return r[1] !== null && r[1] !== undefined && String(r[1]).trim() !== '';
+      }).map(function (r) {
+        return '<div class="svp-kv">' +
+          '<dt class="svp-kv-k">' + esc(r[0]) + '</dt>' +
+          '<dd class="svp-kv-v' + (r[2] || '') + '">' + esc(String(r[1])) + '</dd>' +
+        '</div>';
+      }).join('');
+      if (!rows) return;
+
+      document.getElementById('svp-outlook-head').textContent = f.team + ' outlook';
+      document.getElementById('svp-outlook-body').innerHTML = rows;
+      showCard('svp-card-outlook');
+    }
+
+    function showCard(id) {
+      var card = document.getElementById(id);
+      if (card) card.hidden = false;
       var rail = document.getElementById('svp-rail');
       if (rail) rail.hidden = false;
     }

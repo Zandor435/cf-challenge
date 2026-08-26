@@ -1480,6 +1480,56 @@ body.svp-doc { background: var(--paper); }
   text-transform: uppercase; color: var(--text);
   text-align: right; min-width: 0; word-break: break-word;
 }
+/* The market gap's sign, and the ONLY place colour carries meaning in the
+   rail. The class is chosen in JS from the sign of a number already in
+   rail.json -- a comparison, not a calculation. */
+.svp-kv-v.is-negative { color: var(--negative); }
+.svp-kv-v.is-positive { color: var(--positive); }
+
+/* THE DISPUTE CARD. Two sides of one line, stacked. Green under, blue over --
+   the two colours are the card's whole legend, so the manager name takes the
+   side's colour and the arrow repeats it as shape for anyone who cannot use
+   the hue. --over has no token yet because nothing else on the site draws an
+   over/under pair; it is defined here rather than in :root for that reason. */
+.svp-side {
+  --side: var(--text-muted);
+  --side-wash: var(--bg-subtle);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 13px 0;
+}
+.svp-side + .svp-side { border-top: 1px solid var(--border-soft); }
+.svp-side.is-under { --side: #1f8a2b; --side-wash: #e8f4e9; }
+.svp-side.is-over  { --side: #2f5fd0; --side-wash: #e8edfa; }
+
+.svp-side-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.svp-side-mgr {
+  font-family: var(--display); font-weight: 900; font-size: .82rem;
+  text-transform: uppercase; letter-spacing: .07em; color: var(--side);
+}
+.svp-side-call {
+  font-family: var(--display); font-weight: 900; font-size: 1.35rem;
+  line-height: 1; text-transform: uppercase; letter-spacing: .02em;
+  color: var(--text);
+}
+.svp-side-p {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+
+/* Arrow: a disc with a CSS triangle in it, rotated per side. Drawn rather
+   than shipped so it inherits --side and cannot 404. */
+.svp-side-arrow {
+  position: relative; flex: 0 0 40px; width: 40px; height: 40px;
+  border-radius: 50%; background: var(--side-wash);
+}
+.svp-side-arrow::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 0; height: 0; border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  margin: -3px 0 0 -6px;
+}
+.svp-side.is-under .svp-side-arrow::after { border-top: 9px solid var(--side); }
+.svp-side.is-over  .svp-side-arrow::after { border-bottom: 9px solid var(--side); margin-top: -6px; }
 
 @media (max-width: 860px) {
   /* The rail is already last in the source order, so stacking it under the
