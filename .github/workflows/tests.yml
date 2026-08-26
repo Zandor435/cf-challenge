@@ -85,6 +85,44 @@ jobs:
       - name: build_team_marks.py --check (docs/ copy is current)
         run: python scripts/build_team_marks.py --check
 
+      # THE FACTUAL GUARD, over the columns that are actually published. It
+      # answers one question -- does any filed column assert a number or a
+      # class of claim the week packet cannot support -- and a violation fails
+      # the build. scripts/column_guard.py carries the rules; --check-published
+      # runs them over docs/data/<group>/columns/week_<N>.json.
+      #
+      # WHY IT REBUILDS THE PACKET FIRST. The guard needs the packet, because
+      # the whole design is traceability against the packet's own fields rather
+      # than a keyword blocklist -- "eight top-25 opponents" is CORRECT when
+      # strength_of_schedule.opponents_sp_top25 is 8, and a check that cannot
+      # see that field would fail a true sentence. Packets are engine
+      # intermediates and are gitignored, so they are not in the checkout.
+      #
+      # Rebuilding them here is offline and deterministic, which is the only
+      # reason this is sound: --week0-packet reads only committed inputs
+      # (data/cfbd_cache.json, the frozen baseline, the win-total reference,
+      # groups/*/), makes NO network call, and the pool simulation is seeded
+      # per group and week (projector.POOL_SIM_SEED_BASE), so the regenerated
+      # packet is byte-identical to the one the column was written against --
+      # verified locally, minus generated_at. Nothing here is fetched and no
+      # API key is needed, which is why it belongs in this read-only job.
+      #
+      # SIDE EFFECT, stated: --week0-packet also rewrites
+      # docs/data/<group>/columns/rail.json through build_rail. Harmless in a
+      # job that never commits or deploys, and the tree is discarded after.
+      #
+      # The group list comes off groups/ rather than being spelled out, so a
+      # new league is covered without editing this file. A group with no
+      # published column reports that and passes -- absent is an ordinary
+      # state here, exactly as it is everywhere else in this pipeline.
+      - name: column_guard --check-published (no column asserts what the packet lacks)
+        run: |
+          python scripts/preseason_baseline.py --week0-packet all
+          for d in groups/*/; do
+            g=$(basename "$d")
+            python scripts/generate_commentary.py --group "$g"               --packet "output/$g/week_0_packet.json" --check-published
+          done
+
       # LAST, and blocking like everything above it. selftest_10_1 is a health
       # check of the COMMITTED cache plus the commentary-bypass and season-guard
       # paths — all offline: `fetch_results.py --simulate-failure` raises before
