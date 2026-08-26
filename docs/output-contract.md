@@ -30,6 +30,7 @@ used to read as "these four files and nothing else", which was already untrue:
 | `banners.json`  | `build_banners.py` | **overwrite** | no banner set built for the group |
 | `columns/week_<N>.json` | `generate_commentary.py` | **accumulate** | that week has not been filed |
 | `columns/index.json`    | `generate_commentary.py` | **derived** (rebuilt in full) | no column filed yet — the normal state before Week 0 |
+| `columns/rail.json`     | `build_rail.py` (from the week packet) | **overwrite**, and REMOVED when the packet supports no card | the group is not in `build_rail.RAIL_GROUPS`, or the packet carries neither block |
 
 Every consumer of these must treat a 404 as an ordinary state and render its own
 empty state, exactly as `svp.html` does for a group with no column.
@@ -44,7 +45,49 @@ week 1 erased week 0 from the web. The archive accumulates instead.
 ```
 docs/data/<group>/columns/week_<N>.json   one filed column   ACCUMULATE
 docs/data/<group>/columns/index.json      the manifest       DERIVED
+docs/data/<group>/columns/rail.json       the page's rail    DERIVED
 ```
+
+##### `rail.json` — the column page's data rail
+
+Two blocks, both copied verbatim out of the week packet by
+`scripts/build_rail.py`, which computes nothing and re-selects nothing. The
+packet's own selection (`collisions[0]`, and the coda rule's
+`worst_pick_on_the_board`) is the selection, so the rail and the prose are
+always about the same picks.
+
+```json
+{
+  "group_id": "panel", "week": 0, "generated_at": "...",
+  "collision": {
+    "team": "Texas", "line": 9.5,
+    "picks": [ { "manager": "Blaine", "direction": "U", "p_beat_line": "86%" },
+               { "manager": "Chris",  "direction": "O", "p_beat_line": "14%" } ]
+  },
+  "featured_pick": {
+    "manager": "Jonathan", "team": "Oregon", "direction": "O", "line": 10.5,
+    "expected_final_wins": 9.456, "expected_delta": -1.044
+  }
+}
+```
+
+`p_beat_line` is a **rendered percent string**, not a probability. The site
+renders JSON and computes nothing, so the rounding happens in Python; the key
+keeps the packet's name for provenance and the value is what the card prints.
+`line`, `expected_final_wins` and `expected_delta` are the packet's own
+decimals, unchanged (`expected_final_wins` / `expected_delta` are the packet's
+`implied_expected_wins` / `market_gap` — the same two numbers `projection.json`
+carries at one fewer decimal place).
+
+Either key may be **absent**, and absence is ordinary: no collision this week,
+or no featured pick. Consumers drop that card. A packet supporting neither
+removes the file outright rather than leaving a stale card standing, so a 404
+here is the normal state for most groups and every consumer must render
+without it.
+
+Today `collisions` and `worst_pick_on_the_board` are built only by the Week 0
+packet (`preseason_baseline.py --week0-packet`); `build_week_packet.py` has no
+in-season counterpart, so the first packed real week clears the rail.
 
 ##### `week_<N>.json` — one filed column
 

@@ -60,6 +60,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
+import build_rail
 
 
 # --- Tunable detection/scoring constants ------------------------------------
@@ -1210,9 +1211,23 @@ def main():
     packet = build_packet(args.group, args.week)
     if packet is None:
         # Preseason. build_packet already said so; exit 0 without writing a
-        # packet, and WITHOUT disturbing any packet already on disk.
+        # packet, and WITHOUT disturbing any packet already on disk. The rail
+        # is left alone too -- Week 0's rail was published by
+        # preseason_baseline.py and is still the current one until a real week
+        # is packed.
         return
     utils.save_json_atomic(packet_path(args.group), packet)
+    # The page-facing half; see the identical call in preseason_baseline.py.
+    #
+    # AN IN-SEASON PACKET CARRIES NEITHER BLOCK TODAY. `collisions` and
+    # `worst_pick_on_the_board` are built by preseason_baseline.build_week0_packet
+    # and have no in-season counterpart here (the coda is bad_beat_candidates
+    # instead), so this call currently REMOVES panel's rail.json on the first
+    # real week rather than writing one. That is the intended behavior and not
+    # an oversight: the alternative is week 0's Texas dispute sitting beside a
+    # week 7 column, which reads as current and is not. When this builder grows
+    # the two blocks, the rail starts publishing again with no change here.
+    build_rail.write_rail(packet)
     print(f"  [{args.group}] week {packet['week']} "
           f"({packet['comparison']['basis']}): "
           f"{len(packet['storylines'])} storyline(s) "

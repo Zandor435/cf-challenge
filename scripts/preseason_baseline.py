@@ -61,6 +61,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
 import projector
+import build_rail
 # The uniform-field rule has ONE implementation, and it lives with the live
 # packet builder. This file used to carry a second copy under a "same contract
 # as build_week_packet" comment -- which is exactly how two implementations
@@ -1027,6 +1028,15 @@ def main():
             utils.save_json_atomic(ppath, packet)
             print()
             print(f"  wrote {ppath}")
+            # The page-facing half of the same packet: the collision and the
+            # coda pick, published into docs/ where Pages can serve them. Same
+            # call in build_week_packet.py, gated by the same one tuple, and it
+            # writes nothing for a group that is not in it. Deliberately AFTER
+            # the packet write -- the rail is derived from what was just
+            # committed, so a crash between the two leaves a packet with no
+            # rail (the page renders fewer cards) rather than a rail describing
+            # a packet that was never written.
+            build_rail.write_rail(packet)
         return
 
     print("=" * 60)
