@@ -1,0 +1,7 @@
+Bryan and Todd find themselves in a delicate dance over South Florida's projected win total of 8.5. Bryan, with a penchant for taking big swings, has pinned his hopes on the over, a vote of confidence in the Bulls' potential. Todd, ever the pragmatist, holds the other side, embracing the under. The numbers lean Todd's way, granting him a 69% probability of being correct. The market's expectation sits at 7.713 wins, offering Bryan a 31% chance to see his bullishness rewarded.
+
+This isn't just a numbers game; it's an ideological clash. Bryan's approach is akin to a gambler in a smoke-filled casino, rolling the dice with a knowing smile. Todd, however, is more like a seasoned chess player, calculating the moves and counters with precision. Their feud isn't merely about South Florida; it's a broader reflection of their differing philosophies in this pool where picking sides means embracing one's nature. As they both trail the leading Matt Merlene, Bryan sits just six games back, while Todd is seven off the pace. Neither is out of the race, but each has charted a distinct course.
+
+Even as the numbers offer Todd a comforting cushion, Bryan's picks are worth watching for sheer audacity. In the world of win totals, where faith meets fate, their rivalry adds a layer of intrigue to the season's unfolding drama.
+
+That's the column. Don't take the points personally. They were always going to be exactly what they are.
