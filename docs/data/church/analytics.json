@@ -3,8 +3,8 @@
     "group_id": "church",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-08-29T16:55:52.267139+00:00",
-    "cache_fetched_at": "2026-08-29T16:55:51.386792+00:00"
+    "generated_at": "2026-08-30T17:05:51.203372+00:00",
+    "cache_fetched_at": "2026-08-30T17:05:50.740387+00:00"
   },
   "race": {
     "board": "exact",
@@ -38,10 +38,10 @@
         "display_name": "Brian",
         "rank": 3,
         "banked_total": -9.0,
-        "floor": -21.0,
-        "ceiling": 26.0,
+        "floor": -20.0,
+        "ceiling": 25.0,
         "gap_to_leader": 13.0,
-        "ceiling_remaining": 35.0,
+        "ceiling_remaining": 34.0,
         "week_move": null
       },
       {
@@ -59,11 +59,11 @@
         "manager_id": "john_wells",
         "display_name": "John Wells",
         "rank": 5,
-        "banked_total": -29.0,
-        "floor": -29.0,
+        "banked_total": -27.0,
+        "floor": -27.0,
         "ceiling": 19.0,
-        "gap_to_leader": 33.0,
-        "ceiling_remaining": 48.0,
+        "gap_to_leader": 31.0,
+        "ceiling_remaining": 46.0,
         "week_move": null
       }
     ]
@@ -76,31 +76,31 @@
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.367038,
-        "week_move": null
-      },
-      {
-        "manager_id": "david",
-        "display_name": "David",
-        "p_win_pool": 0.215697,
+        "p_win_pool": 0.347453,
         "week_move": null
       },
       {
         "manager_id": "brian",
         "display_name": "Brian",
-        "p_win_pool": 0.188455,
+        "p_win_pool": 0.211799,
         "week_move": null
       },
       {
-        "manager_id": "john_tamu",
-        "display_name": "John K",
-        "p_win_pool": 0.122676,
+        "manager_id": "david",
+        "display_name": "David",
+        "p_win_pool": 0.208312,
         "week_move": null
       },
       {
         "manager_id": "john_wells",
         "display_name": "John Wells",
-        "p_win_pool": 0.106134,
+        "p_win_pool": 0.119082,
+        "week_move": null
+      },
+      {
+        "manager_id": "john_tamu",
+        "display_name": "John K",
+        "p_win_pool": 0.113353,
         "week_move": null
       }
     ]
@@ -193,7 +193,7 @@
             "conference": "Big Ten",
             "line": 8.5,
             "direction": "U",
-            "delta": 8.5
+            "delta": 7.5
           }
         ],
         "anchor": [
@@ -245,16 +245,7 @@
             "conference": "ACC",
             "line": 6.5,
             "direction": "O",
-            "delta": -6.5
-          },
-          {
-            "manager_id": "john_wells",
-            "display_name": "John Wells",
-            "team": "California",
-            "conference": "ACC",
-            "line": 6.5,
-            "direction": "O",
-            "delta": -6.5
+            "delta": -5.5
           }
         ],
         "anchor": [
@@ -287,7 +278,7 @@
           "other_manager_id": "brian",
           "other_display_name": "Brian",
           "other_field": "floor",
-          "other_value": -21.0
+          "other_value": -20.0
         }
       },
       {
@@ -312,7 +303,7 @@
         "comparison": {
           "basis": "ceiling_vs_leader_floor",
           "my_field": "ceiling",
-          "my_value": 26.0,
+          "my_value": 25.0,
           "operator": ">=",
           "other_manager_id": "david",
           "other_display_name": "David",
@@ -471,31 +462,31 @@
         "manager_id": "brian",
         "display_name": "Brian",
         "banked_total": -9.0,
-        "absolute_total": 26.0,
+        "absolute_total": 24.0,
         "picks": [
           {
             "team": "Stanford",
             "conference": "ACC",
             "line": 3.5,
             "direction": "O",
-            "banked_delta": -3.5,
-            "floor": -3.5,
+            "banked_delta": -2.5,
+            "floor": -2.5,
             "ceiling": 8.5,
             "status": "LIVE",
-            "games_remaining": 12,
-            "share_of_delta": 0.134615
+            "games_remaining": 11,
+            "share_of_delta": 0.104167
           },
           {
             "team": "USC",
             "conference": "Big Ten",
             "line": 8.5,
             "direction": "U",
-            "banked_delta": 8.5,
+            "banked_delta": 7.5,
             "floor": -3.5,
-            "ceiling": 8.5,
+            "ceiling": 7.5,
             "status": "LIVE",
-            "games_remaining": 12,
-            "share_of_delta": 0.326923
+            "games_remaining": 11,
+            "share_of_delta": 0.3125
           },
           {
             "team": "Texas",
@@ -507,7 +498,7 @@
             "ceiling": 2.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.365385
+            "share_of_delta": 0.395833
           },
           {
             "team": "Washington State",
@@ -519,7 +510,7 @@
             "ceiling": 6.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.173077
+            "share_of_delta": 0.1875
           }
         ]
       },
@@ -582,32 +573,32 @@
       {
         "manager_id": "john_wells",
         "display_name": "John Wells",
-        "banked_total": -29.0,
-        "absolute_total": 29.0,
+        "banked_total": -27.0,
+        "absolute_total": 27.0,
         "picks": [
           {
             "team": "Virginia",
             "conference": "ACC",
             "line": 7.5,
             "direction": "O",
-            "banked_delta": -7.5,
-            "floor": -7.5,
+            "banked_delta": -6.5,
+            "floor": -6.5,
             "ceiling": 4.5,
             "status": "LIVE",
-            "games_remaining": 12,
-            "share_of_delta": 0.258621
+            "games_remaining": 11,
+            "share_of_delta": 0.240741
           },
           {
             "team": "Florida State",
             "conference": "ACC",
             "line": 6.5,
             "direction": "O",
-            "banked_delta": -6.5,
-            "floor": -6.5,
+            "banked_delta": -5.5,
+            "floor": -5.5,
             "ceiling": 5.5,
             "status": "LIVE",
-            "games_remaining": 12,
-            "share_of_delta": 0.224138
+            "games_remaining": 11,
+            "share_of_delta": 0.203704
           },
           {
             "team": "James Madison",
@@ -619,7 +610,7 @@
             "ceiling": 3.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.293103
+            "share_of_delta": 0.314815
           },
           {
             "team": "California",
@@ -631,7 +622,7 @@
             "ceiling": 5.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.224138
+            "share_of_delta": 0.240741
           }
         ]
       }

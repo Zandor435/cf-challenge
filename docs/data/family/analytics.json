@@ -3,8 +3,8 @@
     "group_id": "family",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-08-29T16:55:52.346733+00:00",
-    "cache_fetched_at": "2026-08-29T16:55:51.386792+00:00"
+    "generated_at": "2026-08-30T17:05:51.280140+00:00",
+    "cache_fetched_at": "2026-08-30T17:05:50.740387+00:00"
   },
   "race": {
     "board": "exact",
@@ -50,20 +50,20 @@
         "rank": 4,
         "banked_total": -11.0,
         "floor": -23.0,
-        "ceiling": 25.0,
+        "ceiling": 24.0,
         "gap_to_leader": 29.0,
-        "ceiling_remaining": 36.0,
+        "ceiling_remaining": 35.0,
         "week_move": null
       },
       {
         "manager_id": "gunner",
         "display_name": "Gunner",
         "rank": 5,
-        "banked_total": -12.0,
-        "floor": -24.0,
+        "banked_total": -11.0,
+        "floor": -23.0,
         "ceiling": 24.0,
-        "gap_to_leader": 30.0,
-        "ceiling_remaining": 36.0,
+        "gap_to_leader": 29.0,
+        "ceiling_remaining": 35.0,
         "week_move": null
       },
       {
@@ -81,11 +81,11 @@
         "manager_id": "vic",
         "display_name": "Vic",
         "rank": 7,
-        "banked_total": -28.0,
-        "floor": -28.0,
+        "banked_total": -26.0,
+        "floor": -26.0,
         "ceiling": 20.0,
-        "gap_to_leader": 46.0,
-        "ceiling_remaining": 48.0,
+        "gap_to_leader": 44.0,
+        "ceiling_remaining": 46.0,
         "week_move": null
       },
       {
@@ -109,49 +109,49 @@
       {
         "manager_id": "devin",
         "display_name": "Devin",
-        "p_win_pool": 0.300355,
+        "p_win_pool": 0.307818,
         "week_move": null
       },
       {
         "manager_id": "rachel",
         "display_name": "Rachel",
-        "p_win_pool": 0.224494,
-        "week_move": null
-      },
-      {
-        "manager_id": "gayden",
-        "display_name": "Gayden",
-        "p_win_pool": 0.154318,
+        "p_win_pool": 0.215062,
         "week_move": null
       },
       {
         "manager_id": "holly",
         "display_name": "Holly",
-        "p_win_pool": 0.130447,
+        "p_win_pool": 0.134444,
         "week_move": null
       },
       {
         "manager_id": "vic",
         "display_name": "Vic",
-        "p_win_pool": 0.086256,
+        "p_win_pool": 0.123947,
         "week_move": null
       },
       {
-        "manager_id": "zach",
-        "display_name": "Zach",
-        "p_win_pool": 0.050682,
+        "manager_id": "gayden",
+        "display_name": "Gayden",
+        "p_win_pool": 0.107149,
         "week_move": null
       },
       {
         "manager_id": "gunner",
         "display_name": "Gunner",
-        "p_win_pool": 0.041817,
+        "p_win_pool": 0.050519,
+        "week_move": null
+      },
+      {
+        "manager_id": "zach",
+        "display_name": "Zach",
+        "p_win_pool": 0.050229,
         "week_move": null
       },
       {
         "manager_id": "john",
         "display_name": "John",
-        "p_win_pool": 0.011631,
+        "p_win_pool": 0.010832,
         "week_move": null
       }
     ]
@@ -303,11 +303,20 @@
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
+            "team": "Baylor",
+            "conference": "Big 12",
+            "line": 6.5,
+            "direction": "O",
+            "delta": -6.5
+          },
+          {
+            "manager_id": "gunner",
+            "display_name": "Gunner",
             "team": "Virginia",
             "conference": "ACC",
             "line": 7.5,
             "direction": "O",
-            "delta": -7.5
+            "delta": -6.5
           }
         ]
       },
@@ -456,7 +465,7 @@
         "comparison": {
           "basis": "ceiling_vs_leader_floor",
           "my_field": "ceiling",
-          "my_value": 25.0,
+          "my_value": 24.0,
           "operator": ">=",
           "other_manager_id": "rachel",
           "other_display_name": "Rachel",
@@ -734,9 +743,9 @@
             "direction": "O",
             "banked_delta": -7.5,
             "floor": -7.5,
-            "ceiling": 4.5,
+            "ceiling": 3.5,
             "status": "LIVE",
-            "games_remaining": 12,
+            "games_remaining": 11,
             "share_of_delta": 0.3125
           },
           {
@@ -756,8 +765,8 @@
       {
         "manager_id": "gunner",
         "display_name": "Gunner",
-        "banked_total": -12.0,
-        "absolute_total": 23.0,
+        "banked_total": -11.0,
+        "absolute_total": 22.0,
         "picks": [
           {
             "team": "Baylor",
@@ -769,19 +778,19 @@
             "ceiling": 5.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.282609
+            "share_of_delta": 0.295455
           },
           {
             "team": "Virginia",
             "conference": "ACC",
             "line": 7.5,
             "direction": "O",
-            "banked_delta": -7.5,
-            "floor": -7.5,
+            "banked_delta": -6.5,
+            "floor": -6.5,
             "ceiling": 4.5,
             "status": "LIVE",
-            "games_remaining": 12,
-            "share_of_delta": 0.326087
+            "games_remaining": 11,
+            "share_of_delta": 0.295455
           },
           {
             "team": "Purdue",
@@ -793,7 +802,7 @@
             "ceiling": 8.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.152174
+            "share_of_delta": 0.159091
           },
           {
             "team": "Vanderbilt",
@@ -805,7 +814,7 @@
             "ceiling": 5.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.23913
+            "share_of_delta": 0.25
           }
         ]
       },
@@ -868,32 +877,32 @@
       {
         "manager_id": "vic",
         "display_name": "Vic",
-        "banked_total": -28.0,
-        "absolute_total": 28.0,
+        "banked_total": -26.0,
+        "absolute_total": 26.0,
         "picks": [
           {
             "team": "Florida State",
             "conference": "ACC",
             "line": 6.5,
             "direction": "O",
-            "banked_delta": -6.5,
-            "floor": -6.5,
+            "banked_delta": -5.5,
+            "floor": -5.5,
             "ceiling": 5.5,
             "status": "LIVE",
-            "games_remaining": 12,
-            "share_of_delta": 0.232143
+            "games_remaining": 11,
+            "share_of_delta": 0.211538
           },
           {
             "team": "Memphis",
             "conference": "American",
             "line": 7.5,
             "direction": "O",
-            "banked_delta": -7.5,
-            "floor": -7.5,
+            "banked_delta": -6.5,
+            "floor": -6.5,
             "ceiling": 4.5,
             "status": "LIVE",
-            "games_remaining": 12,
-            "share_of_delta": 0.267857
+            "games_remaining": 11,
+            "share_of_delta": 0.25
           },
           {
             "team": "Mississippi State",
@@ -905,7 +914,7 @@
             "ceiling": 7.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.160714
+            "share_of_delta": 0.173077
           },
           {
             "team": "Georgia",
@@ -917,7 +926,7 @@
             "ceiling": 2.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.339286
+            "share_of_delta": 0.365385
           }
         ]
       },
