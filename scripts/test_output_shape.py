@@ -73,7 +73,12 @@ STANDINGS_PICK = {"team", "conference", "line", "direction", "banked_wins", "ban
                   "games_remaining", "banked_delta", "floor", "ceiling", "status"}
 PROJ_MGR = {"manager_id", "display_name", "expected_total", "p05", "p50", "p95", "p_win_pool", "picks"}
 PROJ_PICK = {"team", "conference", "line", "direction", "p_beat_line", "expected_delta",
-             "expected_final_wins", "win_distribution"}
+             "expected_final_wins", "win_distribution",
+             "remaining_games", "outlook", "pace"}
+PROJ_GAME = {"week", "opponent", "home_away", "neutral", "p_win", "p_win_pct", "bucket"}
+PROJ_OUTLOOK = {"likely_wins", "toss_ups", "likely_losses"}
+PROJ_PACE = {"banked_games", "actual_wins", "expected_wins", "delta", "state"}
+BUCKETS = {"likely_win", "toss_up", "likely_loss"}
 TL_PICK = {"team", "banked_delta", "floor", "ceiling", "expected_delta", "p_beat_line"}
 
 # --- Board 3 (analytics.json) ------------------------------------------------
@@ -117,11 +122,38 @@ def validate_projection(pr, label, final=False, banked_by=None):
     check(f"[{label}] projection.meta keys (+ratings)", _has_keys(m0, META_KEYS | {"ratings_source", "ratings_asof"}))
     check(f"[{label}] ratings_source == 'SP+'", m0.get("ratings_source") == "SP+")
     ok_mgr = ok_pick = ok_dist = ok_final = True
+    ok_game = ok_outlook = ok_pace = ok_empty = True
     for m in pr["managers"]:
         ok_mgr &= _has_keys(m, PROJ_MGR)
         ok_mgr &= 0.0 <= m["p_win_pool"] <= 1.0
         for p in m["picks"]:
             ok_pick &= _has_keys(p, PROJ_PICK)
+
+            # remaining_games: one row per remaining game, schedule order, and
+            # the bucket tally must account for every one of them.
+            games = p["remaining_games"]
+            ok_game &= all(_has_keys(g, PROJ_GAME) for g in games)
+            ok_game &= all(g["bucket"] in BUCKETS for g in games)
+            ok_game &= all(0.0 <= g["p_win"] <= 1.0 for g in games)
+            ok_game &= all(g["home_away"] in ("home", "away") for g in games)
+            weeks = [g["week"] for g in games if g["week"] is not None]
+            ok_game &= weeks == sorted(weeks)
+            ol = p["outlook"]
+            ok_outlook &= _has_keys(ol, PROJ_OUTLOOK)
+            ok_outlook &= sum(ol.values()) == len(games)
+
+            # pace: preseason is null (never 0), otherwise delta reconciles.
+            pc = p["pace"]
+            ok_pace &= _has_keys(pc, PROJ_PACE)
+            if pc["banked_games"] == 0:
+                ok_pace &= (pc["state"] == "preseason"
+                            and pc["expected_wins"] is None
+                            and pc["delta"] is None)
+            else:
+                ok_pace &= pc["state"] in ("ahead", "on_pace", "behind")
+                ok_pace &= abs((pc["actual_wins"] - pc["expected_wins"])
+                               - pc["delta"]) < 5e-3
+
             dist = p["win_distribution"]
             # emitted probs are 6-decimal rounded; tolerate rounding drift (a real
             # missing-mass bug moves the sum by >> 1e-4).
@@ -129,14 +161,20 @@ def validate_projection(pr, label, final=False, banked_by=None):
             ok_dist &= all(_has_keys(d, {"wins", "prob"}) for d in dist)
             if final:
                 ok_final &= p["p_beat_line"] in (0.0, 1.0)
+                # Nothing left to play: no game rows, and every bucket empty.
+                ok_empty &= (games == [] and sum(p["outlook"].values()) == 0)
                 if banked_by is not None:
                     bd = banked_by.get((m["manager_id"], p["team"]))
                     ok_final &= (bd is not None and p["expected_delta"] == bd)
     check(f"[{label}] every manager has the required keys + valid p_win_pool", ok_mgr)
     check(f"[{label}] every pick has the required keys", ok_pick)
     check(f"[{label}] win_distribution sums to 1", ok_dist)
+    check(f"[{label}] every remaining_games row is well-formed + week-ordered", ok_game)
+    check(f"[{label}] outlook counts account for every remaining game", ok_outlook)
+    check(f"[{label}] pace reconciles (null in preseason, delta exact otherwise)", ok_pace)
     if final:
         check(f"[{label}] final: p_beat_line in {{0,1}} AND expected_delta==banked_delta", ok_final)
+        check(f"[{label}] final: remaining_games empty AND outlook all zero", ok_empty)
 
 
 def validate_analytics_boards(an, label):

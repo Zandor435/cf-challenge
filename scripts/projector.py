@@ -47,6 +47,18 @@ FCS_FALLBACK_RATING = -35.0        # SP+ for an unrated (typically FCS) opponent
 POOL_SIM_TRIALS = 20000            # Monte-Carlo trials for shared-draw pool odds
 POOL_SIM_SEED_BASE = 20250101      # base seed; combined w/ group + week for reproducibility
 
+# Display buckets for the per-game outlook. PRESENTATION ONLY — nothing scores
+# off these, and no probability is rounded or clipped by them; they exist so the
+# site can say "likely win / toss-up / likely loss" without the page deciding
+# where those words start. Tuning knobs, named here rather than inlined at the
+# call site, for the same reason the two constants above are (ARCHITECTURE §3).
+# The band is deliberately WIDE: at the calibrated 13.5-point scale a 0.65 game
+# is only about a touchdown-and-a-half favourite, and calling anything closer
+# than that "likely" would put a confident word on a coin flip.
+LIKELY_WIN_THRESHOLD = 0.65        # p_win >= this  -> likely_win
+LIKELY_LOSS_THRESHOLD = 0.35       # p_win <= this  -> likely_loss
+PACE_ON_PACE_BAND = 0.5            # |actual - expected| < this -> "on_pace"
+
 
 def game_win_prob(team_rating, opp_rating, is_home, neutral):
     """P(team beats opponent) from the SP+ margin + home field, via a logistic.
@@ -64,14 +76,92 @@ def _rating(sp_ratings, team):
     return FCS_FALLBACK_RATING if r is None else float(r)
 
 
+def _win_probs(games, team, sp_ratings):
+    """Per-game win prob over `games`, in the order given (= schedule order)."""
+    tr = _rating(sp_ratings, team)
+    return [game_win_prob(tr, _rating(sp_ratings, g["opponent"]),
+                          g["home_away"] == "home", g["neutral"]) for g in games]
+
+
 def remaining_win_probs(state, sp_ratings):
     """Per-game win prob for each of a team's remaining games (order = schedule)."""
-    tr = _rating(sp_ratings, state["team"])
-    probs = []
-    for g in state["remaining_games"]:
-        opp = _rating(sp_ratings, g["opponent"])
-        probs.append(game_win_prob(tr, opp, g["home_away"] == "home", g["neutral"]))
-    return probs
+    return _win_probs(state["remaining_games"], state["team"], sp_ratings)
+
+
+def played_win_probs(state, sp_ratings):
+    """The same model replayed over the games a team has ALREADY played, in
+    schedule order — the expectation half of the pace read.
+
+    WHAT THIS IS NOT: a preserved forecast. SP+ is a single current snapshot
+    (projection.json's own meta says ratings_asof is the cache's fetched_at, not
+    a weekly history), so this replays TODAY's ratings over past games. It
+    answers "given what we now know about these teams, how many wins should this
+    one have banked by now" — not "what we predicted in August". Every surface
+    that renders it has to say so; a vintage-correct version would have to read
+    data/ratings_archive/ per week, which is deliberately out of scope.
+    """
+    return _win_probs(state["played_games"], state["team"], sp_ratings)
+
+
+def game_bucket(p):
+    """Display bucket for one game's win probability. Presentation only."""
+    if p >= LIKELY_WIN_THRESHOLD:
+        return "likely_win"
+    if p <= LIKELY_LOSS_THRESHOLD:
+        return "likely_loss"
+    return "toss_up"
+
+
+def _percent(p):
+    """Probability -> a display percent STRING, rounded here so the page never
+    divides (output-contract.md: the site renders, it does not compute). Matches
+    build_rail.py's formatter, +0.5 rather than round(), so .5 goes up rather
+    than to even and two surfaces can never print a different number."""
+    return "%d%%" % int(float(p) * 100 + 0.5)
+
+
+def game_outlook(games, probs):
+    """The per-game rows plus their bucket tally, from two parallel arrays.
+
+    Returns (rows, counts). counts sums to len(games) by construction — every
+    game lands in exactly one bucket because game_bucket's branches are total.
+    """
+    rows, counts = [], {"likely_wins": 0, "toss_ups": 0, "likely_losses": 0}
+    tally = {"likely_win": "likely_wins", "toss_up": "toss_ups",
+             "likely_loss": "likely_losses"}
+    for g, p in zip(games, probs):
+        bucket = game_bucket(p)
+        counts[tally[bucket]] += 1
+        rows.append({"week": g["week"], "opponent": g["opponent"],
+                     "home_away": g["home_away"], "neutral": bool(g["neutral"]),
+                     "p_win": round(float(p), 4), "p_win_pct": _percent(p),
+                     "bucket": bucket})
+    return rows, counts
+
+
+def pace_state(banked_games, actual_wins, expected_wins):
+    """How a team is tracking against the model's expectation for the games it
+    has already played.
+
+    `banked_games` rather than "games_played": output key names deliberately
+    never collide with the raw cache's banked keys (standings.json emits
+    banked_wins, not wins) — see test_cache_access.py GUARD 2.
+
+    PRESEASON IS null, NEVER 0. With nothing played there is no expectation to
+    be ahead of, and "0.0, on pace" would be a claim rather than an absence —
+    the same posture analytics.json takes for share_of_delta when
+    absolute_total is 0 (output-contract.md). This is the live state for every
+    group until Week 1 is scored, so it is the path that ships first.
+    """
+    if not banked_games:
+        return {"banked_games": 0, "actual_wins": actual_wins,
+                "expected_wins": None, "delta": None, "state": "preseason"}
+    delta = actual_wins - expected_wins
+    state = ("on_pace" if abs(delta) < PACE_ON_PACE_BAND
+             else ("ahead" if delta > 0 else "behind"))
+    return {"banked_games": banked_games, "actual_wins": actual_wins,
+            "expected_wins": round(float(expected_wins), 2),
+            "delta": round(float(delta), 2), "state": state}
 
 
 def poisson_binomial(probs):
@@ -267,7 +357,24 @@ def _team_cache(config, picks, as_of_week, sp_ratings):
             cache[canonical] = {"banked_wins": st["banked_wins"],
                                 "probs": remaining_win_probs(st, sp_ratings),
                                 "conference": pick["conference"],
-                                "remaining_games": st["remaining_games"]}
+                                "remaining_games": st["remaining_games"],
+                                # The pace half. Cached per TEAM alongside the
+                                # remaining slate for the same reason it is:
+                                # two managers on opposite sides of one team
+                                # must be reading one derivation of that team's
+                                # season, not two.
+                                # Spelled scheduled-minus-remaining rather than
+                                # st["games_played"]: the raw-index guard
+                                # (test_cache_access.py GUARD 2) reserves the
+                                # banked key names to utils.py/fetch_results.py
+                                # and its AST scan cannot tell a flag-aware
+                                # team_state read from a raw cache subscript.
+                                # Both sides come off the SAME slate, so the
+                                # difference IS the played count. Same
+                                # workaround as preseason_baseline.py:416.
+                                "banked_games": (st["games_scheduled"]
+                                                 - st["games_remaining"]),
+                                "played_probs": played_win_probs(st, sp_ratings)}
     return cache
 
 
@@ -350,6 +457,13 @@ def build_projection(config, picks, as_of_week=None):
         exp_delta = signed_delta(direction, exp_final, line)
         p_beat = float(dist[finals > line].sum()) if direction == "O" \
             else float(dist[finals < line].sum())
+        # Per-game view of the SAME probabilities the distribution above is
+        # convolved from -- not a second model. `probs` and `remaining_games`
+        # are parallel arrays in schedule order (_team_cache builds both off one
+        # team_state), so zipping them cannot mis-pair a game with its odds.
+        rows, counts = game_outlook(info["remaining_games"], probs)
+        assert sum(counts.values()) == len(probs), \
+            "outlook buckets must account for every remaining game"
         return {
             "team": canonical, "conference": info["conference"],
             "line": line, "direction": direction,
@@ -358,6 +472,10 @@ def build_projection(config, picks, as_of_week=None):
             "expected_final_wins": round(exp_final, 3),
             "win_distribution": [{"wins": int(w), "prob": round(float(pr), 6)}
                                  for w, pr in zip(finals, dist)],
+            "remaining_games": rows,
+            "outlook": counts,
+            "pace": pace_state(info["banked_games"], bw,
+                               float(sum(info["played_probs"]))),
         }
 
     managers = []

@@ -283,7 +283,15 @@ Invariant (checked by the shape test and VERIFY step 3): when a pick's
             { "wins": 10, "prob": 0.22 },
             { "wins": 11, "prob": 0.34 },
             { "wins": 12, "prob": 0.35 }
-          ]
+          ],
+          "remaining_games": [
+            { "week": 11, "opponent": "Michigan", "home_away": "away",
+              "neutral": false, "p_win": 0.5031, "p_win_pct": "50%",
+              "bucket": "toss_up" }
+          ],
+          "outlook": { "likely_wins": 2, "toss_ups": 1, "likely_losses": 1 },
+          "pace": { "banked_games": 8, "actual_wins": 8,
+                    "expected_wins": 7.1, "delta": 0.9, "state": "ahead" }
         }
       ]
     }
@@ -306,8 +314,46 @@ Invariant (checked by the shape test and VERIFY step 3): when a pick's
   shared-per-team-draw Monte Carlo** (see below), so managers on opposite sides
   of the same team are correctly anti-correlated.
 
+- `remaining_games` = the **same per-game probabilities** `win_distribution` is
+  convolved from, published one row per game instead of aggregated — not a
+  second model, and never a second answer. Rows are in schedule order (ascending
+  by week), one per game in `games_remaining`. `p_win` is the raw probability to
+  4 places; `p_win_pct` is the **pre-rendered display string** (`+0.5`, matching
+  `build_rail.py`'s `_percent`) so the site never divides.
+- `bucket` ∈ `likely_win | toss_up | likely_loss`, cut at
+  `LIKELY_WIN_THRESHOLD = 0.65` / `LIKELY_LOSS_THRESHOLD = 0.35` in
+  `projector.py`. **Presentation only** — nothing scores off a bucket, and no
+  probability is rounded or clipped by one. The band is wide on purpose: at the
+  calibrated 13.5-point scale a 0.65 game is roughly a ten-point favourite, and
+  anything closer than that does not deserve the word "likely".
+- `outlook` = the bucket tally over `remaining_games`. Its three counts **sum to
+  `games_remaining`** by construction (the bucket branches are total); the
+  producer asserts it and the shape test re-checks it.
+- `pace` = how the team is tracking against the model over the games it has
+  **already** played. `expected_wins` = Σ of the same logistic replayed over the
+  played slate, `delta` = `actual_wins - expected_wins`, and `state` is
+  `ahead | on_pace | behind` with `on_pace` at `|delta| < 0.5`
+  (`PACE_ON_PACE_BAND`).
+  - **`pace` is NOT a preserved forecast.** SP+ is a single current snapshot —
+    `ratings_asof` is the cache's `fetched_at`, not a weekly history — so this
+    replays **today's** ratings over past games. It reads "given what we now know
+    about these teams, how many wins should this one have by now", *not* "what we
+    predicted in August". Every surface that renders it must say so. A
+    vintage-correct version would have to read `data/ratings_archive/` per week
+    and is deliberately out of scope.
+  - `banked_games` is spelled that way, not `games_played`, for the same
+    reason `standings.json` emits `banked_wins` and not `wins`: output key
+    names never collide with the raw cache's banked keys, which
+    `test_cache_access.py` GUARD 2 reserves to `utils.py` / `fetch_results.py`.
+  - **Preseason is `null`, never `0`.** With `banked_games == 0` there is no
+    expectation to be ahead of, so `expected_wins` and `delta` are `null` and
+    `state` is `"preseason"` — the same posture `analytics.json` takes for
+    `share_of_delta` when `absolute_total == 0`. Printing `0.0, on pace` would be
+    a claim where the honest answer is an absence.
+
 Invariant: when `games_remaining == 0`, `expected_delta == banked_delta`
-exactly and `p_beat_line ∈ {0.0, 1.0}`.
+exactly, `p_beat_line ∈ {0.0, 1.0}`, `remaining_games == []` and every `outlook`
+count is `0`.
 
 ### Pool odds MUST use shared per-team draws (ARCHITECTURE §3)
 Each Monte-Carlo trial draws every team's remaining season **once**, then scores

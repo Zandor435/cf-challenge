@@ -521,11 +521,19 @@ def team_state(team, group_config, as_of_week=None):
       team,
       banked_wins, banked_losses,
       games_scheduled, games_played, games_remaining,
-      remaining_games: [{opponent, home_away, week}, ...]  (ascending by week)
+      remaining_games: [{opponent, home_away, week, neutral}, ...] (asc by week)
+      played_games:    [{opponent, home_away, week, neutral, result}, ...] (same)
 
     Banked totals and remaining_games come off the SAME slate, so
     games_played + games_remaining == games_scheduled always — Board 1 and
     Board 2 can never disagree on what is still to play.
+
+    played_games is the SAME per-game dict remaining_games carries, plus a
+    `result` of "W" / "L" / "T", for the games already banked. It exists so a
+    consumer can replay ratings over the played slate (projector.py's pace
+    read) without re-deriving which games those were — the derivation that
+    produced banked_wins is the one that must be reused, or the two answers
+    can drift. len(played_games) == games_played always.
 
     Deliberately does NOT return `conference`. It used to, via
     canonical_conference() -> teams_canonical.json, which made the rendered
@@ -542,6 +550,7 @@ def team_state(team, group_config, as_of_week=None):
 
     banked_wins = banked_losses = games_played = 0
     remaining = []
+    played = []
     for g in _season_games(season):
         home, away = g.get("home_team"), g.get("away_team")
         if key != home and key != away:
@@ -559,13 +568,20 @@ def team_state(team, group_config, as_of_week=None):
             mine, theirs = (hp, ap) if is_home else (ap, hp)
             if mine > theirs:
                 banked_wins += 1
+                result = "W"
             elif theirs > mine:
                 banked_losses += 1
-            # exact tie (no OT in CFB): played, but neither a win nor a loss
+                result = "L"
+            else:
+                # exact tie (no OT in CFB): played, but neither a win nor a loss
+                result = "T"
+            played.append(dict(rem, result=result))
         else:
             remaining.append(rem)
 
-    remaining.sort(key=lambda r: (r["week"] is None, r["week"]))
+    week_order = lambda r: (r["week"] is None, r["week"])
+    remaining.sort(key=week_order)
+    played.sort(key=week_order)
     return {
         "team": key,
         "banked_wins": banked_wins,
@@ -574,6 +590,7 @@ def team_state(team, group_config, as_of_week=None):
         "games_played": games_played,
         "games_remaining": len(remaining),
         "remaining_games": remaining,
+        "played_games": played,
     }
 
 

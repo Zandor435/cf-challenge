@@ -92,30 +92,45 @@
     <!-- Fatal load error -->
     <section class="load-error" id="load-error" hidden></section>
 
-    <div class="grid-top">
-      <!-- Board 1 — Standings (exact) -->
-      <section class="card board1" id="board1" hidden>
-        <div class="card-head">
-          <h2 class="card-title">Standings</h2>
-          <span class="card-tag tag-exact" id="board1-week"></span>
-        </div>
-        <!-- In-season description. Before kickoff it describes a board that
-             has no results in it yet, so renderBoard1() hides it and the
-             .preseason-note below carries the one line that is true then.
-             Exactly one of the two is ever visible. -->
-        <p class="card-sub" id="board1-sub">Banked results only — pure arithmetic, reproducible by hand.
-          Open the Standings tab for every pick&rsquo;s range.</p>
-        <p class="preseason-note" id="board1-preseason" hidden></p>
-        <div class="standings" id="standings"></div>
-      </section>
+    <!-- PORTFOLIOS — the front page's centre of gravity, and the reason this
+         card is full width rather than sharing .grid-top with the column.
+         It answers three questions the old compact board could not: what did
+         each person actually draft, which side did they take, and is it
+         working. Collapsed it is one row per manager with every pick's O/U,
+         line and record; clicking a manager expands their remaining schedule
+         game by game.
 
+         IT MIXES BOARDS ON PURPOSE, AND THEREFORE MARKS PER FIELD.
+         output-contract.md allows a surface to carry both exact and projection
+         numbers only with per-field marking, so the head carries BOTH tags: the
+         record, line, direction and banked delta are exact arithmetic off
+         standings.json, while every pace figure and every game chip is SP+
+         model output and lives inside .is-proj. The STANDINGS tab below is
+         still pure Board 1 and is deliberately left alone.
+
+         Everything under the head is filled by renderPortfolios() in app.js. -->
+    <section class="card portfolios" id="portfolios" hidden>
+      <div class="card-head">
+        <h2 class="card-title">Portfolios</h2>
+        <span class="card-tag tag-exact" id="po-week"></span>
+        <span class="card-tag tag-proj">Projection</span>
+      </div>
+      <p class="card-sub" id="po-sub">Every manager&rsquo;s four picks with the side they
+        took. Records and deltas are exact; pace and the game-by-game outlook are an
+        SP+ projection. Pick a manager to see their remaining schedule.</p>
+      <p class="preseason-note" id="po-preseason" hidden></p>
+      <div class="po-board" id="po-board"></div>
+      <p class="po-legend is-proj" id="po-legend" hidden></p>
+    </section>
+
+    <div class="grid-top">
       <!-- Editorial slot — the CURRENT column, on the front page. This card
            used to be hardcoded copy saying the commentary pipeline "isn't wired
            up yet"; it is, and four columns are filed, so the card now renders
            the newest one off the same archive svp.html reads.
 
            A LEAD-IN, NOT THE WHOLE COLUMN. This card shares .grid-top with
-           Board 1 at a 55/45 split, and a 330-word column in the narrow track
+           Board 2 at a 55/45 split, and a 330-word column in the narrow track
            runs to roughly three times the board's height — the page stops being
            a board with a column beside it and becomes a column with a board in
            the corner. The first paragraph is the column's own opening, chosen
@@ -139,19 +154,6 @@
         <a class="ed-link" href="svp.html" id="editorial-link"></a>
         <p class="ed-archive" id="ed-archive" hidden></p>
       </section>
-    </div>
-
-    <div class="grid-bottom">
-      <!-- Scoreboard — client-side transform of standings.json (teams, not
-           managers). Shared teams collapse into one row with both owners. -->
-      <section class="card scoreboard" id="scoreboard" hidden>
-        <div class="card-head">
-          <h2 class="card-title">Scoreboard: selected teams</h2>
-        </div>
-        <p class="card-sub">Every drafted team, once. Teams taken on both sides show both owners.</p>
-        <p class="preseason-note" id="sb-preseason" hidden></p>
-        <div class="sb-cols" id="sb-cols"></div>
-      </section>
 
       <!-- Board 2 — win probabilities (labeled projection; degrades alone) -->
       <section class="card board2" id="board2" hidden>
@@ -163,6 +165,20 @@
         <div class="projection" id="projection"></div>
       </section>
     </div>
+
+    <!-- Scoreboard — client-side transform of standings.json (teams, not
+         managers). Shared teams collapse into one row with both owners. A
+         direct child of #home-content, so it runs full width: it is already
+         two columns internally and the Portfolios card above it is the
+         manager-shaped pivot of the same data. -->
+    <section class="card scoreboard" id="scoreboard" hidden>
+      <div class="card-head">
+        <h2 class="card-title">Scoreboard: selected teams</h2>
+      </div>
+      <p class="card-sub">Every drafted team, once. Teams taken on both sides show both owners.</p>
+      <p class="preseason-note" id="sb-preseason" hidden></p>
+      <div class="sb-cols" id="sb-cols"></div>
+    </section>
   </div>
 </main>
 
