@@ -30,7 +30,9 @@ Usage:
 Playbook compliance (CLAUDE.md):
   - rule 2: reuses _post_with_retries -- transient 3x (5/10/20s), 429 waits the
     full 60s window, quota exhaustion fails fast instead of looping.
-  - rule 6: per-run + cumulative UTC-daily tally via the shared budget file.
+  - rule 6: per-run + cumulative UTC-daily tally via the shared budget
+    file. It counts HTTP ATTEMPTS, never images: the bump lives inside
+    _post_with_retries, so a retried image bills more than once.
   - rule 7: --skip-if-exists by DEFAULT; --force is required to re-bill.
 
 Privacy: reads from and writes to gitignored paths only. Nothing here reaches

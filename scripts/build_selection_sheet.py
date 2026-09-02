@@ -318,7 +318,13 @@ def thumbnail(path, width, quality):
 
 # --------------------------------------------------------------------- build
 
-def collect():
+def collect(only=None):
+    """Sweep output/ into tile records.
+
+    `only` is a CONVENIENCE that narrows the sweep to one output/-relative
+    prefix. It is applied AFTER the real-people guard and can only ever remove
+    more, never add back -- passing only="personas/" returns nothing.
+    """
     items = []
     excluded = 0
     for path in sorted(OUTPUT.rglob("*")):
@@ -329,6 +335,8 @@ def collect():
         # builder, any future consumer, and a bare collect() in a REPL.
         if is_excluded(rel):
             excluded += 1
+            continue
+        if only and not rel.as_posix().startswith(only):
             continue
         category, archived, meta = classify(rel)
         items.append(dict(
@@ -876,15 +884,24 @@ def main():
                     help="embedded thumbnail width in px (default 460)")
     ap.add_argument("--quality", type=int, default=80,
                     help="WEBP quality (default 80)")
+    ap.add_argument("--only", default=None, metavar="PREFIX",
+                    help="sweep only paths under this output/-relative "
+                         "prefix, e.g. scenes/church/. Narrows only: the "
+                         "real-people guard applies either way and this "
+                         "cannot reach past it.")
+    ap.add_argument("--out", default=None, metavar="PATH",
+                    help=f"write the sheet here instead of "
+                         f"{SHEET.relative_to(ROOT).as_posix()}")
     args = ap.parse_args()
 
     if not OUTPUT.is_dir():
         print("ERROR: no output/ directory at " + str(OUTPUT), file=sys.stderr)
         return 1
 
-    items = collect()
+    items = collect(args.only)
     if not items:
-        print("ERROR: no images found under output/.", file=sys.stderr)
+        where = f" under output/{args.only}" if args.only else " under output/"
+        print(f"ERROR: no images found{where}.", file=sys.stderr)
         return 1
 
     def encode(item):
@@ -893,7 +910,11 @@ def main():
     with ThreadPoolExecutor() as pool:
         list(pool.map(encode, items))
 
-    SHEET.write_text(build_html(items), encoding="utf-8")
+    sheet = Path(args.out) if args.out else SHEET
+    if not sheet.is_absolute():
+        sheet = ROOT / args.out
+    sheet.parent.mkdir(parents=True, exist_ok=True)
+    sheet.write_text(build_html(items), encoding="utf-8")
 
     counts = {}
     for i in items:
@@ -905,8 +926,8 @@ def main():
         print(cat.ljust(10) + str(counts[cat]).rjust(4) + note)
     print("total".ljust(10) + str(len(items)).rjust(4))
     print("")
-    print("output    " + str(SHEET.relative_to(ROOT)).replace("\\", "/"))
-    print("size      " + format(SHEET.stat().st_size / 1e6, ".1f") + " MB")
+    print("output    " + str(sheet.relative_to(ROOT)).replace("\\", "/"))
+    print("size      " + format(sheet.stat().st_size / 1e6, ".1f") + " MB")
     try:
         sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
                              cwd=ROOT, capture_output=True, text=True,

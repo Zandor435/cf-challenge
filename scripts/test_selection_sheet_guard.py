@@ -88,6 +88,12 @@ def test_sweep_excludes_real_people():
           f"LEAKED {len(leaked)}: {leaked[:5]}" if leaked else
           f"0 of {len(items)} swept")
 
+    # The guard is a property of collect(), not of the caller's arguments.
+    # --only narrows; it must not be what makes the guard hold, and it must
+    # not be able to aim the sweep back into the tree the guard removed.
+    check("collect('personas/') is empty too -- --only cannot widen the guard",
+          not B.collect("personas/"), "")
+
 
 def main():
     test_sweep_excludes_real_people()

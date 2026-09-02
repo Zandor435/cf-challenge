@@ -32,7 +32,9 @@ Usage:
 
 Playbook compliance (CLAUDE.md):
   - rule 2: retry/backoff via the shared _post_with_retries shell.
-  - rule 6: shared per-provider UTC-daily budget tally + threshold warning.
+  - rule 6: shared per-provider UTC-daily budget tally + threshold
+    warning. The tally counts HTTP ATTEMPTS, never images: the bump lives
+    inside _post_with_retries, so a retried image bills more than once.
   - rule 7: --skip-if-exists by DEFAULT; --force is required to re-bill.
 """
 
@@ -246,6 +248,17 @@ def fidelity_clause(lead_cue, other_cues):
 REF_PREFERENCE = ["accent", "jacket", "quarterzip", "polo"]
 
 
+# Escape hatch for a lead whose kept reference does not live under the recolor
+# tree at all -- the OVERRIDES pattern build_avatars.py already documents.
+# Values are repo-relative. josh_b is CEC's sixth manager: his reference is the
+# approved Duke Divinity poster, which was never a recolor and so has no
+# garment slug for the ladder below to rank. Everything still resolves through
+# resolve_reference(), which is the contract callers depend on.
+REFERENCE_OVERRIDES = {
+    "josh_b": "output/personas/church/fat_joshb.png",
+}
+
+
 def recolor_dir(mid):
     """The directory a manager's kept recolors live in. Single source of truth
     for the path, so the resolver and its diagnosis can never disagree."""
@@ -254,6 +267,10 @@ def recolor_dir(mid):
 
 def resolve_reference(mid):
     """Return the kept recolor to use as this manager's character reference."""
+    override = REFERENCE_OVERRIDES.get(mid)
+    if override:
+        op = ROOT / override
+        return (op, "override") if op.is_file() else (None, None)
     have = {f.stem.split("_")[1]: f
             for f in recolor_dir(mid).glob(f"{mid}_*_gemini.png")}
     for slug in REF_PREFERENCE:
@@ -297,6 +314,70 @@ def reference_failure(mid):
     return (f"ERROR: no kept recolor on disk for {mid!r} — {why}, and nothing "
             f"is archived under {archive} either. Regenerate with "
             f"scripts/recolor_personas.py, or pass a different --leads set.")
+
+
+# --------------------------------------------------------- church (CEC) ----
+# A SINGLE-LEAD scene sweep, unlike BATCH's named group compositions. The cues
+# below are FIXED for every image in every setup and are not read from
+# personas.json: this lead's persona declares `silhouette_cues: null`, and the
+# character is carried by these four things plus the reference face. Nothing
+# here invents a garment beyond them -- a setup may name gear the scene
+# genuinely requires (waders), and that is the only exception.
+CHURCH_CUES = ("a white clerical collar, salt-and-pepper hair, a heavy-set "
+               "build, and a tweed or canvas jacket")
+
+CHURCH_SETUPS = [
+    ("fishing", "A man standing thigh-deep in a wide Appalachian river in "
+                "waders, working a fly rod, the Blue Ridge treeline rising "
+                "behind him in layered ridges"),
+    ("carpentry", "A man at a workshop bench running a hand plane along a "
+                  "board, a curl of shaving lifting off the blade, sawdust "
+                  "hanging in the light, tools racked on the wall behind"),
+    ("pulpit", "A man behind a heavy wooden lectern mid-sermon, both arms "
+               "raised in gesture, a tall stained-glass window throwing "
+               "colored light across him"),
+    ("basketball", "A man courtside in an old gym, leaning in off the bench "
+                   "at the edge of the hardwood, all coaching energy, the "
+                   "bleachers behind him"),
+    ("writing", "A man at a desk working through a yellow legal pad, a mug of "
+                "coffee at his elbow and stacked books crowding the desk"),
+]
+
+# The band is a PROMPT clause AND a composite step. The clause keeps the model
+# from putting anything load-bearing down there; scripts/composite_lower_band.py
+# then lays an opaque rectangle over it, because a generated "clean" band is
+# never flat enough to read HTML type against.
+CHURCH_BAND = (
+    " Across the LOWER THIRD of the image leave a completely clean, flat, "
+    "unbroken horizontal area running the full width -- no figures, no "
+    "scenery detail, no lettering and nothing to read in it. The site overlays "
+    "live type into that strip in HTML."
+)
+
+# Numbers only. Wordmarks and ornament are wanted -- they are what makes these
+# read as printed plates rather than stock scenes -- so the blanket NO_TEXT
+# clause would fight the brief.
+CHURCH_NO_NUMBERS = (
+    " Do not render any digits or numerals anywhere in the image. Decorative "
+    "wordmarks, signage and printed ornament are welcome; numbers are not."
+)
+
+
+def build_church_prompt(setup_text, style, hexc, word):
+    """One CEC scene prompt. Text carries the build, the reference the face."""
+    text = setup_text.rstrip().rstrip(".") + ". " + STYLE_SET[style].capitalize() + "."
+    text += (" The man is the specific individual in the reference image -- "
+             "same face, same features, same hair. Do not substitute a "
+             "generic person and do not blend him with anyone else.")
+    text += " In every image he has: " + CHURCH_CUES + "."
+    text += (" The lead color of the picture is " + word + " (" + hexc + "): "
+             "it dominates the palette and the rest of the image is built "
+             "around it.")
+    text += BUILD_LOCK
+    text += ILLUSTRATION_LOCK
+    text += CHURCH_BAND
+    text += CHURCH_NO_NUMBERS
+    return text
 
 
 def build_batch_prompt(entry, style, personas, colors, plate):
@@ -621,10 +702,13 @@ def main() -> int:
     # uses it. Distinct names -- sharing one would make the scene unreachable.
     ap.add_argument("--phase", required=True,
                     choices=["trophy_plate", "batch", "posters", "matchups",
-                             "halfcards"] + list(SETUPS))
+                             "halfcards", "church"] + list(SETUPS))
     ap.add_argument("--styles", default=None,
                     help=f"comma-separated ({', '.join(STYLE_SET)})")
-    ap.add_argument("--leads", default="blaine,chris,jonathan,zach")
+    ap.add_argument("--leads", default=None,
+                    help="comma-separated lead ids. Default "
+                         "blaine,chris,jonathan,zach; the church phase "
+                         "defaults to josh_b.")
     ap.add_argument("--n", type=int, default=2, help="variants (minimum 2)")
     ap.add_argument("--aspect", default=None,
                     help="default 3:4 for trophy, 16:9 for scenes")
@@ -647,6 +731,9 @@ def main() -> int:
     if not args.model:
         args.model = (gemini_image.DEFAULT_MODEL if args.provider == "gemini"
                       else "gpt-image-2")
+    if not args.leads:
+        args.leads = ("josh_b" if args.phase == "church"
+                      else "blaine,chris,jonathan,zach")
 
     # None means "caller did not choose": scenes fall back to painted,
     # half-cards fall back to the full six-style plate set.
@@ -740,6 +827,28 @@ def main() -> int:
                 jobs.append((ROOT / "output" / "scenes" / "panel" /
                              ("panel_" + e["slug"] + "_" + format(i, "02d") + ".png"),
                              prompt, refs, aspect))
+    elif args.phase == "church":
+        # 16:9 like the other scene phases -- and the shape the lower-third
+        # band is for. Duke blue is read from teams_canonical.json's `color`
+        # (the PRIMARY) so the palette can never drift to whatever a reference
+        # image happens to average out to.
+        aspect = args.aspect or "16:9"
+        hexc = colors["Duke"]["color"]
+        word = color_name(hexc)
+        for lead in [l.strip() for l in args.leads.split(",") if l.strip()]:
+            rp, _slug = resolve_reference(lead)
+            if rp is None:
+                print(reference_failure(lead), file=sys.stderr)
+                return 1
+            for setup, setup_text in CHURCH_SETUPS:
+                for style in styles:
+                    prompt = build_church_prompt(setup_text, style, hexc, word)
+                    check_prompt(prompt, f"church/{setup}/{style}")
+                    for i in range(1, n + 1):
+                        jobs.append((
+                            ROOT / "output" / "scenes" / "church" /
+                            (f"church_{setup}_{lead}_{style}_{i:02d}.png"),
+                            prompt, [rp], aspect))
     elif args.phase == "trophy_plate":
         aspect = args.aspect or "3:4"
         prompts = build_trophy_prompts(styles)
