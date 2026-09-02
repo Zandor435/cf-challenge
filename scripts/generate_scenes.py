@@ -255,7 +255,7 @@ REF_PREFERENCE = ["accent", "jacket", "quarterzip", "polo"]
 # garment slug for the ladder below to rank. Everything still resolves through
 # resolve_reference(), which is the contract callers depend on.
 REFERENCE_OVERRIDES = {
-    "josh_b": "output/personas/church/fat_joshb.png",
+    "josh_b": "output/personas/church/church_josh_b_fat_01.png",
 }
 
 
