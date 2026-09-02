@@ -1,5 +1,5 @@
 {
-  "_note": "Authored 2026-08-20 from groups/church/personas.md (the hand-written prose source). Every manager is `roast`, as of 2026-08-25: this group was the last holder of the `warm` register -- gag and rival, never a fatal_flaw -- and was promoted deliberately so the tone gate could be retired. Every register key, TONE_POLICY included, is gone; every authored block now publishes. The register's editorial intent survives it and is now a WRITING rule rather than a code gate: aim the joke at the board, not the person. The five fatal_flaws authored here are picks-first by construction and any replacement must be too. `team` and `color` are null throughout: the prose names affiliations (Stanford/UVA, Texas A&M, Richmond/Georgia, Virginia, Wake Forest) but declares none of them as data, and the art carries them well enough. manager_id `john_tamu` is PERMANENT -- only his display_name changed, to \"John K\".",
+  "_note": "Authored 2026-08-20 from groups/church/personas.md (the hand-written prose source). Every manager is `roast`, as of 2026-08-25: this group was the last holder of the `warm` register -- gag and rival, never a fatal_flaw -- and was promoted deliberately so the tone gate could be retired. Every register key, TONE_POLICY included, is gone; every authored block now publishes. The register's editorial intent survives it and is now a WRITING rule rather than a code gate: aim the joke at the board, not the person. The five fatal_flaws authored here are picks-first by construction and any replacement must be too. `team` and `color` are null throughout: the prose names affiliations (Stanford/UVA, Texas A&M, Richmond/Georgia, Virginia, Wake Forest) but declares none of them as data, and the art carries them well enough. manager_id `john_tamu` is PERMANENT -- only his display_name changed, to \"John K\". josh_b (Josh Bascom, \"Josh B\") added 2026-09-02, after the board was already draft_status \"final\". His biography here is OWNER-SUPPLIED and verified, given 2026-09-02: Charlottesville native, Hampden-Sydney 2010 (History & Political Philosophy), carpenter before ordination, M.Div Duke Divinity 2016, priest at Christ Episcopal, fisherman, writer, basketball. NONE OF IT IS INFERRED, and the earlier revision of this note -- which recorded that no biography existed for him -- described a gap in what had been provided, never a refusal to provide it. `dossier.drafted` stays null by instruction, not by omission. The board angle is his: four overs and no hedges from a man professionally committed to believing in things, the Duke over being his own seminary, and that last point is deliberately not softened. His fatal_flaw is picks-first like the other five. `layout` is \"sideline\" like every other profile in every group: persona_schema's docstring recommends \"dossier\" for a manager with no art, but test_persona_schema::test_every_profile_is_sideline is the stronger rule and it is deliberate -- the scroll rhythm now comes from which SIDE the portrait sits on, so a second variant reads as noise on top of noise. He has no published portrait yet; that is an art gap to fill, not a layout to route around.",
   "group_id": "church",
   "seeded": "2026-08-20",
   "managers": {
@@ -251,6 +251,52 @@
       "footer": {
         "left": "Three groups.",
         "right": "One spreadsheet would have covered it."
+      }
+    },
+"josh_b": {
+      "display_name": "Josh B",
+      "tone": "roast",
+      "epithet": "The Over Merchant",
+      "tagline": null,
+      "backstory": "Charlottesville native, Hampden-Sydney '10 in History and Political Philosophy, and a carpenter before he was anything else — he worked with his hands for a living before he went to Duke Divinity for the M.Div in 2016. He is a priest now, at Christ Episcopal, in the town he grew up in. Fishes every chance he gets, writes, and follows basketball more seriously than anyone else at this table.\n\nWhich makes his board the least surprising document in this league. A man whose profession is believing in things turned in four overs and not one hedge — Ole Miss 7.5, Duke 5.5, Miami (OH) 7.5, Wyoming 5.5, every one of them a bet that a team will be better than the market says. And the Duke over is his own seminary. He put money on the school that trained him, in the same direction as everything else, which from anyone else would be a conflict of interest and from him is just the job.",
+      "running_gag": "Four picks, four overs, and one of them is the school that gave him his M.Div. There is no under in the man and no distance either.",
+      "draft_tendency": "Believes. Professionally, and then again on the board — including in his own seminary.",
+      "fatal_flaw": "Four overs and not one hedge — nothing on his board wins from a team being bad, so a cold season takes all four at once, seminary included.",
+      "rival": null,
+      "team": null,
+      "color": null,
+      "silhouette_cues": null,
+
+      "archetype": "The Over Merchant",
+      "thesis": "A priest who drafted four overs and no hedges. One of them is his own seminary.",
+      "layout": "sideline",
+      "theme": {
+        "accent": "#13294B",
+        "accent_secondary": "#C41230",
+        "paper": null,
+        "ink": null
+      },
+      "dossier": {
+        "role": "The Over Merchant",
+        "nicknames": ["The Over Merchant"],
+        "known_for": "Believing in things. Including Duke's win total.",
+        "hometown": "Charlottesville, VA",
+        "college": "Hampden-Sydney College (2010, History & Political Philosophy)",
+        "drafted": null,
+        "status": "Joined after the board was already final"
+      },
+      "modules": {
+        "draft_tendency": { "label": "Draft tendency", "headline": "One Direction, Four Conferences", "art": null },
+        "running_gag": { "label": "Running gag", "headline": "Including His Own Seminary", "art": null },
+        "fatal_flaw": { "label": "Fatal flaw", "headline": "Nothing On The Board Wins From A Team Being Bad", "art": null }
+      },
+      "pull_quote": {
+        "text": "A man whose profession is believing in things turned in four overs and no hedges. One of them is his own seminary.",
+        "attribution": "(about Josh B)"
+      },
+      "footer": {
+        "left": "Four overs.",
+        "right": "No hedge."
       }
     }
   }

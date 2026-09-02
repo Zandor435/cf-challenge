@@ -3,7 +3,7 @@
     "group_id": "church",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-08-31T19:19:45.901857+00:00",
+    "generated_at": "2026-09-02T19:22:21.180517+00:00",
     "cache_fetched_at": "2026-08-31T19:19:45.466297+00:00"
   },
   "race": {
@@ -56,9 +56,20 @@
         "week_move": null
       },
       {
+        "manager_id": "josh_b",
+        "display_name": "Josh B",
+        "rank": 5,
+        "banked_total": -26.0,
+        "floor": -26.0,
+        "ceiling": 22.0,
+        "gap_to_leader": 30.0,
+        "ceiling_remaining": 48.0,
+        "week_move": null
+      },
+      {
         "manager_id": "john_wells",
         "display_name": "John Wells",
-        "rank": 5,
+        "rank": 6,
         "banked_total": -27.0,
         "floor": -27.0,
         "ceiling": 19.0,
@@ -76,31 +87,37 @@
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.347453,
+        "p_win_pool": 0.282994,
         "week_move": null
       },
       {
-        "manager_id": "brian",
-        "display_name": "Brian",
-        "p_win_pool": 0.211799,
+        "manager_id": "josh_b",
+        "display_name": "Josh B",
+        "p_win_pool": 0.216852,
         "week_move": null
       },
       {
         "manager_id": "david",
         "display_name": "David",
-        "p_win_pool": 0.208312,
+        "p_win_pool": 0.164833,
+        "week_move": null
+      },
+      {
+        "manager_id": "brian",
+        "display_name": "Brian",
+        "p_win_pool": 0.160552,
         "week_move": null
       },
       {
         "manager_id": "john_wells",
         "display_name": "John Wells",
-        "p_win_pool": 0.119082,
+        "p_win_pool": 0.08837,
         "week_move": null
       },
       {
         "manager_id": "john_tamu",
         "display_name": "John K",
-        "p_win_pool": 0.113353,
+        "p_win_pool": 0.086399,
         "week_move": null
       }
     ]
@@ -235,6 +252,50 @@
         ]
       },
       {
+        "manager_id": "josh_b",
+        "display_name": "Josh B",
+        "mvp": [
+          {
+            "manager_id": "josh_b",
+            "display_name": "Josh B",
+            "team": "Duke",
+            "conference": "ACC",
+            "line": 5.5,
+            "direction": "O",
+            "delta": -5.5
+          },
+          {
+            "manager_id": "josh_b",
+            "display_name": "Josh B",
+            "team": "Wyoming",
+            "conference": "Mountain West",
+            "line": 5.5,
+            "direction": "O",
+            "delta": -5.5
+          }
+        ],
+        "anchor": [
+          {
+            "manager_id": "josh_b",
+            "display_name": "Josh B",
+            "team": "Ole Miss",
+            "conference": "SEC",
+            "line": 7.5,
+            "direction": "O",
+            "delta": -7.5
+          },
+          {
+            "manager_id": "josh_b",
+            "display_name": "Josh B",
+            "team": "Miami (OH)",
+            "conference": "MAC",
+            "line": 7.5,
+            "direction": "O",
+            "delta": -7.5
+          }
+        ]
+      },
+      {
         "manager_id": "john_wells",
         "display_name": "John Wells",
         "mvp": [
@@ -319,6 +380,21 @@
           "basis": "ceiling_vs_leader_floor",
           "my_field": "ceiling",
           "my_value": 27.0,
+          "operator": ">=",
+          "other_manager_id": "david",
+          "other_display_name": "David",
+          "other_field": "floor",
+          "other_value": -20.0
+        }
+      },
+      {
+        "manager_id": "josh_b",
+        "display_name": "Josh B",
+        "state": "needs_help",
+        "comparison": {
+          "basis": "ceiling_vs_leader_floor",
+          "my_field": "ceiling",
+          "my_value": 22.0,
           "operator": ">=",
           "other_manager_id": "david",
           "other_display_name": "David",
@@ -567,6 +643,62 @@
             "status": "LIVE",
             "games_remaining": 12,
             "share_of_delta": 0.234375
+          }
+        ]
+      },
+      {
+        "manager_id": "josh_b",
+        "display_name": "Josh B",
+        "banked_total": -26.0,
+        "absolute_total": 26.0,
+        "picks": [
+          {
+            "team": "Ole Miss",
+            "conference": "SEC",
+            "line": 7.5,
+            "direction": "O",
+            "banked_delta": -7.5,
+            "floor": -7.5,
+            "ceiling": 4.5,
+            "status": "LIVE",
+            "games_remaining": 12,
+            "share_of_delta": 0.288462
+          },
+          {
+            "team": "Duke",
+            "conference": "ACC",
+            "line": 5.5,
+            "direction": "O",
+            "banked_delta": -5.5,
+            "floor": -5.5,
+            "ceiling": 6.5,
+            "status": "LIVE",
+            "games_remaining": 12,
+            "share_of_delta": 0.211538
+          },
+          {
+            "team": "Miami (OH)",
+            "conference": "MAC",
+            "line": 7.5,
+            "direction": "O",
+            "banked_delta": -7.5,
+            "floor": -7.5,
+            "ceiling": 4.5,
+            "status": "LIVE",
+            "games_remaining": 12,
+            "share_of_delta": 0.288462
+          },
+          {
+            "team": "Wyoming",
+            "conference": "Mountain West",
+            "line": 5.5,
+            "direction": "O",
+            "banked_delta": -5.5,
+            "floor": -5.5,
+            "ceiling": 6.5,
+            "status": "LIVE",
+            "games_remaining": 12,
+            "share_of_delta": 0.211538
           }
         ]
       },

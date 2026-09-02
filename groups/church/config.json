@@ -10,13 +10,14 @@
   "picks_per_manager": 4,
   "min_distinct_conferences": 1,
 
-  "_managers_note": "Locked real identities; remaining managers added at draft. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. Church has two Johns disambiguated by manager_id: john_wells vs john_tamu.",
+  "_managers_note": "Locked real identities; remaining managers added at draft. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. Church has two Johns disambiguated by manager_id: john_wells vs john_tamu. josh_b (Josh Bascom) joined 2026-09-02, after the draft was final; the id carries the initial for the same reason the Johns do -- browns already has a `josh`, and manager_id is the join key, so it must never be shortened to `josh` here.",
   "managers": [
     { "manager_id": "zach",       "display_name": "Zach",           "email": "TODO" },
     { "manager_id": "brian",      "display_name": "Brian",          "email": "TODO" },
     { "manager_id": "david",      "display_name": "David",          "email": "TODO" },
     { "manager_id": "john_wells", "display_name": "John Wells",     "email": "TODO" },
-    { "manager_id": "john_tamu",  "display_name": "John K",         "email": "TODO" }
+    { "manager_id": "john_tamu",  "display_name": "John K",         "email": "TODO" },
+    { "manager_id": "josh_b",     "display_name": "Josh B",         "email": "TODO" }
   ],
 
   "email_enabled": false

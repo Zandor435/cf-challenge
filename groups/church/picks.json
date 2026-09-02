@@ -1,5 +1,5 @@
 {
-  "_note": "Written by scripts/enter_draft.py from a dictated paste block. `team` is the canonical name returned by utils.resolve_team (§9) — never a display_name, never an ambiguity candidate. `conference` and `line` are copied from team_win_totals_2026.json (season 2026), the frozen draft-day reference; nothing dictated overrides them (§1). direction = \"O\" (over) | \"U\" (under), uppercase only — the engine tests `direction == \"O\"`. `manager` is the manager_id join key from config.json. Regenerate with enter_draft.py rather than hand-editing.",
+  "_note": "Written by scripts/enter_draft.py from a dictated paste block. `team` is the canonical name returned by utils.resolve_team (§9) — never a display_name, never an ambiguity candidate. `conference` and `line` are copied from team_win_totals_2026.json (season 2026), the frozen draft-day reference; nothing dictated overrides them (§1). direction = \"O\" (over) | \"U\" (under), uppercase only — the engine tests `direction == \"O\"`. `manager` is the manager_id join key from config.json. Regenerate with enter_draft.py rather than hand-editing. LATE ADDITION 2026-09-02: josh_b (Josh Bascom, \"Josh B\") joined after this board was already draft_status \"final\", so his four rows were appended by hand rather than re-entered through enter_draft.py -- that script rebuilds the whole payload and would have rewritten the other twenty committed picks to add four. His `team` values still come from utils.resolve_team and his `line`/`conference` still come from data/team_win_totals_2026.json; nothing was hardcoded and no existing row was touched. Miami (OH) is the MAC school (CFBD 193), NOT the ACC Miami, whose canonical name is the bare string \"Miami\" (CFBD 2390).",
   "group_id": "church",
   "draft_status": "final",
   "picks": [
@@ -142,6 +142,34 @@
       "conference": "ACC",
       "direction": "O",
       "line": 6.5
+    },
+    {
+      "manager": "josh_b",
+      "team": "Ole Miss",
+      "conference": "SEC",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "josh_b",
+      "team": "Duke",
+      "conference": "ACC",
+      "direction": "O",
+      "line": 5.5
+    },
+    {
+      "manager": "josh_b",
+      "team": "Miami (OH)",
+      "conference": "MAC",
+      "direction": "O",
+      "line": 7.5
+    },
+    {
+      "manager": "josh_b",
+      "team": "Wyoming",
+      "conference": "Mountain West",
+      "direction": "O",
+      "line": 5.5
     }
   ]
 }
