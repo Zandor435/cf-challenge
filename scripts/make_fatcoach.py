@@ -75,8 +75,9 @@ IDENTITY_LOCK = (
     "hair, same skin tone, same complexion, same age. He must be instantly "
     "recognizable to anyone who knows him. DO NOT swap his face, DO NOT "
     "morph him toward any real coach or celebrity, DO NOT make him "
-    "generically handsome, DO NOT change his beard, DO NOT give him hair he "
-    "does not have."
+    "generically handsome, DO NOT change his beard, DO NOT add facial hair "
+    "he does not have, DO NOT grow stubble into a full beard, DO NOT grey his "
+    "hair or beard, DO NOT give him hair he does not have."
 )
 
 BUILD_CHANGE = (
@@ -86,7 +87,12 @@ BUILD_CHANGE = (
     "jowls, with the coaching shirt pulled tight over the stomach. Make the "
     "body substantially heavier than the source photograph. Keep the face "
     "recognizably his, but let the neck and jaw carry the weight the rest of "
-    "him does, so the head belongs to the body and does not look pasted on."
+    "him does, so the head belongs to the body and does not look pasted on. "
+    "The shirt stays fully on and fully covering him: it never rides up or "
+    "comes untucked, and NO bare skin of his stomach, midriff, chest or back "
+    "is visible anywhere. Making him heavier is the ONLY change -- do not age "
+    "him, do not grey him, and do not add, lengthen or thicken his facial "
+    "hair, which stays exactly as it is in the reference image."
 )
 
 NO_FURNITURE = (
@@ -123,7 +129,81 @@ EXCLUSION = (
 )
 
 
-def build_prompt(color_word, hexc, patch, exclude=None, team_marks=False):
+# --- scene-preserving edit mode (--keep-scene) --------------------------------
+# The generation path above BUILDS a sideline scene from a real photo. Once a
+# manager's portrait is approved and published, the scene is the asset: CEC's
+# zach is a Wake Forest presser, not a sideline, and regenerating it from
+# SCENE would throw away the backdrop, the podium nameplate and the shirt
+# script that make it his. So --keep-scene swaps SCENE for a pin -- everything
+# in the reference frame is frozen and only the build moves. Same inverted
+# lock, one degree tighter: recolor_personas.py freezes the body and changes
+# the garment, this freezes the garment AND the room and changes the body.
+SCENE_KEEP = (
+    "This is a TARGETED EDIT of the photograph provided, not a new picture. "
+    "Return the same photograph with one thing changed. ABSOLUTELY UNCHANGED: "
+    "the setting and the room, the backdrop and every logo, wordmark and "
+    "graphic printed on it, the podium and its nameplate, the microphones, "
+    "the camera angle, the crop and framing, the lighting direction and mood, "
+    "his garment and its exact color, and EVERY piece of text and lettering "
+    "already in the frame -- reproduce all existing words exactly as they "
+    "appear, same wording, same spelling, same fonts, same positions. It stays "
+    "a photorealistic press photograph with real skin and fabric texture. "
+    "DO NOT restyle or redraw the picture, DO NOT change the background, "
+    "DO NOT re-letter or reword the nameplate, DO NOT add or remove signage."
+)
+
+# Distinct from BUILD_CHANGE because the input is different. BUILD_CHANGE
+# reads a real photo of a normal-sized man; this reads a portrait that is
+# ALREADY the heavy-set treatment, so "make him heavy-set" is a no-op the
+# model happily satisfies by returning the source. The comparative -- heavier
+# THAN HE ALREADY IS IN THIS IMAGE -- is what actually moves it.
+BUILD_HEAVIER = (
+    " DELIBERATELY CHANGED, and this is the only reason for the edit: his "
+    "BODY. Make him CLEARLY AND SUBSTANTIALLY HEAVIER THAN HE ALREADY IS IN "
+    "THIS PHOTOGRAPH -- considerably more weight in the belly, chest, "
+    "shoulders, neck and jowls, a fuller double chin, rounder and heavier "
+    "cheeks, thicker arms and forearms, and a wider overall frame that fills "
+    "more of the podium than it does now. The coaching shirt is pulled "
+    "visibly tighter across the stomach and strains at the zip. Keep the face "
+    "recognizably his and let the neck and jaw carry the weight the rest of "
+    "him does, so the head belongs to the body and does not look pasted on."
+)
+
+# Props on the podium. Unbranded is not fussiness: every garbled render in the
+# hauck batch failed on LETTERING, and snack packaging is nothing but
+# lettering. Denying it the surface is cheaper than policing the spelling.
+PODIUM_PROPS = (
+    " ADD to the flat top of the podium, spread along its front edge to the "
+    "LEFT and RIGHT of the nameplate and BELOW the microphones: {props}. They "
+    "rest on the podium surface as real objects, shot in the same light and "
+    "the same photographic style as the rest of the frame, slightly "
+    "overlapping each other. They are props at the edges of the frame, not "
+    "the subject of it. EVERY microphone already in the picture stays exactly "
+    "where it is and stays fully visible, and the podium nameplate stays "
+    "COMPLETELY unobstructed and fully readable end to end, both of its "
+    "lines of text -- nothing may overlap, cover or crop a single letter of "
+    "it. The snacks sit on the podium's flat top surface BEHIND the "
+    "nameplate, so the nameplate stands in front of them and may itself hide "
+    "the lower part of any of them; that is correct and expected. It is "
+    "always the nameplate in front and the snacks behind, never the reverse. "
+    "Nothing may cover his "
+    "face, his chest or his hands. Every wrapper, bag, cup, box and napkin is "
+    "BLANK: plain solid-colored packaging with NO printing whatsoever -- no "
+    "lettering, no words, no numbers, no logos, no brand names, no invented "
+    "or garbled text, no decorative graphics anywhere on any of it."
+)
+
+
+def build_prompt(color_word, hexc, patch, exclude=None, team_marks=False,
+                 keep_scene=False, props=None):
+    if keep_scene:
+        text = SCENE_KEEP + IDENTITY_LOCK + BUILD_HEAVIER
+        if props:
+            text += PODIUM_PROPS.format(props=props)
+        if exclude:
+            text += EXCLUSION.format(names=exclude)
+        return text
+
     text = SCENE.format(color=color_word) + f" The team color is {hexc}."
     text += IDENTITY_LOCK + BUILD_CHANGE
     if patch:
@@ -163,8 +243,24 @@ def main():
     ap.add_argument("--exclude", default=None,
                     help="comma-joined things that must NOT appear, e.g. "
                          '"JMU, James Madison, purple". Opt-in; see EXCLUSION')
+    ap.add_argument("--keep-scene", action="store_true",
+                    help="treat --source as an ALREADY-APPROVED portrait and "
+                         "edit it in place: freeze the scene, backdrop, "
+                         "garment and lettering, change only the build. "
+                         "Makes --team/--hex optional and defaults --aspect "
+                         "to the source's own ratio so the framing survives.")
+    ap.add_argument("--props", default=None,
+                    help='things to add to the podium top, e.g. "an open bag '
+                         'of chips and a stack of candy bars". Unbranded by '
+                         "construction; see PODIUM_PROPS.")
+    ap.add_argument("--label", default="fat",
+                    help="filename stem: <group>_<manager>_<label>_<nn>.png. "
+                         "Change it so a new batch cannot overwrite the "
+                         "published one. Default 'fat'.")
     ap.add_argument("--n", type=int, default=2, help="variants")
-    ap.add_argument("--aspect", default=DEFAULT_ASPECT)
+    ap.add_argument("--aspect", default=None,
+                    help=f"default {DEFAULT_ASPECT}, or the source's own "
+                         "ratio under --keep-scene")
     ap.add_argument("--model", default=gemini_image.DEFAULT_MODEL)
     ap.add_argument("--out", default=None)
     ap.add_argument("--force", action="store_true")
@@ -179,7 +275,10 @@ def main():
     if not src.is_file():
         raise SystemExit(f"ERROR: source photo not found: {src}")
 
-    if a.hex:
+    if a.keep_scene and not (a.hex or a.team):
+        # The reference image already carries the palette; SCENE_KEEP pins it.
+        hexc = word = None
+    elif a.hex:
         hexc, word = a.hex.lower(), color_name(a.hex)
     elif a.team:
         colors = team_colors()
@@ -190,15 +289,22 @@ def main():
     else:
         ap.error("one of --team or --hex is required")
 
-    prompt = build_prompt(word, hexc, a.patch, a.exclude, a.team_marks)
+    prompt = build_prompt(word, hexc, a.patch, a.exclude, a.team_marks,
+                          keep_scene=a.keep_scene, props=a.props)
     out_dir = Path(a.out) if a.out else ROOT / "output" / "personas" / a.group
     if not out_dir.is_absolute():
         out_dir = ROOT / out_dir
 
-    print(f"group={a.group} manager={a.manager} color={word} ({hexc}) "
-          f"aspect={a.aspect}")
     with Image.open(src) as im:
-        print(f"source {src.name} {im.size[0]}x{im.size[1]}")
+        size = im.size
+    # An edit told the wrong ratio re-frames the composition it was supposed
+    # to preserve, so --keep-scene reads the ratio off the source itself.
+    aspect = a.aspect or (gemini_image.nearest_aspect(*size) if a.keep_scene
+                          else DEFAULT_ASPECT)
+    swatch = f"{word} ({hexc})" if word else "from reference"
+    print(f"group={a.group} manager={a.manager} color={swatch} "
+          f"aspect={aspect} mode={'edit' if a.keep_scene else 'generate'}")
+    print(f"source {src.name} {size[0]}x{size[1]}")
     print(f"\n--- prompt ---\n{prompt}\n")
     if a.preview:
         print("preview only; nothing written, nothing billed.")
@@ -215,13 +321,13 @@ def main():
     budget = load_budget()
     made = skipped = 0
     for i in range(1, a.n + 1):
-        dest = out_dir / f"{a.group}_{a.manager}_fat_{i:02d}.png"
+        dest = out_dir / f"{a.group}_{a.manager}_{a.label}_{i:02d}.png"
         if dest.exists() and not a.force:
             print(f"  skip (exists): {dest.name}")
             skipped += 1
             continue
         print(f"  variant {i} ...")
-        img = gemini_image.generate(key, a.model, ref, prompt, a.aspect,
+        img = gemini_image.generate(key, a.model, ref, prompt, aspect,
                                     budget=budget, daily_warn=a.daily_warn)
         dest.write_bytes(img)
         print(f"  wrote {dest.name} ({len(img) // 1024} KB)")
