@@ -43,6 +43,32 @@ GENERATOR = ROOT / "scripts" / "generate_scenes.py"
 
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp"}
 
+# NEVER SWEPT, UNCONDITIONALLY. This page inlines every image it finds as
+# base64 into a single file you open by double-clicking -- a file that can be
+# mailed, synced or dropped in a shared folder. What it sweeps is therefore a
+# DISTRIBUTION decision, not a display one, and the persona tree is where this
+# repo keeps likeness material of real people: camera originals, un-approved
+# renders, and the reference art generated from them.
+#
+# THE FILTER IS A SUBTREE, NOT A LIST, and that is the whole point. The first
+# version of this guard enumerated `personas/family/` plus `.jpg`/`.jpeg` under
+# `personas/`, and `personas/church/fat_joshb.png` walked around it the same
+# day it was written -- a PNG, in a group the list did not name. Any rule that
+# has to be extended per group or per extension is a rule that is already
+# wrong for the next file added. Matching the path SEGMENT covers
+# output/personas/**, output/archive/personas/**, output/_source/personas/**
+# and every group that will ever exist under them, at every extension.
+#
+# This is not reachable by argument. --only narrows a sweep; it cannot widen
+# one, and no flag turns this off.
+EXCLUDED_SEGMENT = "personas"
+
+
+def is_excluded(rel):
+    """True if `rel` (relative to output/) lies anywhere under a personas/ dir."""
+    parts = rel.parts if hasattr(rel, "parts") else Path(rel).parts
+    return EXCLUDED_SEGMENT in parts
+
 # Section order. A category discovered outside this list is appended just
 # before "unsorted", which is always last.
 CATEGORY_ORDER = ["personas", "banners", "posters", "scenes", "matchups",
@@ -292,12 +318,26 @@ def thumbnail(path, width, quality):
 
 # --------------------------------------------------------------------- build
 
-def collect():
+def collect(only=None):
+    """Sweep output/ into tile records.
+
+    `only` is a CONVENIENCE that narrows the sweep to one output/-relative
+    prefix. It is applied AFTER the real-people guard and can only ever remove
+    more, never add back -- passing only="personas/" returns nothing.
+    """
     items = []
+    excluded = 0
     for path in sorted(OUTPUT.rglob("*")):
         if not path.is_file() or path.suffix.lower() not in IMAGE_EXT:
             continue
         rel = path.relative_to(OUTPUT)
+        # Applied HERE, in collect(), so every caller inherits it -- the sheet
+        # builder, any future consumer, and a bare collect() in a REPL.
+        if is_excluded(rel):
+            excluded += 1
+            continue
+        if only and not rel.as_posix().startswith(only):
+            continue
         category, archived, meta = classify(rel)
         items.append(dict(
             path=path,
@@ -310,6 +350,11 @@ def collect():
             style=meta.get("style"),
             variant=meta.get("variant"),
         ))
+    if excluded:
+        # Say it out loud. A silent exclusion reads as "there was nothing
+        # there", which is the one thing it must never be mistaken for.
+        print(f"  excluded {excluded} file(s) under output/personas/ "
+              f"(real-people guard; not overridable)")
     return items
 
 
@@ -839,15 +884,24 @@ def main():
                     help="embedded thumbnail width in px (default 460)")
     ap.add_argument("--quality", type=int, default=80,
                     help="WEBP quality (default 80)")
+    ap.add_argument("--only", default=None, metavar="PREFIX",
+                    help="sweep only paths under this output/-relative "
+                         "prefix, e.g. scenes/church/. Narrows only: the "
+                         "real-people guard applies either way and this "
+                         "cannot reach past it.")
+    ap.add_argument("--out", default=None, metavar="PATH",
+                    help=f"write the sheet here instead of "
+                         f"{SHEET.relative_to(ROOT).as_posix()}")
     args = ap.parse_args()
 
     if not OUTPUT.is_dir():
         print("ERROR: no output/ directory at " + str(OUTPUT), file=sys.stderr)
         return 1
 
-    items = collect()
+    items = collect(args.only)
     if not items:
-        print("ERROR: no images found under output/.", file=sys.stderr)
+        where = f" under output/{args.only}" if args.only else " under output/"
+        print(f"ERROR: no images found{where}.", file=sys.stderr)
         return 1
 
     def encode(item):
@@ -856,7 +910,11 @@ def main():
     with ThreadPoolExecutor() as pool:
         list(pool.map(encode, items))
 
-    SHEET.write_text(build_html(items), encoding="utf-8")
+    sheet = Path(args.out) if args.out else SHEET
+    if not sheet.is_absolute():
+        sheet = ROOT / args.out
+    sheet.parent.mkdir(parents=True, exist_ok=True)
+    sheet.write_text(build_html(items), encoding="utf-8")
 
     counts = {}
     for i in items:
@@ -868,8 +926,8 @@ def main():
         print(cat.ljust(10) + str(counts[cat]).rjust(4) + note)
     print("total".ljust(10) + str(len(items)).rjust(4))
     print("")
-    print("output    " + str(SHEET.relative_to(ROOT)).replace("\\", "/"))
-    print("size      " + format(SHEET.stat().st_size / 1e6, ".1f") + " MB")
+    print("output    " + str(sheet.relative_to(ROOT)).replace("\\", "/"))
+    print("size      " + format(sheet.stat().st_size / 1e6, ".1f") + " MB")
     try:
         sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
                              cwd=ROOT, capture_output=True, text=True,

@@ -24,7 +24,9 @@ Usage:
 
 Playbook compliance (CLAUDE.md):
   - rule 2: reuses _post_with_retries from generate_owner_images.
-  - rule 6: shared per-provider UTC-daily budget tally.
+  - rule 6: shared per-provider UTC-daily budget tally. It counts HTTP
+    ATTEMPTS, never images: the bump lives inside _post_with_retries, so a
+    retried image bills more than once.
   - rule 7: --skip-if-exists by DEFAULT; --force is required to re-bill.
 
 Privacy: sources are gitignored; a chosen banner is published only by passing it

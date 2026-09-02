@@ -32,6 +32,8 @@ OUTPUT  output/personas/<group>/<group>_<manager>_fat_<nn>.png
 
 Playbook: rule 2 retries via gemini_image, rule 6 budget tally, rule 7
 --skip-if-exists by default. --preview prints the prompt and bills nothing.
+The rule-6 tally counts HTTP ATTEMPTS, never images -- the bump is inside
+_post_with_retries, so a retried image bills more than once.
 """
 import argparse
 import os
