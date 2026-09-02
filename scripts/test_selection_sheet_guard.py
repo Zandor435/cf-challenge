@@ -9,24 +9,27 @@ where this repo keeps likeness material of real people — camera originals,
 un-approved renders, and the reference art derived from them — so an
 unargumented collect() must not be able to reach any of it.
 
-WHY THIS TEST IS WRITTEN AGAINST THE SUBTREE, NOT AGAINST FILENAMES. The first
-version of the guard enumerated `personas/family/` plus `.jpg`/`.jpeg` under
+WHY THIS TEST BUILDS ITS OWN TREE. The first version asserted against the real
+output/ directory: that personas/ held images the guard had to stop, and that
+collect() still returned work from elsewhere. Both are true on a machine that
+has generated art. output/ is gitignored, so on a fresh CI checkout it does not
+exist, both checks failed on "0 file(s) on disk", and the property they were
+protecting passed VACUOUSLY — "0 of 0 swept". A guard test that only works
+where the artifacts happen to be lying around is not a guard test. This one
+synthesizes the tree it needs, so it means the same thing on a bare checkout as
+on a loaded workstation.
+
+WHY THE ASSERTION IS A PROPERTY, NOT A FILE LIST. The guard this protects
+replaced one that enumerated `personas/family/` plus `.jpg`/`.jpeg` under
 `personas/`, and `personas/church/fat_joshb.png` walked around it the same day
-— a PNG, in a group the list did not name. A test that asserts "these two
-named files are absent" would have passed just as happily against that broken
-guard, and would need editing the day somebody adds personas/browns/. So the
-assertion here is a PROPERTY of the whole sweep: ZERO returned paths have a
-`personas` segment, whatever is on disk, whoever added it.
+it was written — a PNG, in a group the list did not name. A test asserting
+"these two named files are absent" would have passed against that broken guard
+just as happily. So the fixture deliberately includes a group nobody has ever
+named, an archive MIRROR (the match has to be on the path segment, not on a
+leading prefix), a staged _source copy, and four extensions — and the assertion
+is that ZERO swept paths carry a `personas` segment, whatever is under it.
 
-TWO ASSERTIONS, and the second is the one that keeps the first honest:
-
-  1. collect() with NO arguments returns nothing under a personas/ directory.
-  2. the sweep is not vacuous — output/personas/ really does hold images that
-     the sweep would otherwise have picked up, and collect() really does
-     return files from elsewhere. Without this, an empty output/ or a
-     collect() that returned [] would pass assertion 1 while proving nothing.
-
-Needs no API key and opens no socket — safe to run in CI on every commit.
+Needs no API key, opens no socket, and touches nothing outside a temp dir.
 
 Runs both ways, and they are equivalent: pytest collects one test per section
 and conftest.py raises on any check() the section recorded as FAIL; the
@@ -38,12 +41,33 @@ Usage:
 """
 
 import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build_selection_sheet as B  # noqa: E402
 
 SEGMENT = "personas"
+
+# Every one of these must be unreachable.
+MUST_NOT_REACH = [
+    "personas/church/fat_joshb.png",
+    "personas/family/holiday_photo.jpg",
+    "personas/jonno/Fat/scan.jpeg",
+    "personas/browns/nobody_named_this_group_yet.png",
+    "personas/recolor/zach/zach_accent_gemini.webp",
+    "archive/personas/superseded.png",
+    "_source/personas/church/raw.png",
+]
+
+# Ordinary work the sweep must still return. Without these the property could
+# hold by returning nothing at all — the exact failure that put this rewrite
+# here.
+MUST_REACH = [
+    "scenes/church/church_fishing_josh_b_painted_01.png",
+    "banners/church/church_trophychase_01.png",
+    "halfcards/panel/panel_half_chris_left_noir_01.png",
+]
 
 _res = []
 
@@ -53,46 +77,52 @@ def check(name, ok, detail=""):
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}" + (f" — {detail}" if detail else ""))
 
 
-def _under_personas(rel_posix):
-    return SEGMENT in Path(rel_posix).parts
-
-
-def _on_disk_under_personas():
-    """Images physically present under any personas/ dir in output/."""
-    root = B.OUTPUT
-    if not root.is_dir():
-        return []
-    return [p for p in root.rglob("*")
-            if p.is_file() and p.suffix.lower() in B.IMAGE_EXT
-            and SEGMENT in p.relative_to(root).parts]
+def _build_tree(root):
+    for rel in MUST_NOT_REACH + MUST_REACH:
+        p = root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        # collect() filters on suffix and is_file() and never opens the file,
+        # so an empty one exercises the same path a 900KB render would.
+        p.write_bytes(b"")
 
 
 def test_sweep_excludes_real_people():
     print("\nSelection-sheet real-people guard:")
-    on_disk = _on_disk_under_personas()
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        _build_tree(root)
+        real_output = B.OUTPUT
+        try:
+            B.OUTPUT = root
+            items = B.collect()
+            narrowed = B.collect("personas/")
+        finally:
+            # Restore unconditionally: this module global is shared with every
+            # other test in the process, and leaving it pointed at a deleted
+            # temp dir is the cross-test poisoning CLAUDE.md rule 21 is about.
+            B.OUTPUT = real_output
 
-    # (2a) Not vacuous: there is something the guard has to actually stop.
-    check("output/personas/ holds images the sweep would otherwise take",
-          bool(on_disk), f"{len(on_disk)} file(s) on disk")
+    swept = {i["rel"] for i in items}
 
-    items = B.collect()
+    check("fixture planted files under personas/ for the guard to stop",
+          len(MUST_NOT_REACH) == 7, f"{len(MUST_NOT_REACH)} planted")
 
-    # (2b) Not vacuous the other way: the sweep still returns real work.
-    check("collect() still returns images from outside personas/",
-          bool(items), f"{len(items)} item(s) swept")
+    missing = sorted(r for r in MUST_REACH if r not in swept)
+    check("collect() still returns the non-personas files",
+          not missing,
+          f"{len(swept)} swept" if not missing else f"MISSING {missing}")
 
-    # (1) The property under test, stated over the whole sweep.
-    leaked = sorted(i["rel"] for i in items if _under_personas(i["rel"]))
+    leaked = sorted(p for p in swept if SEGMENT in Path(p).parts)
     check("an unargumented collect() returns ZERO paths under personas/",
           not leaked,
-          f"LEAKED {len(leaked)}: {leaked[:5]}" if leaked else
-          f"0 of {len(items)} swept")
+          f"LEAKED {len(leaked)}: {leaked[:5]}" if leaked
+          else f"0 of {len(swept)} swept")
 
-    # The guard is a property of collect(), not of the caller's arguments.
-    # --only narrows; it must not be what makes the guard hold, and it must
-    # not be able to aim the sweep back into the tree the guard removed.
     check("collect('personas/') is empty too -- --only cannot widen the guard",
-          not B.collect("personas/"), "")
+          not narrowed, f"{len(narrowed)} item(s)")
+
+    check("B.OUTPUT restored after the fixture",
+          B.OUTPUT == B.ROOT / "output", str(B.OUTPUT))
 
 
 def main():
