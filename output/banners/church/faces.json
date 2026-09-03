@@ -5,27 +5,26 @@
   "frame's height. Read by scripts/build_banners.py and published into",
   "docs/data/church/banners.json as 'face_band'.",
   "",
-  "MEASURED OFF THE ART (2172x724) against the 280px band, per face:",
-  "  left, Georgia, white hair and beard   ~15-41%   <- the highest hairline",
-  "  left-centre, Virginia, blonde          ~21-46%  <- the lowest chin",
-  "  centre, Texas A&M, maroon quarter-zip  ~17-42%",
-  "  right-centre, Stanford, headset+beard  ~15-45%",
-  "  right, Wake Forest, black polo         ~21-43%",
+  "MEASURED OFF THE TRIMMED ART (2172x514), per face:",
+  "  left, Georgia, white hair and beard    ~22-52%",
+  "  left-centre, Virginia, blond           ~27-57%",
+  "  centre, Texas A&M, maroon quarter-zip  ~23-52%",
+  "  right-centre, Stanford, headset+beard  ~25-58%  <- the lowest chin",
+  "  right-centre, Wake Forest, black polo  ~27-55%",
+  "  right, Duke, ball cap                  ~21-55%  <- the highest point",
   "",
-  "So [15, 46]. All five stand at the same depth and are framed at the",
-  "same scale, which is why this band is 31% of frame where the browns",
-  "trophy chase -- same 3:1 crop, but with a figure kneeling a head below",
-  "the line -- needs 69% and cannot be framed at this cap at all.",
+  "So [20, 59], rounded outward a point either way. All six stand at the",
+  "same depth and are framed at the same scale. The band is 39% of frame,",
+  "which at the widest band is a 111px floor against a 280px cap -- the",
+  "widest headroom any banner in the set has, because the frame is the",
+  "widest in the set.",
   "",
-  "The bulldog at lower left (~66-85%) is deliberately NOT in this band.",
-  "It is a mascot, not one of the five, and including it would push the",
-  "band to [15, 85] and the floor to 317px -- failing, at this cap, a",
-  "banner whose five faces it holds with 139px to spare. If the dog ever",
-  "has to be guaranteed visible that is a framing decision for focal.json",
-  "or a re-crop, not a face-band measurement."
+  "The hands, at roughly 60-95%, are deliberately NOT in this band: they",
+  "are the composition's lower register, not faces, and the cap shows them",
+  "anyway at this ratio."
  ],
- "church_trophychase_01.png": [
-  15,
-  46
+ "church_trophychase_02.png": [
+  20,
+  59
  ]
 }
