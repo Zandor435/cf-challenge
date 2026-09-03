@@ -97,6 +97,24 @@ BUILD_CHANGE = (
     "hair, which stays exactly as it is in the reference image."
 )
 
+# An ABSOLUTE target, not a comparative one. BUILD_CHANGE says "substantially
+# heavier THAN THE SOURCE PHOTOGRAPH", which is a weak anchor when the source is
+# a tight head-and-shoulders crop showing almost no body -- josh_b's is exactly
+# that, and two generate passes plus two --keep-scene passes all came back merely
+# stocky, then plateaued and returned near-copies. Naming the endpoint instead of
+# the delta is what moves it. Opt-in, so the twenty already published are
+# untouched.
+BUILD_MAX = (
+    " Be unambiguous about the size: he is a VERY large man, well north of "
+    "three hundred pounds. His belly is round and heavy and clearly overhangs "
+    "his belt, his chest and shoulders are broad and thick with weight, his "
+    "neck is wide and short with a full double chin under the jaw, his cheeks "
+    "are round and full, and his upper arms and forearms are thick enough to "
+    "fill the sleeves completely. He is visibly the heaviest man on the "
+    "sideline. Merely stocky, thickset or slightly overweight is NOT enough "
+    "and is the wrong answer -- go considerably further than that."
+)
+
 NO_FURNITURE = (
     " No captions, no scoreboard text, no watermarks, no signage and no "
     "brand marks anywhere in the frame."
@@ -197,9 +215,11 @@ PODIUM_PROPS = (
 
 
 def build_prompt(color_word, hexc, patch, exclude=None, team_marks=False,
-                 keep_scene=False, props=None):
+                 keep_scene=False, props=None, heavier=False):
     if keep_scene:
         text = SCENE_KEEP + IDENTITY_LOCK + BUILD_HEAVIER
+        if heavier:
+            text += BUILD_MAX
         if props:
             text += PODIUM_PROPS.format(props=props)
         if exclude:
@@ -208,6 +228,8 @@ def build_prompt(color_word, hexc, patch, exclude=None, team_marks=False,
 
     text = SCENE.format(color=color_word) + f" The team color is {hexc}."
     text += IDENTITY_LOCK + BUILD_CHANGE
+    if heavier:
+        text += BUILD_MAX
     if patch:
         # The one mark that IS wanted. Named explicitly and placed, because a
         # vague "add a patch" lands as noise on the chest or not at all.
@@ -255,6 +277,11 @@ def main():
                     help='things to add to the podium top, e.g. "an open bag '
                          'of chips and a stack of candy bars". Unbranded by '
                          "construction; see PODIUM_PROPS.")
+    ap.add_argument("--heavier", action="store_true",
+                    help="append BUILD_MAX -- an absolute size target rather "
+                         "than a delta from the source. Use when the source is "
+                         "a head-and-shoulders crop and the default comes back "
+                         "merely stocky. Works in both modes.")
     ap.add_argument("--label", default="fat",
                     help="filename stem: <group>_<manager>_<label>_<nn>.png. "
                          "Change it so a new batch cannot overwrite the "
@@ -292,7 +319,8 @@ def main():
         ap.error("one of --team or --hex is required")
 
     prompt = build_prompt(word, hexc, a.patch, a.exclude, a.team_marks,
-                          keep_scene=a.keep_scene, props=a.props)
+                          keep_scene=a.keep_scene, props=a.props,
+                          heavier=a.heavier)
     out_dir = Path(a.out) if a.out else ROOT / "output" / "personas" / a.group
     if not out_dir.is_absolute():
         out_dir = ROOT / out_dir

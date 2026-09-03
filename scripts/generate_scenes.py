@@ -251,9 +251,11 @@ REF_PREFERENCE = ["accent", "jacket", "quarterzip", "polo"]
 # Escape hatch for a lead whose kept reference does not live under the recolor
 # tree at all -- the OVERRIDES pattern build_avatars.py already documents.
 # Values are repo-relative. josh_b is CEC's sixth manager: his reference is the
-# approved Duke Divinity poster, which was never a recolor and so has no
-# garment slug for the ladder below to rank. Everything still resolves through
-# resolve_reference(), which is the contract callers depend on.
+# make_fatcoach.py portrait -- Fat Josh in Duke blue -- which was never a
+# recolor and so has no garment slug for the ladder below to rank. Everything
+# still resolves through resolve_reference(), which is the contract callers
+# depend on. It replaced the Duke Divinity poster that briefly held this slot;
+# see CHURCH_SETUPS for why that whole direction was dropped.
 REFERENCE_OVERRIDES = {
     "josh_b": "output/personas/church/church_josh_b_fat_01.png",
 }
@@ -320,27 +322,48 @@ def reference_failure(mid):
 # A SINGLE-LEAD scene sweep, unlike BATCH's named group compositions. The cues
 # below are FIXED for every image in every setup and are not read from
 # personas.json: this lead's persona declares `silhouette_cues: null`, and the
-# character is carried by these four things plus the reference face. Nothing
-# here invents a garment beyond them -- a setup may name gear the scene
-# genuinely requires (waders), and that is the only exception.
-CHURCH_CUES = ("a white clerical collar, salt-and-pepper hair, a heavy-set "
-               "build, and a tweed or canvas jacket")
+# character is carried by these four things plus the reference face.
+#
+# THE FIRST SWEEP WAS THROWN AWAY AND THIS IS WHY. It ran the lead through his
+# BIOGRAPHY -- pulpit, carpentry, fishing, a clerical collar in every cue --
+# and the answer from the owner was that this is a football site and the man's
+# vocation is not the joke. The setups below are the same register the panel
+# group already gets in scene_batch.BATCH: the league taking itself far too
+# seriously. He is a head coach here and nothing else. Do not reintroduce the
+# vocation, in a cue or in a setup; that is the whole point of the rewrite.
+#
+# CLEAN-SHAVEN IS LOAD-BEARING, not a stray adjective. The source photograph is
+# clean-shaven and four of the six portrait variants generated for him grew a
+# beard unprompted; the reference alone does not hold it. Same job BUILD_LOCK
+# does for the body, done for the face.
+CHURCH_CUES = ("a Duke-blue coaching quarter-zip, a coaching headset, a "
+               "laminated play-call sheet, short salt-and-pepper hair, a "
+               "clean-shaven face with no beard and no moustache, and a "
+               "heavy-set build")
 
 CHURCH_SETUPS = [
-    ("fishing", "A man standing thigh-deep in a wide Appalachian river in "
-                "waders, working a fly rod, the Blue Ridge treeline rising "
-                "behind him in layered ridges"),
-    ("carpentry", "A man at a workshop bench running a hand plane along a "
-                  "board, a curl of shaving lifting off the blade, sawdust "
-                  "hanging in the light, tools racked on the wall behind"),
-    ("pulpit", "A man behind a heavy wooden lectern mid-sermon, both arms "
-               "raised in gesture, a tall stained-glass window throwing "
-               "colored light across him"),
-    ("basketball", "A man courtside in an old gym, leaning in off the bench "
-                   "at the edge of the hardwood, all coaching energy, the "
-                   "bleachers behind him"),
-    ("writing", "A man at a desk working through a yellow legal pad, a mug of "
-                "coffee at his elbow and stacked books crowding the desk"),
+    ("headset", "A man on a football sideline mid-game, screaming into his "
+                "coaching headset with total conviction, the cord yanked "
+                "taut behind him and the play-call sheet crushed in his "
+                "fist. Nobody within earshot is reacting"),
+    ("whiteboard", "A man in a cinderblock locker room standing at a "
+                   "whiteboard buried under an absurdly overcomplicated play "
+                   "diagram -- dozens of crossing arrows, loops doubling back "
+                   "on themselves, boxes drawn over boxes. He is adding one "
+                   "more arrow, entirely satisfied with himself"),
+    ("gatorade", "A man at the instant of a celebratory sports-drink "
+                 "drenching, a sheet of bright liquid crashing over his head "
+                 "and shoulders, both arms flung up in triumph and his face "
+                 "showing completely genuine, unguarded joy. The scale of the "
+                 "celebration is wildly out of proportion to whatever he won"),
+    ("challenge", "A man hurling a red challenge flag onto the turf with the "
+                  "full-body follow-through of a shot-putter, jaw set, "
+                  "utterly certain. The officials in the middle distance have "
+                  "not turned around and are walking away from him"),
+    ("cart", "A very large man wedged into a comically undersized sideline "
+             "utility cart, knees up around the steering wheel, puttering "
+             "along the edge of the field with enormous dignity as the game "
+             "goes on behind him"),
 ]
 
 # The band is a PROMPT clause AND a composite step. The clause keeps the model
