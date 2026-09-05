@@ -294,11 +294,22 @@ RECIPES = {
             # Belly. Centred on his near side, where the gut actually sits.
             ("bulge", dict(cx=372, cy=800, rx=340, ry=310, power=1.22)),
             ("sag", dict(cx=360, cy=830, rx=300, ry=250, amp=18)),
-            # Jowls and neck only -- amp is 0 at y=212, above the cheekbones,
-            # so the eyes, nose and brow keep their spacing and he stays him.
-            ("hwiden", dict(cx=392, half=95, feather=95,
-                            amp_y=[(212, 0.0), (275, 0.08), (335, 0.12),
-                                   (400, 0.12), (470, 0.0)])),
+            # FACE. Amp is 0 at y=210, above the cheekbones, so the eyes,
+            # nose and brow keep their spacing and their distances from each
+            # other -- that is what carries the likeness. Everything below it
+            # is fair game: the widening peaks across the jaw and runs on into
+            # the neck, so the head does not sit on a collar it has outgrown.
+            ("hwiden", dict(cx=400, half=118, feather=105,
+                            amp_y=[(210, 0.0), (262, 0.16), (322, 0.32),
+                                   (392, 0.36), (445, 0.26), (495, 0.0)])),
+            # Jowls: rounds the jaw and lower cheek that the widening only
+            # stretched. Widening alone reads as a squashed photo; the bulge
+            # is what makes it read as weight.
+            ("bulge", dict(cx=404, cy=328, rx=128, ry=104, power=1.28)),
+            # The double chin -- the jaw line pushed down into the neck.
+            ("sag", dict(cx=408, cy=376, rx=100, ry=70, amp=24)),
+            # Cheek, small: fills the hollow under the cheekbone.
+            ("bulge", dict(cx=392, cy=266, rx=92, ry=70, power=1.14)),
         ],
         # Forehead + the temple beside it. Deliberately stops above the eye:
         # a bead placed at the outer eye corner runs down the cheek and reads
