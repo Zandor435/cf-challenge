@@ -3,10 +3,10 @@
     "group_id": "panel",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-04T16:40:41.892230+00:00",
-    "cache_fetched_at": "2026-09-04T16:40:41.407647+00:00",
+    "generated_at": "2026-09-05T15:43:27.643629+00:00",
+    "cache_fetched_at": "2026-09-05T15:43:27.049985+00:00",
     "ratings_source": "SP+",
-    "ratings_asof": "2026-09-04T16:40:41.407647+00:00"
+    "ratings_asof": "2026-09-05T15:43:27.049985+00:00"
   },
   "managers": [
     {
@@ -16,7 +16,7 @@
       "p05": -2.0,
       "p50": 3.0,
       "p95": 8.0,
-      "p_win_pool": 0.517846,
+      "p_win_pool": 0.515979,
       "picks": [
         {
           "team": "Boise State",
@@ -754,7 +754,7 @@
       "p05": -2.0,
       "p50": 2.0,
       "p95": 7.0,
-      "p_win_pool": 0.386396,
+      "p_win_pool": 0.383746,
       "picks": [
         {
           "team": "Notre Dame",
@@ -1488,11 +1488,11 @@
     {
       "manager_id": "chris",
       "display_name": "Chris",
-      "expected_total": -2.02,
-      "p05": -7.0,
+      "expected_total": -1.63,
+      "p05": -6.0,
       "p50": -2.0,
       "p95": 3.0,
-      "p_win_pool": 0.050529,
+      "p_win_pool": 0.056137,
       "picks": [
         {
           "team": "Texas",
@@ -1869,69 +1869,56 @@
           "conference": "Big Ten",
           "line": 8.5,
           "direction": "O",
-          "p_beat_line": 0.267639,
-          "expected_delta": -0.92,
-          "expected_final_wins": 7.576,
+          "p_beat_line": 0.297141,
+          "expected_delta": -0.77,
+          "expected_final_wins": 7.729,
           "win_distribution": [
             {
-              "wins": 1,
-              "prob": 7e-06
-            },
-            {
               "wins": 2,
-              "prob": 0.000204
+              "prob": 4.5e-05
             },
             {
               "wins": 3,
-              "prob": 0.002437
+              "prob": 0.001086
             },
             {
               "wins": 4,
-              "prob": 0.015647
+              "prob": 0.009912
             },
             {
               "wins": 5,
-              "prob": 0.060726
+              "prob": 0.047391
             },
             {
               "wins": 6,
-              "prob": 0.150549
+              "prob": 0.134533
             },
             {
               "wins": 7,
-              "prob": 0.244018
+              "prob": 0.239199
             },
             {
               "wins": 8,
-              "prob": 0.258773
+              "prob": 0.270693
             },
             {
               "wins": 9,
-              "prob": 0.17598
+              "prob": 0.192795
             },
             {
               "wins": 10,
-              "prob": 0.073203
+              "prob": 0.082902
             },
             {
               "wins": 11,
-              "prob": 0.016828
+              "prob": 0.01952
             },
             {
               "wins": 12,
-              "prob": 0.001629
+              "prob": 0.001923
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Fresno State",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.847,
-              "p_win_pct": "85%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Louisiana",
@@ -2024,15 +2011,15 @@
             }
           ],
           "outlook": {
-            "likely_wins": 5,
+            "likely_wins": 4,
             "toss_ups": 4,
             "likely_losses": 2
           },
           "pace": {
-            "banked_games": 1,
-            "actual_wins": 1,
-            "expected_wins": 0.94,
-            "delta": 0.06,
+            "banked_games": 2,
+            "actual_wins": 2,
+            "expected_wins": 1.79,
+            "delta": 0.21,
             "state": "on_pace"
           }
         },
@@ -2041,73 +2028,60 @@
           "conference": "Big Ten",
           "line": 4.5,
           "direction": "O",
-          "p_beat_line": 0.610789,
-          "expected_delta": 0.46,
-          "expected_final_wins": 4.958,
+          "p_beat_line": 0.674981,
+          "expected_delta": 0.7,
+          "expected_final_wins": 5.202,
           "win_distribution": [
             {
-              "wins": 0,
-              "prob": 0.000541
-            },
-            {
               "wins": 1,
-              "prob": 0.00754
+              "prob": 0.00222
             },
             {
               "wins": 2,
-              "prob": 0.04152
+              "prob": 0.024063
             },
             {
               "wins": 3,
-              "prob": 0.121863
+              "prob": 0.095743
             },
             {
               "wins": 4,
-              "prob": 0.217746
+              "prob": 0.202993
             },
             {
               "wins": 5,
-              "prob": 0.253734
+              "prob": 0.26357
             },
             {
               "wins": 6,
-              "prob": 0.199621
+              "prob": 0.223185
             },
             {
               "wins": 7,
-              "prob": 0.107313
+              "prob": 0.126432
             },
             {
               "wins": 8,
-              "prob": 0.039149
+              "prob": 0.047929
             },
             {
               "wins": 9,
-              "prob": 0.009431
+              "prob": 0.01188
             },
             {
               "wins": 10,
-              "prob": 0.001418
+              "prob": 0.001825
             },
             {
               "wins": 11,
-              "prob": 0.000119
+              "prob": 0.000155
             },
             {
               "wins": 12,
-              "prob": 4e-06
+              "prob": 6e-06
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Toledo",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.7565,
-              "p_win_pct": "76%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Eastern Michigan",
@@ -2209,16 +2183,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 2,
+            "likely_wins": 1,
             "toss_ups": 6,
             "likely_losses": 4
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.76,
+            "delta": 0.24,
+            "state": "on_pace"
           }
         }
       ]
@@ -2230,7 +2204,7 @@
       "p05": -7.0,
       "p50": -2.0,
       "p95": 3.0,
-      "p_win_pool": 0.045229,
+      "p_win_pool": 0.044138,
       "picks": [
         {
           "team": "LSU",

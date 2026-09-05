@@ -3,8 +3,8 @@
     "group_id": "browns",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-04T16:40:41.718343+00:00",
-    "cache_fetched_at": "2026-09-04T16:40:41.407647+00:00"
+    "generated_at": "2026-09-05T15:43:27.426553+00:00",
+    "cache_fetched_at": "2026-09-05T15:43:27.049985+00:00"
   },
   "race": {
     "board": "exact",
@@ -28,9 +28,9 @@
         "rank": 2,
         "banked_total": 7.0,
         "floor": -17.0,
-        "ceiling": 29.0,
+        "ceiling": 28.0,
         "gap_to_leader": 4.0,
-        "ceiling_remaining": 22.0,
+        "ceiling_remaining": 21.0,
         "week_move": null
       },
       {
@@ -70,10 +70,10 @@
         "manager_id": "hauck",
         "display_name": "Matt Hauck",
         "rank": 6,
-        "banked_total": -11.0,
+        "banked_total": -12.0,
         "floor": -23.0,
-        "ceiling": 25.0,
-        "gap_to_leader": 22.0,
+        "ceiling": 24.0,
+        "gap_to_leader": 23.0,
         "ceiling_remaining": 36.0,
         "week_move": null
       },
@@ -98,43 +98,43 @@
       {
         "manager_id": "bryan",
         "display_name": "Bryan",
-        "p_win_pool": 0.280752,
+        "p_win_pool": 0.295937,
         "week_move": null
       },
       {
         "manager_id": "josh",
         "display_name": "Josh",
-        "p_win_pool": 0.256081,
+        "p_win_pool": 0.240521,
         "week_move": null
       },
       {
         "manager_id": "todd",
         "display_name": "Todd",
-        "p_win_pool": 0.177291,
+        "p_win_pool": 0.181003,
         "week_move": null
       },
       {
         "manager_id": "hauck",
         "display_name": "Matt Hauck",
-        "p_win_pool": 0.159991,
+        "p_win_pool": 0.149335,
         "week_move": null
       },
       {
         "manager_id": "mark",
         "display_name": "Mark",
-        "p_win_pool": 0.093787,
+        "p_win_pool": 0.096354,
         "week_move": null
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.017518,
+        "p_win_pool": 0.019622,
         "week_move": null
       },
       {
         "manager_id": "matt_m",
         "display_name": "Matt Merlene",
-        "p_win_pool": 0.01458,
+        "p_win_pool": 0.017228,
         "week_move": null
       }
     ]
@@ -323,7 +323,7 @@
             "conference": "ACC",
             "line": 10.5,
             "direction": "U",
-            "delta": 10.5
+            "delta": 9.5
           }
         ],
         "anchor": [
@@ -392,7 +392,7 @@
         "comparison": {
           "basis": "ceiling_vs_leader_floor",
           "my_field": "ceiling",
-          "my_value": 29.0,
+          "my_value": 28.0,
           "operator": ">=",
           "other_manager_id": "matt_m",
           "other_display_name": "Matt Merlene",
@@ -452,7 +452,7 @@
         "comparison": {
           "basis": "ceiling_vs_leader_floor",
           "my_field": "ceiling",
-          "my_value": 25.0,
+          "my_value": 24.0,
           "operator": ">=",
           "other_manager_id": "matt_m",
           "other_display_name": "Matt Merlene",
@@ -549,9 +549,9 @@
             "direction": "O",
             "banked_delta": -2.5,
             "floor": -2.5,
-            "ceiling": 8.5,
+            "ceiling": 7.5,
             "status": "LIVE",
-            "games_remaining": 11,
+            "games_remaining": 10,
             "share_of_delta": 0.1
           },
           {
@@ -763,8 +763,8 @@
       {
         "manager_id": "hauck",
         "display_name": "Matt Hauck",
-        "banked_total": -11.0,
-        "absolute_total": 32.0,
+        "banked_total": -12.0,
+        "absolute_total": 31.0,
         "picks": [
           {
             "team": "Navy",
@@ -776,7 +776,7 @@
             "ceiling": 4.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.234375
+            "share_of_delta": 0.241935
           },
           {
             "team": "Ohio State",
@@ -788,19 +788,19 @@
             "ceiling": 2.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.296875
+            "share_of_delta": 0.306452
           },
           {
             "team": "Miami",
             "conference": "ACC",
             "line": 10.5,
             "direction": "U",
-            "banked_delta": 10.5,
+            "banked_delta": 9.5,
             "floor": -1.5,
-            "ceiling": 10.5,
+            "ceiling": 9.5,
             "status": "LIVE",
-            "games_remaining": 12,
-            "share_of_delta": 0.328125
+            "games_remaining": 11,
+            "share_of_delta": 0.306452
           },
           {
             "team": "Kentucky",
@@ -812,7 +812,7 @@
             "ceiling": 7.5,
             "status": "LIVE",
             "games_remaining": 12,
-            "share_of_delta": 0.140625
+            "share_of_delta": 0.145161
           }
         ]
       },
