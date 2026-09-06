@@ -3,93 +3,80 @@
     "group_id": "church",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-05T15:43:27.495543+00:00",
-    "cache_fetched_at": "2026-09-05T15:43:27.049985+00:00",
+    "generated_at": "2026-09-06T15:55:08.690164+00:00",
+    "cache_fetched_at": "2026-09-06T15:55:08.238171+00:00",
     "ratings_source": "SP+",
-    "ratings_asof": "2026-09-05T15:43:27.049985+00:00"
+    "ratings_asof": "2026-09-06T15:55:08.238171+00:00"
   },
   "managers": [
     {
       "manager_id": "zach",
       "display_name": "Zach",
-      "expected_total": 2.1,
-      "p05": -3.0,
+      "expected_total": 2.52,
+      "p05": -2.0,
       "p50": 2.0,
       "p95": 7.0,
-      "p_win_pool": 0.278794,
+      "p_win_pool": 0.329096,
       "picks": [
         {
           "team": "Iowa State",
           "conference": "Big 12",
           "line": 4.5,
           "direction": "O",
-          "p_beat_line": 0.730021,
-          "expected_delta": 0.96,
-          "expected_final_wins": 5.464,
+          "p_beat_line": 0.74337,
+          "expected_delta": 1.02,
+          "expected_final_wins": 5.518,
           "win_distribution": [
             {
-              "wins": 0,
-              "prob": 8.6e-05
-            },
-            {
               "wins": 1,
-              "prob": 0.002397
+              "prob": 0.001579
             },
             {
               "wins": 2,
-              "prob": 0.019605
+              "prob": 0.016657
             },
             {
               "wins": 3,
-              "prob": 0.076256
+              "prob": 0.071035
             },
             {
               "wins": 4,
-              "prob": 0.171636
+              "prob": 0.167358
             },
             {
               "wins": 5,
-              "prob": 0.245937
+              "prob": 0.246277
             },
             {
               "wins": 6,
-              "prob": 0.23561
+              "prob": 0.240004
             },
             {
               "wins": 7,
-              "prob": 0.154227
+              "prob": 0.158952
             },
             {
               "wins": 8,
-              "prob": 0.069061
+              "prob": 0.071776
             },
             {
               "wins": 9,
-              "prob": 0.020744
+              "prob": 0.021693
             },
             {
               "wins": 10,
-              "prob": 0.003981
+              "prob": 0.004182
             },
             {
               "wins": 11,
-              "prob": 0.000439
+              "prob": 0.000463
             },
             {
               "wins": 12,
-              "prob": 2.1e-05
+              "prob": 2.2e-05
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Southeast Missouri State",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.9458,
-              "p_win_pct": "95%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Iowa",
@@ -191,16 +178,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 2,
+            "likely_wins": 1,
             "toss_ups": 7,
             "likely_losses": 3
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.95,
+            "delta": 0.05,
+            "state": "on_pace"
           }
         },
         {
@@ -393,73 +380,60 @@
           "conference": "SEC",
           "line": 8.5,
           "direction": "O",
-          "p_beat_line": 0.405499,
-          "expected_delta": -0.41,
-          "expected_final_wins": 8.094,
+          "p_beat_line": 0.481992,
+          "expected_delta": -0.1,
+          "expected_final_wins": 8.396,
           "win_distribution": [
             {
-              "wins": 0,
+              "wins": 1,
               "prob": 0.0
             },
             {
-              "wins": 1,
-              "prob": 5e-06
-            },
-            {
               "wins": 2,
-              "prob": 0.000118
+              "prob": 1.5e-05
             },
             {
               "wins": 3,
-              "prob": 0.00136
+              "prob": 0.000357
             },
             {
               "wins": 4,
-              "prob": 0.008873
+              "prob": 0.003675
             },
             {
               "wins": 5,
-              "prob": 0.036677
+              "prob": 0.020878
             },
             {
               "wins": 6,
-              "prob": 0.101488
+              "prob": 0.073163
             },
             {
               "wins": 7,
-              "prob": 0.192924
+              "prob": 0.166906
             },
             {
               "wins": 8,
-              "prob": 0.253056
+              "prob": 0.253012
             },
             {
               "wins": 9,
-              "prob": 0.225233
+              "prob": 0.253156
             },
             {
               "wins": 10,
-              "prob": 0.129912
+              "prob": 0.160745
             },
             {
               "wins": 11,
-              "prob": 0.043801
+              "prob": 0.058701
             },
             {
               "wins": 12,
-              "prob": 0.006552
+              "prob": 0.00939
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Clemson",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.6978,
-              "p_win_pct": "70%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Louisiana Tech",
@@ -561,16 +535,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 6,
+            "likely_wins": 5,
             "toss_ups": 6,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.7,
+            "delta": 0.3,
+            "state": "on_pace"
           }
         },
         {
@@ -578,73 +552,60 @@
           "conference": "American",
           "line": 7.5,
           "direction": "O",
-          "p_beat_line": 0.528885,
-          "expected_delta": 0.07,
-          "expected_final_wins": 7.571,
+          "p_beat_line": 0.541335,
+          "expected_delta": 0.12,
+          "expected_final_wins": 7.62,
           "win_distribution": [
             {
-              "wins": 0,
-              "prob": 1e-06
-            },
-            {
               "wins": 1,
-              "prob": 2.7e-05
+              "prob": 1.3e-05
             },
             {
               "wins": 2,
-              "prob": 0.000428
+              "prob": 0.0003
             },
             {
               "wins": 3,
-              "prob": 0.003616
+              "prob": 0.002951
             },
             {
               "wins": 4,
-              "prob": 0.01878
+              "prob": 0.01668
             },
             {
               "wins": 5,
-              "prob": 0.064118
+              "prob": 0.060044
             },
             {
               "wins": 6,
-              "prob": 0.148524
+              "prob": 0.144146
             },
             {
               "wins": 7,
-              "prob": 0.23562
+              "prob": 0.23453
             },
             {
               "wins": 8,
-              "prob": 0.253493
+              "prob": 0.25703
             },
             {
               "wins": 9,
-              "prob": 0.178998
+              "prob": 0.184019
             },
             {
               "wins": 10,
-              "prob": 0.077367
+              "prob": 0.080366
             },
             {
               "wins": 11,
-              "prob": 0.01762
+              "prob": 0.018442
             },
             {
               "wins": 12,
-              "prob": 0.001407
+              "prob": 0.001478
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Towson",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.9516,
-              "p_win_pct": "95%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Florida Atlantic",
@@ -746,16 +707,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 6,
+            "likely_wins": 5,
             "toss_ups": 5,
             "likely_losses": 1
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.95,
+            "delta": 0.05,
+            "state": "on_pace"
           }
         }
       ]
@@ -763,11 +724,11 @@
     {
       "manager_id": "josh_b",
       "display_name": "Josh B",
-      "expected_total": 1.39,
+      "expected_total": 0.96,
       "p05": -4.0,
       "p50": 1.0,
-      "p95": 7.0,
-      "p_win_pool": 0.21702,
+      "p95": 6.0,
+      "p_win_pool": 0.168263,
       "picks": [
         {
           "team": "Ole Miss",
@@ -959,73 +920,60 @@
           "conference": "ACC",
           "line": 5.5,
           "direction": "O",
-          "p_beat_line": 0.713072,
-          "expected_delta": 0.88,
-          "expected_final_wins": 6.383,
+          "p_beat_line": 0.776087,
+          "expected_delta": 1.15,
+          "expected_final_wins": 6.646,
           "win_distribution": [
             {
-              "wins": 0,
-              "prob": 1e-05
-            },
-            {
               "wins": 1,
-              "prob": 0.000421
+              "prob": 3.9e-05
             },
             {
               "wins": 2,
-              "prob": 0.00467
+              "prob": 0.001489
             },
             {
               "wins": 3,
-              "prob": 0.025569
+              "prob": 0.013576
             },
             {
               "wins": 4,
-              "prob": 0.082968
+              "prob": 0.059149
             },
             {
               "wins": 5,
-              "prob": 0.173291
+              "prob": 0.149661
             },
             {
               "wins": 6,
-              "prob": 0.24276
+              "prob": 0.239457
             },
             {
               "wins": 7,
-              "prob": 0.23211
+              "prob": 0.252007
             },
             {
               "wins": 8,
-              "prob": 0.151285
+              "prob": 0.176398
             },
             {
               "wins": 9,
-              "prob": 0.06578
+              "prob": 0.080969
             },
             {
               "wins": 10,
-              "prob": 0.01812
+              "prob": 0.023252
             },
             {
               "wins": 11,
-              "prob": 0.002829
+              "prob": 0.003749
             },
             {
               "wins": 12,
-              "prob": 0.000187
+              "prob": 0.000254
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Tulane",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.7368,
-              "p_win_pct": "74%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Illinois",
@@ -1127,16 +1075,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 4,
+            "likely_wins": 3,
             "toss_ups": 6,
             "likely_losses": 2
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.74,
+            "delta": 0.26,
+            "state": "on_pace"
           }
         },
         {
@@ -1144,9 +1092,9 @@
           "conference": "MAC",
           "line": 7.5,
           "direction": "O",
-          "p_beat_line": 0.623583,
-          "expected_delta": 0.42,
-          "expected_final_wins": 7.924,
+          "p_beat_line": 0.562,
+          "expected_delta": 0.17,
+          "expected_final_wins": 7.666,
           "win_distribution": [
             {
               "wins": 0,
@@ -1154,63 +1102,50 @@
             },
             {
               "wins": 1,
-              "prob": 1e-05
+              "prob": 1.3e-05
             },
             {
               "wins": 2,
-              "prob": 0.000169
+              "prob": 0.000224
             },
             {
               "wins": 3,
-              "prob": 0.00165
+              "prob": 0.002148
             },
             {
               "wins": 4,
-              "prob": 0.010097
+              "prob": 0.012873
             },
             {
               "wins": 5,
-              "prob": 0.040913
+              "prob": 0.050707
             },
             {
               "wins": 6,
-              "prob": 0.112542
+              "prob": 0.13414
             },
             {
               "wins": 7,
-              "prob": 0.211036
+              "prob": 0.237895
             },
             {
               "wins": 8,
-              "prob": 0.265957
+              "prob": 0.275759
             },
             {
               "wins": 9,
-              "prob": 0.217453
+              "prob": 0.197088
             },
             {
               "wins": 10,
-              "prob": 0.108069
+              "prob": 0.076975
             },
             {
               "wins": 11,
-              "prob": 0.028952
-            },
-            {
-              "wins": 12,
-              "prob": 0.003153
+              "prob": 0.012178
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Pittsburgh",
-              "home_away": "away",
-              "neutral": false,
-              "p_win": 0.2589,
-              "p_win_pct": "26%",
-              "bucket": "likely_loss"
-            },
             {
               "week": 2,
               "opponent": "Holy Cross",
@@ -1314,14 +1249,14 @@
           "outlook": {
             "likely_wins": 8,
             "toss_ups": 2,
-            "likely_losses": 2
+            "likely_losses": 1
           },
           "pace": {
-            "banked_games": 0,
+            "banked_games": 1,
             "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "expected_wins": 0.26,
+            "delta": -0.26,
+            "state": "on_pace"
           }
         },
         {
@@ -1329,73 +1264,60 @@
           "conference": "Mountain West",
           "line": 5.5,
           "direction": "O",
-          "p_beat_line": 0.60195,
-          "expected_delta": 0.43,
-          "expected_final_wins": 5.926,
+          "p_beat_line": 0.494883,
+          "expected_delta": -0.02,
+          "expected_final_wins": 5.485,
           "win_distribution": [
             {
               "wins": 0,
-              "prob": 9.3e-05
+              "prob": 0.000166
             },
             {
               "wins": 1,
-              "prob": 0.001737
+              "prob": 0.002976
             },
             {
               "wins": 2,
-              "prob": 0.012606
+              "prob": 0.020204
             },
             {
               "wins": 3,
-              "prob": 0.05011
+              "prob": 0.073704
             },
             {
               "wins": 4,
-              "prob": 0.124902
+              "prob": 0.165295
             },
             {
               "wins": 5,
-              "prob": 0.208603
+              "prob": 0.242771
             },
             {
               "wins": 6,
-              "prob": 0.241266
+              "prob": 0.240078
             },
             {
               "wins": 7,
-              "prob": 0.195567
+              "prob": 0.160449
             },
             {
               "wins": 8,
-              "prob": 0.110508
+              "prob": 0.071106
             },
             {
               "wins": 9,
-              "prob": 0.042475
+              "prob": 0.019886
             },
             {
               "wins": 10,
-              "prob": 0.010532
+              "prob": 0.003151
             },
             {
               "wins": 11,
-              "prob": 0.001509
-            },
-            {
-              "wins": 12,
-              "prob": 9.4e-05
+              "prob": 0.000214
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Colorado State",
-              "home_away": "away",
-              "neutral": false,
-              "p_win": 0.441,
-              "p_win_pct": "44%",
-              "bucket": "toss_up"
-            },
             {
               "week": 2,
               "opponent": "Northern Colorado",
@@ -1498,15 +1420,15 @@
           ],
           "outlook": {
             "likely_wins": 2,
-            "toss_ups": 8,
+            "toss_ups": 7,
             "likely_losses": 2
           },
           "pace": {
-            "banked_games": 0,
+            "banked_games": 1,
             "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "expected_wins": 0.44,
+            "delta": -0.44,
+            "state": "on_pace"
           }
         }
       ]
@@ -1514,84 +1436,71 @@
     {
       "manager_id": "david",
       "display_name": "David",
-      "expected_total": 0.82,
+      "expected_total": 0.9,
       "p05": -4.0,
       "p50": 1.0,
       "p95": 6.0,
-      "p_win_pool": 0.160922,
+      "p_win_pool": 0.164313,
       "picks": [
         {
           "team": "Virginia Tech",
           "conference": "ACC",
           "line": 6.5,
           "direction": "O",
-          "p_beat_line": 0.610995,
-          "expected_delta": 0.43,
-          "expected_final_wins": 6.927,
+          "p_beat_line": 0.6182,
+          "expected_delta": 0.46,
+          "expected_final_wins": 6.956,
           "win_distribution": [
             {
-              "wins": 0,
-              "prob": 2e-06
-            },
-            {
               "wins": 1,
-              "prob": 0.000122
+              "prob": 8.4e-05
             },
             {
               "wins": 2,
-              "prob": 0.001685
+              "prob": 0.001426
             },
             {
               "wins": 3,
-              "prob": 0.011446
+              "prob": 0.010488
             },
             {
               "wins": 4,
-              "prob": 0.046108
+              "prob": 0.044014
             },
             {
               "wins": 5,
-              "prob": 0.119898
+              "prob": 0.117291
             },
             {
               "wins": 6,
-              "prob": 0.209744
+              "prob": 0.208498
             },
             {
               "wins": 7,
-              "prob": 0.250795
+              "prob": 0.252087
             },
             {
               "wins": 8,
-              "prob": 0.204211
+              "prob": 0.206905
             },
             {
               "wins": 9,
-              "prob": 0.110508
+              "prob": 0.112626
             },
             {
               "wins": 10,
-              "prob": 0.037663
+              "prob": 0.038553
             },
             {
               "wins": 11,
-              "prob": 0.00723
+              "prob": 0.007425
             },
             {
               "wins": 12,
-              "prob": 0.000587
+              "prob": 0.000604
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "VMI",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.9714,
-              "p_win_pct": "97%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Old Dominion",
@@ -1693,16 +1602,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 3,
+            "likely_wins": 2,
             "toss_ups": 7,
             "likely_losses": 2
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.97,
+            "delta": 0.03,
+            "state": "on_pace"
           }
         },
         {
@@ -1710,73 +1619,60 @@
           "conference": "Big 12",
           "line": 5.5,
           "direction": "O",
-          "p_beat_line": 0.436834,
-          "expected_delta": -0.22,
-          "expected_final_wins": 5.282,
+          "p_beat_line": 0.489335,
+          "expected_delta": -0.0,
+          "expected_final_wins": 5.498,
           "win_distribution": [
             {
-              "wins": 0,
-              "prob": 0.000133
-            },
-            {
               "wins": 1,
-              "prob": 0.003447
+              "prob": 0.000615
             },
             {
               "wins": 2,
-              "prob": 0.025798
+              "prob": 0.01372
             },
             {
               "wins": 3,
-              "prob": 0.091824
+              "prob": 0.069626
             },
             {
               "wins": 4,
-              "prob": 0.190079
+              "prob": 0.172372
             },
             {
               "wins": 5,
-              "prob": 0.251887
+              "prob": 0.254331
             },
             {
               "wins": 6,
-              "prob": 0.224165
+              "prob": 0.243017
             },
             {
               "wins": 7,
-              "prob": 0.136667
+              "prob": 0.155758
             },
             {
               "wins": 8,
-              "prob": 0.057005
+              "prob": 0.067392
             },
             {
               "wins": 9,
-              "prob": 0.015896
+              "prob": 0.019316
             },
             {
               "wins": 10,
-              "prob": 0.002808
+              "prob": 0.003484
             },
             {
               "wins": 11,
-              "prob": 0.00028
+              "prob": 0.000353
             },
             {
               "wins": 12,
-              "prob": 1.2e-05
+              "prob": 1.5e-05
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Coastal Carolina",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.784,
-              "p_win_pct": "78%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "UT Martin",
@@ -1878,16 +1774,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 2,
+            "likely_wins": 1,
             "toss_ups": 6,
             "likely_losses": 4
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.78,
+            "delta": 0.22,
+            "state": "on_pace"
           }
         },
         {
@@ -1895,73 +1791,60 @@
           "conference": "American",
           "line": 7.5,
           "direction": "U",
-          "p_beat_line": 0.621624,
-          "expected_delta": 0.53,
-          "expected_final_wins": 6.97,
+          "p_beat_line": 0.608742,
+          "expected_delta": 0.47,
+          "expected_final_wins": 7.032,
           "win_distribution": [
             {
-              "wins": 0,
-              "prob": 8e-06
-            },
-            {
               "wins": 1,
-              "prob": 0.000245
+              "prob": 0.000135
             },
             {
               "wins": 2,
-              "prob": 0.002536
+              "prob": 0.001902
             },
             {
               "wins": 3,
-              "prob": 0.014157
+              "prob": 0.012071
             },
             {
               "wins": 4,
-              "prob": 0.049783
+              "prob": 0.045547
             },
             {
               "wins": 5,
-              "prob": 0.118655
+              "prob": 0.113508
             },
             {
               "wins": 6,
-              "prob": 0.198791
+              "prob": 0.196086
             },
             {
               "wins": 7,
-              "prob": 0.23745
+              "prob": 0.239493
             },
             {
               "wins": 8,
-              "prob": 0.201515
+              "prob": 0.206702
             },
             {
               "wins": 9,
-              "prob": 0.118803
+              "prob": 0.12347
             },
             {
               "wins": 10,
-              "prob": 0.046258
+              "prob": 0.04858
             },
             {
               "wins": 11,
-              "prob": 0.010691
+              "prob": 0.011322
             },
             {
               "wins": 12,
-              "prob": 0.001109
+              "prob": 0.001183
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Bryant",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.9377,
-              "p_win_pct": "94%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "South Florida",
@@ -2063,16 +1946,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 2,
+            "likely_wins": 1,
             "toss_ups": 10,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.94,
+            "delta": 0.06,
+            "state": "on_pace"
           }
         },
         {
@@ -2080,73 +1963,60 @@
           "conference": "Big Ten",
           "line": 8.5,
           "direction": "U",
-          "p_beat_line": 0.506822,
-          "expected_delta": 0.08,
-          "expected_final_wins": 8.422,
+          "p_beat_line": 0.47804,
+          "expected_delta": -0.03,
+          "expected_final_wins": 8.531,
           "win_distribution": [
             {
-              "wins": 0,
-              "prob": 0.0
-            },
-            {
               "wins": 1,
-              "prob": 3e-06
+              "prob": 1e-06
             },
             {
               "wins": 2,
-              "prob": 5.8e-05
+              "prob": 2.2e-05
             },
             {
               "wins": 3,
-              "prob": 0.000646
+              "prob": 0.000349
             },
             {
               "wins": 4,
-              "prob": 0.004589
+              "prob": 0.003078
             },
             {
               "wins": 5,
-              "prob": 0.021828
+              "prob": 0.016975
             },
             {
               "wins": 6,
-              "prob": 0.071236
+              "prob": 0.061605
             },
             {
               "wins": 7,
-              "prob": 0.160577
+              "prob": 0.150176
             },
             {
               "wins": 8,
-              "prob": 0.247885
+              "prob": 0.245834
             },
             {
               "wins": 9,
-              "prob": 0.255318
+              "prob": 0.264695
             },
             {
               "wins": 10,
-              "prob": 0.166424
+              "prob": 0.178456
             },
             {
               "wins": 11,
-              "prob": 0.061624
+              "prob": 0.0678
             },
             {
               "wins": 12,
-              "prob": 0.009811
+              "prob": 0.011008
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Marshall",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.8913,
-              "p_win_pct": "89%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Temple",
@@ -2248,16 +2118,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 7,
+            "likely_wins": 6,
             "toss_ups": 5,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.89,
+            "delta": 0.11,
+            "state": "on_pace"
           }
         }
       ]
@@ -2265,11 +2135,11 @@
     {
       "manager_id": "brian",
       "display_name": "Brian",
-      "expected_total": 0.59,
+      "expected_total": 0.69,
       "p05": -4.0,
       "p50": 1.0,
-      "p95": 5.0,
-      "p_win_pool": 0.131874,
+      "p95": 6.0,
+      "p_win_pool": 0.138692,
       "picks": [
         {
           "team": "Stanford",
@@ -2594,73 +2464,60 @@
           "conference": "SEC",
           "line": 9.5,
           "direction": "O",
-          "p_beat_line": 0.13533,
-          "expected_delta": -1.68,
-          "expected_final_wins": 7.819,
+          "p_beat_line": 0.146886,
+          "expected_delta": -1.58,
+          "expected_final_wins": 7.924,
           "win_distribution": [
             {
-              "wins": 0,
-              "prob": 0.0
-            },
-            {
               "wins": 1,
-              "prob": 1.8e-05
+              "prob": 5e-06
             },
             {
               "wins": 2,
-              "prob": 0.000281
+              "prob": 0.00013
             },
             {
               "wins": 3,
-              "prob": 0.00249
+              "prob": 0.00156
             },
             {
               "wins": 4,
-              "prob": 0.013819
+              "prob": 0.010394
             },
             {
               "wins": 5,
-              "prob": 0.050656
+              "prob": 0.042951
             },
             {
               "wins": 6,
-              "prob": 0.126186
+              "prob": 0.116195
             },
             {
               "wins": 7,
-              "prob": 0.216211
+              "prob": 0.211161
             },
             {
               "wins": 8,
-              "prob": 0.254157
+              "prob": 0.259165
             },
             {
               "wins": 9,
-              "prob": 0.200854
+              "prob": 0.211553
             },
             {
               "wins": 10,
-              "prob": 0.101739
+              "prob": 0.109847
             },
             {
               "wins": 11,
-              "prob": 0.029772
+              "prob": 0.032771
             },
             {
               "wins": 12,
-              "prob": 0.003819
+              "prob": 0.004268
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Texas State",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.8948,
-              "p_win_pct": "89%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Ohio State",
@@ -2762,16 +2619,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 6,
+            "likely_wins": 5,
             "toss_ups": 6,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.89,
+            "delta": 0.11,
+            "state": "on_pace"
           }
         },
         {
@@ -2951,84 +2808,71 @@
     {
       "manager_id": "john_tamu",
       "display_name": "John K",
-      "expected_total": 0.53,
+      "expected_total": 0.56,
       "p05": -4.0,
       "p50": 1.0,
       "p95": 5.0,
-      "p_win_pool": 0.120297,
+      "p_win_pool": 0.123313,
       "picks": [
         {
           "team": "Texas A&M",
           "conference": "SEC",
           "line": 8.5,
           "direction": "O",
-          "p_beat_line": 0.39022,
-          "expected_delta": -0.45,
-          "expected_final_wins": 8.054,
+          "p_beat_line": 0.39866,
+          "expected_delta": -0.41,
+          "expected_final_wins": 8.091,
           "win_distribution": [
             {
-              "wins": 0,
+              "wins": 1,
               "prob": 0.0
             },
             {
-              "wins": 1,
-              "prob": 2e-06
-            },
-            {
               "wins": 2,
-              "prob": 7.1e-05
+              "prob": 4.3e-05
             },
             {
               "wins": 3,
-              "prob": 0.001014
+              "prob": 0.000793
             },
             {
               "wins": 4,
-              "prob": 0.007717
+              "prob": 0.006752
             },
             {
               "wins": 5,
-              "prob": 0.035315
+              "prob": 0.032834
             },
             {
               "wins": 6,
-              "prob": 0.103552
+              "prob": 0.099898
             },
             {
               "wins": 7,
-              "prob": 0.201019
+              "prob": 0.198662
             },
             {
               "wins": 8,
-              "prob": 0.26109
+              "prob": 0.262357
             },
             {
               "wins": 9,
-              "prob": 0.224329
+              "prob": 0.228126
             },
             {
               "wins": 10,
-              "prob": 0.122318
+              "prob": 0.125497
             },
             {
               "wins": 11,
-              "prob": 0.038321
+              "prob": 0.039584
             },
             {
               "wins": 12,
-              "prob": 0.005252
+              "prob": 0.005453
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Missouri State",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.963,
-              "p_win_pct": "96%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Arizona State",
@@ -3130,16 +2974,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 5,
+            "likely_wins": 4,
             "toss_ups": 7,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.96,
+            "delta": 0.04,
+            "state": "on_pace"
           }
         },
         {
@@ -3147,14 +2991,10 @@
           "conference": "Big 12",
           "line": 10.5,
           "direction": "U",
-          "p_beat_line": 0.677147,
-          "expected_delta": 0.68,
-          "expected_final_wins": 9.821,
+          "p_beat_line": 0.674518,
+          "expected_delta": 0.67,
+          "expected_final_wins": 9.832,
           "win_distribution": [
-            {
-              "wins": 0,
-              "prob": 0.0
-            },
             {
               "wins": 1,
               "prob": 0.0
@@ -3165,55 +3005,46 @@
             },
             {
               "wins": 3,
-              "prob": 9e-06
+              "prob": 8e-06
             },
             {
               "wins": 4,
-              "prob": 0.000139
+              "prob": 0.000127
             },
             {
               "wins": 5,
-              "prob": 0.001301
+              "prob": 0.001228
             },
             {
               "wins": 6,
-              "prob": 0.008201
+              "prob": 0.007905
             },
             {
               "wins": 7,
-              "prob": 0.035715
+              "prob": 0.034929
             },
             {
               "wins": 8,
-              "prob": 0.108004
+              "prob": 0.10674
             },
             {
               "wins": 9,
-              "prob": 0.223105
+              "prob": 0.222239
             },
             {
               "wins": 10,
-              "prob": 0.300673
+              "prob": 0.301343
             },
             {
               "wins": 11,
-              "prob": 0.238432
+              "prob": 0.240126
             },
             {
               "wins": 12,
-              "prob": 0.084421
+              "prob": 0.085355
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Abilene Christian",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.9891,
-              "p_win_pct": "99%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Oregon State",
@@ -3315,16 +3146,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 12,
+            "likely_wins": 11,
             "toss_ups": 0,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.99,
+            "delta": 0.01,
+            "state": "on_pace"
           }
         },
         {
@@ -3689,11 +3520,11 @@
     {
       "manager_id": "john_wells",
       "display_name": "John Wells",
-      "expected_total": -0.15,
+      "expected_total": -0.33,
       "p05": -5.0,
       "p50": 0.0,
-      "p95": 5.0,
-      "p_win_pool": 0.091092,
+      "p95": 4.0,
+      "p_win_pool": 0.076323,
       "picks": [
         {
           "team": "Virginia",
@@ -4044,73 +3875,60 @@
           "conference": "Sun Belt",
           "line": 8.5,
           "direction": "O",
-          "p_beat_line": 0.452059,
-          "expected_delta": -0.23,
-          "expected_final_wins": 8.266,
+          "p_beat_line": 0.545382,
+          "expected_delta": 0.12,
+          "expected_final_wins": 8.615,
           "win_distribution": [
             {
-              "wins": 0,
+              "wins": 1,
               "prob": 0.0
             },
             {
-              "wins": 1,
-              "prob": 5e-06
-            },
-            {
               "wins": 2,
-              "prob": 0.000103
+              "prob": 1.5e-05
             },
             {
               "wins": 3,
-              "prob": 0.001072
+              "prob": 0.000266
             },
             {
               "wins": 4,
-              "prob": 0.006909
+              "prob": 0.002573
             },
             {
               "wins": 5,
-              "prob": 0.029444
+              "prob": 0.014987
             },
             {
               "wins": 6,
-              "prob": 0.08611
+              "prob": 0.056378
             },
             {
               "wins": 7,
-              "prob": 0.17552
+              "prob": 0.141502
             },
             {
               "wins": 8,
-              "prob": 0.248779
+              "prob": 0.238897
             },
             {
               "wins": 9,
-              "prob": 0.239869
+              "prob": 0.267188
             },
             {
               "wins": 10,
-              "prob": 0.149535
+              "prob": 0.188973
             },
             {
               "wins": 11,
-              "prob": 0.054091
+              "prob": 0.07606
             },
             {
               "wins": 12,
-              "prob": 0.008564
+              "prob": 0.013161
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Liberty",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.6507,
-              "p_win_pct": "65%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Wagner",
@@ -4212,16 +4030,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 7,
+            "likely_wins": 6,
             "toss_ups": 5,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.65,
+            "delta": 0.35,
+            "state": "on_pace"
           }
         },
         {
@@ -4229,73 +4047,60 @@
           "conference": "ACC",
           "line": 6.5,
           "direction": "O",
-          "p_beat_line": 0.38129,
-          "expected_delta": -0.48,
-          "expected_final_wins": 6.016,
+          "p_beat_line": 0.255183,
+          "expected_delta": -1.01,
+          "expected_final_wins": 5.487,
           "win_distribution": [
             {
               "wins": 0,
-              "prob": 3.9e-05
+              "prob": 8.2e-05
             },
             {
               "wins": 1,
-              "prob": 0.001261
+              "prob": 0.002588
             },
             {
               "wins": 2,
-              "prob": 0.010707
+              "prob": 0.019847
             },
             {
               "wins": 3,
-              "prob": 0.045568
+              "prob": 0.074526
             },
             {
               "wins": 4,
-              "prob": 0.117988
+              "prob": 0.166918
             },
             {
               "wins": 5,
-              "prob": 0.202583
+              "prob": 0.242736
             },
             {
               "wins": 6,
-              "prob": 0.240564
+              "prob": 0.238119
             },
             {
               "wins": 7,
-              "prob": 0.201
+              "prob": 0.159211
             },
             {
               "wins": 8,
-              "prob": 0.117982
+              "prob": 0.071564
             },
             {
               "wins": 9,
-              "prob": 0.047629
+              "prob": 0.020683
             },
             {
               "wins": 10,
-              "prob": 0.012585
+              "prob": 0.003469
             },
             {
               "wins": 11,
-              "prob": 0.001958
-            },
-            {
-              "wins": 12,
-              "prob": 0.000136
+              "prob": 0.000256
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "UCLA",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.5296,
-              "p_win_pct": "53%",
-              "bucket": "toss_up"
-            },
             {
               "week": 2,
               "opponent": "Syracuse",
@@ -4398,15 +4203,15 @@
           ],
           "outlook": {
             "likely_wins": 2,
-            "toss_ups": 8,
+            "toss_ups": 7,
             "likely_losses": 2
           },
           "pace": {
-            "banked_games": 0,
+            "banked_games": 1,
             "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "expected_wins": 0.53,
+            "delta": -0.53,
+            "state": "behind"
           }
         }
       ]
