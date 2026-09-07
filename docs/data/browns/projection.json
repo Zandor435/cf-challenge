@@ -3,10 +3,10 @@
     "group_id": "browns",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-06T15:55:08.614549+00:00",
-    "cache_fetched_at": "2026-09-06T15:55:08.238171+00:00",
+    "generated_at": "2026-09-07T18:01:04.136777+00:00",
+    "cache_fetched_at": "2026-09-07T18:01:03.764599+00:00",
     "ratings_source": "SP+",
-    "ratings_asof": "2026-09-06T15:55:08.238171+00:00"
+    "ratings_asof": "2026-09-07T18:01:03.764599+00:00"
   },
   "managers": [
     {
@@ -15,8 +15,8 @@
       "expected_total": 2.63,
       "p05": -2.0,
       "p50": 3.0,
-      "p95": 8.0,
-      "p_win_pool": 0.299077,
+      "p95": 7.0,
+      "p_win_pool": 0.291607,
       "picks": [
         {
           "team": "Michigan",
@@ -715,7 +715,7 @@
       "p05": -3.0,
       "p50": 2.0,
       "p95": 7.0,
-      "p_win_pool": 0.238204,
+      "p_win_pool": 0.241932,
       "picks": [
         {
           "team": "Stanford",
@@ -1401,7 +1401,7 @@
       "p05": -3.0,
       "p50": 2.0,
       "p95": 6.0,
-      "p_win_pool": 0.168757,
+      "p_win_pool": 0.17208,
       "picks": [
         {
           "team": "Navy",
@@ -2100,7 +2100,7 @@
       "p05": -4.0,
       "p50": 1.0,
       "p95": 6.0,
-      "p_win_pool": 0.132555,
+      "p_win_pool": 0.141485,
       "picks": [
         {
           "team": "Boise State",
@@ -2782,11 +2782,11 @@
     {
       "manager_id": "mark",
       "display_name": "Mark",
-      "expected_total": 0.95,
+      "expected_total": 0.8,
       "p05": -4.0,
       "p50": 1.0,
-      "p95": 6.0,
-      "p_win_pool": 0.114532,
+      "p95": 5.0,
+      "p_win_pool": 0.10656,
       "picks": [
         {
           "team": "Maryland",
@@ -2965,14 +2965,10 @@
           "conference": "Independent",
           "line": 11.5,
           "direction": "U",
-          "p_beat_line": 0.895179,
-          "expected_delta": 1.48,
-          "expected_final_wins": 10.017,
+          "p_beat_line": 0.875673,
+          "expected_delta": 1.33,
+          "expected_final_wins": 10.174,
           "win_distribution": [
-            {
-              "wins": 0,
-              "prob": 0.0
-            },
             {
               "wins": 1,
               "prob": 0.0
@@ -2983,55 +2979,46 @@
             },
             {
               "wins": 3,
-              "prob": 4e-06
+              "prob": 1e-06
             },
             {
               "wins": 4,
-              "prob": 6.6e-05
+              "prob": 2.2e-05
             },
             {
               "wins": 5,
-              "prob": 0.000675
+              "prob": 0.000301
             },
             {
               "wins": 6,
-              "prob": 0.004808
+              "prob": 0.002684
             },
             {
               "wins": 7,
-              "prob": 0.024097
+              "prob": 0.016218
             },
             {
               "wins": 8,
-              "prob": 0.084352
+              "prob": 0.066439
             },
             {
               "wins": 9,
-              "prob": 0.200824
+              "prob": 0.180605
             },
             {
               "wins": 10,
-              "prob": 0.307976
+              "prob": 0.309473
             },
             {
               "wins": 11,
-              "prob": 0.272377
+              "prob": 0.299929
             },
             {
               "wins": 12,
-              "prob": 0.104821
+              "prob": 0.124327
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Wisconsin",
-              "home_away": "home",
-              "neutral": true,
-              "p_win": 0.8431,
-              "p_win_pct": "84%",
-              "bucket": "likely_win"
-            },
             {
               "week": 2,
               "opponent": "Rice",
@@ -3133,16 +3120,16 @@
             }
           ],
           "outlook": {
-            "likely_wins": 11,
+            "likely_wins": 10,
             "toss_ups": 1,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.84,
+            "delta": 0.16,
+            "state": "on_pace"
           }
         },
         {
@@ -3498,7 +3485,7 @@
       "p05": -6.0,
       "p50": -1.0,
       "p95": 3.0,
-      "p_win_pool": 0.028577,
+      "p_win_pool": 0.028547,
       "picks": [
         {
           "team": "Virginia Tech",
@@ -4210,7 +4197,7 @@
       "p05": -7.0,
       "p50": -2.0,
       "p95": 3.0,
-      "p_win_pool": 0.018297,
+      "p_win_pool": 0.017788,
       "picks": [
         {
           "team": "Texas Tech",

@@ -3,8 +3,8 @@
     "group_id": "browns",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-06T15:55:08.622343+00:00",
-    "cache_fetched_at": "2026-09-06T15:55:08.238171+00:00"
+    "generated_at": "2026-09-07T18:01:04.144983+00:00",
+    "cache_fetched_at": "2026-09-07T18:01:03.764599+00:00"
   },
   "race": {
     "board": "exact",
@@ -59,10 +59,10 @@
         "manager_id": "mark",
         "display_name": "Mark",
         "rank": 5,
-        "banked_total": 2.0,
+        "banked_total": 1.0,
         "floor": -21.0,
-        "ceiling": 24.0,
-        "gap_to_leader": 8.0,
+        "ceiling": 23.0,
+        "gap_to_leader": 9.0,
         "ceiling_remaining": 22.0,
         "week_move": null
       },
@@ -98,43 +98,43 @@
       {
         "manager_id": "bryan",
         "display_name": "Bryan",
-        "p_win_pool": 0.299077,
+        "p_win_pool": 0.291607,
         "week_move": null
       },
       {
         "manager_id": "josh",
         "display_name": "Josh",
-        "p_win_pool": 0.238204,
+        "p_win_pool": 0.241932,
         "week_move": null
       },
       {
         "manager_id": "hauck",
         "display_name": "Matt Hauck",
-        "p_win_pool": 0.168757,
+        "p_win_pool": 0.17208,
         "week_move": null
       },
       {
         "manager_id": "todd",
         "display_name": "Todd",
-        "p_win_pool": 0.132555,
+        "p_win_pool": 0.141485,
         "week_move": null
       },
       {
         "manager_id": "mark",
         "display_name": "Mark",
-        "p_win_pool": 0.114532,
+        "p_win_pool": 0.10656,
         "week_move": null
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.028577,
+        "p_win_pool": 0.028547,
         "week_move": null
       },
       {
         "manager_id": "matt_m",
         "display_name": "Matt Merlene",
-        "p_win_pool": 0.018297,
+        "p_win_pool": 0.017788,
         "week_move": null
       }
     ]
@@ -149,7 +149,7 @@
         "conference": "Independent",
         "line": 11.5,
         "direction": "U",
-        "delta": 11.5
+        "delta": 10.5
       }
     ],
     "bust": [
@@ -297,7 +297,7 @@
             "conference": "Independent",
             "line": 11.5,
             "direction": "U",
-            "delta": 11.5
+            "delta": 10.5
           }
         ],
         "anchor": [
@@ -437,7 +437,7 @@
         "comparison": {
           "basis": "ceiling_vs_leader_floor",
           "my_field": "ceiling",
-          "my_value": 24.0,
+          "my_value": 23.0,
           "operator": ">=",
           "other_manager_id": "matt_m",
           "other_display_name": "Matt Merlene",
@@ -707,8 +707,8 @@
       {
         "manager_id": "mark",
         "display_name": "Mark",
-        "banked_total": 2.0,
-        "absolute_total": 30.0,
+        "banked_total": 1.0,
+        "absolute_total": 29.0,
         "picks": [
           {
             "team": "Maryland",
@@ -720,19 +720,19 @@
             "ceiling": 4.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.15
+            "share_of_delta": 0.155172
           },
           {
             "team": "Notre Dame",
             "conference": "Independent",
             "line": 11.5,
             "direction": "U",
-            "banked_delta": 11.5,
+            "banked_delta": 10.5,
             "floor": -0.5,
-            "ceiling": 11.5,
+            "ceiling": 10.5,
             "status": "LIVE",
-            "games_remaining": 12,
-            "share_of_delta": 0.383333
+            "games_remaining": 11,
+            "share_of_delta": 0.362069
           },
           {
             "team": "Duke",
@@ -744,7 +744,7 @@
             "ceiling": 6.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.15
+            "share_of_delta": 0.155172
           },
           {
             "team": "Indiana",
@@ -756,7 +756,7 @@
             "ceiling": 1.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.316667
+            "share_of_delta": 0.327586
           }
         ]
       },
