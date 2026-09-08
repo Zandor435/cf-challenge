@@ -3,10 +3,10 @@
     "group_id": "church",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-07T18:01:04.208592+00:00",
-    "cache_fetched_at": "2026-09-07T18:01:03.764599+00:00",
+    "generated_at": "2026-09-08T16:57:41.524388+00:00",
+    "cache_fetched_at": "2026-09-08T16:57:41.082195+00:00",
     "ratings_source": "SP+",
-    "ratings_asof": "2026-09-07T18:01:03.764599+00:00"
+    "ratings_asof": "2026-09-08T16:57:41.082195+00:00"
   },
   "managers": [
     {
@@ -16,7 +16,7 @@
       "p05": -2.0,
       "p50": 2.0,
       "p95": 7.0,
-      "p_win_pool": 0.313392,
+      "p_win_pool": 0.322794,
       "picks": [
         {
           "team": "Iowa State",
@@ -715,7 +715,7 @@
       "p05": -4.0,
       "p50": 1.0,
       "p95": 6.0,
-      "p_win_pool": 0.203283,
+      "p_win_pool": 0.202769,
       "picks": [
         {
           "team": "Ole Miss",
@@ -1414,7 +1414,7 @@
       "p05": -4.0,
       "p50": 1.0,
       "p95": 6.0,
-      "p_win_pool": 0.164638,
+      "p_win_pool": 0.167994,
       "picks": [
         {
           "team": "Virginia Tech",
@@ -2113,7 +2113,7 @@
       "p05": -4.0,
       "p50": 1.0,
       "p95": 5.0,
-      "p_win_pool": 0.131657,
+      "p_win_pool": 0.134008,
       "picks": [
         {
           "team": "Stanford",
@@ -2773,7 +2773,7 @@
       "p05": -4.0,
       "p50": 0.0,
       "p95": 5.0,
-      "p_win_pool": 0.110484,
+      "p_win_pool": 0.115769,
       "picks": [
         {
           "team": "Texas A&M",
@@ -3468,11 +3468,11 @@
     {
       "manager_id": "john_wells",
       "display_name": "John Wells",
-      "expected_total": -0.33,
+      "expected_total": -0.85,
       "p05": -5.0,
-      "p50": 0.0,
+      "p50": -1.0,
       "p95": 4.0,
-      "p_win_pool": 0.076546,
+      "p_win_pool": 0.056665,
       "picks": [
         {
           "team": "Virginia",
@@ -3651,69 +3651,56 @@
           "conference": "ACC",
           "line": 6.5,
           "direction": "O",
-          "p_beat_line": 0.548331,
-          "expected_delta": 0.19,
-          "expected_final_wins": 6.691,
+          "p_beat_line": 0.409306,
+          "expected_delta": -0.33,
+          "expected_final_wins": 6.172,
           "win_distribution": [
             {
               "wins": 1,
-              "prob": 3.4e-05
+              "prob": 7.1e-05
             },
             {
               "wins": 2,
-              "prob": 0.001556
+              "prob": 0.003155
             },
             {
               "wins": 3,
-              "prob": 0.013766
+              "prob": 0.025194
             },
             {
               "wins": 4,
-              "prob": 0.058164
+              "prob": 0.093668
             },
             {
               "wins": 5,
-              "prob": 0.145098
+              "prob": 0.200481
             },
             {
               "wins": 6,
-              "prob": 0.233051
+              "prob": 0.268125
             },
             {
               "wins": 7,
-              "prob": 0.2501
+              "prob": 0.230689
             },
             {
               "wins": 8,
-              "prob": 0.180768
+              "prob": 0.127009
             },
             {
               "wins": 9,
-              "prob": 0.086527
+              "prob": 0.042931
             },
             {
               "wins": 10,
-              "prob": 0.026133
+              "prob": 0.008043
             },
             {
               "wins": 11,
-              "prob": 0.004475
-            },
-            {
-              "wins": 12,
-              "prob": 0.000328
+              "prob": 0.000633
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "SMU",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.5185,
-              "p_win_pct": "52%",
-              "bucket": "toss_up"
-            },
             {
               "week": 3,
               "opponent": "Alabama",
@@ -3807,14 +3794,14 @@
           ],
           "outlook": {
             "likely_wins": 1,
-            "toss_ups": 8,
+            "toss_ups": 7,
             "likely_losses": 2
           },
           "pace": {
-            "banked_games": 1,
+            "banked_games": 2,
             "actual_wins": 1,
-            "expected_wins": 0.91,
-            "delta": 0.09,
+            "expected_wins": 1.43,
+            "delta": -0.43,
             "state": "on_pace"
           }
         },

@@ -3,8 +3,8 @@
     "group_id": "family",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-07T18:01:04.303655+00:00",
-    "cache_fetched_at": "2026-09-07T18:01:03.764599+00:00"
+    "generated_at": "2026-09-08T16:57:41.613976+00:00",
+    "cache_fetched_at": "2026-09-08T16:57:41.082195+00:00"
   },
   "race": {
     "board": "exact",
@@ -83,20 +83,20 @@
         "rank": 7,
         "banked_total": -23.0,
         "floor": -23.0,
-        "ceiling": 20.0,
+        "ceiling": 19.0,
         "gap_to_leader": 39.0,
-        "ceiling_remaining": 43.0,
+        "ceiling_remaining": 42.0,
         "week_move": null
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
         "rank": 8,
-        "banked_total": -27.0,
-        "floor": -27.0,
+        "banked_total": -26.0,
+        "floor": -26.0,
         "ceiling": 18.0,
-        "gap_to_leader": 43.0,
-        "ceiling_remaining": 45.0,
+        "gap_to_leader": 42.0,
+        "ceiling_remaining": 44.0,
         "week_move": null
       }
     ]
@@ -109,49 +109,49 @@
       {
         "manager_id": "devin",
         "display_name": "Devin",
-        "p_win_pool": 0.256603,
+        "p_win_pool": 0.258283,
         "week_move": null
       },
       {
         "manager_id": "gayden",
         "display_name": "Gayden",
-        "p_win_pool": 0.18108,
+        "p_win_pool": 0.187798,
         "week_move": null
       },
       {
         "manager_id": "rachel",
         "display_name": "Rachel",
-        "p_win_pool": 0.171091,
+        "p_win_pool": 0.180089,
         "week_move": null
       },
       {
         "manager_id": "holly",
         "display_name": "Holly",
-        "p_win_pool": 0.141506,
+        "p_win_pool": 0.141239,
         "week_move": null
       },
       {
         "manager_id": "vic",
         "display_name": "Vic",
-        "p_win_pool": 0.137796,
+        "p_win_pool": 0.09886,
         "week_move": null
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.062425,
+        "p_win_pool": 0.081821,
         "week_move": null
       },
       {
         "manager_id": "gunner",
         "display_name": "Gunner",
-        "p_win_pool": 0.035229,
+        "p_win_pool": 0.037813,
         "week_move": null
       },
       {
         "manager_id": "john",
         "display_name": "John",
-        "p_win_pool": 0.01427,
+        "p_win_pool": 0.014096,
         "week_move": null
       }
     ]
@@ -390,11 +390,20 @@
           {
             "manager_id": "zach",
             "display_name": "Zach",
+            "team": "LSU",
+            "conference": "SEC",
+            "line": 8.5,
+            "direction": "O",
+            "delta": -7.5
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
             "team": "SMU",
             "conference": "ACC",
             "line": 8.5,
             "direction": "O",
-            "delta": -8.5
+            "delta": -7.5
           }
         ]
       }
@@ -501,7 +510,7 @@
         "comparison": {
           "basis": "ceiling_vs_leader_floor",
           "my_field": "ceiling",
-          "my_value": 20.0,
+          "my_value": 19.0,
           "operator": ">=",
           "other_manager_id": "rachel",
           "other_display_name": "Rachel",
@@ -878,9 +887,9 @@
             "direction": "O",
             "banked_delta": -5.5,
             "floor": -5.5,
-            "ceiling": 5.5,
+            "ceiling": 4.5,
             "status": "LIVE",
-            "games_remaining": 11,
+            "games_remaining": 10,
             "share_of_delta": 0.23913
           },
           {
@@ -924,8 +933,8 @@
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "banked_total": -27.0,
-        "absolute_total": 27.0,
+        "banked_total": -26.0,
+        "absolute_total": 26.0,
         "picks": [
           {
             "team": "Wake Forest",
@@ -937,7 +946,7 @@
             "ceiling": 6.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.166667
+            "share_of_delta": 0.173077
           },
           {
             "team": "LSU",
@@ -949,7 +958,7 @@
             "ceiling": 3.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.277778
+            "share_of_delta": 0.288462
           },
           {
             "team": "Navy",
@@ -961,19 +970,19 @@
             "ceiling": 4.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.240741
+            "share_of_delta": 0.25
           },
           {
             "team": "SMU",
             "conference": "ACC",
             "line": 8.5,
             "direction": "O",
-            "banked_delta": -8.5,
-            "floor": -8.5,
+            "banked_delta": -7.5,
+            "floor": -7.5,
             "ceiling": 3.5,
             "status": "LIVE",
-            "games_remaining": 12,
-            "share_of_delta": 0.314815
+            "games_remaining": 11,
+            "share_of_delta": 0.288462
           }
         ]
       }

@@ -3,10 +3,10 @@
     "group_id": "browns",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-07T18:01:04.136777+00:00",
-    "cache_fetched_at": "2026-09-07T18:01:03.764599+00:00",
+    "generated_at": "2026-09-08T16:57:41.455214+00:00",
+    "cache_fetched_at": "2026-09-08T16:57:41.082195+00:00",
     "ratings_source": "SP+",
-    "ratings_asof": "2026-09-07T18:01:03.764599+00:00"
+    "ratings_asof": "2026-09-08T16:57:41.082195+00:00"
   },
   "managers": [
     {
@@ -16,7 +16,7 @@
       "p05": -2.0,
       "p50": 3.0,
       "p95": 7.0,
-      "p_win_pool": 0.291607,
+      "p_win_pool": 0.296593,
       "picks": [
         {
           "team": "Michigan",
@@ -715,7 +715,7 @@
       "p05": -3.0,
       "p50": 2.0,
       "p95": 7.0,
-      "p_win_pool": 0.241932,
+      "p_win_pool": 0.237187,
       "picks": [
         {
           "team": "Stanford",
@@ -1401,7 +1401,7 @@
       "p05": -3.0,
       "p50": 2.0,
       "p95": 6.0,
-      "p_win_pool": 0.17208,
+      "p_win_pool": 0.169697,
       "picks": [
         {
           "team": "Navy",
@@ -2100,7 +2100,7 @@
       "p05": -4.0,
       "p50": 1.0,
       "p95": 6.0,
-      "p_win_pool": 0.141485,
+      "p_win_pool": 0.137806,
       "picks": [
         {
           "team": "Boise State",
@@ -2786,7 +2786,7 @@
       "p05": -4.0,
       "p50": 1.0,
       "p95": 5.0,
-      "p_win_pool": 0.10656,
+      "p_win_pool": 0.103872,
       "picks": [
         {
           "team": "Maryland",
@@ -3481,11 +3481,11 @@
     {
       "manager_id": "zach",
       "display_name": "Zach",
-      "expected_total": -1.15,
-      "p05": -6.0,
+      "expected_total": -0.63,
+      "p05": -5.0,
       "p50": -1.0,
-      "p95": 3.0,
-      "p_win_pool": 0.028547,
+      "p95": 4.0,
+      "p_win_pool": 0.037293,
       "picks": [
         {
           "team": "Virginia Tech",
@@ -3836,73 +3836,60 @@
           "conference": "ACC",
           "line": 8.5,
           "direction": "O",
-          "p_beat_line": 0.357183,
-          "expected_delta": -0.58,
-          "expected_final_wins": 7.922,
+          "p_beat_line": 0.496526,
+          "expected_delta": -0.06,
+          "expected_final_wins": 8.441,
           "win_distribution": [
             {
-              "wins": 0,
+              "wins": 1,
               "prob": 0.0
             },
             {
-              "wins": 1,
-              "prob": 6e-06
-            },
-            {
               "wins": 2,
-              "prob": 0.000133
+              "prob": 1.1e-05
             },
             {
               "wins": 3,
-              "prob": 0.001519
+              "prob": 0.000247
             },
             {
               "wins": 4,
-              "prob": 0.009973
+              "prob": 0.0027
             },
             {
               "wins": 5,
-              "prob": 0.041399
+              "prob": 0.016726
             },
             {
               "wins": 6,
-              "prob": 0.113903
+              "prob": 0.06431
             },
             {
               "wins": 7,
-              "prob": 0.211583
+              "prob": 0.159955
             },
             {
               "wins": 8,
-              "prob": 0.264302
+              "prob": 0.259525
             },
             {
               "wins": 9,
-              "prob": 0.215974
+              "prob": 0.268738
             },
             {
               "wins": 10,
-              "prob": 0.108553
+              "prob": 0.166977
             },
             {
               "wins": 11,
-              "prob": 0.029521
+              "prob": 0.054301
             },
             {
               "wins": 12,
-              "prob": 0.003135
+              "prob": 0.00651
             }
           ],
           "remaining_games": [
-            {
-              "week": 1,
-              "opponent": "Florida State",
-              "home_away": "away",
-              "neutral": false,
-              "p_win": 0.4815,
-              "p_win_pct": "48%",
-              "bucket": "toss_up"
-            },
             {
               "week": 2,
               "opponent": "UC Davis",
@@ -4005,15 +3992,15 @@
           ],
           "outlook": {
             "likely_wins": 7,
-            "toss_ups": 4,
+            "toss_ups": 3,
             "likely_losses": 1
           },
           "pace": {
-            "banked_games": 0,
-            "actual_wins": 0,
-            "expected_wins": null,
-            "delta": null,
-            "state": "preseason"
+            "banked_games": 1,
+            "actual_wins": 1,
+            "expected_wins": 0.48,
+            "delta": 0.52,
+            "state": "ahead"
           }
         },
         {
@@ -4197,7 +4184,7 @@
       "p05": -7.0,
       "p50": -2.0,
       "p95": 3.0,
-      "p_win_pool": 0.017788,
+      "p_win_pool": 0.017553,
       "picks": [
         {
           "team": "Texas Tech",
