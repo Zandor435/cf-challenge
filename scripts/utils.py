@@ -12,6 +12,7 @@ load-bearing fetch->score gate (§9). The resolver normalizes on lookup and:
   - raises UnknownTeamError otherwise (a silent miss mis-scores a pick).
 """
 
+import contextlib
 import difflib
 import json
 import os
@@ -457,6 +458,41 @@ def cache_meta(season):
             "season": c.get("season")}
 
 
+def timeline_path(group_id, season=None):
+    """The LIVE timeline for a group, or a finished season's archive.
+
+    ONE FILE PER SEASON, and the live file is always the current one. Everything
+    downstream reads `timeline.json` by that exact name — analytics.select_prior,
+    projector's week-over-week move, build_week_packet, and app.js's
+    computeMoves — and none of them can tell one season's week 6 from another's,
+    because a snapshot is keyed by week ALONE. Making the FILE single-season is
+    what makes that safe, without asking four separate readers to each learn a
+    season rule.
+
+    Lives in utils rather than run_groups because run_groups WRITES it and the
+    projector READS it, and the reader cannot import the writer."""
+    d = WEB_DATA_DIR / group_id
+    return d / ("timeline.json" if season is None else f"timeline-{season}.json")
+
+
+def effective_week(as_of_week=None):
+    """The concrete week a run is scoring: the --as-of-week value, or the
+    cache's real current week on a live run.
+
+    THE TIMELINE IDEMPOTENCY KEY, and the "now" every strictly-before prior
+    selection is measured against, so it must be ONE rule. run_groups and the
+    projector both need it — run_groups to key the snapshot it appends, the
+    projector to pick the snapshot it measures its week-over-week move against —
+    and the projector cannot import run_groups (run_groups imports it). A second
+    copy of the expression is how the two would drift apart, and a prior chosen
+    against a different "now" than the snapshot it is compared with is exactly
+    the confident-wrong-number failure analytics.select_prior exists to refuse.
+
+    May be None: neither --as-of-week nor a cache week is the ordinary preseason
+    state. Callers must treat that as "no now", never as a wildcard."""
+    return as_of_week if as_of_week is not None else cache_meta(get_season())["week"]
+
+
 def _game_played(g, as_of_week):
     """A slate game counts as PLAYED iff it is completed AND (no as-of-week
     replay, or its week is within the replay horizon). --as-of-week N treats
@@ -496,6 +532,63 @@ def pin_contract_fixture():
     _SEASON_CONF = {"season": season, "cfbd_default_season": season}
     _SEASON_CACHE = {}
     return season
+
+
+PRESEASON_FIXTURE_TMPL = "preseason_cache_{season}.json"
+
+
+def preseason_cache_path(season):
+    """The frozen PRE-KICKOFF cache for `season`, one file per season.
+
+    A committed snapshot of the real cache as it stood before the season's
+    first game — not a synthetic slate. The 2026 file is the 2026-08-26 fetch
+    (3677 games, 0 completed, full SP+), lifted verbatim out of git history."""
+    return FIXTURES_DIR / PRESEASON_FIXTURE_TMPL.format(season=season)
+
+
+@contextlib.contextmanager
+def preseason_cache_pinned(season=None):
+    """Read the frozen preseason cache for the duration of this block.
+
+    WHY A PRODUCTION PATH NEEDS THIS. The Week 0 packet describes the board
+    before kickoff, and it is a HISTORICAL artifact from the moment the first
+    game is played — but it stays live all season, because the column guard
+    validates every published Week 0 column against it. Built off the live
+    cache it could only ever work in August: `data/cfbd_cache.json` is a
+    committed input that MOVES (a daily refresh commit rewrites it), so
+    tests.yml's claim that the regenerated packet "is byte-identical to the one
+    the column was written against" quietly stopped holding at kickoff, and
+    build_week0_packet started refusing outright. Pinning the packet to a
+    committed fixture is the fix tests.yml's own comment names. It restores the
+    invariant rather than relaxing it: the Week 0 packet is now reproducible
+    from frozen inputs in any month, which is what "week 0" means.
+
+    RESTORES ON EXIT, unlike pin_contract_fixture (a deliberate one-way pin for
+    a whole test module). Four tests call build_week0_packet inside the pytest
+    process, and a one-way pin there would hand every LATER test the preseason
+    slate — the cross-test leak CLAUDE.md rule 21 is about. Safe because the
+    memo is REBOUND to a new dict rather than mutated: restoring the original
+    binding restores the original object, still holding whatever it held.
+
+    Deliberately does NOT override season.json's season the way
+    pin_contract_fixture does. load_cache still gets the real expected season,
+    so a fixture from the wrong season raises SeasonMismatchError instead of
+    being silently adopted — and the season flip that needs a new fixture fails
+    loudly, naming the file to create."""
+    season = get_season() if season is None else int(season)
+    path = preseason_cache_path(season)
+    if not path.exists():
+        raise FileNotFoundError(
+            f"missing preseason fixture {path} — the Week 0 packet builds from "
+            f"a frozen pre-kickoff cache, not the live one. For a new season, "
+            f"commit the last pre-kickoff fetch (0 completed games) there.")
+    global CACHE_PATH, _SEASON_CACHE
+    prev_path, prev_memo = CACHE_PATH, _SEASON_CACHE
+    CACHE_PATH, _SEASON_CACHE = path, {}
+    try:
+        yield season
+    finally:
+        CACHE_PATH, _SEASON_CACHE = prev_path, prev_memo
 
 
 def count_played_games(season, as_of_week=None):

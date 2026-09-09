@@ -435,8 +435,137 @@ def simulate_totals(config, picks, as_of_week=None, team_cache=None):
     return order, totals, p_win_pool
 
 
-def build_projection(config, picks, as_of_week=None):
-    """Full projection.json object for a group (no I/O)."""
+# --- Display rounding: the parts must add to the whole ON SCREEN -------------
+# The Portfolios card prints a manager's expected_total as their headline and
+# each pick's expected_delta as a line item beneath it. `expected_total` IS the
+# sum of those deltas, so the identity holds in the data — but the card shows
+# one decimal, and four independently-rounded deltas can miss their own rounded
+# total by up to 0.2. A column of numbers that visibly does not add up is the
+# exact confusion this card was reworked to remove, so the rounding is done HERE,
+# once, by largest remainder, and published as strings the site prints verbatim.
+#
+# Same posture as `p_win_pct` (output-contract.md): the site never divides, never
+# rounds, and never sums — it iterates and prints.
+
+DISPLAY_DECIMALS = 1
+
+
+def _half_away(x):
+    """Round-half-away-from-zero at DISPLAY_DECIMALS, in integer units of the
+    last decimal place. Python's round() is half-to-even, which would render
+    0.05 and 0.15 to different-looking places for no reason a reader could
+    follow; the largest-remainder pass below corrects the total either way, so
+    this is purely about each individual figure landing where a reader expects."""
+    scaled = x * (10 ** DISPLAY_DECIMALS)
+    return int(scaled + (0.5 if scaled >= 0 else -0.5))
+
+
+def _fmt_signed(units):
+    """`units` is a signed count of last-decimal-place steps -> "+1.6" / "-0.5" /
+    "0.0". Mirrors the site's fmtSigned exactly: a plus on positives, the minus
+    the number already carries on negatives, and no sign on zero."""
+    value = units / (10 ** DISPLAY_DECIMALS)
+    text = f"{abs(value):.{DISPLAY_DECIMALS}f}"
+    return ("+" if units > 0 else "-" if units < 0 else "") + text
+
+
+def display_deltas(total, deltas):
+    """(total_display, [delta_display, ...]) at DISPLAY_DECIMALS, where the
+    delta strings sum EXACTLY to the total string.
+
+    Largest remainder: round every part the ordinary way, then hand the shortfall
+    (or surplus) one step at a time to the parts whose rounding error already
+    leans that way. Nothing moves by more than one step in the last decimal
+    place, so no figure is misreported to make the column add up — the arithmetic
+    is unchanged, only which side of a tie each rounding falls on.
+
+    A manager with no picks gets ("0.0", []), which is what an empty sum is."""
+    target = _half_away(total)
+    parts = [_half_away(d) for d in deltas]
+    if not parts:
+        return _fmt_signed(target), []
+
+    diff = target - sum(parts)
+    if diff:
+        step = 1 if diff > 0 else -1
+        # Residual = how much each part lost to rounding. Give the steps to the
+        # parts that were rounded hardest in the direction we need to move.
+        residual = [d * (10 ** DISPLAY_DECIMALS) - parts[i] for i, d in enumerate(deltas)]
+        order = sorted(range(len(parts)), key=lambda i: residual[i], reverse=(diff > 0))
+        for k in range(abs(diff)):
+            parts[order[k % len(order)]] += step
+
+    return _fmt_signed(target), [_fmt_signed(u) for u in parts]
+
+
+# --- Week-over-week move on the PROJECTED total ------------------------------
+# WHY THIS NUMBER AND NOT THE EXACT ONE. The site's other "move" column measures
+# the change in banked_total, and it inherits banked_total's defect as a
+# progress read: every pick starts at +/- its line, so an UNDER holder's exact
+# score falls every week they are winning the bet and an OVER holder's rises
+# while they are losing it. A week-over-week change in the PROJECTED total is
+# free of that — it moves only when the model's view of the season moved, which
+# is what a one-week trend is supposed to mean.
+#
+# BOARD 2 MEASURES ITSELF. The move belongs on projection.json rather than on
+# standings.json (exact, and it would be mixing boards) or analytics.json (Board
+# 3 is a reshape, and index.html does not fetch it). The prior value it is
+# measured against comes from timeline.json's per-pick expected_delta, which
+# run_groups has recorded in every snapshot since the file existed.
+
+
+def prior_expected_totals(prior):
+    """{manager_id -> that snapshot's expected_total}, re-summed from the
+    snapshot's per-pick expected_delta the way build_projection sums it.
+
+    A snapshot written on a run where the projector DEGRADED carries
+    expected_delta: null on every pick. Null is not zero — a manager with any
+    null pick has no knowable prior total, so they are omitted entirely and
+    their move comes out null rather than measured against a partial sum."""
+    out = {}
+    for m in (prior or {}).get("managers", []):
+        deltas = [p.get("expected_delta") for p in m.get("picks", [])]
+        if deltas and all(d is not None for d in deltas):
+            out[m["manager_id"]] = round(sum(deltas), 2)
+    return out
+
+
+def load_prior_snapshot(group_id, as_of_week=None, season=None):
+    """The timeline snapshot strictly before the week being scored, or None.
+
+    STRICTLY BEFORE, AND BY THE ONE RULE. Delegates to analytics.select_prior
+    rather than re-deriving the test: that function is where the season-boundary
+    refusal and the "an unresolvable week is not a wildcard" refusal live, both
+    of which were production faults, and a second implementation here is how the
+    two would diverge. The import is local — Board 2 has no business depending on
+    Board 3 at module scope, and analytics is free to grow an import of this
+    module without creating a cycle.
+
+    Note the run order this is safe under: run_groups projects BEFORE it appends
+    this week's snapshot, so the file holds only earlier weeks. On a re-run of an
+    already-scored week it holds this one too — which is exactly why the test has
+    to be strictly-before rather than "the latest snapshot", or every move would
+    settle to a confident 0."""
+    import analytics                      # local by design — see docstring
+
+    season = utils.get_season() if season is None else int(season)
+    path = utils.timeline_path(group_id)
+    timeline = utils.load_json(path) if path.exists() else None
+    snap, _reason = analytics.select_prior(timeline,
+                                           utils.effective_week(as_of_week),
+                                           season)
+    return snap
+
+
+def build_projection(config, picks, as_of_week=None, prior=None):
+    """Full projection.json object for a group (no I/O).
+
+    `prior` is the timeline snapshot the week-over-week move is measured
+    against (see load_prior_snapshot). None — the caller passing nothing, a
+    group with no timeline, or a refused selection alike — means every
+    expected_total_move is null. Never 0: a fabricated zero is a claim that the
+    projection held steady, which is a different statement from "there is
+    nothing to compare against"."""
     season = utils.get_season()
     sp_ratings = utils.season_sp_ratings(season)
     display = utils.manager_display_map(config)
@@ -478,15 +607,39 @@ def build_projection(config, picks, as_of_week=None):
                                float(sum(info["played_probs"]))),
         }
 
+    prior_totals = prior_expected_totals(prior)
+    prior_week = prior.get("as_of_week") if prior else None
+
     managers = []
     for mid in order:
         mpicks = [pick_projection(p) for p in by_mgr[mid]]
         arr = totals[mid]
         p05, p50, p95 = (float(np.percentile(arr, q)) for q in (5, 50, 95))
+        # Summed, not accumulated, so it is the SAME arithmetic the renderer
+        # reproduces when it prints each pick's expected_delta as a line item
+        # under this figure. The card's whole claim is that the parts add to the
+        # whole; a total computed any other way would be a second answer.
+        expected_total = round(sum(p["expected_delta"] for p in mpicks), 2)
+        was = prior_totals.get(mid)
+        move = round(expected_total - was, 2) if was is not None else None
+
+        # Display strings, rounded together so the line items add to the
+        # headline on screen (see display_deltas). Written back onto each pick so
+        # the renderer reads one field per number and formats nothing.
+        total_display, delta_displays = display_deltas(
+            expected_total, [p["expected_delta"] for p in mpicks])
+        for pick_row, text in zip(mpicks, delta_displays):
+            pick_row["expected_delta_display"] = text
+
         managers.append({
             "manager_id": mid,
             "display_name": display.get(mid, mid),
-            "expected_total": round(sum(p["expected_delta"] for p in mpicks), 2),
+            "expected_total": expected_total,
+            "expected_total_display": total_display,
+            "expected_total_prior": was,
+            "expected_total_move": move,
+            "expected_total_move_display": (_fmt_signed(_half_away(move))
+                                            if move is not None else None),
             "p05": round(p05, 2),
             "p50": round(p50, 2),
             "p95": round(p95, 2),
@@ -505,14 +658,29 @@ def build_projection(config, picks, as_of_week=None):
             "cache_fetched_at": cm["fetched_at"],
             "ratings_source": "SP+",
             "ratings_asof": cm["fetched_at"],
+            # The week every expected_total_move is measured against — null when
+            # no snapshot qualified, which is what makes an all-null move column
+            # readable as "no baseline" rather than "nothing changed".
+            "prior_week": prior_week,
         },
         "managers": managers,
     }
 
 
-def write_projection(config, picks, as_of_week=None):
-    out = build_projection(config, picks, as_of_week)
-    path = utils.WEB_DATA_DIR / config["group_id"] / "projection.json"
+def write_projection(config, picks, as_of_week=None, prior=None):
+    """Build and write projection.json.
+
+    `prior` is resolved here when the caller does not supply one, so a bare
+    `python scripts/projector.py` produces the same week-over-week move the
+    pipeline does rather than a null column. run_groups passes its own selection
+    instead — it reads the timeline once, before appending this week's snapshot,
+    and hands the same object to both boards so the two cannot disagree about
+    which week they measured against."""
+    gid = config["group_id"]
+    if prior is None:
+        prior = load_prior_snapshot(gid, as_of_week)
+    out = build_projection(config, picks, as_of_week, prior)
+    path = utils.WEB_DATA_DIR / gid / "projection.json"
     utils.save_json_atomic(path, out)
     return out
 

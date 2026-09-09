@@ -71,9 +71,11 @@ META_KEYS = {"group_id", "season", "as_of_week", "generated_at", "cache_fetched_
 STANDINGS_MGR = {"manager_id", "display_name", "banked_total", "floor", "ceiling", "rank", "picks"}
 STANDINGS_PICK = {"team", "conference", "line", "direction", "banked_wins", "banked_losses",
                   "games_remaining", "banked_delta", "floor", "ceiling", "status"}
-PROJ_MGR = {"manager_id", "display_name", "expected_total", "p05", "p50", "p95", "p_win_pool", "picks"}
+PROJ_MGR = {"manager_id", "display_name", "expected_total", "expected_total_display",
+            "expected_total_prior", "expected_total_move",
+            "expected_total_move_display", "p05", "p50", "p95", "p_win_pool", "picks"}
 PROJ_PICK = {"team", "conference", "line", "direction", "p_beat_line", "expected_delta",
-             "expected_final_wins", "win_distribution",
+             "expected_delta_display", "expected_final_wins", "win_distribution",
              "remaining_games", "outlook", "pace"}
 PROJ_GAME = {"week", "opponent", "home_away", "neutral", "p_win", "p_win_pct", "bucket"}
 PROJ_OUTLOOK = {"likely_wins", "toss_ups", "likely_losses"}
@@ -123,9 +125,40 @@ def validate_projection(pr, label, final=False, banked_by=None):
     check(f"[{label}] ratings_source == 'SP+'", m0.get("ratings_source") == "SP+")
     ok_mgr = ok_pick = ok_dist = ok_final = True
     ok_game = ok_outlook = ok_pace = ok_empty = True
+    ok_sum = ok_move = ok_disp = True
     for m in pr["managers"]:
         ok_mgr &= _has_keys(m, PROJ_MGR)
         ok_mgr &= 0.0 <= m["p_win_pool"] <= 1.0
+
+        # THE PARTS ADD TO THE WHOLE. The Portfolios card prints expected_total
+        # as the manager's headline and each pick's expected_delta as a line
+        # item under it, so a manager whose picks do not sum to their total puts
+        # a column of numbers on screen that visibly does not add up — the exact
+        # confusion that card was reworked to remove. Tolerance is two-decimal
+        # rounding drift across at most a handful of picks, nothing looser.
+        ok_sum &= abs(sum(p["expected_delta"] for p in m["picks"])
+                      - m["expected_total"]) < 5e-3
+
+        # AND ON SCREEN. The identity above holds at full precision; the card
+        # shows one decimal, where four independently-rounded parts can miss
+        # their own rounded total by 0.2. projector.display_deltas rounds them
+        # together so the printed column adds up, and this is what stops a
+        # future "just use toFixed(1)" from quietly undoing the fix.
+        ok_disp &= abs(sum(float(p["expected_delta_display"]) for p in m["picks"])
+                       - float(m["expected_total_display"])) < 1e-9
+        # No figure may be moved more than one display step to achieve that.
+        ok_disp &= all(abs(float(p["expected_delta_display"]) - p["expected_delta"])
+                       <= 0.1 + 1e-9 for p in m["picks"])
+
+        # A prior that exists must reconcile; a prior that does not must leave
+        # BOTH fields null. Never 0 — see output-contract.md.
+        was, mv = m["expected_total_prior"], m["expected_total_move"]
+        if was is None:
+            ok_move &= mv is None
+        else:
+            ok_move &= mv is not None and abs((m["expected_total"] - was) - mv) < 5e-3
+        ok_move &= (m["expected_total_move_display"] is None) == (mv is None)
+
         for p in m["picks"]:
             ok_pick &= _has_keys(p, PROJ_PICK)
 
@@ -167,6 +200,9 @@ def validate_projection(pr, label, final=False, banked_by=None):
                     bd = banked_by.get((m["manager_id"], p["team"]))
                     ok_final &= (bd is not None and p["expected_delta"] == bd)
     check(f"[{label}] every manager has the required keys + valid p_win_pool", ok_mgr)
+    check(f"[{label}] expected_total == sum of the picks' expected_delta", ok_sum)
+    check(f"[{label}] the DISPLAY strings add up too (1dp, largest remainder)", ok_disp)
+    check(f"[{label}] expected_total_move reconciles (both null, or exact)", ok_move)
     check(f"[{label}] every pick has the required keys", ok_pick)
     check(f"[{label}] win_distribution sums to 1", ok_dist)
     check(f"[{label}] every remaining_games row is well-formed + week-ordered", ok_game)

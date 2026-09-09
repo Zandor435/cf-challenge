@@ -198,10 +198,12 @@ run (real current week). All timestamps are ISO-8601 UTC.
 field: `"dummy"` for engineered sample data — the site shows the amber
 **sample-data** banner — or `"final"` once the real draft is entered (`null` for
 the demo fixture and when the key is absent; only the literal `"dummy"` triggers
-the banner). `projection.json`'s `meta` carries two extra keys instead:
-`"ratings_source": "SP+"` and
+the banner). `projection.json`'s `meta` carries three extra keys instead:
+`"ratings_source": "SP+"`,
 `"ratings_asof"` (ISO stamp of when the SP+ ratings used were pulled — the
-cache's `fetched_at`; SP+ is a single snapshot, not weekly history).
+cache's `fetched_at`; SP+ is a single snapshot, not weekly history), and
+`"prior_week"` (the timeline week every `expected_total_move` is measured
+against, or `null` when no snapshot qualified — see below).
 
 ---
 
@@ -264,6 +266,10 @@ Invariant (checked by the shape test and VERIFY step 3): when a pick's
       "manager_id": "zach",
       "display_name": "Zach",
       "expected_total": 9.3,
+      "expected_total_display": "+9.3",
+      "expected_total_prior": 8.1,
+      "expected_total_move": 1.2,
+      "expected_total_move_display": "+1.2",
       "p05": 1.5,
       "p50": 9.5,
       "p95": 16.5,
@@ -276,6 +282,7 @@ Invariant (checked by the shape test and VERIFY step 3): when a pick's
           "direction": "O",
           "p_beat_line": 0.71,
           "expected_delta": 0.8,
+          "expected_delta_display": "+0.8",
           "expected_final_wins": 11.3,
           "win_distribution": [
             { "wins": 8,  "prob": 0.01 },
@@ -308,7 +315,37 @@ Invariant (checked by the shape test and VERIFY step 3): when a pick's
   `expected_delta` = O: `expected_final_wins - line`; U: `line - expected_final_wins`.
 - `p_beat_line` = O: `P(final_wins > line)`; U: `P(final_wins < line)`
   (lines are half-integers, so no push).
-- `expected_total` = Σ picks' `expected_delta` (exact).
+- `expected_total` = Σ picks' `expected_delta` (exact). **This identity is the
+  Portfolios card's whole claim** — the card prints `expected_total` as the
+  manager's headline and each pick's `expected_delta` as a line item beneath it,
+  so the parts add to the whole by construction rather than by coincidence.
+  `test_output_shape.py` pins it.
+- `expected_total_display` / `expected_delta_display` /
+  `expected_total_move_display` = **pre-rendered 1-decimal signed strings**
+  (`"+9.3"`, `"-0.5"`, `"0.0"`), same posture as `p_win_pct`: the site prints
+  them verbatim and formats nothing. They exist because the identity above holds
+  at full precision but the card shows one decimal, where four independently
+  rounded parts can miss their own rounded total by up to 0.2 — a column that
+  visibly does not add up. `projector.display_deltas` rounds a manager's parts
+  and total **together**, by largest remainder, so **Σ `expected_delta_display`
+  == `expected_total_display` exactly**, and no figure is moved more than one
+  step in the last decimal place to get there. Both properties are pinned.
+- `expected_total_prior` / `expected_total_move` = the same manager's
+  `expected_total` in the timeline snapshot **strictly before** the week being
+  scored, and the signed change from it. Both `null` — **never `0`** — when
+  there is no eligible prior snapshot, when the manager is absent from it, or
+  when any of their picks in it carries `expected_delta: null` (a week the
+  projector degraded): an unknowable prior is not a zero one, and a fabricated
+  `0` would assert that the projection held steady.
+  - The prior is selected by `analytics.select_prior`, one implementation, so
+    Board 2's `expected_total_move` and Board 3's `week_move` can never end up
+    measured against different weeks. `meta.prior_week` names the week chosen.
+  - **This, not the exact score, is the site's one-week trend.** A change in
+    `banked_total` inherits that figure's defect as a progress read: every pick
+    starts at ±its line, so an UNDER holder's exact score falls every week they
+    are winning the bet. The projected total moves only when the model's view of
+    the season moved. The STANDINGS tab still shows the exact move; the
+    Portfolios card shows this one.
 - `p05/p50/p95` = percentiles of the manager's projected **total delta**, and
   `p_win_pool` = P(this manager has the group's highest total) — **both from the
   shared-per-team-draw Monte Carlo** (see below), so managers on opposite sides

@@ -63,6 +63,22 @@ class RecipientsError(RuntimeError):
     """Recipients could not be resolved COMPLETELY. Never catch this to continue."""
 
 
+class RecipientsSourceMissing(RecipientsError):
+    """No recipients source EXISTS in this environment — neither the env var nor
+    the gitignored overlay.
+
+    A SUBCLASS, SO NOTHING GETS WEAKER. Every caller that catches
+    RecipientsError still catches this, still raises, still refuses to send: the
+    loader's promise to never guess is untouched, and so is the send gate.
+
+    It exists so a CALLER can tell "this repo's recipient config is wrong"
+    (missing manager, malformed address, duplicate — a real fault, anywhere)
+    apart from "this environment was handed no addresses at all" (a public CI
+    checkout with no secret set, which is the ordinary state of a public repo
+    whose whole design keeps addresses out of the tree). Only the preflight TEST
+    draws that distinction; production treats them alike."""
+
+
 def _overlay_path(group_id: str) -> Path:
     return Path(GROUPS_DIR) / group_id / OVERLAY_NAME
 
@@ -91,7 +107,7 @@ def _load_source(group_id: str, env: dict) -> tuple[dict, str]:
     else:
         path = _overlay_path(group_id)
         if not path.exists():
-            raise RecipientsError(
+            raise RecipientsSourceMissing(
                 f"No recipients for group '{group_id}': ${ENV_VAR} is unset and "
                 f"{path} does not exist. This group has email_enabled: true, so there is "
                 f"no safe fallback — create the overlay locally, or set the secret in CI."
@@ -169,6 +185,18 @@ def load_recipients(group_id: str, config: dict | None = None, env: dict | None 
 def email_enabled(config: dict) -> bool:
     """The per-group kill switch. False means this group never sends, full stop."""
     return bool(config.get("email_enabled", False))
+
+
+def source_available(group_id: str, env: dict | None = None) -> bool:
+    """Does a recipients source EXIST here — the env var, or the overlay file?
+
+    Answers only "is there something to read", never "is it any good": a source
+    that exists but is malformed, incomplete or duplicated is available and
+    must still fail every check below it. Used by the preflight test to tell an
+    unprovisioned environment apart from a broken configuration."""
+    env = os.environ if env is None else env
+    raw = env.get(ENV_VAR)
+    return bool(raw and raw.strip()) or _overlay_path(group_id).exists()
 
 
 def preflight(group_id: str, config: dict | None = None, env: dict | None = None) -> tuple[bool, str]:

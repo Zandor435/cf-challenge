@@ -7,6 +7,9 @@
    Sections rendered here (all from the three contract files above):
      hero        — leader + every manager's banked total (standings.json)
      board1      — exact standings, incl. the floor/ceiling range bar
+     portfolios  — the projected board: each manager's projected total, its
+                   one-week change, and the per-pick contributions that add up
+                   to it (projection.json), with the exact score alongside
      scoreboard  — client-side re-pivot of standings.json by TEAM, not manager
      board2      — win probabilities from projection.json (degrades alone)
    ========================================================================== */
@@ -805,10 +808,16 @@ function totalCell(m) {
     <div class="lbl">Score</div>
   </div>`;
 }
-function identityCell(m, id, picks) {
+// `pos` overrides the exact rank for a board that is not ordered by it. The
+// STANDINGS tab passes nothing and keeps m.rank — the real standing, and what
+// settles the pool. The Portfolios card is ordered by the PROJECTED total, so
+// it passes its own 1..n position: printing exact ranks down a projected board
+// would put the numbers out of order (panel's committed board reads 1, 2, 4, 3),
+// which reads as broken rather than as two boards.
+function identityCell(m, id, picks, pos) {
   // The name is the link to the profile page — the row's own affordance, so
   // no extra chevron or "view" column is needed on either board density.
-  return `<div class="rank">${m.rank}</div>
+  return `<div class="rank">${pos === undefined ? m.rank : pos}</div>
     ${avatar(id, 'avatar-md')}
     <div class="mgr-id">
       <div class="mgr-name"><a class="mgr-profile-link" href="${id.profile}">${esc(m.display_name)}</a></div>
@@ -906,14 +915,47 @@ function portfolioTotalCell(m, mproj) {
   // rather than leaving an empty slot or asserting a number we do not have.
   if (!mproj) return totalCell(m);
   const exp = mproj.expected_total;
+  // PRINTED, NOT FORMATTED. expected_total_display is rounded by the projector
+  // together with the picks' expected_delta_display, so the line items below add
+  // to this figure on screen and not merely at full precision. Re-deriving it
+  // here with fmtSigned would round the headline independently of its own parts
+  // and could put a column on screen that does not add up — which is the defect
+  // this card was reworked to remove. Older files without the field fall back.
+  const head = mproj.expected_total_display || fmtSigned(exp);
   return `<div class="mgr-total po-total">
-    <div class="val proj mono${exp < 0 ? ' neg' : ''}">${fmtSigned(exp)}</div>
+    <div class="val proj mono${exp < 0 ? ' neg' : ''}">${esc(head)}</div>
     <div class="lbl">Projected</div>
-    <div class="po-exact mono" title="Exact score off games played — what rank is built on">
+    <div class="po-exact mono" title="Exact score off games played — the STANDINGS tab, and what settles the pool">
       <span class="po-exact-val${m.banked_total < 0 ? ' neg' : ''}">${fmtSigned(m.banked_total)}</span>
       <span class="po-exact-lbl">score</span>
     </div>
   </div>`;
+}
+
+// ---------- Week-over-week move on the PROJECTED total ---------------------
+// The Portfolios card's Change column. Distinct from moveCell (the STANDINGS
+// tab's), and deliberately so: that one measures the change in banked_total,
+// which inherits banked_total's defect as a progress read — every pick starts at
+// ±its line, so an Under holder's exact score falls every week they are winning
+// the bet. A change in the PROJECTED total moves only when the model's view of
+// the season moved, which is what a one-week trend is meant to mean.
+//
+// Computed in Python (projection.json's expected_total_move), not here: this is
+// a number, and numbers come from the pipeline. moveCell stays a JS derivation
+// off timeline.json only because standings.json carries no such field.
+function projMoveCell(mproj) {
+  const v = mproj && mproj.expected_total_move;
+  if (!mproj || v === null || v === undefined) {
+    return `<div class="mgr-move none mono" title="No earlier week to compare against">&mdash;</div>`;
+  }
+  const cls = v > 0 ? 'pos' : v < 0 ? 'neg' : 'flat';
+  const arrow = v > 0 ? '↑' : v < 0 ? '↓' : '·';
+  const text = mproj.expected_total_move_display || fmtSigned(v);
+  return `<div class="mgr-move ${cls} mono">${arrow} ${esc(text)}</div>`;
+}
+function projMoveHead(projection) {
+  const wk = projection && projection.meta && projection.meta.prior_week;
+  return Number.isInteger(wk) ? `vs wk ${esc(String(wk))}` : 'Change';
 }
 
 // The pace read, as a chip. An em dash in preseason on purpose: pace.state is
@@ -932,19 +974,44 @@ function paceChip(pace) {
     ${PACE_MARK[pace.state]} ${fmtSigned(pace.delta)} ${PACE_WORD[pace.state]}</span>`;
 }
 
-// One pick, collapsed: the side taken, the number, the record, the exact delta,
-// and the projected pace. This is the line that answers the question the old
-// chip could not.
+// One pick, collapsed: the side taken, the record, this pick's CONTRIBUTION TO
+// THE HEADLINE, the status, and the pace read.
+//
+// THE LINE ITEM IS THE PROJECTED CONTRIBUTION, NOT THE EXACT DELTA, AND THAT IS
+// THE POINT OF THIS CARD. The headline above these lines is the projected total.
+// It always was, but the lines underneath used to show banked_delta — the exact
+// board's number — so a manager reading down the card found four figures that
+// summed to something other than the number over them. (David's committed week-1
+// row: a +0.9 headline over -5.5, -4.5, +6.5, +7.5, which sum to +4.0, the amber
+// exact score sitting beside it.) Two boards stacked in one card with no way to
+// reconcile them by eye, and nothing on screen said so. Now the parts add to the
+// whole: expected_total IS the sum of these expected_deltas, and the projector
+// rounds them together for display so it holds at one decimal too.
+//
+// The exact per-pick delta is not lost — the STANDINGS tab shows it in full,
+// with the record, the floor/ceiling bar and the status, and the exact total
+// still sits under this card's headline in amber. This card is Board 2; that
+// one is Board 1.
+//
+// No projection for this pick (older projection.json, or a degraded run): the
+// exact delta takes the line back, marked as exact, rather than blanking.
 function pfPick(p, proj) {
   const over = p.direction === 'O';
-  const dCls = p.banked_delta > 0 ? ' pos' : p.banked_delta < 0 ? ' neg' : '';
   const stCls = p.status === 'LIVE' ? 'st-live' : p.status === 'CLINCHED' ? 'st-clinched' : 'st-dead';
+  const ed = proj && proj.expected_delta;
+  const hasProj = ed !== null && ed !== undefined;
+  const val = hasProj ? ed : p.banked_delta;
+  const dCls = val > 0 ? ' pos' : val < 0 ? ' neg' : '';
+  const text = hasProj ? (proj.expected_delta_display || fmtSigned(ed)) : fmtSigned(p.banked_delta);
+  const title = hasProj
+    ? `Projected contribution to ${esc(p.team)}&rsquo;s owner&rsquo;s total. Exact delta today: ${fmtSigned(p.banked_delta)}`
+    : 'Exact delta — no projection for this pick';
   return `<div class="po-pick${p.status === 'DEAD' ? ' dead' : ''}">
     ${teamMark(p.team, 'chip')}
     <span class="po-team">${esc(p.team)}</span>
     <span class="dir-badge ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'} ${fmtLine(p.line)}</span>
     <span class="po-rec mono">${p.banked_wins}&ndash;${p.banked_losses}</span>
-    <span class="po-delta mono${dCls}">${fmtSigned(p.banked_delta)}</span>
+    <span class="po-delta mono${dCls}${hasProj ? ' is-proj' : ''}" title="${title}">${esc(text)}</span>
     <span class="po-status ${stCls}">${esc(p.status)}</span>
     ${proj ? paceChip(proj.pace) : '<span class="po-pace none"></span>'}
   </div>`;
@@ -992,16 +1059,16 @@ function outlookPanel(picks, proj) {
   </div>`;
 }
 
-function portfolioRow(m, ident, moves, proj, mproj) {
+function portfolioRow(m, ident, moves, proj, mproj, pos, anyProj) {
   const picks = m.picks || [];
   const id = ident[m.manager_id];
   const open = !!proj;   // no per-game data for this manager => no disclosure
   return `<article class="mgr-po${open ? ' can-open' : ''}" style="--mc:${id.color}"
       data-mgr="${esc(m.manager_id)}">
     <div class="po-row">
-      ${identityCell(m, id, picks)}
+      ${identityCell(m, id, picks, pos)}
       ${portfolioTotalCell(m, mproj)}
-      ${moveCell(m.manager_id, moves)}
+      ${anyProj ? projMoveCell(mproj) : moveCell(m.manager_id, moves)}
       ${open ? `<button type="button" class="po-toggle" aria-expanded="false"
         aria-label="Show ${esc(m.display_name)}&rsquo;s remaining schedule"><span class="po-caret"></span></button>`
         : '<span class="po-toggle-spacer"></span>'}
@@ -1011,41 +1078,89 @@ function portfolioRow(m, ident, moves, proj, mproj) {
   </article>`;
 }
 
+// ORDERED BY THE NUMBER IT PRINTS. The card leads with the projected total, so
+// it is sorted by the projected total — panel's committed board sorted by exact
+// rank runs 2.96, 2.62, -1.90, -1.51 down the Projected column, and a column of
+// numbers out of order reads as a bug, not as a second board. Ties fall back to
+// the exact rank so the order is total and stable.
+//
+// Managers with no projection sort last rather than at 0: an absent figure is
+// not a middling one. They keep their exact score in the headline (see
+// portfolioTotalCell), so the column is still readable top to bottom.
+//
+// The STANDINGS tab is untouched and stays ordered by the exact rank, which is
+// the real standing and what settles the pool. Two boards, each ordered by its
+// own number, each labeled — rather than one board ordered by a number it does
+// not show.
+function orderForPortfolios(managers, totalsByMgr, anyProj) {
+  const rows = managers.slice();
+  if (!anyProj) return rows.sort((a, b) => a.rank - b.rank);
+  const key = (m) => {
+    const t = totalsByMgr[m.manager_id];
+    return t && typeof t.expected_total === 'number' ? t.expected_total : null;
+  };
+  return rows.sort((a, b) => {
+    const ka = key(a), kb = key(b);
+    if (ka === null && kb === null) return a.rank - b.rank;
+    if (ka === null) return 1;
+    if (kb === null) return -1;
+    return kb - ka || a.rank - b.rank;
+  });
+}
+
 function renderPortfolios(standings, projection, ident, moves, pre) {
-  const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
   const meta = standings.meta || {};
   const proj = indexProjection(projection);
+  const anyProj = Object.keys(proj.totals).length > 0;
+  const mgrs = orderForPortfolios(standings.managers || [], proj.totals, anyProj);
   $('po-week').textContent = weekLabel(meta.as_of_week, pre);
 
   // One line, not two. The static .card-sub describes a board with results in
   // it, which before kickoff there are none of, so it steps aside rather than
   // stacking above a correction that contradicts it.
   (pre ? hide : show)($('po-sub'));
+  // With no projection the card has fallen back to the exact board, and the
+  // static subtitle's claim — that the line items add up to the figure above
+  // them — is about the PROJECTED total and would be describing a card that is
+  // no longer on screen. Exact deltas do sum to the exact score, but they are
+  // not "a share of" anything, so the sentence is replaced rather than reworded.
+  if (!anyProj) {
+    $('po-sub').textContent = 'Every manager\u2019s four picks with the side they took, '
+      + 'their record and their exact delta. The projection is unavailable this run, '
+      + 'so this card is showing the exact board.';
+  }
   preseasonNote('po-preseason', pre,
-    'Preseason &mdash; nothing has been played, so every record is 0&ndash;0 and each ' +
-    '&Delta; is just the line restated in the direction its owner took it. Pace has ' +
-    'no games to measure yet and reads as a dash. The remaining-schedule outlook is ' +
-    'live now and is the only forward-looking thing on this card.');
+    'Preseason &mdash; nothing has been played, so every record is 0&ndash;0 and the ' +
+    'amber exact score is just each manager&rsquo;s lines restated in the direction ' +
+    'they took them. The projected total and the per-team numbers under it are live ' +
+    'now, along with the remaining-schedule outlook. Pace has no games to measure ' +
+    'yet and reads as a dash, and there is no earlier week to show a Change against.');
 
   // The column says "Projected" only where a projection actually landed; with
-  // none, every cell has fallen back to the exact score and the header follows.
-  const anyProj = Object.keys(proj.totals).length > 0;
+  // none, every cell has fallen back to the exact score and the header follows —
+  // and so does the rest of the card: exact order, exact line items, and the
+  // exact week-over-week move, which is the right board to degrade to.
   const head = `<div class="po-head">
-    <span>Rank</span><span></span><span>Manager</span><span>${anyProj ? 'Projected' : 'Score'}</span>
-    <span>${moveHead(moves)}</span><span></span>
+    <span>${anyProj ? 'Proj' : 'Rank'}</span><span></span><span>Manager</span>
+    <span>${anyProj ? 'Projected' : 'Score'}</span>
+    <span>${anyProj ? projMoveHead(projection) : moveHead(moves)}</span><span></span>
   </div>`;
-  $('po-board').innerHTML = head + mgrs.map((m) =>
+  $('po-board').innerHTML = head + mgrs.map((m, i) =>
     portfolioRow(m, ident, moves, proj.teams[m.manager_id] || null,
-                 proj.totals[m.manager_id] || null)).join('');
+                 proj.totals[m.manager_id] || null,
+                 anyProj ? i + 1 : undefined, anyProj)).join('');
   wireImageFallbacks($('po-board'));
   wirePortfolioToggles();
 
   // Only claim the projection legend when a projection actually landed.
   const legend = $('po-legend');
   if (anyProj) {
-    legend.innerHTML = 'The projected total, pace and the game-by-game outlook are an ' +
-      'SP+ projection and update weekly. The score beneath it &mdash; and the records, ' +
-      'lines and &Delta; below &mdash; are exact, and the score is what rank is built on.';
+    legend.innerHTML = 'Each team&rsquo;s number is its share of that manager&rsquo;s ' +
+      'projected total, so the four line items add up to the figure above them. ' +
+      'Change is the one-week move in that projected total. The projection, the ' +
+      'pace and the game-by-game outlook are SP+ and update weekly; the records, ' +
+      'lines and the amber score are exact. This card is ordered by the projection; ' +
+      'the STANDINGS tab is ordered by the exact score, which is what settles the pool.';
     show(legend);
   } else {
     hide(legend);
