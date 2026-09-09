@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+{#
+  CF Challenge weekly email — the two-board recap.
+
+  PURE PRESENTATION. Every value is resolved upstream by scripts/build_email_payload.py
+  and passed in as `p`. The only logic here is Jinja2 loops and existence checks — no
+  computation, no comparisons, no formatting. Numbers arrive pre-rounded and pre-signed
+  because the payload builder does the arithmetic (the same rule rail.json states for
+  the site: the page is not allowed to do maths).
+
+  Design intent: the Geckoboard tiled-grid language — each block a bordered tile on a
+  dark ground, boards visually separate so Board 1 (settled, banked) can never be
+  mistaken for Board 2 (modeled projection). Board 2 carries its own inline disclaimer.
+
+  Email-client constraints honoured, ported wholesale from the WC template:
+    - table-based layout only (no divs for structure, no flex, no grid)
+    - inline CSS only (<style> blocks are stripped by Outlook and Gmail)
+    - all images by absolute URL
+    - 600px max width
+    - bgcolor AND inline background-color doubled — clients honour different ones
+    - hidden preheader div as the inbox preview line
+
+  Every section is wrapped in `{% if %}`: a missing input hides its tile rather than
+  rendering an empty shell or raising.
+#}
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>{{ p.meta.subject }}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#0c0e14; color:#e8eaf0; -webkit-text-size-adjust:100%;">
+
+  {# Inbox preview line. Hidden in the body, shown next to the subject in the list. #}
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:#0c0e14; font-size:1px; line-height:1px;">
+    {% if p.column and p.column.deck %}{{ p.column.deck }}{% else %}{{ p.meta.display_name }} — Week {{ p.meta.week }}{% endif %}
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0c0e14" style="background-color:#0c0e14;">
+    <tr>
+      <td align="center" style="padding:0 0 30px 0;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
+
+          <!-- ======================= MASTHEAD ======================= -->
+          <tr>
+            <td style="padding:26px 28px 0 28px;">
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; font-weight:700; letter-spacing:2.5px; color:#8b919c; text-transform:uppercase;">
+                CF&nbsp;Challenge
+                {% if p.meta.season %}<span style="color:#3a3f4a;">&nbsp;&middot;&nbsp;</span>{{ p.meta.season }}{% endif %}
+                <span style="color:#3a3f4a;">&nbsp;&middot;&nbsp;</span><span style="color:#f4c430;">{{ p.meta.display_name }}</span>
+              </div>
+              {% if p.meta.week is not none %}
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:34px; font-weight:700; color:#f5f6f8; letter-spacing:-0.6px; padding-top:6px;">
+                Week {{ p.meta.week }}
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+
+          <!-- ======================= THE COLUMN ======================= -->
+          {% if p.column %}
+          <tr>
+            <td style="padding:22px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141821" style="background-color:#141821; border:1px solid #232838; border-radius:6px;">
+                <tr>
+                  <td style="padding:22px 22px 6px 22px;">
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; color:#8b919c; text-transform:uppercase;">
+                      {{ p.column.byline }}{% if p.column.standfirst %} <span style="color:#3a3f4a;">&middot;</span> <span style="color:#6c7280;">{{ p.column.standfirst }}</span>{% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% if p.column.deck %}
+                <tr>
+                  <td style="padding:8px 22px 0 22px;">
+                    <div style="font-family:Georgia,'Times New Roman',serif; font-size:23px; line-height:1.25; font-weight:700; color:#f5f6f8; letter-spacing:-0.2px;">
+                      {{ p.column.deck }}
+                    </div>
+                  </td>
+                </tr>
+                {% endif %}
+                {% for para in p.column.paragraphs %}
+                <tr>
+                  <td style="padding:{% if loop.first %}14{% else %}12{% endif %}px 22px {% if loop.last %}22{% else %}0{% endif %}px 22px;">
+                    <div style="font-family:Georgia,'Times New Roman',serif; font-size:15px; line-height:1.62; color:#c8ccd6;">
+                      {{ para }}
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ======================= BOARD 1 — BANKED (settled) ======================= -->
+          {% if p.board1 %}
+          <tr>
+            <td style="padding:20px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141821" style="background-color:#141821; border:1px solid #232838; border-radius:6px;">
+                <tr>
+                  <td style="padding:18px 20px 0 20px; border-left:3px solid #28c060;">
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; font-weight:700; letter-spacing:0.5px; color:#f5f6f8;">
+                      {{ p.board1.label }}
+                    </div>
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:1.5; color:#8b919c; padding-top:4px;">
+                      {{ p.board1.sublabel }}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 20px 18px 20px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 0; border-bottom:1px solid #232838;">Manager</td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 0; border-bottom:1px solid #232838;">Banked</td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 8px; border-bottom:1px solid #232838;">Envelope</td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 8px; border-bottom:1px solid #232838;">Back</td>
+                      </tr>
+                      {% for r in p.board1.rows %}
+                      <tr>
+                        <td style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#e8eaf0; padding:10px 0; border-bottom:1px solid #1b2030;">
+                          <span style="color:#6c7280; font-size:12px;">{{ r.rank }}.</span>&nbsp;
+                          <span style="{% if r.is_leader %}color:#f4c430; font-weight:700;{% endif %}">{{ r.display_name }}</span>
+                          <span style="color:#6c7280; font-size:12px;">&nbsp;{{ r.move.arrow }}</span>
+                        </td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:700; color:#e8eaf0; padding:10px 0; border-bottom:1px solid #1b2030;">
+                          {{ r.banked_total }}
+                        </td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#8b919c; padding:10px 0 10px 8px; border-bottom:1px solid #1b2030; white-space:nowrap;">
+                          {{ r.floor }} … {{ r.ceiling }}
+                        </td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#8b919c; padding:10px 0 10px 8px; border-bottom:1px solid #1b2030;">
+                          {% if r.gap_to_leader %}&minus;{{ r.gap_to_leader }}{% else %}&mdash;{% endif %}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ======================= BOARD 2 — PROJECTION (modeled) ======================= -->
+          {# Deliberately a SEPARATE tile with its own border colour and an inline
+             disclaimer: Board 2 must never read as settled standings. #}
+          {% if p.board2 %}
+          <tr>
+            <td style="padding:14px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#12151d" style="background-color:#12151d; border:1px dashed #2f3550; border-radius:6px;">
+                <tr>
+                  <td style="padding:18px 20px 0 20px; border-left:3px solid #6f7dff;">
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; font-weight:700; letter-spacing:0.5px; color:#f5f6f8;">
+                      {{ p.board2.label }}
+                    </div>
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:1.5; color:#8b919c; padding-top:4px;">
+                      {{ p.board2.sublabel }}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 20px 0 20px;">
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; font-weight:700; letter-spacing:1px; color:#6f7dff; text-transform:uppercase;">
+                      {{ p.board2.disclaimer }}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 20px 18px 20px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 0; border-bottom:1px solid #232838;">Manager</td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 0; border-bottom:1px solid #232838;">Win pool</td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 8px; border-bottom:1px solid #232838;">Expected</td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 8px; border-bottom:1px solid #232838;">5th–95th</td>
+                      </tr>
+                      {% for r in p.board2.rows %}
+                      <tr>
+                        <td style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#e8eaf0; padding:10px 0; border-bottom:1px solid #1b2030;">
+                          {{ r.display_name }}<span style="color:#6c7280; font-size:12px;">&nbsp;{{ r.move.arrow }}</span>
+                        </td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:700; color:#a9b4ff; padding:10px 0; border-bottom:1px solid #1b2030;">
+                          {{ r.p_win_pool }}
+                        </td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#8b919c; padding:10px 0 10px 8px; border-bottom:1px solid #1b2030;">
+                          {{ r.expected_total }}
+                        </td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#8b919c; padding:10px 0 10px 8px; border-bottom:1px solid #1b2030; white-space:nowrap;">
+                          {{ r.p05 }} … {{ r.p95 }}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </table>
+                    {% if p.board2.ratings_source %}
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; color:#5b6068; padding-top:10px;">
+                      Ratings source: {{ p.board2.ratings_source }}
+                    </div>
+                    {% endif %}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ======================= STEAL / BUST ======================= -->
+          {% if p.best_worst %}
+          <tr>
+            <td style="padding:14px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  {% if p.best_worst.steal %}
+                  <td width="50%" valign="top" style="padding:0 6px 0 0;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141821" style="background-color:#141821; border:1px solid #232838; border-radius:6px;">
+                      <tr><td style="padding:16px 16px 16px 16px; border-left:3px solid #28c060;">
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; color:#28c060; text-transform:uppercase;">Steal of the week</div>
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:17px; font-weight:700; color:#f5f6f8; padding-top:7px;">{{ p.best_worst.steal.delta }}</div>
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#c8ccd6; padding-top:5px;">{{ p.best_worst.steal.display_name }} &mdash; {{ p.best_worst.steal.team }}</div>
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; color:#8b919c; padding-top:2px;">{{ p.best_worst.steal.direction }} {{ p.best_worst.steal.line }}</div>
+                      </td></tr>
+                    </table>
+                  </td>
+                  {% endif %}
+                  {% if p.best_worst.bust %}
+                  <td width="50%" valign="top" style="padding:0 0 0 6px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141821" style="background-color:#141821; border:1px solid #232838; border-radius:6px;">
+                      <tr><td style="padding:16px 16px 16px 16px; border-left:3px solid #ec4444;">
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; color:#ec4444; text-transform:uppercase;">Bust of the week</div>
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:17px; font-weight:700; color:#f5f6f8; padding-top:7px;">{{ p.best_worst.bust.delta }}</div>
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#c8ccd6; padding-top:5px;">{{ p.best_worst.bust.display_name }} &mdash; {{ p.best_worst.bust.team }}</div>
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; color:#8b919c; padding-top:2px;">{{ p.best_worst.bust.direction }} {{ p.best_worst.bust.line }}</div>
+                      </td></tr>
+                    </table>
+                  </td>
+                  {% endif %}
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ======================= RAIL — COLLISION ======================= -->
+          {% if p.rail and p.rail.collision %}
+          <tr>
+            <td style="padding:14px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141821" style="background-color:#141821; border:1px solid #232838; border-radius:6px;">
+                <tr>
+                  <td style="padding:16px 20px 0 20px;">
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; color:#f4c430; text-transform:uppercase;">Head to head</div>
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:17px; font-weight:700; color:#f5f6f8; padding-top:6px;">
+                      {{ p.rail.collision.team }} <span style="color:#8b919c; font-weight:400; font-size:14px;">at {{ p.rail.collision.line }}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 20px 16px 20px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      {% for pick in p.rail.collision.picks %}
+                      <tr>
+                        <td style="font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#e8eaf0; padding:6px 0;">
+                          {{ pick.manager }} <span style="color:#8b919c;">&mdash; {{ pick.direction }}</span>
+                        </td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:14px; font-weight:700; color:#c8ccd6; padding:6px 0;">
+                          {{ pick.p_beat_line }}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </table>
+                    {% if p.rail.collision.implied_expected_wins %}
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; color:#5b6068; padding-top:8px; border-top:1px solid #1b2030; margin-top:6px;">
+                      Model win total for {{ p.rail.collision.team }}: {{ p.rail.collision.implied_expected_wins }}
+                    </div>
+                    {% endif %}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ======================= RAIL — FEATURED PICK ======================= -->
+          {% if p.rail and p.rail.featured_pick %}
+          <tr>
+            <td style="padding:14px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141821" style="background-color:#141821; border:1px solid #232838; border-radius:6px;">
+                <tr>
+                  <td style="padding:16px 20px 16px 20px;">
+                    {# card_title is the LITERAL heading chosen by whichever builder
+                       selected the pick — printed verbatim, never inferred. #}
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; color:#8b919c; text-transform:uppercase;">{{ p.rail.featured_pick.card_title }}</div>
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#e8eaf0; padding-top:7px;">
+                      {{ p.rail.featured_pick.manager }} <span style="color:#8b919c;">&mdash;</span> {{ p.rail.featured_pick.team }} {{ p.rail.featured_pick.direction }} {{ p.rail.featured_pick.line }}
+                    </div>
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; color:#8b919c; padding-top:5px;">
+                      Model has them at {{ p.rail.featured_pick.expected_final_wins }} wins &middot; expected delta {{ p.rail.featured_pick.expected_delta }}
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ======================= CTA ======================= -->
+          {% if p.cta_url %}
+          <tr>
+            <td align="center" style="padding:24px 28px 0 28px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td bgcolor="#f4c430" style="background-color:#f4c430; border-radius:5px;">
+                    <a href="{{ p.cta_url }}" style="display:inline-block; padding:13px 30px; font-family:Arial,Helvetica,sans-serif; font-size:14px; font-weight:700; color:#0c0e14; text-decoration:none;">
+                      Full board &amp; analytics &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ======================= FOOTER ======================= -->
+          <tr>
+            <td style="padding:26px 28px 0 28px; border-top:1px solid #1b2030;">
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; line-height:1.7; color:#5b6068; padding-top:14px;">
+                CF Challenge &middot; {{ p.meta.display_name }}
+                {% if p.meta.generated_at %}<br />Data generated {{ p.meta.generated_at }}{% endif %}
+                <br />Board 1 is settled. Board 2 is a model projection and will be wrong about someone.
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
