@@ -19,10 +19,19 @@ Five conditions, ALL required to send:
                group (email/state/<group>/last_send.json). This is what makes the
                cadence weekly without hardcoding a day: a second run on the same
                week is a no-op, and a new filed column is what opens the gate.
-  4. Time      at/after 13:00 UTC. NOT wc-challenge's 05:00 — that was tuned for a
-               European tournament. Late west-coast kicks finish around 08:00 UTC
-               Sunday, so a 05:00 gate would email a board that is missing the
-               night's results. 13:00 UTC is 9am ET.
+  4. Time      at/after 08:00 UTC — 4am ET during EDT, 3am ET once the clocks go
+               back for the bowls. This is the FLOOR, and it is deliberately the
+               same hour as the Sunday cron in update-data.yml that normally
+               trips it (test_email_schedule.py fails if the two drift apart).
+               The hour is what it is because the email is wanted in the inbox
+               before anyone is awake; the cost is that a west-coast or Hawaii
+               kick finishing around 07:15 UTC gives CFBD ~45 minutes to post the
+               final, so a very late game can miss the board. Raise both numbers
+               together if that ever bites.
+
+               NOT wc-challenge's 05:00, which was tuned for a European
+               tournament and would email while the night's games were still
+               being played.
   5. Resolve   recipients resolve COMPLETELY (scripts/recipients.py). Checked here,
                before any rendering, so an incomplete roster fails the gate rather
                than surfacing as a partial send.
@@ -52,7 +61,11 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parent.parent
 EMAIL_DIR = ROOT / "email"
-SEND_HOUR_UTC = 13
+# Paired with the Sunday cron "0 8 * * 0" in .github/workflows/update-data.yml.
+# Two places encode this hour and they must agree — a cron moved without this
+# constant means every Sunday run refuses on time and no email ever goes out,
+# silently. test_email_schedule.py is the guard.
+SEND_HOUR_UTC = 8
 
 
 def state_path(group_id: str) -> Path:

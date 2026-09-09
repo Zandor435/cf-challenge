@@ -321,7 +321,7 @@ The other structural difference is **cadence**. WC Challenge ran a 3-hour cron o
 a month-long tournament with a once-per-UTC-day email. CFB is weekly, with a
 long-tailed Saturday and games finishing past 1am ET.
 
-Recommended shape:
+Recommended shape *(superseded — what was actually built is below)*:
 
 - **Cron**: every 3h on Sunday only — `0 */3 * * 0` — plus `workflow_dispatch`.
   Don't run the cron all week. The rest-day gate pattern in `update-data.yml` (a
@@ -339,6 +339,36 @@ Recommended shape:
   one-to-one onto the existing template sections.
 - **Rank-delta arrows** get *more* valuable weekly than daily — a week's movement is
   a real story. Keep that mechanism.
+
+### 6.3 What was actually built (2026-09-09) — this overrides §6.2
+
+Three of the recommendations above were changed on contact. The as-built shape:
+
+| Decision | Recommended | Built | Why |
+|---|---|---|---|
+| Cron | `0 */3 * * 0` | `0 8 * * 0`, **added alongside** the existing daily `0 13 * * *` | The daily run already refreshes the site for Tue–Fri games; the Sunday 08:00 pass is a second full pipeline run whose only extra job is the email. One fire, not eight — the every-3h shape existed to catch a tournament's staggered finishes, and a CFB Saturday has exactly one finish line. |
+| Time gate | 13:00 UTC (9am ET) | **08:00 UTC** (4am ET; 3am ET once EST starts) | Commissioner's call: the recap should be in the inbox before anyone is awake. Accepted cost — a Hawaii/late-west-coast kick ending ~07:15 UTC leaves CFBD ~45 min to post the final, so a very late game can miss the board. Symptom to recognise: one game missing from an otherwise correct Sunday email. |
+| `send_dates` | explicit Sundays + bowls | **not used** | The cron is the schedule and `should_send.py`'s week-freshness check is the cadence (one email per group per week number, opened by a newly filed column). The key survives in `email/config.json` marked UNUSED so nobody adds dates to it expecting them to gate anything. |
+
+Two invariants this created, both guarded by `scripts/test_email_schedule.py`:
+
+- **The cron hour and `should_send.SEND_HOUR_UTC` must match.** They are two
+  encodings of one decision. Move the cron alone and every Sunday run refuses on
+  time — silently, forever, because "gate said skip" is the normal outcome and
+  reads as healthy in a green log.
+- **Only the 08:00 Sunday cron (and `workflow_dispatch`) may email.** The email
+  steps key off `steps.emailwindow.outputs.run`, which is false for the 13:00
+  daily pass — including the one that fires on the same Sunday. Without that,
+  Sunday would send twice and a midweek run that filed a column would send on a
+  Wednesday.
+
+The email steps sit **last in the job, after the Pages deploy**, so nothing in
+the send path can cost the site its data commit or its deploy (rule 3), and the
+email's CTA points at a site published seconds earlier. The reverse trade is
+accepted: a failed deploy skips that week's send, and the recovery is a
+`workflow_dispatch` re-run — safe because no state was stamped, so the gate still
+owes the week. There are no image steps because `email/template.html` carries no
+`<img>`; restore the playbook's commit-then-poll-for-200 dance the day it does.
 
 ---
 

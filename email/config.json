@@ -13,5 +13,5 @@
 
   "send_dates": [],
 
-  "_send_dates_note": "Sundays of the 2026 season plus bowl/CFP dates. Empty until set. Explicit dates beat week arithmetic - inspectable and easy to fix. Pair with a 13:00 UTC (9am ET) gate, NOT wc-challenge's 05:00: late west-coast kicks finish ~08:00 UTC Sunday and would not yet be scored."
+  "_send_dates_note": "UNUSED - kept only as the record of a design that was replaced. wc-challenge listed explicit send dates because its cron ran every 3 hours for a month. Here the SCHEDULE is the cron itself (Sunday 08:00 UTC, .github/workflows/update-data.yml) and the CADENCE is should_send.py's week-freshness check: a group is emailed once per week number, and a new filed column is what opens the gate. should_send.py does not read this key. Delete it, or wire a date gate - but do not add dates here expecting them to restrict anything."
 }

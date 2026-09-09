@@ -9,8 +9,25 @@ on:
   #
   # GitHub disables cron on a repo with no pushes for 60 days — if the boards
   # ever go quiet in the off-season, re-enable it before kickoff.
+  #
+  # Sunday 08:00 UTC is the WEEKLY EMAIL run — 4am ET during EDT, 3am ET once
+  # the clocks go back for the bowls. It is a second full pipeline pass, not a
+  # separate workflow: the email must wrap the column THIS run just filed, so
+  # fetch -> score -> packet -> column -> send has to be one ordered job.
+  #
+  # The tradeoff 08:00 buys and what it costs: the whole slate is in the inbox
+  # before anyone is awake, but a west-coast or Hawaii kick finishing ~07:15 UTC
+  # gives CFBD ~45 minutes to post the final. If a late game is ever missing from
+  # a Sunday email, that is the reason, and the fix is one hour later here AND in
+  # should_send.SEND_HOUR_UTC — the two must move together (test_email_schedule.py
+  # fails if they drift).
+  #
+  # Sunday therefore fires TWICE: 08:00 (email) and 13:00 (the ordinary daily
+  # refresh). The 13:00 pass deliberately does NOT email — see the email-window
+  # step — so a second Sunday run refreshes the site without a second inbox hit.
   schedule:
     - cron: "0 13 * * *"
+    - cron: "0 8 * * 0"
   workflow_dispatch: {}  # manual trigger — always bypasses the gate
 
 # This pipeline has NO `on: push` trigger, so nothing it commits can re-trigger
@@ -79,9 +96,48 @@ jobs:
           FORCE: ${{ github.event_name == 'workflow_dispatch' && '--force' || '' }}
         run: python scripts/should_run.py $FORCE
 
+      # ====== ONE PLACE DECIDES whether this run is allowed to email ======
+      # The playbook's "one gate, every downstream step keys off it" rule, split
+      # in two on purpose. THIS step answers only "is this the weekly email
+      # slot?" — a scheduling question, answerable from the trigger alone with no
+      # data read. should_send.py answers the per-group "is there something to
+      # send?" question later, against the payload that this run built.
+      #
+      # The email slot is the Sunday 08:00 cron and manual dispatch, never the
+      # daily 13:00 pass — otherwise Sunday would email twice, and a Wednesday
+      # refresh that happened to file a new column would email mid-week.
+      #
+      # workflow_dispatch is included so a missed or failed Sunday can be re-run
+      # by hand; that is the recovery path, and it is safe because should_send.py
+      # still enforces the hour, the kill switch and one-send-per-week-per-group.
+      - name: Email window
+        id: emailwindow
+        if: steps.gate.outputs.run == 'true'
+        env:
+          EVENT: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ] || [ "$SCHEDULE" = "0 8 * * 0" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "email window OPEN (event=$EVENT schedule=${SCHEDULE:-none})"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "email window closed (event=$EVENT schedule=${SCHEDULE:-none}) — data refresh only"
+          fi
+
       - name: Install dependencies
         if: steps.gate.outputs.run == 'true'
-        run: pip install numpy
+        env:
+          EMAIL_RUN: ${{ steps.emailwindow.outputs.run }}
+        run: |
+          pip install numpy
+          # Jinja2 (render.py) and resend (send_email.py) are needed ONLY by the
+          # email path, so a data-only run does not pay for them. Both are
+          # declared in requirements.txt; this step installs the subset each run
+          # actually imports.
+          if [ "$EMAIL_RUN" = "true" ]; then
+            pip install jinja2 resend
+          fi
 
       # ====== SHARED: fetch results + SP+ into the one cache (needs-new-data) ======
       # continue-on-error (playbook rule 3): a fetch outage must not take the
@@ -247,3 +303,106 @@ jobs:
         id: deployment
         if: steps.gate.outputs.run == 'true'
         uses: actions/deploy-pages@v5
+
+      # ====== EMAIL: the weekly recap, one send per enabled group ======
+      # LAST ON PURPOSE. The email is the least important artifact here and the
+      # only one with an outside dependency (Resend), so it sits downstream of
+      # everything: no failure in this block can cost the site its data commit or
+      # its deploy. It also means the CTA in the email points at a site that was
+      # published seconds ago rather than one still deploying.
+      #
+      # The cost of that ordering is the reverse case — a failed deploy skips the
+      # send. That is the right trade (a stale site is worse than a late email),
+      # and the recovery is a workflow_dispatch: no state was stamped, so the
+      # gate still owes this week and the re-run sends it.
+      #
+      # No image steps, so the playbook's "commit the hero, poll the URL for 200,
+      # then send" dance does not apply — template.html carries no <img> at all.
+      # Add those steps back the day the email grows art.
+
+      - name: Build email payloads
+        id: emailpayload
+        if: steps.emailwindow.outputs.run == 'true'
+        # continue-on-error, rule 3: this runs after the deploy, but a malformed
+        # payload must still not paint the run red for a pipeline that did its
+        # actual job. The `built` output carries only the groups that succeeded.
+        continue-on-error: true
+        run: |
+          # Enabled groups only, read at runtime from each config: flipping
+          # email_enabled is the single edit that takes a group live, exactly as
+          # ARCHITECTURE §5 intends. No group list literal lives in this file.
+          groups=$(python -c "import sys; sys.path.insert(0, 'scripts'); import utils, recipients; print(' '.join(g for g in utils.get_all_group_ids() if recipients.email_enabled(utils.load_group_config(g))))")
+          if [ -z "$groups" ]; then
+            echo "No group has email_enabled: true — nothing to build."
+            echo "built=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          built=""
+          for g in $groups; do
+            if python scripts/build_email_payload.py --group "$g"; then
+              built="$built $g"
+            else
+              echo "::warning title=Email payload failed::[$g] build_email_payload.py exited non-zero; this group gets no email this week. The site and its boards are unaffected."
+            fi
+          done
+          echo "built=$(echo $built | xargs)" >> "$GITHUB_OUTPUT"
+
+      - name: Send the weekly email
+        id: emailsend
+        if: steps.emailwindow.outputs.run == 'true' && steps.emailpayload.outputs.built != ''
+        continue-on-error: true
+        env:
+          BUILT: ${{ steps.emailpayload.outputs.built }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          # The recipient overlay. Addresses are NOT in this public repo — this
+          # secret is the only channel that carries them into CI, and
+          # scripts/recipients.py refuses to send at all rather than send to a
+          # partial roster. Absent secret == every enabled group fails its gate,
+          # loudly, in the summary below.
+          RECIPIENTS_JSON: ${{ secrets.RECIPIENTS_JSON }}
+        run: |
+          sent=""
+          for g in $BUILT; do
+            # should_send.py is THE decision: enabled + payload + newer week +
+            # at/after 08:00 UTC + recipients resolve completely. Exit 1 is an
+            # ordinary skip, not an error, so it is consumed by the `if`.
+            if python scripts/should_send.py --group "$g"; then
+              if python scripts/send_email.py --group "$g"; then
+                sent="$sent $g"
+              else
+                echo "::warning title=Email send failed::[$g] send_email.py exited non-zero after the gate opened. No state was stamped, so this week is still owed — re-run via workflow_dispatch."
+              fi
+            fi
+          done
+          sent=$(echo $sent | xargs)
+          echo "sent=$sent" >> "$GITHUB_OUTPUT"
+          if [ -n "$sent" ]; then
+            echo "### 📧 Weekly email sent — $sent" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### 📭 No email sent this run (every enabled group's gate said skip)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # ====== COMMIT the send state (the once-per-week memory) ======
+      # email/state/<group>/last_send.json is what makes a second run this week a
+      # no-op. It is written on the runner and dies with it unless committed, and
+      # if it is lost a manual re-run would email the group twice — so this step
+      # is deliberately NOT continue-on-error. Everything it could take down
+      # (commit, deploy) has already happened above.
+      - name: Commit email send state
+        if: steps.emailsend.outputs.sent != ''
+        run: |
+          git config user.name "CFB Fantasy Bot"
+          git config user.email "bot@cfb-fantasy.local"
+          git add email/state
+          if git diff --cached --quiet; then
+            echo "No send state to commit"
+          else
+            git commit -m "Email state: $(date +%Y-%m-%d) weekly send"
+            # Second push of the job. The data commit above already pushed, and
+            # the daily run can overlap the Sunday one, so rebase on rejection
+            # rather than losing the marker that prevents a duplicate send.
+            git push || {
+              git pull --rebase origin "$(git rev-parse --abbrev-ref HEAD)"
+              git push
+            }
+          fi
