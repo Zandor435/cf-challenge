@@ -52,9 +52,12 @@ SCRIPTS = Path(__file__).resolve().parent
 # --- Timeline (append-only, idempotent on the effective week) ----------------
 
 def effective_week(as_of_week):
-    """The concrete scored week: the --as-of-week value, or the cache's real
-    current week on a live run. Never null — it is the timeline idempotency key."""
-    return as_of_week if as_of_week is not None else utils.cache_meta(utils.get_season())["week"]
+    """The concrete scored week — see utils.effective_week for the rule.
+
+    Kept as a name here because this module is where the timeline idempotency
+    key is stamped, but the RULE moved to utils so the projector can measure its
+    week-over-week move against the same "now" this snapshot is keyed by."""
+    return utils.effective_week(as_of_week)
 
 
 def build_snapshot(standings, projection, eff_week):
@@ -96,14 +99,11 @@ def build_snapshot(standings, projection, eff_week):
 def timeline_path(group_id, season=None):
     """The LIVE timeline for a group, or a finished season's archive.
 
-    ONE FILE PER SEASON, and the live file is always the current one. Everything
-    downstream reads `timeline.json` by that exact name — analytics.select_prior,
-    build_week_packet, and app.js's computeMoves — and none of them can tell one
-    season's week 6 from another's, because a snapshot is keyed by week ALONE.
-    Making the FILE single-season is what makes that safe, without asking three
-    separate readers to each learn a season rule."""
-    d = utils.WEB_DATA_DIR / group_id
-    return d / ("timeline.json" if season is None else f"timeline-{season}.json")
+    Kept as a name here because this module owns every WRITE to the file; the
+    rule itself moved to utils.timeline_path so the projector — which now reads
+    the timeline to measure its week-over-week move — resolves the same path
+    without importing this module (which imports it)."""
+    return utils.timeline_path(group_id, season)
 
 
 def _week_sort_key(s):
@@ -237,15 +237,25 @@ def run_group(slug, as_of_week):
     print(f"  [{slug}] standings.json ({len(standings['managers'])} managers)")
 
     # Board 2 — degrade, don't die.
+    #
+    # The prior snapshot is selected HERE, off the timeline as it stands BEFORE
+    # this week's row is appended, and handed to the projector. Board 2's
+    # expected_total_move and Board 3's week_move are then measured against the
+    # same snapshot by construction, rather than each picking one and hoping.
+    # projector.load_prior_snapshot would find the same row on its own (the
+    # selection is strictly-before, so the append below cannot change it) — this
+    # just makes the two boards share one read instead of racing the file.
     projection = None
+    eff = effective_week(as_of_week)
     try:
-        projection = projector.write_projection(config, picks, as_of_week)
-        print(f"  [{slug}] projection.json")
+        prior = projector.load_prior_snapshot(slug, as_of_week)
+        projection = projector.write_projection(config, picks, as_of_week, prior)
+        print(f"  [{slug}] projection.json"
+              + (f" (move vs wk {prior['as_of_week']})" if prior else " (no prior week)"))
     except Exception as e:  # noqa: BLE001 — projector must never take down Board 1
         print(f"::warning:: [{slug}] projector FAILED ({type(e).__name__}: {e}); "
               f"standings.json still written, running degraded (§4).")
 
-    eff = effective_week(as_of_week)
     timeline = append_timeline(config, build_snapshot(standings, projection, eff))
     print(f"  [{slug}] timeline.json (week {eff})")
 

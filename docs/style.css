@@ -484,8 +484,11 @@ a { color: inherit; }
 .mgr-po.is-open .po-caret { transform: rotate(-135deg) translate(-2px, -2px); }
 .po-toggle-spacer { display: block; }
 
-/* One line per pick: mark, team, side + number, record, exact delta, status,
-   then the projected pace. Everything left of .po-pace is exact arithmetic. */
+/* One line per pick: mark, team, side + number, record, that pick's PROJECTED
+   contribution to the headline above, status, then the pace read. The exact
+   figures on this line are the record and the line inside the side badge; the
+   contribution, the pace and the whole expansion panel are projection. The
+   exact per-pick delta lives on the STANDINGS tab, which is the exact board. */
 .po-picks { padding: 0 14px 10px 22px; }
 .po-pick {
   display: grid;
@@ -500,6 +503,12 @@ a { color: inherit; }
 }
 .po-rec { font-size: .78rem; color: var(--text-muted); text-align: center; }
 .po-delta { font-weight: 600; font-size: .92rem; text-align: right; color: var(--text); }
+/* The projected contribution takes EXACTLY the headline's treatment — ink, with
+   negatives in red — because it is the same number decomposed, and the card's
+   claim is that the parts add to the whole. --accent stays reserved for exact
+   values (see the token block), so nothing on this line borrows the amber. */
+.po-delta.is-proj { color: var(--text); }
+.po-delta.is-proj.neg { color: var(--negative); }
 .po-status {
   font-family: var(--mono); font-size: .55rem; letter-spacing: .06em;
   text-transform: uppercase; text-align: center;

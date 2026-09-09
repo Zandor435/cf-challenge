@@ -457,6 +457,41 @@ def cache_meta(season):
             "season": c.get("season")}
 
 
+def timeline_path(group_id, season=None):
+    """The LIVE timeline for a group, or a finished season's archive.
+
+    ONE FILE PER SEASON, and the live file is always the current one. Everything
+    downstream reads `timeline.json` by that exact name — analytics.select_prior,
+    projector's week-over-week move, build_week_packet, and app.js's
+    computeMoves — and none of them can tell one season's week 6 from another's,
+    because a snapshot is keyed by week ALONE. Making the FILE single-season is
+    what makes that safe, without asking four separate readers to each learn a
+    season rule.
+
+    Lives in utils rather than run_groups because run_groups WRITES it and the
+    projector READS it, and the reader cannot import the writer."""
+    d = WEB_DATA_DIR / group_id
+    return d / ("timeline.json" if season is None else f"timeline-{season}.json")
+
+
+def effective_week(as_of_week=None):
+    """The concrete week a run is scoring: the --as-of-week value, or the
+    cache's real current week on a live run.
+
+    THE TIMELINE IDEMPOTENCY KEY, and the "now" every strictly-before prior
+    selection is measured against, so it must be ONE rule. run_groups and the
+    projector both need it — run_groups to key the snapshot it appends, the
+    projector to pick the snapshot it measures its week-over-week move against —
+    and the projector cannot import run_groups (run_groups imports it). A second
+    copy of the expression is how the two would drift apart, and a prior chosen
+    against a different "now" than the snapshot it is compared with is exactly
+    the confident-wrong-number failure analytics.select_prior exists to refuse.
+
+    May be None: neither --as-of-week nor a cache week is the ordinary preseason
+    state. Callers must treat that as "no now", never as a wildcard."""
+    return as_of_week if as_of_week is not None else cache_meta(get_season())["week"]
+
+
 def _game_played(g, as_of_week):
     """A slate game counts as PLAYED iff it is completed AND (no as-of-week
     replay, or its week is within the replay horizon). --as-of-week N treats
