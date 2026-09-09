@@ -1,16 +1,35 @@
 name: Weekly Data Update
 
 on:
-  # Daily at 13:00 UTC (~9am ET) — the morning after each game day. Most days
-  # have no football, and the rule-7 gate below skips those BEFORE the
-  # dependency install or any API call, so an off-cycle run costs nothing. A
-  # daily fire with a tight window beats a weekly one: Thursday and Friday
-  # night games reach the board the next morning instead of waiting for Sunday.
+  # TWO schedules, deliberately. Consolidated here — this is the only cron in the
+  # repo that runs the pipeline, and there is no second workflow.
+  #
+  # 1. DAILY 13:00 UTC (~9am ET) — the data refresh, unchanged. Most days have no
+  #    football, and the rule-7 gate below skips those BEFORE the dependency
+  #    install or any API call, so an off-cycle run costs nothing. A daily fire
+  #    with a tight window beats a weekly one: Thursday and Friday night games
+  #    reach the board the next morning instead of waiting for Sunday.
+  #
+  # 2. SUNDAYS 08:00, 09:00, 12:00 UTC — the EMAIL windows. Three entries on
+  #    purpose, do not collapse them:
+  #      08:00 and 09:00 are both 4am ET, on opposite sides of the Nov 1 DST
+  #        change — one of the two is always 4am ET, whatever the date.
+  #      12:00 is the backstop for Saturday-night games scored late.
+  #    Multiple windows are safe because should_send.py refuses a week it has
+  #    already emailed (email/state/<group>/last_send.json): the first window to
+  #    pass sends, the rest no-op. The gate's own cutoff is 08:00 UTC and is
+  #    pinned to the earliest window here — test_should_send.py reads this cron
+  #    and fails if the two ever drift apart.
+  #
+  # These also make Sunday run the data pipeline four times (three here plus the
+  # 13:00 daily). That is intended: each is gated, and a Sunday with nothing new
+  # costs one checkout.
   #
   # GitHub disables cron on a repo with no pushes for 60 days — if the boards
   # ever go quiet in the off-season, re-enable it before kickoff.
   schedule:
-    - cron: "0 13 * * *"
+    - cron: "0 13 * * *"        # daily data refresh
+    - cron: "0 8,9,12 * * 0"    # Sunday email windows (4am ET either side of DST, + backstop)
   workflow_dispatch: {}  # manual trigger — always bypasses the gate
 
 # This pipeline has NO `on: push` trigger, so nothing it commits can re-trigger
@@ -188,6 +207,54 @@ jobs:
             python scripts/generate_commentary.py --group "$g"
           done
 
+      # ====== EMAIL: build the payload (panel pilot) ======
+      # continue-on-error (rule 3): a malformed payload must NEVER block the data
+      # commit below. The boards reaching the site matters more than any one email.
+      # Runs after the column is written, so the payload wraps THIS run's column.
+      #
+      # PANEL ONLY for the pilot. Adding a group is one line here plus flipping
+      # its email_enabled — deliberately not a loop over all groups yet.
+      - name: Build email payload
+        id: payload
+        # EMAIL_WINDOW: the Sunday cron entries, or a manual dispatch. The daily
+        # 13:00 data refresh deliberately does NOT reach the email steps — without
+        # this, a Week N column filed on a Tuesday would email on Tuesday, and
+        # "Sundays only" would hold for the cron but not for the behaviour.
+        # Expressed here in YAML rather than as a sixth condition in
+        # should_send.py, so the gate's five conditions stay exactly as specified.
+        if: >-
+          steps.gate.outputs.run == 'true' &&
+          (github.event.schedule == '0 8,9,12 * * 0' || github.event_name == 'workflow_dispatch')
+        continue-on-error: true
+        run: python scripts/build_email_payload.py --group panel
+
+      # ====== EMAIL: the send gate — ONE place decides ======
+      # should_send.py checks all five conditions (enabled, payload present, week
+      # newer than the last send, at/after 08:00 UTC, recipients resolve
+      # completely) and every later step keys off this single output. That is what
+      # keeps the three Sunday cron windows from sending three emails: the first
+      # one to pass writes state, the rest read it and refuse.
+      #
+      # RECIPIENTS_JSON is needed HERE, not just at send time: condition 5
+      # resolves the roster so an incomplete list fails the gate rather than
+      # surfacing as a partial send.
+      - name: Email send gate
+        id: sendgate
+        # Same EMAIL_WINDOW condition as the payload step above. If this step is
+        # skipped, steps.sendgate.outputs.send is empty and every later email step
+        # sees != 'true' — so a skipped window can never send.
+        if: >-
+          steps.gate.outputs.run == 'true' &&
+          (github.event.schedule == '0 8,9,12 * * 0' || github.event_name == 'workflow_dispatch')
+        env:
+          RECIPIENTS_JSON: ${{ secrets.RECIPIENTS_JSON }}
+        run: |
+          if python scripts/should_send.py --group panel; then
+            echo "send=true"  >> "$GITHUB_OUTPUT"
+          else
+            echo "send=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # ====== COMMIT the fresh boards to the repo (history + raw files) ======
       # No [skip ci]: a commit pushed with GITHUB_TOKEN can't trigger a workflow
       # anyway (rule 9), so [skip ci] would buy nothing and only obscure intent.
@@ -225,9 +292,12 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Update: $(date +%Y-%m-%d) weekly data refresh"
+            # Rebase onto anything pushed since checkout (another cron window, or a
+            # human push) so this can't be rejected as a non-fast-forward. Sunday
+            # now fires four times, so concurrent-ish runs are no longer theoretical.
+            git pull --rebase origin main
             git push
           fi
-
       # ====== DEPLOY Pages FROM INSIDE this job (rule 9) ======
       # Publish the docs/ we just regenerated so the live site serves FRESH
       # numbers. This runs inline within the pipeline run — it is NOT a separately
@@ -247,3 +317,49 @@ jobs:
         id: deployment
         if: steps.gate.outputs.run == 'true'
         uses: actions/deploy-pages@v5
+
+      # ====== EMAIL: send (panel pilot) ======
+      # Fires only when the single gate above said so. Deliberately AFTER the data
+      # commit and the Pages deploy: the site the email's CTA points at should be
+      # serving this week's boards before the email lands, not minutes later.
+      #
+      # continue-on-error (rule 3): a Resend hiccup must not fail the run or block
+      # the state commit below. The send either happened or it did not; the next
+      # cron window will retry it because no state was written.
+      #
+      # BOTH secrets are needed: RESEND_API_KEY to send, RECIPIENTS_JSON to resolve
+      # the roster (the public group config carries no addresses).
+      - name: Send email
+        id: send
+        if: steps.sendgate.outputs.send == 'true'
+        continue-on-error: true
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RECIPIENTS_JSON: ${{ secrets.RECIPIENTS_JSON }}
+        run: python scripts/send_email.py --group panel
+
+      # ====== EMAIL: commit the send state ======
+      # AFTER the send. send_email.py writes email/state/<group>/last_send.json
+      # ONLY on a confirmed send, so committing it here is what makes the next
+      # cron window (09:00, 12:00) refuse the repeat week. Without this commit the
+      # state dies with the runner and Sunday sends three emails.
+      #
+      # Staged by explicit path — the file holds a recipient COUNT, never the
+      # addresses. Guarded with -e because on a run where the send failed, the
+      # file does not exist and a bare `git add` on a missing pathspec exits 128
+      # and kills the push.
+      - name: Commit email state
+        if: steps.sendgate.outputs.send == 'true'
+        run: |
+          git config user.name "CFB Fantasy Bot"
+          git config user.email "bot@cfb-fantasy.local"
+          for p in email/state/panel/last_send.json; do
+            [ -e "$p" ] && git add "$p"
+          done
+          if git diff --cached --quiet; then
+            echo "No email state change (send did not complete)."
+          else
+            git commit -m "Email state: panel week sent ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git pull --rebase origin main
+            git push
+          fi

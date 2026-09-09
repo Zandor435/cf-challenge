@@ -19,10 +19,16 @@ Five conditions, ALL required to send:
                group (email/state/<group>/last_send.json). This is what makes the
                cadence weekly without hardcoding a day: a second run on the same
                week is a no-op, and a new filed column is what opens the gate.
-  4. Time      at/after 13:00 UTC. NOT wc-challenge's 05:00 — that was tuned for a
-               European tournament. Late west-coast kicks finish around 08:00 UTC
-               Sunday, so a 05:00 gate would email a board that is missing the
-               night's results. 13:00 UTC is 9am ET.
+  4. Time      at/after 08:00 UTC — 4am ET, which is when the Sunday cron's first
+               window fires. Late west-coast kicks finish around 08:00 UTC Sunday,
+               so this is the earliest hour at which Saturday night is scored; a
+               lower cutoff would email a board missing the night's results.
+               MUST NOT be raised above 08: the workflow's Sunday cron fires at
+               08:00, 09:00 and 12:00 UTC (the first two are 4am ET on either side
+               of the Nov 1 DST change, the third a backstop for late-scored
+               games), and a cutoff above 08 would make the 4am windows dead.
+               Condition 3 is what makes three windows safe — the first one to
+               pass sends, and the rest refuse the repeat week.
   5. Resolve   recipients resolve COMPLETELY (scripts/recipients.py). Checked here,
                before any rendering, so an incomplete roster fails the gate rather
                than surfacing as a partial send.
@@ -52,7 +58,9 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parent.parent
 EMAIL_DIR = ROOT / "email"
-SEND_HOUR_UTC = 13
+# 08:00 UTC = 4am ET. Pinned to the workflow's earliest Sunday cron window;
+# see condition 4 above before changing it.
+SEND_HOUR_UTC = 8
 
 
 def state_path(group_id: str) -> Path:
@@ -100,7 +108,7 @@ def decide(group_id: str, now: datetime, payload_path: Path | None = None) -> tu
     now_utc = now.astimezone(timezone.utc)
     if now_utc.hour < SEND_HOUR_UTC:
         return False, (f"{group_id}: before {SEND_HOUR_UTC:02d}:00 UTC "
-                       f"({now_utc:%H:%M} UTC) — west-coast results may not be scored")
+                       f"({now_utc:%H:%M} UTC) — Saturday night may not be scored yet")
 
     try:
         n = len(load_recipients(group_id, cfg))
