@@ -15,13 +15,13 @@
     { "manager_id": "chris", "reason": "commissioner waiver, 2026 season — drafted 2 conferences", "granted": "2026-08-21" }
   ],
 
-  "_managers_note": "Locked real identities; remaining managers added at draft. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. `email` per manager (recipient list derives from these when email_enabled).",
+  "_managers_note": "Locked real identities; remaining managers added at draft. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. Recipient addresses are NOT here: this repo is public, so they live in the gitignored groups/<id>/recipients.json overlay (manager_id -> email), or the RECIPIENTS_JSON secret in CI. scripts/recipients.py requires an entry for EVERY manager_id below when email_enabled is true, and refuses to send otherwise.",
   "managers": [
-    { "manager_id": "blaine",   "display_name": "Blaine",   "email": "TODO" },
-    { "manager_id": "chris",    "display_name": "Chris",    "email": "TODO" },
-    { "manager_id": "jonathan", "display_name": "Jonathan", "email": "TODO" },
-    { "manager_id": "zach",     "display_name": "Zach",     "email": "TODO" }
+    { "manager_id": "blaine",   "display_name": "Blaine" },
+    { "manager_id": "chris",    "display_name": "Chris" },
+    { "manager_id": "jonathan", "display_name": "Jonathan" },
+    { "manager_id": "zach",     "display_name": "Zach" }
   ],
 
-  "email_enabled": false
+  "email_enabled": true
 }

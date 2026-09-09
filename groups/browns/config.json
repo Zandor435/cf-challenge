@@ -14,13 +14,13 @@
 
   "_managers_note": "Roster is NOT final — more managers are expected before the draft, and adding one is a config.json + picks.json + personas.json edit, never a rebuild. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. Browns has two Matts disambiguated by manager_id the same way CEC's two Johns are: matt_m vs hauck.",
   "managers": [
-    { "manager_id": "matt_m", "display_name": "Matt Merlene", "email": "TODO" },
-    { "manager_id": "hauck",  "display_name": "Matt Hauck",   "email": "TODO" },
-    { "manager_id": "bryan",  "display_name": "Bryan",        "email": "TODO" },
-    { "manager_id": "todd",   "display_name": "Todd",         "email": "TODO" },
-    { "manager_id": "zach",   "display_name": "Zach",         "email": "TODO" },
-    { "manager_id": "josh",   "display_name": "Josh",         "email": "TODO" },
-    { "manager_id": "mark",   "display_name": "Mark",         "email": "TODO" }
+    { "manager_id": "matt_m", "display_name": "Matt Merlene" },
+    { "manager_id": "hauck",  "display_name": "Matt Hauck" },
+    { "manager_id": "bryan",  "display_name": "Bryan" },
+    { "manager_id": "todd",   "display_name": "Todd" },
+    { "manager_id": "zach",   "display_name": "Zach" },
+    { "manager_id": "josh",   "display_name": "Josh" },
+    { "manager_id": "mark",   "display_name": "Mark" }
   ],
 
   "email_enabled": false

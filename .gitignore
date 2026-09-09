@@ -142,3 +142,20 @@ assets/Figma site code/
 # resets on the UTC date rollover. Runtime state, rewritten by every
 # generation run — it persists on disk, which is all the budget guard needs.
 data/gemini_budget.json
+
+# Recipient addresses — PRIVACY. This repo is PUBLIC, so the 25 real addresses for
+# the family, church and poker groups must never enter git history (history is
+# forever; a later deletion does not help). groups/<id>/config.json keeps only
+# manager_id + display_name; the addresses live in this gitignored overlay,
+# manager_id -> email, and reach CI through the single RECIPIENTS_JSON secret.
+# scripts/recipients.py is the only reader and FAILS LOUD rather than sending to
+# a partial list. Decided 2026-09-08.
+groups/*/recipients.json
+
+# Rendered email artifacts. payload_*.json embeds group content and is rebuilt
+# every run; preview_*.html is a local dev artifact. Neither is a source of
+# truth, and a committed payload is the likeliest way an address leaks into the
+# public tree by accident.
+docs/data/*/email/payload_*.json
+email/payload_*.json
+email/preview_*.html

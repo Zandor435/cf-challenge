@@ -10,16 +10,16 @@
   "picks_per_manager": 4,
   "min_distinct_conferences": 1,
 
-  "_managers_note": "Locked real identities; the roster is COMPLETE at 8 managers (the two anticipated additions landed, plus a third). Any further change is a config.json + picks edit, never a rebuild — every manager here needs a matching 4-pick set in picks.json or the §5 gate fails. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. `email` per manager (recipient list derives from these when email_enabled).",
+  "_managers_note": "Locked real identities; the roster is COMPLETE at 8 managers (the two anticipated additions landed, plus a third). Any further change is a config.json + picks edit, never a rebuild — every manager here needs a matching 4-pick set in picks.json or the §5 gate fails. `manager_id` is the stable join key everywhere — never displayed. `display_name` is cosmetic. Recipient addresses are NOT here: this repo is public, so they live in the gitignored groups/<id>/recipients.json overlay (manager_id -> email), or the RECIPIENTS_JSON secret in CI. scripts/recipients.py requires an entry for EVERY manager_id below when email_enabled is true, and refuses to send otherwise.",
   "managers": [
-    { "manager_id": "rachel", "display_name": "Rachel", "email": "TODO" },
-    { "manager_id": "john",   "display_name": "John",   "email": "TODO" },
-    { "manager_id": "vic",    "display_name": "Vic",    "email": "TODO" },
-    { "manager_id": "gayden", "display_name": "Gayden", "email": "TODO" },
-    { "manager_id": "devin",  "display_name": "Devin",  "email": "TODO" },
-    { "manager_id": "holly",  "display_name": "Holly",  "email": "TODO" },
-    { "manager_id": "zach",   "display_name": "Zach",   "email": "TODO" },
-    { "manager_id": "gunner", "display_name": "Gunner", "email": "TODO" }
+    { "manager_id": "rachel", "display_name": "Rachel" },
+    { "manager_id": "john",   "display_name": "John" },
+    { "manager_id": "vic",    "display_name": "Vic" },
+    { "manager_id": "gayden", "display_name": "Gayden" },
+    { "manager_id": "devin",  "display_name": "Devin" },
+    { "manager_id": "holly",  "display_name": "Holly" },
+    { "manager_id": "zach",   "display_name": "Zach" },
+    { "manager_id": "gunner", "display_name": "Gunner" }
   ],
 
   "email_enabled": false
