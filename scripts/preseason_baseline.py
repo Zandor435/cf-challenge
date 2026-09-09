@@ -751,14 +751,41 @@ def _preseason_storylines(by_mgr, display, collisions, concentration, managers):
 
 
 def build_week0_packet(group_id, baseline_path=None):
+    """The Week 0 packet, built from FROZEN pre-kickoff inputs.
+
+    BUILT OFF A PINNED CACHE, NOT THE LIVE ONE. This packet describes the board
+    before kickoff, and it stays live all season because the column guard
+    validates every published Week 0 column against it. Read off the live cache
+    it could only work in August — data/cfbd_cache.json is a committed input
+    that MOVES, so once the season started this refused outright and took the
+    guard, the rail check and four tests down with it. All three of its inputs
+    are frozen now (the pinned preseason cache, the write-once baseline, the
+    win-total reference), so the packet is reproducible in any month, which is
+    what "week 0" means. See utils.preseason_cache_pinned.
+
+    The pin is scoped to this call and restored on exit, so a caller in a
+    long-lived process — the four tests in test_preseason_baseline — does not
+    hand the preseason slate to whatever runs next (CLAUDE.md rule 21)."""
+    with utils.preseason_cache_pinned():
+        return _build_week0_packet(group_id, baseline_path)
+
+
+def _build_week0_packet(group_id, baseline_path=None):
     season = utils.assert_season_matches_cache()
     cache = utils.load_cache(season)
 
+    # STILL ASSERTED, against the fixture rather than the live cache. It is no
+    # longer "you are too late" — the pin makes that unreachable — but a
+    # CONTAMINATED FIXTURE, which is the only way a result can still reach a
+    # board that is defined as having none. Refusing loudly beats freezing a
+    # preseason baseline that quietly contains outcomes.
     played = sum(1 for g in (cache.get("games") or []) if g.get("completed"))
     if played:
-        _fail(f"the cache holds {played} completed game(s); Week 0 has passed "
-              f"and this packet describes a board before kickoff. Run "
-              f"scripts/build_week_packet.py instead.")
+        _fail(f"the pinned preseason cache "
+              f"{utils.preseason_cache_path(season).name} holds {played} "
+              f"completed game(s); it must be a PRE-KICKOFF snapshot, and this "
+              f"packet cannot describe a board before kickoff off results. "
+              f"Re-cut it from the last fetch with 0 completed games.")
 
     baseline = load_frozen_baseline(baseline_path)
     reference_doc, _ = load_reference()

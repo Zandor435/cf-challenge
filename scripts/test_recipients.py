@@ -191,14 +191,63 @@ def test_preflight_ok_for_a_complete_enabled_group():
 # --- the real repo ------------------------------------------------------------
 
 def test_every_real_group_preflights():
-    """Whatever is enabled right now must resolve completely, or CI fails here."""
+    """Whatever is enabled right now must resolve completely, or CI fails here.
+
+    TWO ENVIRONMENTS, TWO DIFFERENT QUESTIONS, AND THIS USED TO CONFLATE THEM.
+    Addresses are deliberately kept out of a public repo, so a plain checkout
+    has neither the overlay nor $RECIPIENTS_JSON. Asserting resolution there
+    asks whether a SECRET IS PROVISIONED, which is a fact about the environment
+    and not about this repo — and it made CI red on every run from the moment
+    panel was flipped to email_enabled, with no code change able to fix it.
+
+    So the environment decides which question is asked, and BOTH are real
+    assertions — neither branch can pass by doing nothing:
+
+      - source present  -> every enabled group must resolve COMPLETELY. Exactly
+                           the check this test has always made.
+      - no source at all -> every enabled group must REFUSE, and refuse with the
+                           specific "no source" error. That is the property the
+                           whole overlay design rests on, and it is worth
+                           pinning in its own right: a loader that returned []
+                           here would send to nobody and look fine doing it.
+
+    What this is NOT is a skip. An enabled group that fails for any OTHER reason
+    — a manager with no address, a malformed one, a duplicate, a stale
+    manager_id — raises plain RecipientsError, not the subclass, and fails this
+    test in either environment. Broken configuration is still caught in a bare
+    public checkout; only "nobody handed this machine the addresses" is not
+    treated as this repo's fault.
+    """
     import glob
     from pathlib import Path
     root = Path(__file__).resolve().parent.parent
-    failures = []
+    enabled = []
     for cfg_path in sorted(glob.glob(str(root / "groups" / "*" / "config.json"))):
         cfg = json.loads(Path(cfg_path).read_text(encoding="utf-8"))
+        if R.email_enabled(cfg):
+            enabled.append(cfg)
+
+    provisioned = [c for c in enabled if R.source_available(c["group_id"])]
+    unprovisioned = [c for c in enabled if not R.source_available(c["group_id"])]
+
+    failures = []
+    for cfg in provisioned:
         ok, reason = R.preflight(cfg["group_id"], cfg)
         if not ok:
             failures.append(reason)
     assert not failures, "enabled group(s) cannot resolve recipients:\n" + "\n".join(failures)
+
+    for cfg in unprovisioned:
+        gid = cfg["group_id"]
+        # Must refuse, and refuse for THIS reason. A different RecipientsError
+        # is a real fault and propagates; returning a list at all would be the
+        # silent-partial-send bug and fails on the raises-check itself.
+        with pytest.raises(R.RecipientsSourceMissing):
+            R.load_recipients(gid, cfg)
+        print(f"  [{gid}] no recipients source in this environment "
+              f"(${R.ENV_VAR} unset, no overlay) — asserted the loader refuses. "
+              f"Set the secret to assert full resolution instead.")
+
+    # Never vacuous: a repo where nothing is enabled would silently assert
+    # nothing at all, and this test would keep passing after email went dark.
+    assert enabled, "no group has email_enabled: true — this test asserts nothing"

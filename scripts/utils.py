@@ -12,6 +12,7 @@ load-bearing fetch->score gate (§9). The resolver normalizes on lookup and:
   - raises UnknownTeamError otherwise (a silent miss mis-scores a pick).
 """
 
+import contextlib
 import difflib
 import json
 import os
@@ -531,6 +532,63 @@ def pin_contract_fixture():
     _SEASON_CONF = {"season": season, "cfbd_default_season": season}
     _SEASON_CACHE = {}
     return season
+
+
+PRESEASON_FIXTURE_TMPL = "preseason_cache_{season}.json"
+
+
+def preseason_cache_path(season):
+    """The frozen PRE-KICKOFF cache for `season`, one file per season.
+
+    A committed snapshot of the real cache as it stood before the season's
+    first game — not a synthetic slate. The 2026 file is the 2026-08-26 fetch
+    (3677 games, 0 completed, full SP+), lifted verbatim out of git history."""
+    return FIXTURES_DIR / PRESEASON_FIXTURE_TMPL.format(season=season)
+
+
+@contextlib.contextmanager
+def preseason_cache_pinned(season=None):
+    """Read the frozen preseason cache for the duration of this block.
+
+    WHY A PRODUCTION PATH NEEDS THIS. The Week 0 packet describes the board
+    before kickoff, and it is a HISTORICAL artifact from the moment the first
+    game is played — but it stays live all season, because the column guard
+    validates every published Week 0 column against it. Built off the live
+    cache it could only ever work in August: `data/cfbd_cache.json` is a
+    committed input that MOVES (a daily refresh commit rewrites it), so
+    tests.yml's claim that the regenerated packet "is byte-identical to the one
+    the column was written against" quietly stopped holding at kickoff, and
+    build_week0_packet started refusing outright. Pinning the packet to a
+    committed fixture is the fix tests.yml's own comment names. It restores the
+    invariant rather than relaxing it: the Week 0 packet is now reproducible
+    from frozen inputs in any month, which is what "week 0" means.
+
+    RESTORES ON EXIT, unlike pin_contract_fixture (a deliberate one-way pin for
+    a whole test module). Four tests call build_week0_packet inside the pytest
+    process, and a one-way pin there would hand every LATER test the preseason
+    slate — the cross-test leak CLAUDE.md rule 21 is about. Safe because the
+    memo is REBOUND to a new dict rather than mutated: restoring the original
+    binding restores the original object, still holding whatever it held.
+
+    Deliberately does NOT override season.json's season the way
+    pin_contract_fixture does. load_cache still gets the real expected season,
+    so a fixture from the wrong season raises SeasonMismatchError instead of
+    being silently adopted — and the season flip that needs a new fixture fails
+    loudly, naming the file to create."""
+    season = get_season() if season is None else int(season)
+    path = preseason_cache_path(season)
+    if not path.exists():
+        raise FileNotFoundError(
+            f"missing preseason fixture {path} — the Week 0 packet builds from "
+            f"a frozen pre-kickoff cache, not the live one. For a new season, "
+            f"commit the last pre-kickoff fetch (0 completed games) there.")
+    global CACHE_PATH, _SEASON_CACHE
+    prev_path, prev_memo = CACHE_PATH, _SEASON_CACHE
+    CACHE_PATH, _SEASON_CACHE = path, {}
+    try:
+        yield season
+    finally:
+        CACHE_PATH, _SEASON_CACHE = prev_path, prev_memo
 
 
 def count_played_games(season, as_of_week=None):

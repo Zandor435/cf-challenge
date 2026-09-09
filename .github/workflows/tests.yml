@@ -9,7 +9,11 @@ on:
 
 # Read-only. This workflow only runs the test suite — it never commits or
 # deploys, unlike pages.yml (pages:write) and update-data.yml (contents:write
-# + pages:write). No secrets are required by anything below.
+# + pages:write). No secrets are required by anything below: where a check
+# WOULD need one (test_recipients' preflight over the real groups), it asserts
+# the loader's refusal instead, and asserts full resolution only where a source
+# actually exists. Setting RECIPIENTS_JSON here would strengthen that check from
+# "refuses correctly" to "resolves completely" — it is not needed to stay green.
 permissions:
   contents: read
 
@@ -116,10 +120,15 @@ jobs:
       # morning. If that ever changes, this step does not belong here: move it
       # to a job that has the key, or pin the packet to a committed fixture.
       #
-      # SIDE EFFECT, PUT TO WORK. --week0-packet also rewrites
-      # docs/data/<group>/columns/rail.json through build_rail, and rail.json
-      # IS committed (unlike the packets). So the regenerated tree is a free
-      # staleness check on it -- see the diff step below.
+      # SIDE EFFECT, AND IN SEASON IT IS THE WRONG WEEK. --week0-packet also
+      # rewrites docs/data/<group>/columns/rail.json through build_rail. In
+      # preseason that WAS the published rail and the diff below checked it for
+      # free. Once week 1 is scored it is not: the pipeline republishes the rail
+      # every run from build_week_packet.py, so the committed rail is the
+      # CURRENT week's, and regenerating week 0 over it guarantees a diff (week
+      # 0 vs week 1, a different collision, a different featured pick) that says
+      # nothing about staleness. The next step puts the current week back before
+      # anything is compared.
       #
       # The group list comes off groups/ rather than being spelled out, so a
       # new league is covered without editing this file. A group with no
@@ -133,10 +142,35 @@ jobs:
             python scripts/generate_commentary.py --group "$g"               --packet "output/$g/week_0_packet.json" --check-published
           done
 
+      # THE CURRENT WEEK'S PACKET, so the rail on disk is the one the site
+      # actually serves before the diff below reads it. Same offline,
+      # deterministic footing as the week 0 build above: build_week_packet.py
+      # reads committed inputs only (the cache, standings.json, projection.json,
+      # groups/) and makes no network call, and its pool sim is seeded per group
+      # and week -- verified to reproduce all four committed rails byte for
+      # byte, generated_at aside.
+      #
+      # FAIL-SOFT PER GROUP, exactly as update-data.yml treats the same command:
+      # a group whose packet cannot build gets no column that run, and in
+      # PRESEASON it cannot build at all -- there are no results yet. Leaving
+      # week 0's rail in place is then the correct answer, because week 0 is
+      # what the site is serving. The diff below is the assertion either way;
+      # this step only decides which week it is asked about.
+      - name: rebuild the current week's packet (restores the published rail)
+        run: |
+          for d in groups/*/; do
+            g=$(basename "$d")
+            if python scripts/build_week_packet.py --group "$g" >/dev/null; then
+              echo "[$g] current-week packet rebuilt"
+            else
+              echo "::notice::[$g] no current-week packet (preseason, or a missing input) - leaving the week 0 rail in place for the diff."
+            fi
+          done
+
       # THE RAIL IS COMMITTED; THE PACKET IT COMES FROM IS NOT. rail.json is
-      # the only published artifact build_rail writes, and the step above has
-      # just regenerated all four of them for free as a side effect of the
-      # packet rebuild. So the tree right now holds "what build_rail would
+      # the only published artifact build_rail writes, and the two steps above
+      # have just regenerated all four of them for free as a side effect of the
+      # packet rebuilds. So the tree right now holds "what build_rail would
       # write today" sitting on top of "what somebody committed", and diffing
       # the two costs nothing and catches the one failure this file has no
       # other guard against: a builder change (or a hand edit) that never got
