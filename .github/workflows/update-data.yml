@@ -298,6 +298,7 @@ jobs:
             git pull --rebase origin main
             git push
           fi
+
       # ====== DEPLOY Pages FROM INSIDE this job (rule 9) ======
       # Publish the docs/ we just regenerated so the live site serves FRESH
       # numbers. This runs inline within the pipeline run — it is NOT a separately
