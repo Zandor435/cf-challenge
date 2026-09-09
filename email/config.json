@@ -1,0 +1,17 @@
+{
+  "_comment": "SHARED delivery settings for the weekly recap email. Decisions locked 2026-09-05; see RESEND_EMAIL_PLAYBOOK.md.",
+
+  "_recipients_note": "There is deliberately NO `recipients` or `reply_to` key here. Unlike wc-challenge (one league, one flat list), cf-challenge sends ONE EMAIL PER GROUP: recipients come from each groups/<id>/config.json `managers[].email`, gated by that group's `email_enabled` flag (ARCHITECTURE.md L125). A flat list here would silently cross-post one group's standings to another's table. `manager_id` is the join key; `email` is TODO until Zach supplies each address.",
+
+  "from": "CF Challenge <mb4@mustardboy.xyz>",
+
+  "_from_note": "`mb4` = 'mustard boy 4'. Domain mustardboy.xyz is already Resend-verified (inherited from wc-challenge, which used recap@). Any local-part at a verified domain works with no new DNS.",
+
+  "site_base_url": "https://zandor435.github.io/cf-challenge",
+
+  "_site_base_url_note": "Both pages.yml and update-data.yml upload `docs` as the Pages artifact ROOT, so docs/ is served at the URL above - NOT /cf-challenge/docs. This is the base for hero images and the CTA link; get it wrong and every image in the email 404s.",
+
+  "send_dates": [],
+
+  "_send_dates_note": "Sundays of the 2026 season plus bowl/CFP dates. Empty until set. Explicit dates beat week arithmetic - inspectable and easy to fix. Pair with a 13:00 UTC (9am ET) gate, NOT wc-challenge's 05:00: late west-coast kicks finish ~08:00 UTC Sunday and would not yet be scored."
+}

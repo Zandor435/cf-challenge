@@ -1,0 +1,413 @@
+name: Update standings
+
+# Fetches live World Cup results, rescoring the pool, and commits the refreshed
+# JSON so the site (GitHub Pages / Netlify) redeploys automatically.
+#
+# Runs every 3 hours during the tournament window and on demand. A rest-day gate
+# (the `gate` job) skips the whole run when neither today nor yesterday has any
+# match in data/matches.csv, so off days cost nothing. Within a match day the
+# every-3h cadence catches results within ~3h of any final whistle; the email,
+# however, still sends at most once per UTC day (see the send gate). Until
+# API-Football populates the 2026 season, the fetch returns 0 matches and nothing
+# is committed — safe to leave running.
+
+on:
+  schedule:
+    - cron: "0 */3 * * *"   # every 3 hours UTC — catches results within ~3h of any final whistle (rest days are skipped by the gate job)
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "Season to fetch"
+        default: "2026"
+
+permissions:
+  contents: write
+
+# GitHub is forcing JavaScript actions onto the Node.js 24 runtime (June 2026).
+# This shim runs any still-Node20 action under Node 24 so the migration can't
+# hard-fail the job mid-tournament. Belt-and-suspenders alongside the
+# Node24-native action versions pinned below.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  # Rest-day gate: with the every-3h cron, most fires land on days with no soccer.
+  # Skip the entire run unless today OR yesterday has a match in data/matches.csv
+  # (yesterday covers late finals that cross midnight UTC). Manual dispatch always
+  # runs. This is the single switch that keeps off-day runs free.
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Manual dispatch — running regardless of schedule."
+            exit 0
+          fi
+          TODAY=$(date -u +%F)
+          YDAY=$(date -u -d 'yesterday' +%F)
+          if grep -q "^$TODAY," data/matches.csv || grep -q "^$YDAY," data/matches.csv; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Match today ($TODAY) or yesterday ($YDAY) — running the pipeline."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "No match today ($TODAY) or yesterday ($YDAY) — rest day, skipping the run."
+          fi
+
+  update:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install Python deps
+        # numpy: win_probability.py's Monte Carlo engine. resend + jinja2: the email send.
+        # google-genai + pillow: the hero-image step (generate_hero_image.py).
+        # opencv-python-headless: the face-aware 7:1 banner crop (generate_editorial_illustrations
+        # -> generate_site_banners.to_banner_png). Falls back gracefully if absent, but CI
+        # installs it so dynamic banners crop on the faces like the static pool.
+        run: pip install numpy resend jinja2 google-genai pillow opencv-python-headless
+      # Split out of the old single "Fetch + score" (scripts/build.py --fetch) into
+      # fetch -> validate -> score, so the name-validation gate sits BETWEEN the two
+      # and an unmapped team blocks scoring entirely. These three steps reproduce
+      # build.py --fetch exactly (same fetch_results.py + scoring.py calls, same
+      # 0-match clobber guard), just with the gate inserted.
+      - name: Fetch live results
+        # Fixtures now come from the free worldcup26.ir feed (no auth) — the default
+        # source in fetch_results.py. The primary fetch still does NOT depend on the
+        # paid key; API_FOOTBALL_KEY is wired through only for the on-demand penalty
+        # fallback (resolve_level_knockouts): when a knockout ends level the free feed
+        # carries no shootout aggregate, so the key is consulted ONLY for those few
+        # fixtures and ONLY when data/knockout_overrides.json has no entry. If the
+        # secret is unset it renders empty and fetch_results.py falls back to the
+        # built-in challenge key (so an empty value can't break auth).
+        #
+        # continue-on-error: a feed outage must NOT take the whole pipeline dark.
+        # worldcup26.ir drops connections for hours at a time; on 2026-06-21 a 6h+
+        # outage failed this step under `bash -e`, which (with no continue-on-error)
+        # both failed the job and skipped every step after it — including commentary
+        # and deploy — so Rome's column went stale despite perfectly good scored data
+        # already committed. With continue-on-error the step's *conclusion* is success
+        # (the job keeps going and `deploy-pages` still runs), while `steps.fetch.outcome`
+        # records the real result. The new-data steps below gate on that outcome; the
+        # narrative/commentary steps do not — they reshape EXISTING data and must run
+        # in both modes. Scoring needs new data; commentary does not.
+        id: fetch
+        continue-on-error: true
+        env:
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: |
+          python fetch_results.py --season "${{ github.event.inputs.season || '2026' }}" --out data/live_results.json
+      - name: Note feed-outage bypass
+        # Fires only when the fetch above failed. Makes the bypass explicit in the
+        # Actions log (and as a UI warning) so a green run that skipped scoring reads
+        # as "feed down, commentary refreshed from existing data" rather than silently
+        # proceeding. No side effects — purely a signal.
+        if: steps.fetch.outcome != 'success'
+        run: |
+          echo "::warning title=Feed outage::Feed unavailable — regenerating commentary from existing data (fetch failed; scoring/win-prob/goals skipped, narrative + deploy still run)."
+          echo "Feed unavailable — regenerating commentary from existing data"
+      - name: Validate team names (fail on unmapped)
+        # BETWEEN fetch and score: every fetched team must resolve (via
+        # data/team_aliases.json) to a canonical team in data/tiers.json. An
+        # unmapped name (a new feed spelling) fails the run here — naming the team —
+        # instead of scoring.py silently treating it as "undrafted" and dropping that
+        # team's points (the DR Congo bug). Pure name check, no side effects.
+        #
+        # Gated on a successful fetch: data/live_results.json is NOT committed (it is
+        # regenerated each run), so on a feed outage it may not exist on the fresh
+        # checkout at all. Validation/scoring/win-prob/goals all read it, so they
+        # only run when the fetch actually produced it.
+        if: steps.fetch.outcome == 'success'
+        run: |
+          python validate_team_names.py --results data/live_results.json
+      - name: Score
+        # 0-match clobber guard mirrors scripts/build.py: a fetch that returns 0
+        # finished matches (e.g. pre-kickoff) must NOT overwrite the committed
+        # standings with zeros — skip scoring and leave site/data untouched.
+        # Gated on a successful fetch (see Validate above): scoring needs new data.
+        if: steps.fetch.outcome == 'success'
+        run: |
+          n=$(python -c "import json; print(len(json.load(open('data/live_results.json')).get('matches', [])))")
+          if [ "$n" -eq 0 ]; then
+            echo "Fetch returned 0 finished matches — leaving existing site/data untouched (no clobber)."
+            exit 0
+          fi
+          python scoring.py --results data/live_results.json --out-dir site/data
+      - name: Resolve knockout schedule
+        # Fills the knockout fixtures in matches.csv (R32->Final) with the real
+        # teams once the group stage is complete, so the homepage "Today's Matches"
+        # hero, the email "Up Next" and the match-cover art stop showing TBD vs TBD.
+        # Reuses the SAME bracket engine as win_probability.py (sim/), reading the
+        # committed daily_results.json — so it RESHAPES existing scored data and is
+        # deliberately NOT gated on the fetch outcome (it must still run on a feed
+        # outage, like the narrative steps). It self-gates: before the groups finish
+        # the standings aren't final and it makes no changes, so it is safe ungated.
+        # Idempotent (overwrite-by-default); writes both the source and the served
+        # copy and only when the resolved fixtures actually changed.
+        run: |
+          python resolve_knockout_schedule.py
+      - name: Update win probability timeline
+        # Runs AFTER scoring. Locks the results scoring.py just consumed and
+        # simulates the remaining matches forward (5,000 sims). --skip-if-empty
+        # means the pre-tournament cron (0 finished matches) leaves timeline.json
+        # alone; the committed preseason Day-0 entry stays as the chart's origin.
+        # Gated on a successful fetch (see Validate above): it reads live_results.json.
+        if: steps.fetch.outcome == 'success'
+        run: |
+          python win_probability.py --results data/live_results.json --skip-if-empty
+      - name: Update player goals (Golden Boot)
+        # Parses scorers inline from worldcup26.ir (scratch --out, so live_results.json
+        # and the win-prob step above are untouched) into data/goals.json, then
+        # aggregates scorers on drafted teams into site/data/player_goals.json.
+        # No API key needed (scorers ship in the same free feed). continue-on-error so
+        # a goals-parse hiccup can never block the standings+timeline commit.
+        # Also gated on a successful fetch: this step does its OWN feed fetch
+        # (--with-goals), which is exactly what's down during an outage — no point
+        # re-hitting a dead feed, and it has no fresh scorers to parse anyway.
+        if: steps.fetch.outcome == 'success'
+        continue-on-error: true
+        run: |
+          python fetch_results.py --season "${{ github.event.inputs.season || '2026' }}" --with-goals --out data/_goals_scratch.json
+          python player_goals.py --goals data/goals.json --out site/data/player_goals.json
+      - name: Kickoff gate
+        # The narrative engine is the one part of this pipeline that ACCUMULATES
+        # (narrative_state.json + tournament_recap.md build on themselves). Before
+        # the tournament kicks off, daily_results.json still holds fake test
+        # fixtures, so running the engine would overwrite the committed Day-0
+        # preseason baseline with artifacts of fake data.
+        #
+        # Same spirit as win_probability.py --skip-if-empty: skip the work until
+        # there is real tournament data. This is a DATE gate (kickoff = 2026-06-11
+        # UTC), so it is automatic and self-removing — once the date passes it runs
+        # with no edit needed. No manual cleanup required.
+        id: kickoff
+        run: |
+          TODAY=$(date -u +%Y%m%d)
+          if [ "$TODAY" -ge 20260611 ]; then
+            echo "run=true"  >> "$GITHUB_OUTPUT"
+            echo "Past kickoff ($TODAY >= 20260611) — running the narrative engine."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Preseason ($TODAY < 20260611) — skipping narrative engine; preserving the Day-0 baseline."
+          fi
+      - name: Build narrative state
+        # Runs AFTER scoring/win-prob/goals, BEFORE commentary. Distils every data
+        # file into site/data/narrative_state.json (streaks, head-to-heads, notable
+        # events, auto-tagged themes, phase context) — the accumulating memory the
+        # stateful commentary engine reads. Stdlib only; no API key needed.
+        if: steps.kickoff.outputs.run == 'true'
+        run: |
+          python build_narrative_state.py --generated "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      - name: Generate pundit commentary + Jim Rome column
+        # Reads narrative_state.json (fresh, above) + the previous tournament_recap.md
+        # and writes the next installment, plus the cold-take commentary.json.
+        #
+        # Deliberately NOT gated on the fetch outcome — only on the kickoff date gate.
+        # Commentary reshapes EXISTING scored data into narrative; it has no dependency
+        # on a fresh feed. Because the fetch step is continue-on-error, a feed outage
+        # leaves the job's implicit success() intact (the new-data steps merely skip),
+        # so this still runs and refreshes the column from the last good standings.
+        # This is the whole point of the bypass: an outage must never freeze Rome.
+        if: steps.kickoff.outputs.run == 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python generate_commentary.py --model gpt-4o --generated "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      - name: Generate match covers
+        # Per-fixture cover art for the homepage "Today's Matches" cards (Nano Banana).
+        # Inside the kickoff gate; continue-on-error + the script's own per-match
+        # graceful fallback so a quota/flaky-API hiccup never blocks the data commit.
+        # Owner-clash fixtures are skipped here (the frontend uses the pre-generated
+        # clash banners); skip-if-exists means each cover is paid for at most once.
+        if: steps.kickoff.outputs.run == 'true'
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python generate_match_covers.py --date "$(date -u +%F)"
+      - name: Generate editorial illustrations
+        # The DYNAMIC half of the banner rotation pool (Nano Banana): 1-2 match-day
+        # banners tied to the day's storylines (father-son result, upset, elimination,
+        # owner clash, lead change, kayfabe callback...). Inside the kickoff gate, AFTER
+        # the commentary/recap are written (it reads narrative_state.json + tournament_recap.md)
+        # and BEFORE the email steps. continue-on-error + the script's own graceful fallback,
+        # so a quota/flaky-API hiccup never blocks the data commit. Skip-if-exists: each
+        # day's art is paid for at most once.
+        if: steps.kickoff.outputs.run == 'true'
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python generate_editorial_illustrations.py
+      - name: Rebuild banner manifest
+        # Rescan site/assets/banners/{static,dynamic} into site/data/banner_manifest.json so
+        # any new dynamic banner joins the homepage rotation the same night. Stdlib only,
+        # ungated (the static pool should rotate even pre-kickoff); a no-change rebuild just
+        # produces no diff and nothing is committed.
+        run: |
+          python build_banner_manifest.py
+      - name: Build email payload
+        # Resolves every email variable into email/payload.json from the freshly
+        # written commentary/narrative/standings JSON. Stdlib only; never fails the
+        # build (continue-on-error) so a malformed input can't block the data commit.
+        if: steps.kickoff.outputs.run == 'true'
+        continue-on-error: true
+        run: |
+          python email/build_email_payload.py --date "$(date -u +%F)" \
+            --generated "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      - name: Email send gate
+        # One place decides whether THIS run actually sends. With the every-3h cron the
+        # gate is no longer just "today is a send date" — email/should_send.py also
+        # requires: at/after 05:00 UTC, NEW scored results since the last email
+        # (narrative_state vs last_sent_state), AND not already emailed today
+        # (last_send_date.txt). So exactly one email goes out per UTC day, promptly
+        # after the evening's finals land. The hero-image generation, the Pages-deploy
+        # wait, and the send itself all key off this single output — so we never spend a
+        # (paid) Gemini call generating art on a run we won't email.
+        id: sendgate
+        if: steps.kickoff.outputs.run == 'true'
+        run: |
+          if python email/should_send.py; then
+            echo "send=true"  >> "$GITHUB_OUTPUT"
+          else
+            echo "send=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Generate hero image
+        # Runs ONLY on send nights, AFTER the payload is built and BEFORE the commit
+        # below (so the image deploys with the data push, before the email references
+        # it). continue-on-error + the script's own graceful fallback: on any failure
+        # it nulls payload.hero_image_url and the email simply sends image-less.
+        if: steps.sendgate.outputs.send == 'true'
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python email/generate_hero_image.py
+      - name: Commit refreshed data + hero image
+        # MOVED AHEAD OF THE SEND (was the final step): the hero image must be committed
+        # + pushed so GitHub Pages serves it BEFORE the email goes out, or the image URL
+        # 404s in inboxes. Stages site/assets/email so the day's hero deploys with the
+        # nightly data. Runs every night (not just send nights) to keep committing data
+        # changes. The delta baseline (last_sent_state.json) is committed separately
+        # AFTER the send, below.
+        run: |
+          git config user.name  "wc-challenge-bot"
+          git config user.email "actions@github.com"
+          # Add each path only if it exists. generate_match_covers.py is
+          # continue-on-error and skips owner-clash-only days, so
+          # site/assets/match-covers may never be created — a bare `git add`
+          # on that missing pathspec aborts with exit 128 and kills the push.
+          # Same guard covers site/assets/banners/dynamic (only created once a
+          # dynamic banner is generated).
+          for p in data/matches.csv site/data/matches.csv site/data/*.json site/data/tournament_recap.md commentary.json site/assets/email site/assets/match-covers site/assets/banners/dynamic; do
+            [ -e "$p" ] && git add "$p"
+          done
+          if git diff --staged --quiet; then
+            echo "No standings/image changes."
+          else
+            git commit -m "Auto-update standings ($(date -u +%Y-%m-%dT%H:%MZ))"
+            # Rebase onto anything pushed since checkout (a prior every-3h run or a
+            # manual push) so the push can't be rejected as a non-fast-forward.
+            git pull --rebase origin main
+            git push
+          fi
+      - name: Wait for hero image to deploy
+        # The push above triggers a Pages rebuild; give it time to serve the new image
+        # before the email references it. Polls the actual image URL (up to ~5 min) and
+        # proceeds the moment it returns 200. continue-on-error so a slow/failed deploy
+        # never blocks the send — a still-cold URL just means the email hides the hero.
+        if: steps.sendgate.outputs.send == 'true'
+        continue-on-error: true
+        run: |
+          URL=$(python -c "import json;print(json.load(open('email/payload.json')).get('hero_image_url') or '')")
+          if [ -z "$URL" ]; then echo "No hero image URL in payload — nothing to wait for."; exit 0; fi
+          echo "Waiting for $URL ..."
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || echo "000")
+            if [ "$code" = "200" ]; then echo "Hero image live (HTTP 200) after ~$((i*10))s."; exit 0; fi
+            echo "  not yet (HTTP $code) — retry $i/30"; sleep 10
+          done
+          echo "Hero image not live after wait — sending anyway (template hides a missing hero)."
+      - name: Send daily email
+        # Fires only when the send gate said so. On a successful send, send_email.py
+        # snapshots narrative_state.json -> email/last_sent_state.json (the rank-delta
+        # baseline), which the commit step below stages. continue-on-error: a Resend
+        # hiccup never blocks the baseline commit.
+        if: steps.sendgate.outputs.send == 'true'
+        continue-on-error: true
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          python email/send_email.py
+      - name: Commit email delta baseline
+        # AFTER the send: persist last_sent_state.json (the rank-delta baseline) and
+        # last_send_date.txt (the once-per-day send marker). Both are refreshed only on
+        # a successful send, so the next run sees "already emailed today" and the next
+        # email measures movement "since this email."
+        if: steps.sendgate.outputs.send == 'true'
+        run: |
+          git config user.name  "wc-challenge-bot"
+          git config user.email "actions@github.com"
+          if [ -f email/last_sent_state.json ]; then git add email/last_sent_state.json; fi
+          if [ -f email/last_send_date.txt ]; then git add email/last_send_date.txt; fi
+          if git diff --staged --quiet; then
+            echo "No email baseline change."
+          else
+            git commit -m "Refresh email delta baseline ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git pull --rebase origin main
+            git push
+          fi
+
+  # Deploy the freshly-committed site to GitHub Pages from INSIDE this workflow.
+  # pages.yml (on: push) never fires on the commit the `update` job pushes above:
+  # pushes made with the default GITHUB_TOKEN do not trigger other workflows
+  # (GitHub's anti-recursion rule), so Pages would otherwise only redeploy on a
+  # human push and drift stale between manual commits. Running the deploy here —
+  # gated on `update` — keeps github.io in lockstep with every cron data commit.
+  # pages.yml is left intact for manual pushes.
+  #
+  # `needs: update` also means rest days are free: when the gate skips `update`,
+  # this job is skipped too (a skipped dependency skips its dependents).
+  deploy-pages:
+    needs: update
+    runs-on: ubuntu-latest
+    # Job-scoped permissions for the Pages deploy (overrides the workflow-level
+    # `contents: write`, which the deploy doesn't need).
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    # Same concurrency group as pages.yml so a manual-push deploy and this cron
+    # deploy can't race on the single github-pages environment.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Check out main's HEAD (ref: main), NOT the SHA that triggered this run:
+      # the `update` job pushed a new commit with the refreshed site/data/*.json,
+      # and we must publish THAT tree, not the pre-commit checkout the event SHA
+      # points at.
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+      - id: deployment
+        uses: actions/deploy-pages@v4

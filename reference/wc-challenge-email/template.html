@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+{#
+  WC Challenge daily newsletter email — the SHORT version.
+
+  PURE PRESENTATION. Every value is resolved upstream by build_email_payload.py and
+  passed in as `p` (the payload). The only logic here is Jinja2 loops/conditionals —
+  no computation, no data access beyond `p`. See email/build_email_payload.py for the
+  payload schema.
+
+  Design intent: a Substack / The Athletic newsletter, not a dashboard. Big hero image,
+  one Rome hook, a compact standings table, ONE featured pundit, and a CTA to the site.
+  Readable in ~15 seconds; ~two scrolls on mobile. Everything heavy (full column, all
+  four pundits, win probabilities) lives on the site behind the CTA.
+
+  Email-client constraints honoured: table-based layout, inline CSS only, all images by
+  absolute URL, max-width 600px, dark theme (#0c0e14 bg / #e8eaf0 text).
+#}
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>{{ p.meta.subject }}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#0c0e14; color:#e8eaf0; -webkit-text-size-adjust:100%;">
+  <!-- preheader (hidden) -->
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:#0c0e14;">
+    {{ p.rome.headline }}
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0c0e14" style="background-color:#0c0e14;">
+    <tr>
+      <td align="center" style="padding:0 0 28px 0;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
+
+          <!-- ============================ HERO IMAGE ============================ -->
+          {% if p.hero_image_url %}
+          <tr>
+            <td style="padding:0; font-size:0; line-height:0;">
+              <img src="{{ p.hero_image_url }}" width="600" alt="{{ p.rome.headline }}"
+                   style="display:block; width:100%; max-width:600px; height:auto; border:0; outline:none; text-decoration:none;" />
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ============================ KICKER ============================ -->
+          <tr>
+            <td style="padding:22px 28px 0 28px;">
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; font-weight:700; letter-spacing:2.5px; color:#8b919c; text-transform:uppercase;">
+                WC&nbsp;Challenge&nbsp;2026 <span style="color:#3a3f4a;">&middot;</span> <span style="color:#f4c430;">{{ p.meta.day_label }}</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ============================ ROME'S TAKE (the hook) ============================ -->
+          <tr>
+            <td style="padding:12px 28px 4px 28px;">
+              <div style="font-family:Georgia,'Times New Roman',serif; font-size:30px; line-height:1.18; font-weight:700; color:#f5f6f8; letter-spacing:-0.4px;">
+                {{ p.rome.headline }}
+              </div>
+            </td>
+          </tr>
+          {% if p.rome.short %}
+          <tr>
+            <td style="padding:14px 28px 0 28px;">
+              <!-- Rome byline: circular avatar + "The Open" eyebrow + the hook. Same
+                   circular treatment as the featured-pundit card avatar (56px, 2px ring).
+                   onerror hides a failed image so the text cell keeps the layout intact. -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td width="72" valign="top" style="padding:2px 16px 0 0;">
+                    <img src="https://zandor435.github.io/wc-challenge/assets/portraits/pundits/rome/rome.png"
+                         width="56" height="56" alt="Jim Rome"
+                         onerror="this.style.display='none';"
+                         style="display:block; width:56px; height:56px; border-radius:28px; border:2px solid #e2231a;" />
+                  </td>
+                  <td valign="top">
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; color:#e2231a; text-transform:uppercase; margin-bottom:8px;">
+                      Jim Rome &middot; The Open
+                    </div>
+                    <div style="font-family:Georgia,'Times New Roman',serif; font-size:17px; line-height:1.65; color:#d7dbe2;">
+                      {{ p.rome.short }}
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ============================ STANDINGS ============================ -->
+          <tr>
+            <td style="padding:30px 28px 0 28px;">
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; font-weight:700; letter-spacing:2px; color:#8b919c; text-transform:uppercase; border-bottom:2px solid #262a34; padding-bottom:8px;">
+                Standings
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:10px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#15171d" style="background-color:#15171d; border:1px solid #262a34;">
+                {% for s in p.standings %}
+                <tr>
+                  <td width="4" style="background-color:{{ s.color }}; width:4px;">&nbsp;</td>
+                  <td width="32" align="center" style="font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:700; color:#8b919c; padding:13px 0;">{{ s.rank }}</td>
+                  <td style="font-family:Arial,Helvetica,sans-serif; font-size:16px; font-weight:700; color:#e8eaf0; padding:13px 4px;">
+                    {{ s.owner }}<span style="font-size:13px; font-weight:600; color:#6a707b;">&nbsp;({{ s.ring_name }})</span>
+                  </td>
+                  <td width="38" align="center" style="font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:700; color:{{ s.move_color }}; padding:13px 0;">{{ s.move_arrow }}</td>
+                  <td width="58" align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:17px; font-weight:700; color:#f5f6f8; padding:13px 16px 13px 0;">{{ s.total_points }}</td>
+                </tr>
+                {% if not loop.last %}<tr><td colspan="5" style="border-bottom:1px solid #1d212a; font-size:0; line-height:0;">&nbsp;</td></tr>{% endif %}
+                {% endfor %}
+              </table>
+            </td>
+          </tr>
+
+          <!-- ============================ FEATURED PUNDIT ============================ -->
+          {% if p.featured_pundit %}
+          <tr>
+            <td style="padding:30px 28px 0 28px;">
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; font-weight:700; letter-spacing:2px; color:#8b919c; text-transform:uppercase; border-bottom:2px solid #262a34; padding-bottom:8px;">
+                Pundit of the Day
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:14px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#15171d" style="background-color:#15171d; border:1px solid #262a34; border-left:4px solid {{ p.featured_pundit.color }};">
+                <tr>
+                  <td width="76" valign="top" style="padding:16px 0 16px 16px;">
+                    <img src="{{ p.featured_pundit.avatar_url }}" width="56" height="56" alt="{{ p.featured_pundit.name }}"
+                         style="display:block; width:56px; height:56px; border-radius:28px; border:2px solid {{ p.featured_pundit.color }};" />
+                  </td>
+                  <td valign="top" style="padding:16px 18px 16px 8px;">
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; font-weight:700; letter-spacing:.5px; color:{{ p.featured_pundit.color }}; text-transform:uppercase; margin-bottom:5px;">{{ p.featured_pundit.name }}</div>
+                    <div style="font-family:Georgia,'Times New Roman',serif; font-size:18px; line-height:1.3; font-weight:700; color:#f5f6f8; margin-bottom:5px;">{{ p.featured_pundit.headline }}</div>
+                    {% if p.featured_pundit.subtitle %}<div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:1.5; color:#9aa0ab; font-style:italic;">{{ p.featured_pundit.subtitle }}</div>{% endif %}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ============================ CTA ============================ -->
+          <tr>
+            <td style="padding:32px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" bgcolor="#f4c430" style="background-color:#f4c430; border-radius:8px;">
+                    <a href="{{ p.site_url }}" style="display:block; padding:17px 24px; font-family:Arial,Helvetica,sans-serif; font-size:16px; font-weight:700; color:#0c0e14; text-decoration:none; letter-spacing:.2px;">
+                      Full recap, all four pundits &amp; win probabilities&nbsp;&rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% if p.up_next.has_matches %}
+          <tr>
+            <td align="center" style="padding:14px 28px 0 28px;">
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:1.5; color:#8b919c;">
+                <span style="color:#6a707b; font-weight:700; letter-spacing:1px; text-transform:uppercase; font-size:11px;">Up Next &middot; {{ p.up_next.date_human }}</span><br />
+                {% for m in p.up_next.matches %}<span style="color:{{ m.team1_color }}; font-weight:700;">{{ m.team1 }}</span><span style="color:#6a707b;"> v </span><span style="color:{{ m.team2_color }}; font-weight:700;">{{ m.team2 }}</span>{% if not loop.last %}<span style="color:#3a3f4a;">&nbsp;&middot;&nbsp;</span>{% endif %}{% endfor %}
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ============================ FOOTER ============================ -->
+          <tr>
+            <td style="padding:30px 28px 0 28px;">
+              <div style="border-top:1px solid #262a34; padding-top:16px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:1.6; color:#6a707b;">
+                <b style="color:#8b919c;">WC Challenge 2026</b> &middot; the daily pool recap.<br />
+                <span style="color:#4a4f5a;">Reply-all to talk trash &mdash; this goes to all five managers.</span>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
