@@ -85,14 +85,14 @@ TL_PICK = {"team", "banked_delta", "floor", "ceiling", "expected_delta", "p_beat
 
 # --- Board 3 (analytics.json) ------------------------------------------------
 ANALYTICS_TOP = {"meta", "race", "championship_odds", "best_worst", "paths",
-                 "portfolio", "leverage"}
+                 "portfolio", "leverage", "race_story", "schedule_watch", "title_routes"}
 # Modules that must carry a "board" field. `leverage` is excluded on purpose:
 # it is the reserved null this run, not a module yet.
 ANALYTICS_MODULES = ("race", "championship_odds", "best_worst", "paths", "portfolio")
 IDENT = {"manager_id", "display_name"}
 RACE_MGR = IDENT | {"rank", "banked_total", "floor", "ceiling", "gap_to_leader",
                     "ceiling_remaining", "week_move"}
-ODDS_MGR = IDENT | {"p_win_pool", "week_move"}
+ODDS_MGR = IDENT | {"p_win_pool", "week_move", "draft_p_win_pool", "draft_move"}
 BW_ENTRY = IDENT | {"team", "conference", "line", "direction", "delta"}
 BW_MGR = IDENT | {"mvp", "anchor"}
 PATH_MGR = IDENT | {"state", "comparison"}
@@ -246,7 +246,8 @@ def validate_analytics(an, label, expect_odds=True):
           f"got {sorted(an.keys())}")
     check(f"[{label}] analytics.meta keys (no draft_status / ratings_*)",
           _has_keys(an.get("meta", {}), META_KEYS) and set(an["meta"]) == META_KEYS)
-    check(f"[{label}] leverage reserved null (this run)", an["leverage"] is None)
+    check(f"[{label}] optional projection context absent in pure assembly",
+          all(an[k] is None for k in ('leverage', 'race_story', 'schedule_watch', 'title_routes')))
 
     validate_analytics_boards(an, label)
 

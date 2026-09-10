@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analytics — CF Challenge</title>
-<meta name="description" content="Board 3: the race, best and worst picks, paths to the title, portfolio concentration, and championship odds.">
+<meta name="description" content="The championship race: title odds, changes since the draft, schedule surprises, and the games with the most at stake.">
 <!-- Icon: the masthead shield, adapted for a tab bar. The SVG is the real
      asset; favicon.ico is declared after it purely so the browsers that ignore
      an SVG icon request a file that exists instead of 404ing on /favicon.ico. -->
@@ -15,21 +15,18 @@
      --display/--body/--mono tokens are read. See the header of fonts.css. -->
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="style.css">
-<!-- No new design language: analytics.css adds the per-cell class names this
-     page's three column sets need for the narrow fold, and reads style.css's
-     tokens for every value. See the note at the top of that file. -->
+<!-- Analytics-specific layout, charts, and responsive detail views. -->
 <link rel="stylesheet" href="analytics.css">
 </head>
-<body id="top">
+<body id="top" class="an-document">
 
 <!-- GROUP-GENERIC. Nothing on this page knows about panel, or about four
      managers. It renders whatever analytics.json returns for ?group=.
 
      THE PAGE COMPUTES NOTHING (output-contract.md, Board 3). Every number
      below — every ratio, every delta, every sort order — arrives already
-     computed from scripts/analytics.py. The only arithmetic in analytics.js is
-     the clamped percentage that sets a bar's CSS width, which is geometry, not
-     a fact about the league. -->
+     computed from scripts/analytics.py. Arithmetic in analytics.js only sets
+     chart coordinates and bar widths, never league statistics. -->
 
 <header class="svp-masthead mgr-masthead">
   <div class="svp-masthead-inner">
@@ -59,33 +56,38 @@
 
   <section class="an-intro" id="an-intro" hidden></section>
 
-  <!-- BOARD SEPARATION IS STRUCTURAL, not a class on a card. The exact modules
-       and the one projection module live in two sibling sections that never
-       interleave, each behind its own labelled band. -->
-  <section class="an-board" id="an-exact" hidden>
-    <div class="an-board-head">
-      <span class="an-board-lbl">Board 3 &middot; Exact</span>
-      <p class="an-board-note">Everything in this band is arithmetic off banked
-        results and the floor&ndash;ceiling envelope &mdash; reproducible by hand from
-        the standings. No model, no estimate.</p>
-    </div>
-    <div id="an-race"></div>
-    <div class="grid-top" id="an-grid-a"></div>
-    <div class="grid-bottom" id="an-grid-b"></div>
+  <!-- Each exact-results section and the projection section has its own
+       labelled band. Model estimates never share an exact-results card. -->
+  <section class="an-board" id="an-projection" hidden>
+    <div id="an-odds"></div>
   </section>
 
-  <section class="an-board is-proj" id="an-projection" hidden>
-    <div class="an-board-head">
-      <span class="an-board-lbl">Board 2 &middot; Projection</span>
-      <p class="an-board-note proj-disclaimer" id="an-proj-note"></p>
-    </div>
-    <div id="an-odds"></div>
+  <section class="an-board" id="an-rooting" hidden>
+    <div class="an-section-heading"><div><p class="an-eyebrow">Everyone has a different wish list</p><h2>How they get there.</h2></div><p>Possible paths, based on the forecast.</p></div>
+    <div id="an-rooting-content"></div>
+  </section>
+
+  <section class="an-board" id="an-stakes" hidden>
+    <div class="an-section-heading"><div><p class="an-eyebrow">Keep the remote handy</p><h2>What to watch.</h2></div><p>The games that matter most in the forecast.</p></div>
+    <div id="an-stakes-content"></div>
+  </section>
+
+  <section class="an-board" id="an-schedule" hidden>
+    <div id="an-schedule-content"></div>
+  </section>
+
+  <section class="an-board" id="an-story" hidden>
+    <div id="an-story-content"></div>
+  </section>
+
+  <section class="an-board" id="an-details" hidden>
+    <div id="an-details-content"></div>
   </section>
 </main>
 
 <footer class="site-foot">
-  <p>Standings are exact arithmetic off committed game results. The projection is a
-     model estimate from SP+ ratings and updates weekly. Data via collegefootballdata.com.</p>
+  <p>These are possible stories, not promises. Forecasts use SP+ team ratings and shared game simulations.
+     Actual results decide the winner. Data via collegefootballdata.com.</p>
 </footer>
 
 <!-- site.js first: it defines GROUPS, PAGE_NAV, the URL rules and the number

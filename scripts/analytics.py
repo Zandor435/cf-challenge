@@ -17,13 +17,11 @@ BOARD SEPARATION IS PART OF THE CONTRACT. Every module carries an explicit
   "projection" — derived from the Poisson-binomial / shared-draw model. The
                  renderer MUST label these as a projection.
 No module ships without one, and no module mixes both kinds of number without
-per-field marking. Today exactly one module (championship_odds) is projection.
+per-field marking. Championship odds and the race context modules are projections.
 
-Modules: race, championship_odds, best_worst, paths, portfolio.
-`leverage` is a reserved top-level key, pinned to null this run so the shape is
-stable and the renderer can branch on it — the "games that matter" math is the
-only real new arithmetic on this page and it lands in its own commit against
-this contract.
+Modules include the exact tables plus race_story, schedule_watch, title_routes,
+and leverage.
+The latter are projections, built by race_narrative/projector before assembly.
 
 Nothing here re-derives a number another board already owns: p_win_pool is
 PLUMBED from projection.json, ranks/floors/ceilings come from standings.json,
@@ -48,8 +46,7 @@ BOARD_EXACT = "exact"
 BOARD_PROJECTION = "projection"
 VALID_BOARDS = (BOARD_EXACT, BOARD_PROJECTION)
 
-# Top-level module keys, in emission order. `leverage` is deliberately in the
-# list and deliberately null this run (see build_analytics).
+# Core module keys; optional projection context is assembled separately.
 MODULE_KEYS = ("race", "championship_odds", "best_worst", "paths", "portfolio")
 
 
@@ -464,7 +461,7 @@ def build_portfolio(standings):
 # --- Assembly ----------------------------------------------------------------
 
 def build_analytics(config, standings, projection=None, timeline=None,
-                    as_of_week=None, eff_week=None):
+                    as_of_week=None, eff_week=None, context=None):
     """Full analytics.json object for a group (no I/O).
 
     Pure reshaping of boards that are already built — it computes no win
@@ -483,6 +480,12 @@ def build_analytics(config, standings, projection=None, timeline=None,
                       any_games_banked(standings))
 
     cm = utils.cache_meta(season)
+    odds = build_championship_odds(standings, projection, prior)
+    draft = (context or {}).get('draft', {})
+    odds['draft_baseline'] = {k: v for k, v in draft.items() if k != 'managers'}
+    for manager in odds['managers']:
+        manager.update(draft.get('managers', {}).get(manager['manager_id'],
+                       {'draft_p_win_pool': None, 'draft_move': None}))
     return {
         "meta": {
             "group_id": config["group_id"],
@@ -492,21 +495,25 @@ def build_analytics(config, standings, projection=None, timeline=None,
             "cache_fetched_at": cm["fetched_at"],
         },
         "race": build_race(standings, prior),
-        "championship_odds": build_championship_odds(standings, projection, prior),
+        "championship_odds": odds,
         "best_worst": build_best_worst(standings),
         "paths": build_paths(standings),
         "portfolio": build_portfolio(standings),
-        # Reserved. "Games that matter" is the only genuinely NEW math on this
-        # page and it ships in its own commit against this contract; pinning the
-        # key to null now keeps the shape stable, so the renderer branches on
-        # `leverage === null` rather than on whether the key exists.
-        "leverage": None,
+        "race_story": (context or {}).get('race_story'),
+        "title_routes": (context or {}).get('title_routes'),
+        "schedule_watch": (context or {}).get('schedule_watch'),
+        "leverage": (context or {}).get('leverage'),
     }
 
 
 def write_analytics(config, standings, projection=None, timeline=None,
                     as_of_week=None, eff_week=None):
-    out = build_analytics(config, standings, projection, timeline, as_of_week, eff_week)
+    import race_narrative
+    effective = eff_week if eff_week is not None else (
+        as_of_week if as_of_week is not None else utils.cache_meta(utils.get_season())['week'])
+    prior = prior_snapshot(timeline, effective, utils.get_season())
+    context = race_narrative.build_context(config, standings, projection, prior, as_of_week)
+    out = build_analytics(config, standings, projection, timeline, as_of_week, eff_week, context)
     path = utils.WEB_DATA_DIR / config["group_id"] / "analytics.json"
     utils.save_json_atomic(path, out)
     return out
