@@ -2,36 +2,103 @@
   "_note": "Friendly editorial copy grounded in this group's personas.json. These are jokes, not attributed quotes. Pick-specific copy requires the matching team and direction.",
   "managers": {
     "rachel": {
-      "default": "Rachel did not need a big announcement when she picked {team}. If this stretch works out, the family may have to supply the announcement for her. Quiet picks can make very loud receipts.",
-      "picks": {"James Madison|O": "Rachel took the James Madison Over while the family was still looking the school up. If the wins arrive, geography class is going to come with a standings update."}
+      "default": [
+        "Rachel did not need a big announcement when she picked {team}. If this stretch works out, the family may have to supply the announcement for her. Quiet picks can make very loud receipts.",
+        "If {team} makes Rachel look sharp, the family should resist explaining her own pick back to her. She appears to have handled the selection herself.",
+        "Rachel has a law degree and a {team} pick. If this works, the family may want to stipulate that she knew what she was doing."
+      ],
+      "picks": {
+        "James Madison|O": [
+          "Rachel took the James Madison Over while the family was still looking the school up. If the wins arrive, geography class is going to come with a standings update."
+        ]
+      }
     },
     "john": {
-      "default": "John built arguments for a living. Now {team} needs to supply the evidence. A difficult Saturday may prompt the family to ask whether he would like a brief recess.",
-      "picks": {"Ole Miss|O": "John took the Ole Miss Over. For the record: Ole Miss first, LSU second. The family has heard the opening statement; now the Rebels need to produce the evidence."}
+      "default": [
+        "John built arguments for a living. Now {team} needs to supply the evidence. A difficult Saturday may prompt the family to ask whether he would like a brief recess.",
+        "If {team} cooperates, John has another exhibit for the family football discussion. Everyone should budget time for the closing argument.",
+        "John has been explaining football to this family for years. {team} could save everyone a lengthy clarification by following the plan."
+      ],
+      "picks": {
+        "Ole Miss|O": [
+          "John took the Ole Miss Over. For the record: Ole Miss first, LSU second. The family has heard the opening statement; now the Rebels need to produce the evidence."
+        ]
+      }
     },
     "vic": {
-      "default": "Vic is delighted with Abita Springs. If {team} cooperates, the family gets a football update with the relocation update. If it does not, there is always more to say about Abita Springs.",
-      "picks": {"Mississippi State|O": "Vic needs Mississippi State wins. The family should leave a little room at dinner for a Bulldog update, somewhere between the Abita Springs update and the next Abita Springs update."}
+      "default": [
+        "Vic is delighted with Abita Springs. If {team} cooperates, the family gets a football update with the relocation update. If it does not, there is always more to say about Abita Springs.",
+        "Vic joined to enjoy being in it with everybody. {team} could help by keeping the football part as pleasant as the Abita Springs part.",
+        "If {team} comes through, Vic gets bragging rights. The family should ask whether those transfer automatically to Abita Springs."
+      ],
+      "picks": {
+        "Mississippi State|O": [
+          "Vic needs Mississippi State wins. The family should leave a little room at dinner for a Bulldog update, somewhere between the Abita Springs update and the next Abita Springs update."
+        ]
+      }
     },
     "gayden": {
-      "default": "Gayden does not have a casual setting. If {team} struggles, the family can ask whether the problem is conditioning, technique, or a football team refusing to tap out on schedule.",
-      "picks": {"Michigan State|O": "Gayden needs Michigan State wins. The family can debate this pick, but anyone bringing up his Michael Bradley takes should prepare for the conversation to go into extra time."}
+      "default": [
+        "Gayden does not have a casual setting. If {team} struggles, the family can ask whether the problem is conditioning, technique, or a football team refusing to tap out on schedule.",
+        "Gayden trains jiu-jitsu. Unfortunately, {team} cannot be persuaded to cooperate with a better grip.",
+        "If {team} makes this look clever, Gayden gets the floor. The family should set a time limit before the soccer opinions arrive."
+      ],
+      "picks": {
+        "Michigan State|O": [
+          "Gayden needs Michigan State wins. The family can debate this pick, but anyone bringing up his Michael Bradley takes should prepare for the conversation to go into extra time."
+        ]
+      }
     },
     "holly": {
-      "default": "Holly lives surrounded by Alabama and Auburn fans without converting. Whatever {team} does, nobody should mistake a temporary rooting interest for a change of allegiance.",
-      "picks": {"Tennessee|O": "Holly needs Tennessee wins. Living in Alabama is already testing her patience; the Vols could at least provide something useful for the neighborhood conversation."}
+      "default": [
+        "Holly lives surrounded by Alabama and Auburn fans without converting. Whatever {team} does, nobody should mistake a temporary rooting interest for a change of allegiance.",
+        "Holly has held her ground in Alabama. If {team} makes this weekend annoying, she has plenty of practice maintaining her position.",
+        "If {team} helps Holly's chances, the family can expect a cheerful update. Her neighbors may still hear about Tennessee regardless."
+      ],
+      "picks": {
+        "Tennessee|O": [
+          "Holly needs Tennessee wins. Living in Alabama is already testing her patience; the Vols could at least provide something useful for the neighborhood conversation."
+        ]
+      }
     },
     "devin": {
-      "default": "Devin already has a World Cup title the family can discuss indefinitely. If {team} helps him toward another trophy, everyone may need a second subject for dinner.",
-      "picks": {"Auburn|O": "Devin once looked at a ghost pepper and decided he could handle it. He has now taken the Auburn Over. The family is permitted to keep a glass of milk beside the standings."}
+      "default": [
+        "Devin already has a World Cup title the family can discuss indefinitely. If {team} helps him toward another trophy, everyone may need a second subject for dinner.",
+        "If {team} comes through, Devin gets more trophy-related material. The family should agree in advance how many World Cup references are permitted.",
+        "Devin has experience declaring he can handle something spicy. If {team} makes this uncomfortable, the family knows what question to ask."
+      ],
+      "picks": {
+        "Auburn|O": [
+          "Devin once looked at a ghost pepper and decided he could handle it. He has now taken the Auburn Over. The family is permitted to keep a glass of milk beside the standings."
+        ]
+      }
     },
     "gunner": {
-      "default": "Gunner has already lived through the family's World Cup scoring debate. If {team} delivers, he has every reason to request that this trophy come with a very boring rulebook.",
-      "picks": {"Purdue|O": "Gunner took the Purdue Over without an elaborate explanation. If it works, the family will have to choose between asking for his method and pretending they saw it coming."}
+      "default": [
+        "Gunner has already lived through the family's World Cup scoring debate. If {team} delivers, he has every reason to request that this trophy come with a very boring rulebook.",
+        "Gunner is a physical therapist. If {team} hurts this pick, the family should avoid asking him for a recovery timetable.",
+        "If {team} puts Gunner in a better position, the family can discuss football for a while. The World Cup appeals hearing can resume afterward."
+      ],
+      "picks": {
+        "Purdue|O": [
+          "Gunner took the Purdue Over without an elaborate explanation. If it works, the family will have to choose between asking for his method and pretending they saw it coming."
+        ]
+      }
     },
     "zach": {
-      "default": "Zach wrote the scoring engine, and every family scoring question still comes back to him. If {team} struggles, the commissioner may wish the website had a hide-my-own-picks button.",
-      "picks": {"Wake Forest|O": "Zach took his alma mater to the Over. The family should ask whether Wake Forest passed the model's tests or just knew the person administering them.", "LSU|O": "Zach needs LSU wins. A Baton Rouge upbringing and an elaborate forecasting engine have reached the same conclusion. The family can debate which one did the work."}
+      "default": [
+        "Zach wrote the scoring engine, and every family scoring question still comes back to him. If {team} struggles, the commissioner may wish the website had a hide-my-own-picks button.",
+        "If {team} struggles, Zach may discover that being both commissioner and cousin creates a very busy customer-service desk.",
+        "Zach built the family a forecasting engine. {team} now has the chance to save him from an extended conversation about its warranty."
+      ],
+      "picks": {
+        "Wake Forest|O": [
+          "Zach took his alma mater to the Over. The family should ask whether Wake Forest passed the model's tests or just knew the person administering them."
+        ],
+        "LSU|O": [
+          "Zach needs LSU wins. A Baton Rouge upbringing and an elaborate forecasting engine have reached the same conclusion. The family can debate which one did the work."
+        ]
+      }
     }
   }
 }

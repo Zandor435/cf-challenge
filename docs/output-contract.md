@@ -546,6 +546,27 @@ Each manager has identity, current odds, `finished`, `position`, `intro`, and
 `routes[]`. Each route is a pick's favorable result count (wins for Overs,
 losses for Unders) over its next four games, shortened at season end.
 
+Routes also include `narrative` (the Saturday subplot), `if_it_happens`
+(conditional bragging rights), and `banter` (editorial humor, never an attributed
+quote). Upcoming leverage games may include `conversation`, explaining the
+group-chat stakes using the measured conditional odds.
+
+Each group's `groups/<group>/analytics_commentary.json` is required by the
+production context builder. Its manager IDs must exactly match the roster.
+Every manager supplies at least three distinct `default` strings in a list;
+optional `picks` maps exact `Team|O` or `Team|U` keys to nonempty lists. Keys must
+match that manager's current picks. The only supported placeholder is `{team}`.
+Validation failures are surfaced rather than silently using generic copy.
+
+Pick-specific lines and defaults form one rotation pool. A stable SHA-256
+offset for each manager/team/direction spreads selections across picks; the
+forecast cache date advances the pool weekly (Monday boundaries), falling back
+to the projection generation date if needed. Refreshing the page cannot shuffle
+the jokes, and rebuilding the same historical snapshot reproduces its copy.
+After editing commentary, run `python scripts/analytics.py --group all` to
+refresh the published payloads. CI validates all four source files against the
+current rosters and picks.
+
 Routes are measured by conditioning the existing joint simulation on at least
 `needed` favorable results. `event_probability`, `matching_trials`,
 `p_title_now`, `p_title_if`, and `lift` preserve the evidence. Both picked sides

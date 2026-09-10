@@ -11,7 +11,7 @@ and asserts:
   - Board-2 invariants: win_distribution sums to 1; at final, p_beat_line in {0,1}
     and expected_delta == the Board-1 banked_delta (the two boards agree),
   - timeline is append-only + idempotent on the effective week,
-  - Board-3 (analytics) SHAPE — the keys, the reserved null `leverage`, and the
+  - Board-3 (analytics) SHAPE — core keys, optional projection context, and the
     board-separation rule: every module carries a "board" of "exact" or
     "projection". Deliberately shape, not values: the values are standings
     arithmetic that Board-1's own checks already pin, and re-asserting them here
@@ -87,7 +87,7 @@ TL_PICK = {"team", "banked_delta", "floor", "ceiling", "expected_delta", "p_beat
 ANALYTICS_TOP = {"meta", "race", "championship_odds", "best_worst", "paths",
                  "portfolio", "leverage", "race_story", "schedule_watch", "title_routes"}
 # Modules that must carry a "board" field. `leverage` is excluded on purpose:
-# it is the reserved null this run, not a module yet.
+# optional context is absent from pure assembly and tested in test_race_narrative.
 ANALYTICS_MODULES = ("race", "championship_odds", "best_worst", "paths", "portfolio")
 IDENT = {"manager_id", "display_name"}
 RACE_MGR = IDENT | {"rank", "banked_total", "floor", "ceiling", "gap_to_leader",

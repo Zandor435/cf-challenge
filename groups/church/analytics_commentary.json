@@ -2,28 +2,76 @@
   "_note": "Friendly editorial copy grounded in this group's personas.json. These are jokes, not attributed quotes. Pick-specific copy requires the matching team and direction.",
   "managers": {
     "brian": {
-      "default": "Brian has probably read more about {team} than the rest of the group combined. If this works, everyone gets to act surprised by his football knowledge again.",
-      "picks": {"Stanford|O": "Brian took the Stanford Over. The quiet researcher has left one very visible school logo on the research. The group is allowed to ask whether this was peer-reviewed by anyone outside Palo Alto."}
+      "default": [
+        "Brian has probably read more about {team} than the rest of the group combined. If this works, everyone gets to act surprised by his football knowledge again.",
+        "Brian is usually the quiet one until football comes up. If {team} delivers, the group may have to sit through the footnotes.",
+        "If {team} makes this look clever, everyone gets another reminder that Brian did the reading. There may be a quiz after church."
+      ],
+      "picks": {
+        "Stanford|O": [
+          "Brian took the Stanford Over. The quiet researcher has left one very visible school logo on the research. The group is allowed to ask whether this was peer-reviewed by anyone outside Palo Alto."
+        ]
+      }
     },
     "david": {
-      "default": "David used to be a CPA. Now {team} is giving him numbers he cannot reconcile himself. If the pick struggles, at least the material is deductible from everyone's patience.",
-      "picks": {"Penn State|U": "David needs Penn State to disappoint. A former CPA rooting for a shortfall: finally, an accounting problem he would welcome."}
+      "default": [
+        "David used to be a CPA. Now {team} is giving him numbers he cannot reconcile himself. If the pick struggles, at least the material is deductible from everyone's patience.",
+        "David needs {team} to help the pick. The joke supply is less dependent on the result, which is a useful hedge.",
+        "If {team} disappoints, David can always audit the commissioner's mood. Zach built a whole website to make that information available."
+      ],
+      "picks": {
+        "Penn State|U": [
+          "David needs Penn State to disappoint. A former CPA rooting for a shortfall: finally, an accounting problem he would welcome."
+        ]
+      }
     },
     "john_tamu": {
-      "default": "John has two football-obsessed sons and in-house scouting help. If {team} lets him down, the group should request the minutes from the family selection committee.",
-      "picks": {"Texas A&M|O": "John took the Aggie Over. Somewhere in the selection process, a careful football analysis met a Texas A&M shirt and decided there was no need for further discussion."}
+      "default": [
+        "John has two football-obsessed sons and in-house scouting help. If {team} lets him down, the group should request the minutes from the family selection committee.",
+        "John's household has serious football expertise. {team} is about to find out whether the family scouting report includes follow-up calls.",
+        "If {team} does its part, John can credit the research. If not, the group should ask which member of the household signed off."
+      ],
+      "picks": {
+        "Texas A&M|O": [
+          "John took the Aggie Over. Somewhere in the selection process, a careful football analysis met a Texas A&M shirt and decided there was no need for further discussion."
+        ]
+      }
     },
     "john_wells": {
-      "default": "John makes financial plans for a living. This one depends on {team}. The group may request a revised risk questionnaire after the next uncomfortable fourth quarter.",
-      "picks": {"Virginia|O": "John is a UVA man and a financial planner with a Virginia Over. The group should ask whether emotional attachment appears anywhere on the disclosure form."}
+      "default": [
+        "John makes financial plans for a living. This one depends on {team}. The group may request a revised risk questionnaire after the next uncomfortable fourth quarter.",
+        "John can plan for retirement. Planning around {team} may require a more frequent review schedule.",
+        "If {team} makes this stressful, the group can request a demonstration of John's measured approach. Preferably during the fourth quarter."
+      ],
+      "picks": {
+        "Virginia|O": [
+          "John is a UVA man and a financial planner with a Virginia Over. The group should ask whether emotional attachment appears anywhere on the disclosure form."
+        ]
+      }
     },
     "zach": {
-      "default": "Zach turned an after-church football conversation into a website. Now {team} needs to justify the infrastructure. David has all the material he needs if it does not.",
-      "picks": {"Notre Dame|U": "Zach wants Notre Dame losses, backed by a model he wrote himself. David is entitled to ask whether the model has an independent complaints department."}
+      "default": [
+        "Zach turned an after-church football conversation into a website. Now {team} needs to justify the infrastructure. David has all the material he needs if it does not.",
+        "The {team} scenario is what happens when a Sunday football conversation gets a software budget. David should feel free to request an itemized invoice.",
+        "If {team} delivers, Zach has a new topic for after church. If not, David does. An unusually balanced arrangement."
+      ],
+      "picks": {
+        "Notre Dame|U": [
+          "Zach wants Notre Dame losses, backed by a model he wrote himself. David is entitled to ask whether the model has an independent complaints department."
+        ]
+      }
     },
     "josh_b": {
-      "default": "Josh can build things, write sermons, and go fishing. Getting {team} to cooperate is the part of this weekend he cannot handle himself. Patience may be the transferable skill.",
-      "picks": {"Duke|O": "Josh went to Duke Divinity and took the Duke Over. The group can debate whether this is scouting or alumni relations. Either way, he would appreciate a few more wins."}
+      "default": [
+        "Josh can build things, write sermons, and go fishing. Getting {team} to cooperate is the part of this weekend he cannot handle himself. Patience may be the transferable skill.",
+        "Josh has worked as a carpenter. If {team} makes a mess of this plan, the group can ask whether it needs patience or a complete rebuild.",
+        "Josh likes fishing. Waiting for {team} to cooperate may offer familiar stretches of optimism with very little happening."
+      ],
+      "picks": {
+        "Duke|O": [
+          "Josh went to Duke Divinity and took the Duke Over. The group can debate whether this is scouting or alumni relations. Either way, he would appreciate a few more wins."
+        ]
+      }
     }
   }
 }
