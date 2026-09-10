@@ -392,7 +392,7 @@ def _group_by_manager(config, picks):
     return order, by_mgr
 
 
-def simulate_totals(config, picks, as_of_week=None, team_cache=None):
+def simulate_totals(config, picks, as_of_week=None, team_cache=None, return_draws=False):
     """Shared-per-team-draw Monte Carlo (ARCHITECTURE §3). Draws each unique
     team's remaining season ONCE, then scores every manager off that same draw.
     Returns (order, totals, p_win_pool):
@@ -409,7 +409,7 @@ def simulate_totals(config, picks, as_of_week=None, team_cache=None):
             + (as_of_week or 0)) & 0xFFFFFFFF
     rng = np.random.default_rng(seed)
 
-    game_wins, _ = simulate_game_wins(team_cache, rng)
+    game_wins, pairs = simulate_game_wins(team_cache, rng)
 
     team_final = {}                                    # canonical -> (trials,) final wins
     for canonical, info in team_cache.items():
@@ -432,6 +432,8 @@ def simulate_totals(config, picks, as_of_week=None, team_cache=None):
         share = is_max / is_max.sum(axis=0, keepdims=True)
         for i, mid in enumerate(order):
             p_win_pool[mid] = float(share[i].mean())
+    if return_draws:
+        return order, totals, p_win_pool, game_wins, pairs
     return order, totals, p_win_pool
 
 
@@ -555,6 +557,166 @@ def load_prior_snapshot(group_id, as_of_week=None, season=None):
                                            utils.effective_week(as_of_week),
                                            season)
     return snap
+
+
+def build_game_leverage(config, picks, as_of_week=None, team_cache=None):
+    """Next unplayed week's title stakes, using paired counterfactual trials.
+
+    Force one game's outcome in BOTH directions while leaving every other
+    draw unchanged. A picked opponent gets the complementary result, and every
+    holder of either team receives that same result. Rare outcomes therefore
+    get the full trial count instead of a tiny conditional subsample.
+    Ratings are held fixed; this is not a prediction of next week's re-rating.
+    """
+    if team_cache is None:
+        team_cache = _team_cache(config, picks, as_of_week,
+                                 utils.season_sp_ratings(utils.get_season()))
+    order, totals, _, game_wins, pairs = simulate_totals(
+        config, picks, as_of_week, team_cache, return_draws=True)
+    weeks = [g['week'] for info in team_cache.values() for g in info['remaining_games']
+             if isinstance(g.get('week'), int)]
+    next_week = min(weeks) if weeks else None
+    result = {'board': 'projection', 'available': True, 'week': next_week,
+              'trials': POOL_SIM_TRIALS, 'games': [],
+              'method': 'One game forced each way; all other draws shared, ratings fixed. '
+                        'Tied titles split equally. Monte Carlo estimates.'}
+    if next_week is None or not order:
+        return result
+    display = utils.manager_display_map(config)
+    _, by_mgr = _group_by_manager(config, picks)
+    coefficients = {mid: {} for mid in order}
+    for mid in order:
+        for pick in by_mgr[mid]:
+            team = utils.resolve_canonical(pick['team'])
+            coefficients[mid][team] = coefficients[mid].get(team, 0) + (
+                1 if pick['direction'] == 'O' else -1)
+    pair_by_slot = {(team, gi): info for info in pairs.values()
+                    for team, gi in info['slots'].items()}
+    seen = set()
+    for team in sorted(team_cache):
+        for gi, game in enumerate(team_cache[team]['remaining_games']):
+            if game.get('week') != next_week:
+                continue
+            pair = pair_by_slot.get((team, gi))
+            if pair and team != pair['reference']:
+                continue
+            key = (next_week, *sorted((team, game['opponent'])))
+            if key in seen:
+                continue
+            seen.add(key)
+            affected = pair['slots'] if pair else {team: gi}
+            branches = []
+            for outcome in (1, 0):
+                changed = []
+                for mid in order:
+                    arr = totals[mid].copy()
+                    for affected_team, slot in affected.items():
+                        forced = outcome if affected_team == team else 1 - outcome
+                        arr += coefficients[mid].get(affected_team, 0) * (
+                            forced - game_wins[affected_team][:, slot].astype(int))
+                    changed.append(arr)
+                stack = np.vstack(changed)
+                top = stack == stack.max(axis=0)
+                shares = top / top.sum(axis=0, keepdims=True)
+                branches.append(shares.mean(axis=1))
+            managers = [{'manager_id': mid, 'display_name': display.get(mid, mid),
+                         'p_if_win': round(float(branches[0][i]), 6),
+                         'p_if_loss': round(float(branches[1][i]), 6),
+                         'swing': round(float(branches[0][i] - branches[1][i]), 6)}
+                        for i, mid in enumerate(order)]
+            managers.sort(key=lambda m: (-abs(m['swing']), m['manager_id']))
+            result['games'].append({
+                'team': team, 'opponent': game['opponent'], 'week': next_week,
+                'home_away': game['home_away'], 'neutral': game['neutral'],
+                'p_team_win': round(float(team_cache[team]['probs'][gi]), 6),
+                'impact': max(abs(m['swing']) for m in managers),
+                'managers': managers,
+            })
+    result['games'].sort(key=lambda g: (-g['impact'], g['team'], g['opponent']))
+    return result
+
+
+def build_title_routes(config, picks, as_of_week=None, team_cache=None):
+    """Plausible next-four-game rooting routes, measured in the joint simulation.
+
+    These are CONDITIONAL observations, not sufficient or necessary conditions
+    for a title. Keep at least 400 matching trials and 8%-80% event probability;
+    require a lift larger than three conditional standard errors. Rank a useful
+    lift by sqrt(event probability) so a wild long shot does not dominate.
+    Picked opponents and opposing holders retain the simulation's shared draws.
+    """
+    if team_cache is None:
+        team_cache = _team_cache(config, picks, as_of_week,
+                                 utils.season_sp_ratings(utils.get_season()))
+    order, totals, base, draws, _ = simulate_totals(
+        config, picks, as_of_week, team_cache, return_draws=True)
+    result = {'board': 'projection', 'available': True, 'managers': [],
+              'trials': POOL_SIM_TRIALS, 'horizon_games': 4,
+              'method': 'Possible routes, not a checklist that guarantees a title. '
+                        'Other games still matter. Scenarios use the next four games '
+                        '(or fewer if the season is ending), shared game results, '
+                        'fixed ratings, and equal shares for tied titles.'}
+    if not order:
+        return result
+    stack = np.vstack([totals[mid] for mid in order])
+    leaders = stack == stack.max(axis=0)
+    shares = leaders / leaders.sum(axis=0, keepdims=True)
+    _, by_mgr = _group_by_manager(config, picks)
+    display = utils.manager_display_map(config)
+    finished = all(not info['probs'] for info in team_cache.values())
+    for mi, mid in enumerate(order):
+        routes = []
+        for pick in by_mgr[mid]:
+            team = utils.resolve_canonical(pick['team'])
+            info = team_cache[team]
+            n = min(4, len(info['probs']))
+            if not n:
+                continue
+            favorable = draws[team][:, :n] if pick['direction'] == 'O' else ~draws[team][:, :n]
+            counts = favorable.sum(axis=1)
+            candidates = []
+            for needed in range(1, n + 1):
+                matches = counts >= needed
+                samples = int(matches.sum())
+                chance = float(matches.mean())
+                if samples < 400 or not .08 <= chance <= .80:
+                    continue
+                values = shares[mi, matches]
+                conditional = float(values.mean())
+                lift = conditional - base[mid]
+                stderr = float(values.std() / np.sqrt(samples))
+                if lift < max(.01, 3 * stderr):
+                    continue
+                candidates.append({'team': team, 'direction': pick['direction'],
+                                   'line': pick['line'], 'next_games': n,
+                                   'needed': needed, 'event_probability': round(chance, 6),
+                                   'p_title_if': round(conditional, 6),
+                                   'p_title_now': round(base[mid], 6),
+                                   'lift': round(lift, 6), 'matching_trials': samples,
+                                   '_score': lift * np.sqrt(chance)})
+            if not candidates:
+                continue
+            best = max(candidates, key=lambda c: (c['_score'], -c['needed']))
+            games = [{**g, 'p_win': round(float(prob), 6)}
+                     for g, prob in zip(info['remaining_games'][:n], info['probs'][:n])]
+            # For a clean sweep, show its hardest hurdles. Otherwise show the
+            # most plausible places to collect the required results.
+            sweep = best['needed'] == n
+            want_high = (pick['direction'] == 'O') != sweep
+            games.sort(key=lambda g: ((-g['p_win'] if want_high else g['p_win']),
+                                      g['week'] or 0, g['opponent']))
+            best['games_to_watch'] = games[:min(best['needed'], 2)]
+            best['stretch'] = [{**g, 'p_win': round(float(prob), 6)}
+                               for g, prob in zip(info['remaining_games'][:n], info['probs'][:n])]
+            routes.append(best)
+        routes.sort(key=lambda r: (-r['_score'], r['team']))
+        for route in routes:
+            del route['_score']
+        result['managers'].append({'manager_id': mid, 'display_name': display.get(mid, mid),
+                                   'p_win_pool': round(base[mid], 6), 'finished': finished,
+                                   'routes': routes})
+    result['managers'].sort(key=lambda m: (-m['p_win_pool'], m['manager_id']))
+    return result
 
 
 def build_projection(config, picks, as_of_week=None, prior=None):

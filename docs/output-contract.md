@@ -494,8 +494,9 @@ site follows, stated once more because this file is where it is easiest to break
 
 `analytics.json` re-derives nothing another board owns: `p_win_pool` is plumbed
 straight from `projection.json`, ranks/floors/ceilings from `standings.json`,
-week-over-week movement from `timeline.json`. It reads no cache and runs no
-model, so it cannot disagree with the boards next to it.
+week-over-week movement from `timeline.json`. The assembly function reads no
+cache and runs no model. `write_analytics` also builds projection context through
+`race_narrative.py` and the projector, using utils-owned season data access.
 
 ### Board separation is part of the contract
 
@@ -507,8 +508,8 @@ Every module carries an explicit `board` field:
 | `"projection"` | derived from the Poisson-binomial / shared-draw model | **must** carry a projection label |
 
 No module ships without a `board`, and no module mixes both kinds of number
-inside itself without per-field marking. Today exactly one module
-(`championship_odds`) is `"projection"`; every other module is `"exact"`.
+inside itself without per-field marking. `championship_odds`, `race_story`,
+`schedule_watch`, `title_routes`, and `leverage` are `"projection"`; the remaining modules are exact.
 `scripts/test_output_shape.py` asserts both the presence and the validity of
 every `board` field.
 
@@ -522,14 +523,97 @@ every `board` field.
   "best_worst":         { "board": "exact",      "...": "" },
   "paths":              { "board": "exact",      "...": "" },
   "portfolio":          { "board": "exact",      "...": "" },
-  "leverage": null
+  "race_story":         { "board": "projection", "...": "" },
+  "title_routes":       { "board": "projection", "...": "" },
+  "schedule_watch":     { "board": "projection", "...": "" },
+  "leverage":           { "board": "projection", "...": "" }
 }
 ```
 
-`leverage` ("games that matter") is **reserved and pinned to `null`**. It is the
-only genuinely new arithmetic on this page and it lands in its own commit against
-this contract. The key exists now so the shape is stable: the renderer branches
-on `leverage === null`, never on whether the key is present.
+The four context modules are `null` if no projection context is supplied
+(including a degraded projector). The renderer displays an unavailable state;
+it must not manufacture zero change or an empty forecast from missing inputs.
+
+### Draft comparison and race context
+
+The analytics page leads with a horizontal title-probability chart and a
+plain-English rooting guide. Technical scores and historical changes are
+supporting details; the floor/ceiling graphic is no longer rendered.
+
+`title_routes` supplies the rooting guide. It contains `board`, `available`,
+`trials`, `horizon_games` (4), `method`, and `managers[]` in title-odds order.
+Each manager has identity, current odds, `finished`, `position`, `intro`, and
+`routes[]`. Each route is a pick's favorable result count (wins for Overs,
+losses for Unders) over its next four games, shortened at season end.
+
+Routes are measured by conditioning the existing joint simulation on at least
+`needed` favorable results. `event_probability`, `matching_trials`,
+`p_title_now`, `p_title_if`, and `lift` preserve the evidence. Both picked sides
+of a game and all holders share the original draws. Candidate events need
+400 matching trials, probability between .08 and .80, and a lift exceeding
+both .01 and three conditional standard errors. Selection balances lift with
+plausibility (`lift * sqrt(event_probability)`), choosing one threshold per
+pick. Identical portfolios or insufficient evidence yield no fabricated route.
+
+These are **helpful possibilities, never necessary or sufficient conditions for
+winning the title**. `condition`, `headline`, `story`, `why`, `difficulty`,
+`likelihood_text`, `rival_note`, and opponent `rooting_note` are composed from
+those facts in Python. Opponents are ranked by the relevant win/loss probability;
+a clean sweep instead highlights its hardest hurdles. The complete `stretch`
+and `games_to_watch` retain game probabilities. A favorite's loss is explicitly
+described as needing an upset. Fixed ratings and other future results still
+matter. Plain-language headlines must never turn “a better chance” into a
+guaranteed title or simulated zero odds into mathematical elimination.
+
+`leverage.games[]` also carries a plain-English `headline`, `story`, and
+`root_for`, derived from the existing signed conditional swings. No numerical
+prediction is delegated to a language model or inferred in the browser.
+
+`championship_odds.managers[]` adds `draft_p_win_pool` and `draft_move` (current
+minus draft probability, six decimals). `draft_baseline` carries `available`,
+`reason`, `frozen_at`, and `method`. The source is the original published group
+projection recovered from Git into `data/draft_baselines/<season>/<group>.json`.
+`freeze_race_baseline.py --group <group> --ref <commit>` checks final draft status,
+zero banked games, matching picks/seasons, and the archived ratings before an
+exclusive-create write. It never overwrites a frozen file. The source commit is
+preserved. No current ratings are substituted for missing draft ratings.
+
+The entire field, all picks (team, direction, line), season, and championship
+counting rule must match for pool odds to be comparable. Otherwise draft odds
+and movement are null, with a reason. Historical changes can include model
+updates; these are original forecasts, not a claim of a fixed historical model.
+Display all probability changes in **percentage points**, not relative percent.
+
+`race_story` contains manager identity, `basis` (`week` or `draft`),
+`odds_change`, and `drivers[]` with team, direction, line, before/now expected
+points and change. A prior scored week is preferred; an original draft forecast
+is the fallback. Drivers sort by absolute expected-point change. They are NOT
+additive causal shares of championship-odds movement. `results[]` lists the
+latest played week's outcomes against draft-rating game probabilities, with
+per-holder signed `points_surprise`; it is not a hindsight/current-rating replay.
+
+`schedule_watch.teams[]` compares the **same currently remaining opponents and
+venues**. The picked team's rating is fixed at its draft value. Only opponent
+ratings vary, through the current calibrated win-probability function. The sum
+of those probability changes is `schedule_win_change`: positive means easier,
+negative harder. `opponent_rating_change` is the average SP+ shift in the
+compared opponents. `owners[]` reverses the expected-point effect for Unders.
+`opponents[]` exposes both ratings and both game probabilities. Unrated opponents
+are excluded, never silently treated as unchanged; `compared_games`,
+`remaining_games`, and `unrated_games` expose coverage. No comparable games gives
+null, not zero. Absolute win shifts below .005 are displayed as little change.
+Teams sort by absolute schedule effect, nulls last. Summary counts are computed
+in Python. `baseline_date` identifies the group's original draft projection.
+
+`leverage` contains `week`, `trials`, `method`, and `games[]`. Only the earliest
+unplayed, known week is selected, not an arbitrary later game. Each game records
+the reference `team`, `opponent`, venue, `p_team_win`, maximum absolute manager
+`impact`, and `managers[]` with `p_if_win`, `p_if_loss`, and signed `swing`.
+Game and manager rows sort by absolute impact. Each scenario forces ONE result
+in all trials, preserving the other draws. Picked opponents get complementary
+outcomes; all managers holding either team share the result. Tied titles split
+equally. Both branches use the full trial count, even for rare outcomes. Ratings
+are fixed: this does not forecast the re-rating caused by a future game.
 
 ### `race` — board: exact
 

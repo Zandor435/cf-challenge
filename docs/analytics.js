@@ -1,556 +1,134 @@
-/* ==========================================================================
-   analytics.js — Board 3 (analytics.html).
-
-   THIS PAGE COMPUTES NOTHING. That is the contract, not a style preference:
-   docs/output-contract.md states it twice, once generally and once again under
-   analytics.json because this is the file where it is easiest to break. Every
-   ratio, every delta, every rank and every sort order arrives already computed
-   from scripts/analytics.py. If the page wants a number, the engine gets a key.
-
-   The single exception is bar geometry — the clamped `(p * 100).toFixed(1)`
-   that sets a CSS width, exactly as app.js does for the win-probability bar.
-   That is a length in a style attribute, not a fact about the league.
-
-   GROUP-GENERIC BY CONSTRUCTION. No roster, no manager id, no group path.
-
-   Reads, in one Promise.all:
-     data/<group>/analytics.json    REQUIRED — every module on this page
-     data/<group>/standings.json    optional — meta.draft_status, for the
-                                    sample-data banner ONLY. analytics.json
-                                    deliberately carries no draft_status.
-     data/<group>/projection.json   optional — meta.ratings_source, for the
-                                    projection disclaimer's wording ONLY. The
-                                    odds themselves come from analytics.json,
-                                    already plumbed from the projector.
-
-   Only analytics.json is required. The other two are allowed to 404: the
-   banner is simply not shown, and the disclaimer names the contract's default
-   ratings source. Neither absence removes a number from the page.
-
-   BOARD SEPARATION is the one rule in here that is not cosmetic. Four modules
-   are Board 3 exact arithmetic; championship_odds is a Board 2 projection.
-   They render into two sibling sections that never interleave, and the
-   projection carries its label and its disclaimer wherever it goes.
-
-   fmtSigned / fmtLine / pct / fmtSignedPct live in site.js and are in scope
-   here by name — these are classic scripts sharing one global lexical scope,
-   and re-declaring one would be a SyntaxError that kills the whole page.
-   ========================================================================== */
+/* A renderer: Python supplies odds, route conditions, ordering and evidence.
+   Only display formatting and chart widths happen here. */
 'use strict';
+const oddsText = n => n == null ? 'Unavailable' : `${(Number(n) * 100).toFixed(1)}%`;
+const dataDate = value => value ? new Date(value).toLocaleDateString('en-US', {
+  month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York'
+}) : 'date unavailable';
+const barWidth = n => (Math.max(0, Math.min(1, Number(n))) * 100).toFixed(2);
+const noData = message => `<p class="an-empty">${message}</p>`;
 
-// The only formatter this page needs that no other page does, so per site.js's
-// own rule it stays local. race[].week_move is signed PLACES — an integer, not
-// a quantity — so fmtSigned's fixed decimal would print "+2.0 places climbed".
-// fmtSignedPct (site.js) handles championship_odds[].week_move, which is a
-// signed change in probability and a different kind of number entirely.
-const fmtPlaces = (n) => (Number(n) > 0 ? '+' : '') + String(n);
-
-// Missing is an em dash, never 0 and never blank: on this page a blank cell
-// and a zero are both claims, and "no prior snapshot to measure against" is
-// neither of them.
-const DASH = '&mdash;';
-const orDash = (v, fmt) => (v === null || v === undefined ? DASH : fmt(v));
-
-// Sign class shared by every delta cell, matching managers.js.
-const signCls = (n) => (Number(n) > 0 ? ' pos' : Number(n) < 0 ? ' neg' : '');
-
-// ---------- preseason detection -------------------------------------------
-// WHY THIS EXISTS. With zero games played, banked_delta collapses to ±line for
-// every pick, and the consequences run through four of the five modules:
-// `race` effectively ranks managers by how many Unders they drafted,
-// `best_worst` ties up to seven ways at identical deltas, every manager lands
-// in controls_destiny or needs_help, and `portfolio` measures concentration
-// against lines rather than results. Each of those is arithmetically correct
-// and semantically empty, and a reader who is not told will read a restatement
-// of the draft as a result.
-//
-// DETECTED FROM THE DATA, NEVER FROM A DATE, so it clears itself the moment
-// week 1 is scored with no edit here.
-//
-// THERE USED TO BE A SECOND SIGNAL AND IT WAS WRONG. This function led with
-// `meta.as_of_week === null → preseason`, on the belief that analytics.json
-// carries the EFFECTIVE scored week. It does not. output-contract.md §meta is
-// explicit that the shared meta block — "shared by standings.json +
-// projection.json + analytics.json" — has an as_of_week that "mirrors the
-// --as-of-week N flag and is null on a live run", and analytics.py:490 writes
-// exactly that argument through. The effective week is computed at
-// analytics.py:473 and spent on select_prior; it never reaches meta. Only the
-// TIMELINE SNAPSHOT's as_of_week is the effective one (contract §timeline).
-//
-// So that signal was true on EVERY live run, week 9 included: a mid-season
-// Board 3 would have stamped itself "preseason" and hung the degeneracy note
-// on four of five modules over real results. It is the same trap app.js
-// documented refusing when it ported this predicate, and the comment there
-// naming analytics.json as the file that "carries the EFFECTIVE week" was
-// repeating the same mistake.
-//
-// What is left is the signal that was always sound: every pick in every
-// portfolio still showing |banked_delta| == |line|, which is exactly
-// banked_wins == banked_losses == 0 everywhere — the predicate
-// scoring.py's _any_played() uses, expressed against the fields analytics.json
-// happens to carry.
-// Both expressions of it now live in site.js as isPreseasonStandings() and
-// isPreseasonAnalytics(). This page holds standings.json for the banner
-// anyway, so it asks the DIRECT form and keeps the analytics-shaped one as the
-// fallback for the run where standings.json 404s -- see main().
-
-// The honesty line under a degenerate module's .card-sub. Rendered as a
-// distinct element rather than appended to the sub, so it cannot be skimmed as
-// part of the module's ordinary description.
-const degenerate = (on, text) =>
-  (on ? `<p class="an-degenerate">${text}</p>` : '');
-
-// ---------- card shell -----------------------------------------------------
-// One head for every module, carrying its board's tag. "exact" gets the amber
-// .tag-exact; "projection" gets the grey .tag-proj. A module that somehow
-// shipped without a board field gets no tag at all rather than a guessed one —
-// an untagged number is a bug to notice, an mislabelled one is a lie.
-function cardHead(title, board, sub, extra) {
-  const tag = board === 'exact'
-    ? '<span class="card-tag tag-exact">Exact</span>'
-    : board === 'projection'
-      ? '<span class="card-tag tag-proj">Projection</span>' : '';
-  return `<div class="card-head">
-      <h2 class="card-title">${title}</h2>
-      ${tag}
-    </div>
-    ${sub ? `<p class="card-sub">${sub}</p>` : ''}
-    ${extra || ''}`;
-}
-
-// ---------- 1. race — board: exact ----------------------------------------
-// Rendered in the order the engine emitted (standings order, by rank). No sort
-// here; the ordering is a computed value like any other.
-function renderRace(race, pre) {
-  if (!race) return '';
-  const mgrs = race.managers || [];
-  const sub = 'Standings order. Gap is the leader&rsquo;s banked total minus yours; ' +
-    'ceiling left is what is still physically on the table; move is places gained ' +
-    'since the previous scored week.';
-  const note = degenerate(pre,
-    'Preseason &mdash; nothing has been played, so a banked total is just that ' +
-    'manager&rsquo;s lines added up in their picks&rsquo; directions. This ranks how ' +
-    'many Unders someone drafted, not how they are doing.');
-  const head = `<div class="an-row is-head">
-    <span class="an-c-rank">#</span>
-    <span class="an-name">Manager</span>
-    <span class="an-c-banked an-num">Banked</span>
-    <span class="an-c-gap an-num">Gap</span>
-    <span class="an-c-ceil an-num">Ceiling left</span>
-    <span class="an-c-move an-num">Move</span>
-  </div>`;
-  const body = mgrs.length ? mgrs.map((m) => {
-    const isLeader = m.manager_id === race.leader_id;
-    return `<div class="an-row">
-      <span class="an-c-rank">${orDash(m.rank, (v) => esc(String(v)))}</span>
-      <span class="an-name">${esc(m.display_name)}${
-        isLeader ? '<span class="an-c-leader">Leader</span>' : ''}</span>
-      <span class="an-c-banked an-num${signCls(m.banked_total)}">${
-        orDash(m.banked_total, fmtSigned)}</span>
-      <span class="an-c-gap an-num">${orDash(m.gap_to_leader, fmtLine)}</span>
-      <span class="an-c-ceil an-num">${orDash(m.ceiling_remaining, fmtLine)}</span>
-      <span class="an-c-move an-num">${orDash(m.week_move, fmtPlaces)}</span>
-    </div>`;
-  }).join('') : '<p class="an-empty">No managers in this league yet.</p>';
-  // prior_week is null whenever week_move could not be measured. Say which
-  // week the moves are against rather than leaving a column of dashes
-  // unexplained.
-  const against = race.prior_week === null || race.prior_week === undefined
-    ? '<p class="card-sub">Move is unavailable: there is no earlier scored week to ' +
-      'measure against.</p>'
-    : `<p class="card-sub">Move is measured against week ${esc(String(race.prior_week))}.</p>`;
-  return `<section class="card an-race">
-    ${cardHead('The race', race.board, sub, note)}
-    <div class="an-table">${head}${body}</div>
-    ${against}
-  </section>`;
-}
-
-// ---------- 2. championship odds — board: PROJECTION ----------------------
-// The only modelled module on the page. It carries the grey Projection tag,
-// sits inside the projection band, and never shares a row with an exact one.
-//
-// Its order is the engine's (p_win_pool desc, nulls last, then manager_id) and
-// is deliberately NOT standings order — sorting it here would be computation.
-function renderOdds(odds, pre) {
-  if (!odds) return '';
-  const sub = 'Probability this manager finishes with the group&rsquo;s highest total, ' +
-    'from the shared-draw simulation. Its own ranking &mdash; not standings order.';
-  const note = degenerate(pre,
-    'Preseason &mdash; this is a full-season projection with no games banked ' +
-    'behind it, so it is the model&rsquo;s read on the draft alone.');
-  // available:false means the projector degraded and every p_win_pool is null.
-  // Say the projection is unavailable rather than ruling a column of blanks.
-  if (odds.available === false) {
-    return `<section class="card an-odds">
-      ${cardHead('Championship odds', odds.board, sub, note)}
-      <div class="an-unavailable">
-        <div class="an-u-title">Projection unavailable</div>
-        <p class="an-u-sub">The weekly projection did not run this cycle, so there
-          are no championship odds to show. Every exact number above is unaffected.</p>
-      </div>
-    </section>`;
-  }
-  const mgrs = odds.managers || [];
-  const head = `<div class="an-row is-head">
-    <span class="an-c-seed"></span>
-    <span class="an-name">Manager</span>
-    <span class="an-c-odds an-num">P(win pool)</span>
-    <span class="an-c-omove an-num">Week move</span>
-  </div>`;
-  const body = mgrs.length ? mgrs.map((m, i) => `<div class="an-row">
-    <span class="an-c-seed">${i + 1}</span>
-    <span class="an-name">${esc(m.display_name)}</span>
-    <span class="an-c-odds an-num">${orDash(m.p_win_pool, pct)}</span>
-    <span class="an-c-omove an-num${signCls(m.week_move)}">${
-      orDash(m.week_move, fmtSignedPct)}</span>
-  </div>`).join('') : '<p class="an-empty">No managers in this league yet.</p>';
-  const against = odds.prior_week === null || odds.prior_week === undefined
-    ? '<p class="card-sub">Week move is unavailable: there is no earlier scored week ' +
-      'to measure against.</p>'
-    : `<p class="card-sub">Week move is the change since week ${
-      esc(String(odds.prior_week))}, in probability &mdash; not places.</p>`;
-  return `<section class="card an-odds">
-    ${cardHead('Championship odds', odds.board, sub, note)}
-    <div class="an-table">${head}${body}</div>
-    ${against}
-  </section>`;
-}
-
-// ---------- 3. best / worst — board: exact --------------------------------
-// steal, bust, mvp and anchor are ALWAYS arrays. Every one of them can be
-// empty (steal and bust are sign-gated: a group where nobody is above their
-// line has no steal) and every one of them can hold several entries, because
-// ties emit every tied pick. Family's steal is seven-way tied today.
-function pickLine(p) {
-  const dir = p.direction === 'O' ? 'Over' : 'Under';
-  return `${esc(p.team)} ${dir} ${fmtLine(p.line)}`;
-}
-
-function bwGroupItems(list, emptyText) {
-  if (!list || !list.length) return `<p class="an-bw-none">${emptyText}</p>`;
-  return list.map((p) => `<div class="an-bw-item">
-    <span class="an-bw-txt"><span class="an-bw-who">${esc(p.display_name)}</span>
-      &middot; <span class="an-bw-pick">${pickLine(p)}</span>
-      <span class="an-bw-conf">${esc(p.conference || '—')}</span></span>
-    <span class="an-bw-delta${signCls(p.delta)}">${fmtSigned(p.delta)}</span>
-  </div>`).join('');
-}
-
-function bwSlot(label, list) {
-  if (!list || !list.length) {
-    return `<div class="an-bw-slot"><span class="an-bw-slot-lbl">${label}</span>
-      <span class="an-bw-none">${DASH}</span></div>`;
-  }
-  return list.map((p, i) => `<div class="an-bw-slot">
-    <span class="an-bw-slot-lbl">${i === 0 ? label : '&nbsp;'}</span>
-    <span class="an-bw-pick">${pickLine(p)}</span>
-    <span class="an-bw-delta${signCls(p.delta)}">${fmtSigned(p.delta)}</span>
-  </div>`).join('');
-}
-
-function renderBestWorst(bw, pre) {
-  if (!bw) return '';
-  const sub = 'Steal and bust are group-wide and sign-gated. MVP and anchor are each ' +
-    'manager&rsquo;s own best and worst pick &mdash; relative, not sign-gated, so a best ' +
-    'pick can still be under water. Every tied pick is listed.';
-  const note = degenerate(pre,
-    'Preseason &mdash; every delta is still exactly ±the line, so &ldquo;best&rdquo; and ' +
-    '&ldquo;worst&rdquo; only name the biggest and smallest numbers a manager drafted. ' +
-    'Ties are the rule rather than the exception here.');
-  const mgrs = bw.managers || [];
-  const perMgr = mgrs.length ? mgrs.map((m) => `<div class="an-bw-mgr">
-    <div class="an-bw-mgr-name">${esc(m.display_name)}</div>
-    ${bwSlot('MVP', m.mvp)}
-    ${bwSlot('Anchor', m.anchor)}
-  </div>`).join('') : '<p class="an-empty">No managers in this league yet.</p>';
-  return `<section class="card an-bw">
-    ${cardHead('Best and worst', bw.board, sub, note)}
-    <div class="an-bw-group">
-      <span class="an-bw-lbl">Steal of the draft</span>
-      ${bwGroupItems(bw.steal, 'Nobody in this league is above their line yet.')}
-    </div>
-    <div class="an-bw-group">
-      <span class="an-bw-lbl">Biggest bust</span>
-      ${bwGroupItems(bw.bust, 'Nobody in this league is below their line yet.')}
-    </div>
-    <div class="an-bw-group">
-      <span class="an-bw-lbl">Every manager&rsquo;s own</span>
-      ${perMgr}
-    </div>
-  </section>`;
-}
-
-// ---------- 4. paths — board: exact ---------------------------------------
-// `comparison` ships OPERANDS, not prose, so that the page shows the reasoning
-// rather than an unexplained label. Composing the sentence is this renderer's
-// job — and it is composition, not computation: nothing here derives a number,
-// it only reads the four the engine handed over in the order it named them.
-const PATH_STATES = {
-  eliminated:       { label: 'Eliminated',       cls: ' st-eliminated' },
-  clinched:         { label: 'Clinched',         cls: ' st-clinched' },
-  controls_destiny: { label: 'Controls destiny', cls: ' st-controls' },
-  needs_help:       { label: 'Needs help',       cls: '' },
-};
-
-// The four literal operators the contract uses, in words. An operator this map
-// does not know is printed verbatim instead of being paraphrased into
-// something it might not mean.
-const OPERATOR_WORDS = {
-  '<':  'is below',
-  '<=': 'is at or below',
-  '>':  'is above',
-  '>=': 'reaches',
-};
-
-function pathWhy(c) {
-  if (!c) return '';
-  // A sole manager is clinched vacuously: every other_* field and the operator
-  // are null, because there is nobody on the other side of the comparison.
-  if (c.basis === 'sole_manager') {
-    return 'The only manager in this league &mdash; there is nobody to be compared ' +
-      'against, so the title is theirs by default.';
-  }
-  if (c.other_display_name === null || c.other_display_name === undefined ||
-      c.operator === null || c.operator === undefined) {
-    return '';
-  }
-  const word = Object.prototype.hasOwnProperty.call(OPERATOR_WORDS, c.operator)
-    ? OPERATOR_WORDS[c.operator]
-    : `is <span class="mono">${esc(String(c.operator))}</span>`;
-  return `Their ${esc(String(c.my_field))} ` +
-    `<span class="mono">${orDash(c.my_value, fmtSigned)}</span> ${word} ` +
-    `${esc(c.other_display_name)}&rsquo;s ${esc(String(c.other_field))} ` +
-    `<span class="mono">${orDash(c.other_value, fmtSigned)}</span>.`;
-}
-
-function renderPaths(paths, pre) {
-  if (!paths) return '';
-  const sub = 'Read straight off the floor&ndash;ceiling envelope in the standings, in ' +
-    'the contract&rsquo;s fixed order: eliminated, clinched, controls destiny, then ' +
-    'needs help as the fallback.';
-  const note = degenerate(pre,
-    'Preseason &mdash; with nothing banked, every ceiling still clears every floor, ' +
-    'so everybody lands in controls-destiny or needs-help. That is correct and it ' +
-    'says nothing yet; the states start separating once results arrive.');
-  const mgrs = paths.managers || [];
-  if (!mgrs.length) {
-    return `<section class="card an-paths">
-      ${cardHead('Paths to the title', paths.board, sub, note)}
-      <p class="an-empty">No managers in this league yet.</p>
-    </section>`;
-  }
-  const rows = mgrs.map((m) => {
-    const st = Object.prototype.hasOwnProperty.call(PATH_STATES, m.state)
-      ? PATH_STATES[m.state] : { label: String(m.state || '—'), cls: '' };
-    const why = pathWhy(m.comparison);
-    return `<div class="an-path">
-      <div class="an-path-top">
-        <span class="an-path-name">${esc(m.display_name)}${
-          m.manager_id === paths.leader_id ? '<span class="an-c-leader">Leader</span>' : ''}</span>
-        <span class="an-state${st.cls}">${esc(st.label)}</span>
-      </div>
-      ${why ? `<p class="an-path-why">${why}</p>` : ''}
-    </div>`;
-  }).join('');
-  return `<section class="card an-paths">
-    ${cardHead('Paths to the title', paths.board, sub, note)}
-    <div class="an-table">${rows}</div>
-  </section>`;
-}
-
-// ---------- 5. portfolio — board: exact -----------------------------------
-// share_of_delta is the concentration number: |this pick| over |everything|.
-// It is NULL — never 0 — when absolute_total is 0, which is exactly the
-// nothing-played case. A zero-width bar next to "0%" would say "this pick
-// accounts for none of it"; the honest answer is that there is nothing to take
-// a share of, so the bar is hatched and the cell is an em dash.
-function renderPortfolio(pf, pre) {
-  if (!pf) return '';
-  const sub = 'How concentrated a manager&rsquo;s swing is. Share is this pick&rsquo;s ' +
-    'absolute delta over the absolute total, so a manager&rsquo;s shares sum to 100%.';
-  const note = degenerate(pre,
-    'Preseason &mdash; the totals below are sums of lines, not results, so these ' +
-    'shares describe how a manager drafted rather than how their season is going.');
-  const mgrs = pf.managers || [];
-  if (!mgrs.length) {
-    return `<section class="card an-pf">
-      ${cardHead('Portfolio concentration', pf.board, sub, note)}
-      <p class="an-empty">No managers in this league yet.</p>
-    </section>`;
-  }
-  const head = `<div class="an-row is-head">
-    <span class="an-c-team">Team</span>
-    <span class="an-c-conf">Conf</span>
-    <span class="an-c-line an-num">Line</span>
-    <span class="an-c-dir">O/U</span>
-    <span class="an-c-delta an-num">&Delta;</span>
-    <span class="an-c-bar"></span>
-    <span class="an-c-share an-num">Share</span>
-  </div>`;
-  const blocks = mgrs.map((m) => {
-    const picks = m.picks || [];
-    const rows = picks.length ? picks.map((p) => {
-      const over = p.direction === 'O';
-      const known = p.share_of_delta !== null && p.share_of_delta !== undefined;
-      // THE ONE PIECE OF ARITHMETIC ON THIS PAGE, and it is a CSS length:
-      // the same clamped (p * 100).toFixed(1) app.js uses for the win-prob
-      // bar. The share itself is printed by pct() from the engine's value.
-      const w = known
-        ? (Math.max(0, Math.min(1, Number(p.share_of_delta))) * 100).toFixed(1)
-        : null;
-      return `<div class="an-row${p.status === 'DEAD' ? ' is-dead' : ''}">
-        <span class="an-c-team">${esc(p.team)}</span>
-        <span class="an-c-conf">${esc(p.conference || '—')}</span>
-        <span class="an-c-line an-num">${fmtLine(p.line)}</span>
-        <span class="an-c-dir"><span class="an-dir ${over ? 'over' : 'under'}">${
-          over ? 'Over' : 'Under'}</span></span>
-        <span class="an-c-delta an-num${signCls(p.banked_delta)}">${
-          orDash(p.banked_delta, fmtSigned)}</span>
-        <span class="an-c-bar"><span class="an-bar${known ? '' : ' is-unknown'}">${
-          known ? `<span class="an-bar-fill" style="width:${w}%"></span>` : ''
-        }</span></span>
-        <span class="an-c-share an-num">${orDash(p.share_of_delta, pct)}</span>
-      </div>`;
-    }).join('') : '<p class="an-empty">No picks &mdash; this league hasn&rsquo;t drafted.</p>';
-    return `<div class="an-pf-mgr">
-      <div class="an-pf-head">
-        <span class="an-pf-name">${esc(m.display_name)}</span>
-        <span class="an-pf-tot">Banked <b class="${signCls(m.banked_total).trim()}">${
-          orDash(m.banked_total, fmtSigned)}</b> &middot; swing <b>${
-          orDash(m.absolute_total, fmtLine)}</b></span>
-      </div>
-      <div class="an-table">${head}${rows}</div>
-    </div>`;
-  }).join('');
-  return `<section class="card an-pf">
-    ${cardHead('Portfolio concentration', pf.board, sub, note)}
-    ${blocks}
-  </section>`;
-}
-
-// ---------- 6. leverage — reserved ----------------------------------------
-// BRANCH ON `leverage === null`, NEVER on whether the key is present. The key
-// exists today precisely so the shape is stable; the module lands in its own
-// commit against the contract, and until then this is an honest placeholder
-// rather than an invented one.
-function renderLeverage(a) {
-  if (a.leverage === null || a.leverage === undefined) {
-    return `<section class="card an-leverage">
-      <div class="coming-soon">
-        <div class="cs-label">Games that matter &mdash; coming soon</div>
-        <p class="cs-sub">The only genuinely new arithmetic on this page. It is
-          reserved in the output contract and ships with its own commit, so the
-          slot is held rather than filled with something else.</p>
-      </div>
-    </section>`;
-  }
-  // The key stopped being null, which means a later commit shipped the module.
-  // This renderer predates its shape, so it says so instead of guessing.
-  return `<section class="card an-leverage">
-    ${cardHead('Games that matter', a.leverage.board,
-      'This module now ships data, but this page was written before its shape was ' +
-      'defined. It renders with the commit that lands the module.', '')}
-  </section>`;
-}
-
-// ---------- nav ------------------------------------------------------------
-// Same PAGE_NAV as every other page. ANALYTICS is this page: it becomes a dead
-// <span>, exactly the posture managers.js takes on the roster page. Entries
-// still marked unbuilt are omitted rather than linked at nothing — this page
-// has no COMING SOON panel to swap in.
 function renderNav(groupId) {
-  const { raw: q, attr: qAttr } = navQuery(groupId);
-  $('page-nav').innerHTML = PAGE_NAV.filter((p) => p.kind !== 'soon').map((p) => {
-    if (p.href === 'analytics.html') {
-      return `<span class="nav-btn" aria-current="true">${esc(p.label)}</span>`;
-    }
-    return `<a class="nav-btn" href="${esc(p.href)}${qAttr}">${esc(p.label)}</a>`;
-  }).join('');
+  const { raw: q, attr: qa } = navQuery(groupId);
+  $('page-nav').innerHTML = PAGE_NAV.filter(p => p.kind !== 'soon').map(p =>
+    p.href === 'analytics.html' ? `<span class="nav-btn" aria-current="page">${esc(p.label)}</span>`
+      : `<a class="nav-btn" href="${esc(p.href)}${qa}">${esc(p.label)}</a>`).join('');
   $('brand-link').setAttribute('href', `index.html${q}`);
 }
 
-function fail(title, body) {
+function renderOdds(odds, pre) {
+  const managers = (odds || {}).managers || [];
+  return `<div class="an-chances"><div class="an-chances-head"><div><p class="an-eyebrow">The big picture</p><h2>Who brings it home?</h2></div><span class="an-model-label">Estimated chance to win</span></div>
+    ${!odds || !odds.available ? noData('The forecast is unavailable for this update.') :
+      `<div class="an-odds-bars">${managers.map(m => `<div class="an-odds-row"><a href="#an-rooting" data-choose-manager="${esc(m.manager_id)}">${esc(m.display_name)}</a><div class="an-odds-track${m.p_win_pool == null ? ' is-unknown' : ''}" aria-hidden="true"><span style="width:${barWidth(m.p_win_pool)}%"></span></div><strong>${oddsText(m.p_win_pool)}</strong></div>`).join('') || noData('No managers in this league yet.')}</div>`}
+    <p class="an-fine">Longer bar, better shot at the title. ${pre ? 'Preseason forecast; no games have been played yet.' : 'A forecast of the rest of the season, not a promise.'}</p></div>`;
+}
+
+function matchup(team, game) {
+  return game.neutral ? `${esc(team)} vs. ${esc(game.opponent)}` : game.home_away === 'home'
+    ? `${esc(game.opponent)} at ${esc(team)}` : `${esc(team)} at ${esc(game.opponent)}`;
+}
+
+function routeStory(manager, route, index) {
+  return `<div class="an-route-story" data-route-index="${index}" ${index ? 'hidden' : ''}>
+    <div class="an-route-lead"><div><span class="an-route-kicker">One way forward</span><h3>${esc(route.headline)}</h3><p>${esc(route.story)}</p></div><div class="an-rooting-sign" aria-label="${esc(manager.display_name)} wants ${esc(route.team)} to ${route.direction === 'U' ? 'lose' : 'win'}"><span>You want</span><b>${route.direction === 'U' ? 'LOSSES' : 'WINS'}</b><span>for ${esc(route.team)}</span></div></div>
+    <div class="an-route-main"><div class="an-route-watches"><p class="an-eyebrow">${esc(route.watch_heading)}</p>${(route.games_to_watch || []).map(g => `<div class="an-circle-game"><span class="an-week">W${esc(String(g.week ?? '?'))}</span><div><h4>${matchup(route.team, g)}</h4><p>${esc(g.rooting_note)}</p></div></div>`).join('')}</div><aside class="an-route-aside"><p class="an-eyebrow">The catch</p><h4>${esc(route.difficulty)}</h4><p>${route.needed === route.next_games && route.next_games > 1 ? 'Every game in that stretch has to go the right way. ' : ''}This would improve ${esc(manager.display_name)}&rsquo;s chances. The other picks still have to do their part.</p>${route.rival_note ? `<p class="an-tug"><b>A little tug-of-war</b>${esc(route.rival_note)}</p>` : ''}</aside></div>
+    ${route.narrative ? `<div class="an-commentary"><div><p class="an-eyebrow">The Saturday subplot</p><p>${esc(route.narrative)}</p><p>${esc(route.if_it_happens || '')}</p></div><aside class="an-banter"><p class="an-eyebrow">Group chat ammunition</p><p>${esc(route.banter || '')}</p><span>Friendly fire, courtesy of the rooting guide.</span></aside></div>` : ''}
+    <details class="an-proof"><summary>Why this would help</summary><div class="an-proof-content"><p>${esc(route.why)}</p><p>In simulated seasons where ${esc(route.condition)}, ${esc(manager.display_name)}&rsquo;s title chance is about <b>${oddsText(route.p_title_if)}</b>, compared with <b>${oddsText(route.p_title_now)}</b> today.</p><p>${esc(route.likelihood_text)} Other outcomes and team ratings stay within the same forecast.</p><p class="an-eyebrow">The full stretch</p><div class="an-stretch">${(route.stretch || []).map(g => `<div><span>Week ${esc(String(g.week ?? '?'))}</span><b>${matchup(route.team, g)}</b><small>${oddsText(g.p_win)} chance ${esc(route.team)} wins</small></div>`).join('')}</div><p class="an-fine">One helpful scenario, with other routes still possible. Tied titles are split equally in the forecast.</p></div></details>
+  </div>`;
+}
+
+function renderRooting(routes) {
+  if (!routes || !routes.available) return noData('The rooting guide is unavailable for this update.');
+  const managers = routes.managers || [];
+  if (!managers.length) return noData('Once this league has picks, everyone will have a rooting guide.');
+  return `<div class="an-manager-picker" role="group" aria-label="Choose a manager">${managers.map((m, i) => `<button type="button" data-manager-button="${esc(m.manager_id)}" aria-pressed="${i === 0}" aria-controls="route-${esc(m.manager_id)}">${esc(m.display_name)}</button>`).join('')}</div>
+    ${managers.map((m, i) => `<article class="an-manager-guide" id="route-${esc(m.manager_id)}" data-manager-panel="${esc(m.manager_id)}" aria-label="${esc(m.display_name)}'s rooting guide" ${i ? 'hidden' : ''}><div class="an-guide-top"><p><strong>${esc(m.display_name)}&rsquo;s rooting guide</strong><span>${esc(m.position)}</span></p>${(m.routes || []).length > 1 ? `<div class="an-pick-picker" role="group" aria-label="Explore ${esc(m.display_name)}'s picks"><span>Explore a pick</span>${m.routes.map((r, ri) => `<button type="button" data-route-button="${ri}" aria-pressed="${ri === 0}">${esc(r.team)}</button>`).join('')}</div>` : ''}</div>${(m.routes || []).length ? m.routes.map((r, ri) => routeStory(m, r, ri)).join('') : `<p class="an-empty">${esc(m.intro)}</p>`}</article>`).join('')}
+    <details class="an-rules"><summary>New to the pool? Here&rsquo;s how the picks work.</summary><p>Some picks need a team to win <b>more</b> than its preseason target. Others need it to win <b>less</b>. That is why a team losing can be great news for one manager and bad news for another. The best combined score across all of a manager&rsquo;s picks wins.</p></details>`;
+}
+
+function watchCard(game) {
+  const chat = game.conversation ? `<p class="an-watch-chat"><b>The group chat angle</b>${esc(game.conversation)}</p>` : '';
+  return `<article class="an-watch-card"><p class="an-eyebrow">Week ${esc(String(game.week))}</p><p class="an-watch-matchup">${matchup(game.team, game)}</p><h3>${esc(game.headline || 'A game to keep an eye on.')}</h3><p class="an-watch-story">${esc(game.story || '')}</p>${chat}<details class="an-proof"><summary>See how much it matters</summary><div class="an-proof-content"><p class="an-fine">Each manager&rsquo;s title chance if one side or the other wins. The rest of the forecast stays the same.</p><div class="an-scenario-head"><span>Manager</span><span>${esc(game.team)} wins</span><span>${esc(game.opponent)} wins</span></div>${(game.managers || []).map(m => `<div class="an-scenario-row"><b>${esc(m.display_name)}</b><span>${oddsText(m.p_if_win)}</span><span>${oddsText(m.p_if_loss)}</span></div>`).join('')}</div></details></article>`;
+}
+
+function renderWatch(leverage) {
+  if (!leverage || !leverage.available) return noData('The upcoming game guide is unavailable for this update.');
+  const games = leverage.games || [];
+  if (!games.length) return noData('No upcoming games on the current slate.');
+  return `<div class="an-watch-grid">${games.slice(0, 3).map(watchCard).join('')}</div>${games.length > 3 ? `<details class="an-fold"><summary>More games to keep an eye on</summary><div class="an-watch-grid">${games.slice(3).map(watchCard).join('')}</div></details>` : ''}`;
+}
+
+function scheduleStory(t) {
+  if (t.direction === 'unavailable') return `We don&rsquo;t have comparable ratings for ${esc(t.team)}&rsquo;s remaining opponents.`;
+  if (t.direction === 'unchanged') return `${esc(t.team)}&rsquo;s remaining road looks about as tough as it did at the draft.`;
+  const help = t.owners.filter(o => o.effect === 'helps').map(o => esc(o.display_name));
+  const hurt = t.owners.filter(o => o.effect === 'hurts').map(o => esc(o.display_name));
+  return `${esc(t.team)}&rsquo;s road has become ${t.direction === 'harder' ? 'bumpier' : 'a little smoother'}. ${help.length ? `That helps ${help.join(', ')}.` : ''} ${hurt.length ? `It works against ${hurt.join(', ')}.` : ''}`;
+}
+
+function renderRoad(schedule) {
+  if (!schedule || !schedule.available) return `<div class="an-road-report"><p class="an-eyebrow">The road report</p><h2>Still waiting on the comparison.</h2><p>Draft-day ratings aren&rsquo;t available for this update.</p></div>`;
+  const changed = schedule.teams.filter(t => t.direction === 'easier' || t.direction === 'harder');
+  return `<div class="an-road-report"><div class="an-road-mark" aria-hidden="true"><i></i><i></i><i></i></div><div><p class="an-eyebrow">The road report</p><h2>${changed.length ? 'A few twists since draft day.' : schedule.compared_teams ? 'Same road. No new twists yet.' : 'No road left to compare.'}</h2>${changed.length ? changed.slice(0, 3).map(t => `<p>${scheduleStory(t)}</p>`).join('') : `<p>${schedule.compared_teams ? 'So far, the ratings haven&rsquo;t meaningfully changed how tough the remaining schedules look.' : 'There are no remaining games with ratings in both snapshots.'}</p>`}<details class="an-proof"><summary>Check the road for a team</summary><div class="an-proof-content"><label class="an-team-label" for="an-road-team">Choose a team <select id="an-road-team">${schedule.teams.map((t, i) => `<option value="${i}">${esc(t.team)}</option>`).join('')}</select></label>${schedule.teams.map((t, i) => `<div class="an-road-team" data-road-team="${i}" ${i ? 'hidden' : ''}><p>${scheduleStory(t)}</p><p class="an-fine">${t.compared_games} of ${t.remaining_games} remaining games compared. ${t.unrated_games ? 'Unrated opponents are left out.' : ''} We hold the picked team&rsquo;s strength fixed and compare its opponents with their draft-day ratings.</p></div>`).join('')}</div></details></div></div>`;
+}
+
+function renderChanges(story, odds) {
+  if (!story || !story.available) return '';
+  const baseline = (odds || {}).draft_baseline || {};
+  return `<details class="an-fold"><summary>How has the race changed?</summary><div class="an-change-list">${baseline.reason ? `<p class="an-fine">${esc(baseline.reason)}</p>` : ''}${(story.managers || []).map(m => `<div><h3>${esc(m.display_name)}</h3><p>${esc(m.movement_summary || 'No comparable earlier forecast.')}</p><p class="an-fine">${m.basis === 'week' ? `Compared with week ${esc(String(story.prior_week))}.` : 'Compared with draft day.'}</p></div>`).join('')}<p class="an-fine">The forecast can change because of results, team ratings, or model updates.</p></div></details>`;
+}
+
+function renderScores(race, portfolio) {
+  if (!race) return '';
+  return `<details class="an-fold"><summary>The scorekeeping, explained</summary><div class="an-score-help"><h3>What do the plus and minus mean?</h3><p>They show how a pick compares with its preseason win target. An Over on 8.5 wins finishes at <b>+0.5</b> if the team wins nine games, or <b>&minus;0.5</b> if it wins eight. An Under flips those scores.</p><p>During the season, that running score is unfinished business. Over picks climb as wins arrive; Under picks start high and come down with each win. That is why the title forecast is more useful than the running score on its own.</p><div class="an-score-rows"><div class="an-score-head"><span>Manager</span><span>Running score</span></div>${(race.managers || []).map(m => `<div><b>${esc(m.display_name)}</b><span>${fmtSigned(m.banked_total)}</span></div>`).join('')}</div><details class="an-proof"><summary>See each pick&rsquo;s running score</summary><div class="an-proof-content">${((portfolio || {}).managers || []).map(m => `<div class="an-pick-scores"><h4>${esc(m.display_name)}</h4>${(m.picks || []).map(p => `<p><span>${esc(p.team)} &middot; ${p.direction === 'O' ? 'Over' : 'Under'} ${fmtLine(p.line)}</span><b>${fmtSigned(p.banked_delta)}</b></p>`).join('')}</div>`).join('')}</div></details></div></details>`;
+}
+
+function chooseManager(id) {
+  document.querySelectorAll('[data-manager-button]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.managerButton === id)));
+  document.querySelectorAll('[data-manager-panel]').forEach(panel => { panel.hidden = panel.dataset.managerPanel !== id; });
+}
+
+function bindGuide() {
+  document.querySelectorAll('[data-manager-button]').forEach(button => button.addEventListener('click', () => chooseManager(button.dataset.managerButton)));
+  document.querySelectorAll('[data-choose-manager]').forEach(link => link.addEventListener('click', () => chooseManager(link.dataset.chooseManager)));
+  document.querySelectorAll('[data-route-button]').forEach(button => button.addEventListener('click', () => {
+    const panel = button.closest('[data-manager-panel]');
+    panel.querySelectorAll('[data-route-button]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+    panel.querySelectorAll('[data-route-index]').forEach(route => { route.hidden = route.dataset.routeIndex !== button.dataset.routeButton; });
+  }));
+  const team = $('an-road-team');
+  if (team) team.addEventListener('change', () => document.querySelectorAll('[data-road-team]').forEach(panel => { panel.hidden = panel.dataset.roadTeam !== team.value; }));
+}
+
+function fail(title, message) {
   hide($('loading'));
-  $('load-error').innerHTML = `<h2>${title}</h2><p>${body}</p>`;
+  $('load-error').innerHTML = `<h2>${title}</h2><p>${message}</p>`;
   show($('load-error'));
 }
 
-// ---------- boot -----------------------------------------------------------
 async function main() {
   const groupId = currentGroupId();
-
-  // Unknown league: name it and stop, exactly as app.js, managers.js and
-  // managers.js do. A wrong ?group= must never quietly render another league's
-  // numbers under this URL.
-  if (groupId === null) {
-    fail(`Unknown league &quot;${esc(groupParam())}&quot;.`,
-      'No analytics were loaded. <a href="index.html">Back to all leagues &rarr;</a>');
-    return;
-  }
-
+  if (groupId === null) { fail(`Unknown league &quot;${esc(groupParam())}&quot;.`, '<a href="index.html">Back to all leagues</a>'); return; }
   renderNav(groupId);
   $('group-label').textContent = groupLabel(groupId);
-  document.title = `${groupLabel(groupId)} — Analytics`;
-
-  const [analyticsRes, standingsRes, projRes] = await Promise.all([
-    fetchJSON(`data/${groupId}/analytics.json`).catch((e) => ({ $error: e })),
+  document.title = `${groupLabel(groupId)} — The rooting guide`;
+  const [a, standings] = await Promise.all([
+    fetchJSON(`data/${groupId}/analytics.json`).catch(() => null),
     fetchJSON(`data/${groupId}/standings.json`).catch(() => null),
-    fetchJSON(`data/${groupId}/projection.json`).catch(() => null),
   ]);
-
-  if (!analyticsRes || analyticsRes.$error) {
-    const msg = analyticsRes && analyticsRes.$error
-      ? analyticsRes.$error.message : 'unknown error';
-    fail(`Can&rsquo;t load ${esc(groupLabel(groupId))}`,
-      `analytics.json is missing or unreadable (${esc(msg)}). If this league exists, ` +
-      `its Board 3 output may not have been generated yet.`);
-    return;
-  }
-
-  const a = analyticsRes;
-  const meta = a.meta || {};
-
-  // Sample-data banner — read off standings.json, which is why this page
-  // fetches it at all. The band and its sentence are site.js's now; a missing
-  // standings.json passes undefined and shows nothing, which is the same
-  // "never guess" behaviour spelled out at the definition.
-  renderSampleBanner(standingsRes && standingsRes.meta);
-
-  // Prefer the direct reading. standingsRes is already in hand for the banner,
-  // and banked_wins/banked_losses is the fact itself rather than a proxy for it;
-  // the analytics-shaped test is what remains when standings.json did not load.
-  const pre = standingsRes ? isPreseasonStandings(standingsRes)
-    : isPreseasonAnalytics(a);
-  const wk = weekLabel(meta.as_of_week, pre);
-  const n = ((a.race && a.race.managers) || []).length;
-  $('an-intro').innerHTML =
-    `<p class="an-intro-kicker">Analytics</p>
-     <h1 class="an-intro-title">${esc(groupLabel(groupId))}</h1>
-     <p class="an-intro-sub">${n} manager${n === 1 ? '' : 's'} &middot; ${esc(wk)} &middot; ` +
-    `Board 3 &mdash; a reshape of the standings, the projection and the timeline</p>`;
-  show($('an-intro'));
-
-  // --- exact band ---
-  $('an-race').innerHTML = renderRace(a.race, pre);
-  $('an-grid-a').innerHTML = renderBestWorst(a.best_worst, pre) + renderPaths(a.paths, pre);
-  $('an-grid-b').innerHTML = renderPortfolio(a.portfolio, pre) + renderLeverage(a);
-  show($('an-exact'));
-
-  // --- projection band ---
-  // The disclaimer is built from projection.json's OWN metadata, so this page
-  // cannot characterize the model differently from the home page, the roster
-  // page or a profile. The contract pins ratings_source to "SP+"; a missing
-  // projection.json falls back to it exactly as those pages do when the key
-  // itself is absent.
-  const src = (projRes && projRes.meta && projRes.meta.ratings_source) || 'SP+';
-  $('an-proj-note').textContent =
-    `Model estimate from ${src} ratings — it updates weekly and can be wrong. ` +
-    `Board 1 is exact arithmetic.`;
+  if (!a) { fail('The race report could not be loaded.', 'Try again in a moment.'); return; }
+  renderSampleBanner(standings && standings.meta);
+  const pre = standings ? isPreseasonStandings(standings) : isPreseasonAnalytics(a);
+  $('an-intro').innerHTML = `<p class="an-eyebrow">${esc(groupLabel(groupId))} &nbsp; / &nbsp; The race, explained</p><h1>Your rooting <span>guide.</span></h1><p class="an-intro-deck">One trophy. A different wish list for everyone.</p><div class="an-intro-bottom"><nav aria-label="On this page"><a href="#an-projection">Who wins it</a><a href="#an-rooting">Find your path</a><a href="#an-stakes">What to watch</a></nav><span>${pre ? 'Preseason · ' : ''}Data through ${esc(dataDate((a.meta || {}).cache_fetched_at))}</span></div>`;
   $('an-odds').innerHTML = renderOdds(a.championship_odds, pre);
-  show($('an-projection'));
-
+  $('an-rooting-content').innerHTML = renderRooting(a.title_routes);
+  $('an-stakes-content').innerHTML = renderWatch(a.leverage);
+  $('an-schedule-content').innerHTML = renderRoad(a.schedule_watch);
+  $('an-story-content').innerHTML = renderChanges(a.race_story, a.championship_odds);
+  $('an-details-content').innerHTML = renderScores(a.race, a.portfolio);
+  ['an-intro', 'an-projection', 'an-rooting', 'an-stakes', 'an-schedule', 'an-story', 'an-details'].forEach(id => show($(id)));
+  bindGuide();
   hide($('loading'));
 }
-
 main();

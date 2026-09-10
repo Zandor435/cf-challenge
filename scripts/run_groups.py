@@ -260,9 +260,9 @@ def run_group(slug, as_of_week):
     print(f"  [{slug}] timeline.json (week {eff})")
 
     # Board 3 — degrade, don't die (same contract as Board 2). Analytics is a
-    # pure RESHAPE of boards 1/2 + the timeline: it computes no probability and
-    # reads no cache, so a failure here means a bug in the reshaping, never bad
-    # data. Standings must still ship.
+    # reshape of boards 1/2 + the timeline, with draft/schedule context and
+    # conditional game scenarios delegated to race_narrative/projector.
+    # Standings must still ship if the context cannot be built.
     #
     # Runs AFTER append_timeline on purpose, and is handed the freshly-appended
     # timeline object rather than re-reading it: week_move compares against the
