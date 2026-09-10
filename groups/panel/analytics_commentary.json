@@ -2,25 +2,50 @@
   "_note": "Editorial jokes grounded in personas.json. Conditional rooting-guide copy, not quotes or reports of actual reactions. Team-specific lines require the listed pick direction.",
   "managers": {
     "blaine": {
-      "default": "Blaine needs {team} to cooperate. The sarcastic comment is presumably already drafted; now he just needs the scoreboard to supply the punchline.",
+      "default": [
+        "Blaine needs {team} to cooperate. The sarcastic comment is presumably already drafted; now he just needs the scoreboard to supply the punchline.",
+        "If {team} comes through, Blaine gets fresh material. If not, the group can ask whether sarcasm counts toward the tiebreaker.",
+        "Blaine runs bakeries. This {team} pick still has to prove it is more than hot air. Please allow the group one baking joke before kickoff."
+      ],
       "picks": {
-        "Texas|U": "Blaine took the Texas Under and married into a family of Longhorns. Every Texas loss could help his pool score and complicate Thanksgiving. A remarkably efficient pick."
+        "Texas|U": [
+          "Blaine took the Texas Under and married into a family of Longhorns. Every Texas loss could help his pool score and complicate Thanksgiving. A remarkably efficient pick."
+        ]
       }
     },
     "chris": {
-      "default": "Chris needs {team} to deliver. If this stretch goes sideways, the group can request a full review. One star: would not draft again.",
+      "default": [
+        "Chris needs {team} to deliver. If this stretch goes sideways, the group can request a full review. One star: would not draft again.",
+        "Chris can read a scan. Reading {team}'s next month may require a second opinion, preferably from someone the group has not already roasted.",
+        "If {team} spoils this plan, the family of football takes may need Chris to file a review. His Paris credentials do not grant the pick diplomatic immunity."
+      ],
       "picks": {
-        "Texas|O": "Chris needs Texas to keep winning. Consider this the Longhorns' audition for a favorable review. The group should request the one-star draft if things go wrong."
+        "Texas|O": [
+          "Chris needs Texas to keep winning. Consider this the Longhorns' audition for a favorable review. The group should request the one-star draft if things go wrong."
+        ]
       }
     },
     "jonathan": {
-      "default": "Jonathan works on rockets. For now, his launch window depends on {team}. The group is entitled to ask why NASA has not solved this part yet."
+      "default": [
+        "Jonathan works on rockets. For now, his launch window depends on {team}. The group is entitled to ask why NASA has not solved this part yet.",
+        "Jonathan can calculate a launch window. {team} still reserves the right to delay liftoff for football reasons.",
+        "If {team} derails this plan, the group should ask Jonathan for a mission debrief. Diagrams are welcome; blaming atmospheric conditions requires evidence."
+      ],
+      "picks": {}
     },
     "zach": {
-      "default": "Zach built the model. Now he needs {team} to follow it. If the results go sideways, the group has an excellent opening to ask whether he has tried restarting the season.",
+      "default": [
+        "Zach built the model. Now he needs {team} to follow it. If the results go sideways, the group has an excellent opening to ask whether he has tried restarting the season.",
+        "The {team} plan has reached the part Zach cannot code: the actual games. An inconvenient limitation of the platform.",
+        "If {team} cooperates, Zach can call it model validation. If not, the group should ask whether his next website will cover a different sport."
+      ],
       "picks": {
-        "Wake Forest|O": "Zach went to Wake Forest and took the Over. This is where the group gets to ask whether the spreadsheet did the picking or just signed off on the school sweatshirt.",
-        "Notre Dame|U": "Zach built an entire forecasting engine to arrive at a very simple weekend plan: cheer against Notre Dame. The group may question the development budget."
+        "Wake Forest|O": [
+          "Zach went to Wake Forest and took the Over. This is where the group gets to ask whether the spreadsheet did the picking or just signed off on the school sweatshirt."
+        ],
+        "Notre Dame|U": [
+          "Zach built an entire forecasting engine to arrive at a very simple weekend plan: cheer against Notre Dame. The group may question the development budget."
+        ]
       }
     }
   }

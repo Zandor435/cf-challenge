@@ -7,8 +7,8 @@ in the same loop as standings.json / projection.json / timeline.json.
 
 THE RULE THIS FILE EXISTS TO ENFORCE: the analytics PAGE is a renderer and
 nothing else. Every number a manager sees on it is computed here, in Python, as
-reproducible arithmetic — the site iterates and prints. Zero computation in JS,
-ever, including sorts and ratios. If the page needs a number, it gets a key.
+reproducible arithmetic. JavaScript only formats numbers and chart widths;
+ordering, scenarios, probabilities, and narrative thresholds stay in Python.
 
 BOARD SEPARATION IS PART OF THE CONTRACT. Every module carries an explicit
 `board` field:

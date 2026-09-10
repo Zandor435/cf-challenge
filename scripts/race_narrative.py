@@ -4,6 +4,10 @@ Historical pool odds are preserved observations, not reconstructed with today's
 ratings. Schedule comparisons use the SAME remaining games and hold the picked
 team at its draft rating, isolating changes in opponent strength.
 """
+import hashlib
+from datetime import date
+from string import Formatter
+
 import projector
 import utils
 
@@ -203,8 +207,44 @@ def result_surprises(projection, states, draft_ratings):
     return rows
 
 
+def validate_commentary(commentary, projection):
+    """Reject missing voices, stale pick keys, and unsafe template placeholders."""
+    voices = commentary.get('managers', {})
+    managers = {m['manager_id']: m for m in projection['managers']}
+    if set(voices) != set(managers):
+        raise ValueError('Commentary manager IDs must match the current roster')
+    for mid, voice in voices.items():
+        valid = {f'{p["team"]}|{p["direction"]}' for p in managers[mid]['picks']}
+        if not set(voice.get('picks', {})) <= valid:
+            raise ValueError(f'{mid}: commentary references an unknown team or pick direction')
+        for key, pool in [('default', voice.get('default'))] + list(voice.get('picks', {}).items()):
+            if not isinstance(pool, list) or not pool or (key == 'default' and len(pool) < 3):
+                raise ValueError(f'{mid}/{key}: provide a nonempty list, at least three defaults')
+            if any(not isinstance(line, str) or not line.strip() for line in pool):
+                raise ValueError(f'{mid}/{key}: commentary must contain nonempty strings')
+            if len(set(pool)) != len(pool):
+                raise ValueError(f'{mid}/{key}: duplicate commentary')
+            for line in pool:
+                for _, field, spec, conversion in Formatter().parse(line):
+                    if field is not None and (field != 'team' or spec or conversion):
+                        raise ValueError(f'{mid}/{key}: only the {{team}} placeholder is supported')
+
+
+def select_banter(voice, mid, team, direction, rotation):
+    """Weekly rotation with a stable per-pick offset; reloads never shuffle copy."""
+    pool = voice.get('picks', {}).get(f'{team}|{direction}', []) + voice['default']
+    offset = int.from_bytes(hashlib.sha256(f'{mid}|{team}|{direction}'.encode()).digest()[:4], 'big')
+    return pool[(rotation + offset) % len(pool)].replace('{team}', team)
+
+
 def describe_title_routes(routes, projection, commentary=None):
     """Plain-English copy composed only from measured routes and game odds."""
+    if commentary is not None:
+        validate_commentary(commentary, projection)
+    # Use the forecast snapshot, never today's date, so archived runs reproduce.
+    meta = projection.get('meta', {})
+    stamp = meta.get('cache_fetched_at') or meta.get('generated_at')
+    rotation = (date.fromisoformat(stamp[:10]).toordinal() - 1) // 7 if stamp else 0
     holders = {}
     for manager in projection.get('managers', []):
         for pick in manager.get('picks', []):
@@ -261,8 +301,7 @@ def describe_title_routes(routes, projection, commentary=None):
             elif needed == 1 and n > 1:
                 route['narrative'] += ' There is room for the other games to go the wrong way. One result is enough to satisfy this scenario.'
             voice = ((commentary or {}).get('managers') or {}).get(manager['manager_id'], {})
-            template = voice.get('picks', {}).get(f'{team}|{route["direction"]}', voice.get('default'))
-            route['banter'] = (template.replace('{team}', team) if template else
+            route['banter'] = (select_banter(voice, manager['manager_id'], team, route['direction'], rotation) if voice else
                 f'{name} has officially become a {team} {"opponent" if under else "fan"} for accounting purposes. '
                 'Please respect this deeply held, spreadsheet-based conviction.')
             route['if_it_happens'] = (f'If this stretch lands, {name} has a stronger title case '
@@ -323,7 +362,7 @@ def build_context(config, standings, projection, prior, as_of_week=None):
     story = build_race_story(projection, prior, baseline, draft)
     story['results'] = result_surprises(projection, states, draft_ratings)
     commentary_path = utils.ROOT / 'groups' / config['group_id'] / 'analytics_commentary.json'
-    commentary = utils.load_json(commentary_path) if commentary_path.exists() else None
+    commentary = utils.load_json(commentary_path)
     return {'draft': draft, 'race_story': story,
             'schedule_watch': schedule,
             'title_routes': describe_title_routes(
