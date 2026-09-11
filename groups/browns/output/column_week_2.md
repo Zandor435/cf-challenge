@@ -1,0 +1,7 @@
+Bryan's faith in South Florida to clear the 8.5-win hurdle is the stuff of legends, or at least, of lively debates. He's banking on a 30% chance, a long shot by any measure, yet in the world of bold predictions, hope springs eternal. Todd, in contrast, plays the role of the realist, with his under bet at 70% looking like the safer play. The divide is as wide as their interpretations of the Bulls' prospects, and each game feels like a new entry in their ongoing saga.
+
+The stakes, undefined yet undeniably present, are about more than just numbers. Every South Florida win is a point for Bryan's vision, while every loss nudges Todd closer to vindication. The dance between optimism and pragmatism is captivating, with both managers sitting just behind the leader, Matt Merlene, who maintains a comfortable five-game cushion over them. Todd's position, with a game deficit to Bryan, only adds another layer to this unfolding drama. 
+
+The focus on South Florida is the beating heart of their competition. Each result shifts the balance, with Bryan and Todd finding their fortunes tied to a team that neither manages. As the weeks unfold, the Bulls become a symbol of their wider hopes, their season's journey becoming a mirror of their own. Who will find their expectations met, and who will be left questioning their choices? The numbers have their say, but the story is far from over.
+
+That's the column. Don't take the points personally. They were always going to be exactly what they are.
