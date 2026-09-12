@@ -3,8 +3,8 @@
     "group_id": "family",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-11T16:50:10.233057+00:00",
-    "cache_fetched_at": "2026-09-11T16:50:09.194781+00:00"
+    "generated_at": "2026-09-12T15:56:29.793839+00:00",
+    "cache_fetched_at": "2026-09-12T15:56:28.878766+00:00"
   },
   "race": {
     "board": "exact",
@@ -26,11 +26,11 @@
         "manager_id": "devin",
         "display_name": "Devin",
         "rank": 2,
-        "banked_total": 8.0,
-        "floor": -14.0,
+        "banked_total": 9.0,
+        "floor": -13.0,
         "ceiling": 30.0,
-        "gap_to_leader": 8.0,
-        "ceiling_remaining": 22.0,
+        "gap_to_leader": 7.0,
+        "ceiling_remaining": 21.0,
         "week_move": 0
       },
       {
@@ -59,11 +59,11 @@
         "manager_id": "gunner",
         "display_name": "Gunner",
         "rank": 5,
-        "banked_total": -11.0,
-        "floor": -22.0,
+        "banked_total": -10.0,
+        "floor": -21.0,
         "ceiling": 22.0,
-        "gap_to_leader": 27.0,
-        "ceiling_remaining": 33.0,
+        "gap_to_leader": 26.0,
+        "ceiling_remaining": 32.0,
         "week_move": 0
       },
       {
@@ -109,66 +109,66 @@
       {
         "manager_id": "holly",
         "display_name": "Holly",
-        "p_win_pool": 0.285027,
-        "week_move": 0.143788,
+        "p_win_pool": 0.270005,
+        "week_move": 0.128766,
         "draft_p_win_pool": 0.130447,
-        "draft_move": 0.15458
+        "draft_move": 0.139558
       },
       {
         "manager_id": "rachel",
         "display_name": "Rachel",
-        "p_win_pool": 0.177739,
-        "week_move": -0.00235,
+        "p_win_pool": 0.17754,
+        "week_move": -0.002549,
         "draft_p_win_pool": 0.224494,
-        "draft_move": -0.046755
-      },
-      {
-        "manager_id": "vic",
-        "display_name": "Vic",
-        "p_win_pool": 0.150812,
-        "week_move": 0.051952,
-        "draft_p_win_pool": 0.086256,
-        "draft_move": 0.064556
+        "draft_move": -0.046954
       },
       {
         "manager_id": "devin",
         "display_name": "Devin",
-        "p_win_pool": 0.139278,
-        "week_move": -0.119005,
+        "p_win_pool": 0.172547,
+        "week_move": -0.085736,
         "draft_p_win_pool": 0.300355,
-        "draft_move": -0.161077
+        "draft_move": -0.127808
+      },
+      {
+        "manager_id": "vic",
+        "display_name": "Vic",
+        "p_win_pool": 0.144858,
+        "week_move": 0.045998,
+        "draft_p_win_pool": 0.086256,
+        "draft_move": 0.058602
       },
       {
         "manager_id": "gayden",
         "display_name": "Gayden",
-        "p_win_pool": 0.111059,
-        "week_move": -0.076739,
+        "p_win_pool": 0.106412,
+        "week_move": -0.081386,
         "draft_p_win_pool": 0.154318,
-        "draft_move": -0.043259
+        "draft_move": -0.047906
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.081952,
-        "week_move": 0.000131,
+        "p_win_pool": 0.077307,
+        "week_move": -0.004514,
         "draft_p_win_pool": 0.050682,
-        "draft_move": 0.03127
+        "draft_move": 0.026625
       },
       {
         "manager_id": "gunner",
         "display_name": "Gunner",
-        "p_win_pool": 0.049801,
-        "week_move": 0.011988,
+        "p_win_pool": 0.047482,
+        "week_move": 0.009669,
         "draft_p_win_pool": 0.041817,
-        "draft_move": 0.007984
+        "draft_move": 0.005665
       },
       {
         "manager_id": "john",
         "display_name": "John",
-        "p_win_pool": 0.004331,
-        "week_move": -0.009765,
+        "p_win_pool": 0.003849,
+        "week_move": -0.010247,
         "draft_p_win_pool": 0.011631,
-        "draft_move": -0.0073
+        "draft_move": -0.007782
       }
     ],
     "draft_baseline": {
@@ -348,15 +348,6 @@
             "line": 6.5,
             "direction": "O",
             "delta": -6.5
-          },
-          {
-            "manager_id": "gunner",
-            "display_name": "Gunner",
-            "team": "Virginia",
-            "conference": "ACC",
-            "line": 7.5,
-            "direction": "O",
-            "delta": -6.5
           }
         ]
       },
@@ -474,7 +465,7 @@
           "other_manager_id": "devin",
           "other_display_name": "Devin",
           "other_field": "floor",
-          "other_value": -14.0
+          "other_value": -13.0
         }
       },
       {
@@ -646,8 +637,8 @@
       {
         "manager_id": "devin",
         "display_name": "Devin",
-        "banked_total": 8.0,
-        "absolute_total": 26.0,
+        "banked_total": 9.0,
+        "absolute_total": 25.0,
         "picks": [
           {
             "team": "Auburn",
@@ -659,7 +650,7 @@
             "ceiling": 5.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.211538
+            "share_of_delta": 0.22
           },
           {
             "team": "Texas Tech",
@@ -671,19 +662,19 @@
             "ceiling": 9.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.365385
+            "share_of_delta": 0.38
           },
           {
             "team": "Boston College",
             "conference": "ACC",
             "line": 3.5,
             "direction": "O",
-            "banked_delta": -3.5,
-            "floor": -3.5,
+            "banked_delta": -2.5,
+            "floor": -2.5,
             "ceiling": 7.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.134615
+            "games_remaining": 10,
+            "share_of_delta": 0.1
           },
           {
             "team": "Houston",
@@ -695,7 +686,7 @@
             "ceiling": 7.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.288462
+            "share_of_delta": 0.3
           }
         ]
       },
@@ -814,8 +805,8 @@
       {
         "manager_id": "gunner",
         "display_name": "Gunner",
-        "banked_total": -11.0,
-        "absolute_total": 20.0,
+        "banked_total": -10.0,
+        "absolute_total": 19.0,
         "picks": [
           {
             "team": "Baylor",
@@ -827,19 +818,19 @@
             "ceiling": 4.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.325
+            "share_of_delta": 0.342105
           },
           {
             "team": "Virginia",
             "conference": "ACC",
             "line": 7.5,
             "direction": "O",
-            "banked_delta": -6.5,
-            "floor": -6.5,
+            "banked_delta": -5.5,
+            "floor": -5.5,
             "ceiling": 4.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.325
+            "games_remaining": 10,
+            "share_of_delta": 0.289474
           },
           {
             "team": "Purdue",
@@ -851,7 +842,7 @@
             "ceiling": 8.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.125
+            "share_of_delta": 0.131579
           },
           {
             "team": "Vanderbilt",
@@ -863,7 +854,7 @@
             "ceiling": 4.5,
             "status": "LIVE",
             "games_remaining": 11,
-            "share_of_delta": 0.225
+            "share_of_delta": 0.236842
           }
         ]
       },
@@ -1046,7 +1037,7 @@
         "manager_id": "holly",
         "display_name": "Holly",
         "basis": "week",
-        "odds_change": 0.143788,
+        "odds_change": 0.128766,
         "drivers": [
           {
             "team": "Clemson",
@@ -1087,7 +1078,7 @@
         "manager_id": "devin",
         "display_name": "Devin",
         "basis": "week",
-        "odds_change": -0.119005,
+        "odds_change": -0.085736,
         "drivers": [
           {
             "team": "Auburn",
@@ -1096,14 +1087,6 @@
             "before": 0.34,
             "now": -0.62,
             "change": -0.96
-          },
-          {
-            "team": "Boston College",
-            "direction": "O",
-            "line": 3.5,
-            "before": 0.59,
-            "now": -0.11,
-            "change": -0.7
           },
           {
             "team": "Texas Tech",
@@ -1120,6 +1103,14 @@
             "before": 1.13,
             "now": 1.45,
             "change": 0.32
+          },
+          {
+            "team": "Boston College",
+            "direction": "O",
+            "line": 3.5,
+            "before": 0.59,
+            "now": 0.39,
+            "change": -0.2
           }
         ],
         "movement_summary": "They have lost some ground in the title race."
@@ -1128,7 +1119,7 @@
         "manager_id": "gayden",
         "display_name": "Gayden",
         "basis": "week",
-        "odds_change": -0.076739,
+        "odds_change": -0.081386,
         "drivers": [
           {
             "team": "West Virginia",
@@ -1169,7 +1160,7 @@
         "manager_id": "vic",
         "display_name": "Vic",
         "basis": "week",
-        "odds_change": 0.051952,
+        "odds_change": 0.045998,
         "drivers": [
           {
             "team": "Mississippi State",
@@ -1207,51 +1198,10 @@
         "movement_summary": "Their title chances have improved."
       },
       {
-        "manager_id": "gunner",
-        "display_name": "Gunner",
-        "basis": "week",
-        "odds_change": 0.011988,
-        "drivers": [
-          {
-            "team": "Virginia",
-            "direction": "O",
-            "line": 7.5,
-            "before": 0.37,
-            "now": 0.91,
-            "change": 0.54
-          },
-          {
-            "team": "Purdue",
-            "direction": "O",
-            "line": 3.5,
-            "before": 0.64,
-            "now": 1.14,
-            "change": 0.5
-          },
-          {
-            "team": "Vanderbilt",
-            "direction": "U",
-            "line": 5.5,
-            "before": -0.92,
-            "now": -1.24,
-            "change": -0.32
-          },
-          {
-            "team": "Baylor",
-            "direction": "O",
-            "line": 6.5,
-            "before": -0.84,
-            "now": -0.89,
-            "change": -0.05
-          }
-        ],
-        "movement_summary": "Their title chances have improved."
-      },
-      {
         "manager_id": "john",
         "display_name": "John",
         "basis": "week",
-        "odds_change": -0.009765,
+        "odds_change": -0.010247,
         "drivers": [
           {
             "team": "Ole Miss",
@@ -1289,51 +1239,51 @@
         "movement_summary": "They have lost some ground in the title race."
       },
       {
-        "manager_id": "rachel",
-        "display_name": "Rachel",
+        "manager_id": "gunner",
+        "display_name": "Gunner",
         "basis": "week",
-        "odds_change": -0.00235,
+        "odds_change": 0.009669,
         "drivers": [
           {
-            "team": "Auburn",
-            "direction": "U",
-            "line": 6.5,
-            "before": -0.34,
-            "now": 0.62,
-            "change": 0.96
-          },
-          {
-            "team": "Utah",
-            "direction": "U",
-            "line": 8.5,
-            "before": 0.86,
-            "now": 0.37,
-            "change": -0.49
-          },
-          {
-            "team": "James Madison",
+            "team": "Virginia",
             "direction": "O",
-            "line": 8.5,
-            "before": 0.12,
-            "now": -0.16,
-            "change": -0.28
+            "line": 7.5,
+            "before": 0.37,
+            "now": 0.93,
+            "change": 0.56
           },
           {
-            "team": "Notre Dame",
+            "team": "Purdue",
+            "direction": "O",
+            "line": 3.5,
+            "before": 0.64,
+            "now": 1.14,
+            "change": 0.5
+          },
+          {
+            "team": "Vanderbilt",
             "direction": "U",
-            "line": 11.5,
-            "before": 1.33,
-            "now": 1.46,
-            "change": 0.13
+            "line": 5.5,
+            "before": -0.92,
+            "now": -1.24,
+            "change": -0.32
+          },
+          {
+            "team": "Baylor",
+            "direction": "O",
+            "line": 6.5,
+            "before": -0.84,
+            "now": -0.89,
+            "change": -0.05
           }
         ],
-        "movement_summary": "Their title chances have barely moved."
+        "movement_summary": "Their title chances have improved."
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
         "basis": "week",
-        "odds_change": 0.000131,
+        "odds_change": -0.004514,
         "drivers": [
           {
             "team": "LSU",
@@ -1369,10 +1319,63 @@
           }
         ],
         "movement_summary": "Their title chances have barely moved."
+      },
+      {
+        "manager_id": "rachel",
+        "display_name": "Rachel",
+        "basis": "week",
+        "odds_change": -0.002549,
+        "drivers": [
+          {
+            "team": "Auburn",
+            "direction": "U",
+            "line": 6.5,
+            "before": -0.34,
+            "now": 0.62,
+            "change": 0.96
+          },
+          {
+            "team": "Utah",
+            "direction": "U",
+            "line": 8.5,
+            "before": 0.86,
+            "now": 0.37,
+            "change": -0.49
+          },
+          {
+            "team": "James Madison",
+            "direction": "O",
+            "line": 8.5,
+            "before": 0.12,
+            "now": -0.16,
+            "change": -0.28
+          },
+          {
+            "team": "Notre Dame",
+            "direction": "U",
+            "line": 11.5,
+            "before": 1.33,
+            "now": 1.46,
+            "change": 0.13
+          }
+        ],
+        "movement_summary": "Their title chances have barely moved."
       }
     ],
     "note": "Pick changes are changes in expected final points, not an additive explanation of championship probability. Results, ratings, and model updates can all contribute.",
-    "results": []
+    "results": [
+      {
+        "manager_id": "devin",
+        "display_name": "Devin",
+        "team": "Boston College",
+        "opponent": "Rutgers",
+        "week": 2,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.477792,
+        "points_surprise": 0.522
+      }
+    ]
   },
   "title_routes": {
     "board": "projection",
@@ -1381,7 +1384,7 @@
       {
         "manager_id": "holly",
         "display_name": "Holly",
-        "p_win_pool": 0.285027,
+        "p_win_pool": 0.270005,
         "finished": false,
         "routes": [
           {
@@ -1390,11 +1393,11 @@
             "line": 9.5,
             "next_games": 4,
             "needed": 2,
-            "event_probability": 0.1297,
-            "p_title_if": 0.473946,
-            "p_title_now": 0.285027,
-            "lift": 0.18892,
-            "matching_trials": 2594,
+            "event_probability": 0.13,
+            "p_title_if": 0.442045,
+            "p_title_now": 0.270005,
+            "lift": 0.17204,
+            "matching_trials": 2600,
             "games_to_watch": [
               {
                 "opponent": "Oklahoma",
@@ -1461,11 +1464,11 @@
             "line": 7.5,
             "next_games": 4,
             "needed": 3,
-            "event_probability": 0.2427,
-            "p_title_if": 0.417292,
-            "p_title_now": 0.285027,
-            "lift": 0.132265,
-            "matching_trials": 4854,
+            "event_probability": 0.241,
+            "p_title_if": 0.396231,
+            "p_title_now": 0.270005,
+            "lift": 0.126226,
+            "matching_trials": 4820,
             "games_to_watch": [
               {
                 "opponent": "Miami",
@@ -1527,87 +1530,16 @@
             "if_it_happens": "If this stretch lands, Holly has a stronger title case and a ready-made reason to remind everyone about this pick."
           },
           {
-            "team": "UAB",
-            "direction": "O",
-            "line": 3.5,
-            "next_games": 4,
-            "needed": 3,
-            "event_probability": 0.32285,
-            "p_title_if": 0.38928,
-            "p_title_now": 0.285027,
-            "lift": 0.104254,
-            "matching_trials": 6457,
-            "games_to_watch": [
-              {
-                "opponent": "Samford",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.846018,
-                "rooting_note": "UAB is favored to beat Samford."
-              },
-              {
-                "opponent": "UL Monroe",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.827836,
-                "rooting_note": "UAB is favored to beat UL Monroe."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "UL Monroe",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.827836
-              },
-              {
-                "opponent": "Louisiana",
-                "home_away": "away",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.257451
-              },
-              {
-                "opponent": "Navy",
-                "home_away": "home",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.239476
-              },
-              {
-                "opponent": "Samford",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.846018
-              }
-            ],
-            "condition": "UAB wins at least 3 of its next 4 games",
-            "headline": "Root for UAB.",
-            "story": "Holly gets a better shot if UAB wins at least 3 of its next 4 games.",
-            "why": "Holly picked UAB to beat its preseason win target. Wins are good news for that pick.",
-            "watch_heading": "Games to circle",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 32 out of 100 simulated seasons.",
-            "rival_note": null,
-            "narrative": "Holly does not need style points from UAB. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
-            "banter": "Holly has held her ground in Alabama. If UAB makes this weekend annoying, she has plenty of practice maintaining her position.",
-            "if_it_happens": "If this stretch lands, Holly has a stronger title case and a ready-made reason to remind everyone about this pick."
-          },
-          {
             "team": "Tennessee",
             "direction": "O",
             "line": 7.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.24725,
-            "p_title_if": 0.381857,
-            "p_title_now": 0.285027,
-            "lift": 0.09683,
-            "matching_trials": 4945,
+            "event_probability": 0.2479,
+            "p_title_if": 0.384997,
+            "p_title_now": 0.270005,
+            "lift": 0.114992,
+            "matching_trials": 4958,
             "games_to_watch": [
               {
                 "opponent": "Texas",
@@ -1667,6 +1599,77 @@
             "narrative": "Holly does not need style points from Tennessee. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
             "banter": "Holly lives surrounded by Alabama and Auburn fans without converting. Whatever Tennessee does, nobody should mistake a temporary rooting interest for a change of allegiance.",
             "if_it_happens": "If this stretch lands, Holly has a stronger title case and a ready-made reason to remind everyone about this pick."
+          },
+          {
+            "team": "UAB",
+            "direction": "O",
+            "line": 3.5,
+            "next_games": 4,
+            "needed": 3,
+            "event_probability": 0.32125,
+            "p_title_if": 0.367777,
+            "p_title_now": 0.270005,
+            "lift": 0.097772,
+            "matching_trials": 6425,
+            "games_to_watch": [
+              {
+                "opponent": "Samford",
+                "home_away": "home",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.846018,
+                "rooting_note": "UAB is favored to beat Samford."
+              },
+              {
+                "opponent": "UL Monroe",
+                "home_away": "home",
+                "week": 2,
+                "neutral": false,
+                "p_win": 0.827836,
+                "rooting_note": "UAB is favored to beat UL Monroe."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "UL Monroe",
+                "home_away": "home",
+                "week": 2,
+                "neutral": false,
+                "p_win": 0.827836
+              },
+              {
+                "opponent": "Louisiana",
+                "home_away": "away",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.257451
+              },
+              {
+                "opponent": "Navy",
+                "home_away": "home",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.239476
+              },
+              {
+                "opponent": "Samford",
+                "home_away": "home",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.846018
+              }
+            ],
+            "condition": "UAB wins at least 3 of its next 4 games",
+            "headline": "Root for UAB.",
+            "story": "Holly gets a better shot if UAB wins at least 3 of its next 4 games.",
+            "why": "Holly picked UAB to beat its preseason win target. Wins are good news for that pick.",
+            "watch_heading": "Games to circle",
+            "difficulty": "Needs a few things to break right",
+            "likelihood_text": "This stretch comes through in about 32 out of 100 simulated seasons.",
+            "rival_note": null,
+            "narrative": "Holly does not need style points from UAB. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
+            "banter": "Holly has held her ground in Alabama. If UAB makes this weekend annoying, she has plenty of practice maintaining her position.",
+            "if_it_happens": "If this stretch lands, Holly has a stronger title case and a ready-made reason to remind everyone about this pick."
           }
         ],
         "position": "In the thick of it",
@@ -1675,7 +1678,7 @@
       {
         "manager_id": "rachel",
         "display_name": "Rachel",
-        "p_win_pool": 0.177739,
+        "p_win_pool": 0.17754,
         "finished": false,
         "routes": [
           {
@@ -1684,11 +1687,11 @@
             "line": 8.5,
             "next_games": 4,
             "needed": 2,
-            "event_probability": 0.301,
-            "p_title_if": 0.276321,
-            "p_title_now": 0.177739,
-            "lift": 0.098581,
-            "matching_trials": 6020,
+            "event_probability": 0.30255,
+            "p_title_if": 0.274456,
+            "p_title_now": 0.17754,
+            "lift": 0.096916,
+            "matching_trials": 6051,
             "games_to_watch": [
               {
                 "opponent": "Iowa State",
@@ -1755,11 +1758,11 @@
             "line": 6.5,
             "next_games": 4,
             "needed": 3,
-            "event_probability": 0.31545,
-            "p_title_if": 0.271612,
-            "p_title_now": 0.177739,
-            "lift": 0.093873,
-            "matching_trials": 6309,
+            "event_probability": 0.3099,
+            "p_title_if": 0.272349,
+            "p_title_now": 0.17754,
+            "lift": 0.094809,
+            "matching_trials": 6198,
             "games_to_watch": [
               {
                 "opponent": "Tennessee",
@@ -1814,7 +1817,7 @@
             "why": "Rachel picked Auburn to fall short of its preseason win target. Losses are good news for that pick.",
             "watch_heading": "Games to circle",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 32 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 31 out of 100 simulated seasons.",
             "rival_note": "Devin is pulling the other way on Auburn.",
             "narrative": "The awkward part: Rachel benefits when Auburn has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
             "banter": "If Auburn makes Rachel look sharp, the family should resist explaining her own pick back to her. She appears to have handled the selection herself.",
@@ -1826,11 +1829,11 @@
             "line": 8.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.14995,
-            "p_title_if": 0.28425,
-            "p_title_now": 0.177739,
-            "lift": 0.106511,
-            "matching_trials": 2999,
+            "event_probability": 0.14605,
+            "p_title_if": 0.29422,
+            "p_title_now": 0.17754,
+            "lift": 0.11668,
+            "matching_trials": 2921,
             "games_to_watch": [
               {
                 "opponent": "San Diego State",
@@ -1897,11 +1900,11 @@
             "line": 11.5,
             "next_games": 4,
             "needed": 2,
-            "event_probability": 0.08625,
-            "p_title_if": 0.306174,
-            "p_title_now": 0.177739,
-            "lift": 0.128435,
-            "matching_trials": 1725,
+            "event_probability": 0.0815,
+            "p_title_if": 0.294243,
+            "p_title_now": 0.17754,
+            "lift": 0.116703,
+            "matching_trials": 1630,
             "games_to_watch": [
               {
                 "opponent": "North Carolina",
@@ -1956,7 +1959,7 @@
             "why": "Rachel picked Notre Dame to fall short of its preseason win target. Losses are good news for that pick.",
             "watch_heading": "Games to circle",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 9 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 8 out of 100 simulated seasons.",
             "rival_note": null,
             "narrative": "The awkward part: Rachel benefits when Notre Dame has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
             "banter": "Rachel has a law degree and a Notre Dame pick. If this works, the family may want to stipulate that she knew what she was doing.",
@@ -1967,9 +1970,303 @@
         "intro": "Think of this as a rooting guide: the results that would give Rachel a better shot, with the rest of the season still to play."
       },
       {
+        "manager_id": "devin",
+        "display_name": "Devin",
+        "p_win_pool": 0.172547,
+        "finished": false,
+        "routes": [
+          {
+            "team": "Auburn",
+            "direction": "O",
+            "line": 6.5,
+            "next_games": 4,
+            "needed": 3,
+            "event_probability": 0.2574,
+            "p_title_if": 0.283893,
+            "p_title_now": 0.172547,
+            "lift": 0.111346,
+            "matching_trials": 5148,
+            "games_to_watch": [
+              {
+                "opponent": "Southern Miss",
+                "home_away": "home",
+                "week": 2,
+                "neutral": false,
+                "p_win": 0.871973,
+                "rooting_note": "Auburn is favored to beat Southern Miss."
+              },
+              {
+                "opponent": "Vanderbilt",
+                "home_away": "home",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.479641,
+                "rooting_note": "This one could go either way."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "Southern Miss",
+                "home_away": "home",
+                "week": 2,
+                "neutral": false,
+                "p_win": 0.871973
+              },
+              {
+                "opponent": "Florida",
+                "home_away": "home",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.362862
+              },
+              {
+                "opponent": "Vanderbilt",
+                "home_away": "home",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.479641
+              },
+              {
+                "opponent": "Tennessee",
+                "home_away": "away",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.22238
+              }
+            ],
+            "condition": "Auburn wins at least 3 of its next 4 games",
+            "headline": "Root for Auburn.",
+            "story": "Devin gets a better shot if Auburn wins at least 3 of its next 4 games.",
+            "why": "Devin picked Auburn to beat its preseason win target. Wins are good news for that pick.",
+            "watch_heading": "Games to circle",
+            "difficulty": "Needs a few things to break right",
+            "likelihood_text": "This stretch comes through in about 26 out of 100 simulated seasons.",
+            "rival_note": "Rachel is pulling the other way on Auburn.",
+            "narrative": "Devin does not need style points from Auburn. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
+            "banter": "Devin once looked at a ghost pepper and decided he could handle it. He has now taken the Auburn Over. The family is permitted to keep a glass of milk beside the standings.",
+            "if_it_happens": "If this stretch lands, Devin has a stronger title case and Rachel will have been cheering against the very same results."
+          },
+          {
+            "team": "Boston College",
+            "direction": "O",
+            "line": 3.5,
+            "next_games": 4,
+            "needed": 3,
+            "event_probability": 0.11365,
+            "p_title_if": 0.31707,
+            "p_title_now": 0.172547,
+            "lift": 0.144522,
+            "matching_trials": 2273,
+            "games_to_watch": [
+              {
+                "opponent": "Maine",
+                "home_away": "home",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.912195,
+                "rooting_note": "Boston College is favored to beat Maine."
+              },
+              {
+                "opponent": "Pittsburgh",
+                "home_away": "home",
+                "week": 7,
+                "neutral": false,
+                "p_win": 0.268941,
+                "rooting_note": "Boston College would need to pull off an upset."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "Maine",
+                "home_away": "home",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.912195
+              },
+              {
+                "opponent": "Virginia Tech",
+                "home_away": "home",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.236788
+              },
+              {
+                "opponent": "SMU",
+                "home_away": "away",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.158869
+              },
+              {
+                "opponent": "Pittsburgh",
+                "home_away": "home",
+                "week": 7,
+                "neutral": false,
+                "p_win": 0.268941
+              }
+            ],
+            "condition": "Boston College wins at least 3 of its next 4 games",
+            "headline": "Root for Boston College.",
+            "story": "Devin gets a better shot if Boston College wins at least 3 of its next 4 games.",
+            "why": "Devin picked Boston College to beat its preseason win target. Wins are good news for that pick.",
+            "watch_heading": "Games to circle",
+            "difficulty": "Needs a few things to break right",
+            "likelihood_text": "This stretch comes through in about 11 out of 100 simulated seasons.",
+            "rival_note": null,
+            "narrative": "Devin does not need style points from Boston College. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
+            "banter": "Devin already has a World Cup title the family can discuss indefinitely. If Boston College helps him toward another trophy, everyone may need a second subject for dinner.",
+            "if_it_happens": "If this stretch lands, Devin has a stronger title case and a ready-made reason to remind everyone about this pick."
+          },
+          {
+            "team": "Houston",
+            "direction": "U",
+            "line": 8.5,
+            "next_games": 4,
+            "needed": 3,
+            "event_probability": 0.1263,
+            "p_title_if": 0.296595,
+            "p_title_now": 0.172547,
+            "lift": 0.124048,
+            "matching_trials": 2526,
+            "games_to_watch": [
+              {
+                "opponent": "Texas Tech",
+                "home_away": "away",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.22885,
+                "rooting_note": "Texas Tech is favored to beat Houston."
+              },
+              {
+                "opponent": "UCF",
+                "home_away": "home",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.58437,
+                "rooting_note": "This one could go either way."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "Southern",
+                "home_away": "home",
+                "week": 2,
+                "neutral": false,
+                "p_win": 0.966766
+              },
+              {
+                "opponent": "Texas Tech",
+                "home_away": "away",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.22885
+              },
+              {
+                "opponent": "Georgia Southern",
+                "home_away": "away",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.649038
+              },
+              {
+                "opponent": "UCF",
+                "home_away": "home",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.58437
+              }
+            ],
+            "condition": "Houston loses at least 3 of its next 4 games",
+            "headline": "Root against Houston.",
+            "story": "Devin gets a better shot if Houston loses at least 3 of its next 4 games.",
+            "why": "Devin picked Houston to fall short of its preseason win target. Losses are good news for that pick.",
+            "watch_heading": "Games to circle",
+            "difficulty": "Needs a few things to break right",
+            "likelihood_text": "This stretch comes through in about 13 out of 100 simulated seasons.",
+            "rival_note": null,
+            "narrative": "The awkward part: Devin benefits when Houston has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
+            "banter": "If Houston comes through, Devin gets more trophy-related material. The family should agree in advance how many World Cup references are permitted.",
+            "if_it_happens": "If this stretch lands, Devin has a stronger title case and a ready-made reason to remind everyone about this pick."
+          },
+          {
+            "team": "Texas Tech",
+            "direction": "U",
+            "line": 10.5,
+            "next_games": 4,
+            "needed": 2,
+            "event_probability": 0.1456,
+            "p_title_if": 0.249199,
+            "p_title_now": 0.172547,
+            "lift": 0.076651,
+            "matching_trials": 2912,
+            "games_to_watch": [
+              {
+                "opponent": "Colorado",
+                "home_away": "away",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.720743,
+                "rooting_note": "Texas Tech is favored. A loss here would be an upset."
+              },
+              {
+                "opponent": "Houston",
+                "home_away": "home",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.77115,
+                "rooting_note": "Texas Tech is favored. A loss here would be an upset."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "Oregon State",
+                "home_away": "away",
+                "week": 2,
+                "neutral": false,
+                "p_win": 0.833051
+              },
+              {
+                "opponent": "Houston",
+                "home_away": "home",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.77115
+              },
+              {
+                "opponent": "Sam Houston",
+                "home_away": "home",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.964046
+              },
+              {
+                "opponent": "Colorado",
+                "home_away": "away",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.720743
+              }
+            ],
+            "condition": "Texas Tech loses at least 2 of its next 4 games",
+            "headline": "Root against Texas Tech.",
+            "story": "Devin gets a better shot if Texas Tech loses at least 2 of its next 4 games.",
+            "why": "Devin picked Texas Tech to fall short of its preseason win target. Losses are good news for that pick.",
+            "watch_heading": "Games to circle",
+            "difficulty": "Needs a few things to break right",
+            "likelihood_text": "This stretch comes through in about 15 out of 100 simulated seasons.",
+            "rival_note": null,
+            "narrative": "The awkward part: Devin benefits when Texas Tech has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
+            "banter": "Devin already has a World Cup title the family can discuss indefinitely. If Texas Tech helps him toward another trophy, everyone may need a second subject for dinner.",
+            "if_it_happens": "If this stretch lands, Devin has a stronger title case and a ready-made reason to remind everyone about this pick."
+          }
+        ],
+        "position": "Within striking distance",
+        "intro": "Think of this as a rooting guide: the results that would give Devin a better shot, with the rest of the season still to play."
+      },
+      {
         "manager_id": "vic",
         "display_name": "Vic",
-        "p_win_pool": 0.150812,
+        "p_win_pool": 0.144858,
         "finished": false,
         "routes": [
           {
@@ -1978,11 +2275,11 @@
             "line": 4.5,
             "next_games": 4,
             "needed": 3,
-            "event_probability": 0.1771,
-            "p_title_if": 0.271537,
-            "p_title_now": 0.150812,
-            "lift": 0.120724,
-            "matching_trials": 3542,
+            "event_probability": 0.17645,
+            "p_title_if": 0.269836,
+            "p_title_now": 0.144858,
+            "lift": 0.124977,
+            "matching_trials": 3529,
             "games_to_watch": [
               {
                 "opponent": "Missouri",
@@ -2049,11 +2346,11 @@
             "line": 6.5,
             "next_games": 4,
             "needed": 3,
-            "event_probability": 0.2832,
-            "p_title_if": 0.23353,
-            "p_title_now": 0.150812,
-            "lift": 0.082718,
-            "matching_trials": 5664,
+            "event_probability": 0.2801,
+            "p_title_if": 0.22636,
+            "p_title_now": 0.144858,
+            "lift": 0.081501,
+            "matching_trials": 5602,
             "games_to_watch": [
               {
                 "opponent": "Central Arkansas",
@@ -2120,11 +2417,11 @@
             "line": 9.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.4516,
-            "p_title_if": 0.209944,
-            "p_title_now": 0.150812,
-            "lift": 0.059132,
-            "matching_trials": 9032,
+            "event_probability": 0.4566,
+            "p_title_if": 0.200484,
+            "p_title_now": 0.144858,
+            "lift": 0.055625,
+            "matching_trials": 9132,
             "games_to_watch": [
               {
                 "opponent": "Oklahoma",
@@ -2179,7 +2476,7 @@
             "why": "Vic picked Georgia to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "The toughest hurdles",
             "difficulty": "A realistic opening",
-            "likelihood_text": "This stretch comes through in about 45 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 46 out of 100 simulated seasons.",
             "rival_note": "Holly is pulling the other way on Georgia.",
             "narrative": "Vic does not need style points from Georgia. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
             "banter": "If Georgia comes through, Vic gets bragging rights. The family should ask whether those transfer automatically to Abita Springs.",
@@ -2191,11 +2488,11 @@
             "line": 7.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.25345,
-            "p_title_if": 0.215687,
-            "p_title_now": 0.150812,
-            "lift": 0.064874,
-            "matching_trials": 5069,
+            "event_probability": 0.24845,
+            "p_title_if": 0.218159,
+            "p_title_now": 0.144858,
+            "lift": 0.073301,
+            "matching_trials": 4969,
             "games_to_watch": [
               {
                 "opponent": "Boise State",
@@ -2261,374 +2558,80 @@
         "intro": "Think of this as a rooting guide: the results that would give Vic a better shot, with the rest of the season still to play."
       },
       {
-        "manager_id": "devin",
-        "display_name": "Devin",
-        "p_win_pool": 0.139278,
+        "manager_id": "gayden",
+        "display_name": "Gayden",
+        "p_win_pool": 0.106412,
         "finished": false,
         "routes": [
           {
-            "team": "Auburn",
+            "team": "Michigan State",
             "direction": "O",
-            "line": 6.5,
+            "line": 4.5,
             "next_games": 4,
             "needed": 3,
-            "event_probability": 0.25355,
-            "p_title_if": 0.242211,
-            "p_title_now": 0.139278,
-            "lift": 0.102932,
-            "matching_trials": 5071,
+            "event_probability": 0.18165,
+            "p_title_if": 0.191784,
+            "p_title_now": 0.106412,
+            "lift": 0.085372,
+            "matching_trials": 3633,
             "games_to_watch": [
               {
-                "opponent": "Southern Miss",
+                "opponent": "Eastern Michigan",
                 "home_away": "home",
                 "week": 2,
                 "neutral": false,
-                "p_win": 0.871973,
-                "rooting_note": "Auburn is favored to beat Southern Miss."
+                "p_win": 0.821409,
+                "rooting_note": "Michigan State is favored to beat Eastern Michigan."
               },
               {
-                "opponent": "Vanderbilt",
-                "home_away": "home",
-                "week": 4,
+                "opponent": "Wisconsin",
+                "home_away": "away",
+                "week": 5,
                 "neutral": false,
-                "p_win": 0.479641,
+                "p_win": 0.472251,
                 "rooting_note": "This one could go either way."
               }
             ],
             "stretch": [
               {
-                "opponent": "Southern Miss",
+                "opponent": "Eastern Michigan",
                 "home_away": "home",
                 "week": 2,
                 "neutral": false,
-                "p_win": 0.871973
+                "p_win": 0.821409
               },
               {
-                "opponent": "Florida",
-                "home_away": "home",
+                "opponent": "Notre Dame",
+                "home_away": "away",
                 "week": 3,
                 "neutral": false,
-                "p_win": 0.362862
+                "p_win": 0.099087
               },
               {
-                "opponent": "Vanderbilt",
+                "opponent": "Nebraska",
                 "home_away": "home",
                 "week": 4,
                 "neutral": false,
-                "p_win": 0.479641
+                "p_win": 0.371468
               },
               {
-                "opponent": "Tennessee",
+                "opponent": "Wisconsin",
                 "home_away": "away",
                 "week": 5,
                 "neutral": false,
-                "p_win": 0.22238
+                "p_win": 0.472251
               }
             ],
-            "condition": "Auburn wins at least 3 of its next 4 games",
-            "headline": "Root for Auburn.",
-            "story": "Devin gets a better shot if Auburn wins at least 3 of its next 4 games.",
-            "why": "Devin picked Auburn to beat its preseason win target. Wins are good news for that pick.",
-            "watch_heading": "Games to circle",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 25 out of 100 simulated seasons.",
-            "rival_note": "Rachel is pulling the other way on Auburn.",
-            "narrative": "Devin does not need style points from Auburn. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
-            "banter": "Devin once looked at a ghost pepper and decided he could handle it. He has now taken the Auburn Over. The family is permitted to keep a glass of milk beside the standings.",
-            "if_it_happens": "If this stretch lands, Devin has a stronger title case and Rachel will have been cheering against the very same results."
-          },
-          {
-            "team": "Boston College",
-            "direction": "O",
-            "line": 3.5,
-            "next_games": 4,
-            "needed": 3,
-            "event_probability": 0.18275,
-            "p_title_if": 0.233853,
-            "p_title_now": 0.139278,
-            "lift": 0.094575,
-            "matching_trials": 3655,
-            "games_to_watch": [
-              {
-                "opponent": "Maine",
-                "home_away": "home",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.912195,
-                "rooting_note": "Boston College is favored to beat Maine."
-              },
-              {
-                "opponent": "Rutgers",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.503704,
-                "rooting_note": "This one could go either way."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "Rutgers",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.503704
-              },
-              {
-                "opponent": "Maine",
-                "home_away": "home",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.912195
-              },
-              {
-                "opponent": "Virginia Tech",
-                "home_away": "home",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.236788
-              },
-              {
-                "opponent": "SMU",
-                "home_away": "away",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.158869
-              }
-            ],
-            "condition": "Boston College wins at least 3 of its next 4 games",
-            "headline": "Root for Boston College.",
-            "story": "Devin gets a better shot if Boston College wins at least 3 of its next 4 games.",
-            "why": "Devin picked Boston College to beat its preseason win target. Wins are good news for that pick.",
+            "condition": "Michigan State wins at least 3 of its next 4 games",
+            "headline": "Root for Michigan State.",
+            "story": "Gayden gets a better shot if Michigan State wins at least 3 of its next 4 games.",
+            "why": "Gayden picked Michigan State to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "Games to circle",
             "difficulty": "Needs a few things to break right",
             "likelihood_text": "This stretch comes through in about 18 out of 100 simulated seasons.",
             "rival_note": null,
-            "narrative": "Devin does not need style points from Boston College. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
-            "banter": "Devin already has a World Cup title the family can discuss indefinitely. If Boston College helps him toward another trophy, everyone may need a second subject for dinner.",
-            "if_it_happens": "If this stretch lands, Devin has a stronger title case and a ready-made reason to remind everyone about this pick."
-          },
-          {
-            "team": "Houston",
-            "direction": "U",
-            "line": 8.5,
-            "next_games": 4,
-            "needed": 3,
-            "event_probability": 0.12405,
-            "p_title_if": 0.225762,
-            "p_title_now": 0.139278,
-            "lift": 0.086484,
-            "matching_trials": 2481,
-            "games_to_watch": [
-              {
-                "opponent": "Texas Tech",
-                "home_away": "away",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.22885,
-                "rooting_note": "Texas Tech is favored to beat Houston."
-              },
-              {
-                "opponent": "UCF",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.58437,
-                "rooting_note": "This one could go either way."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "Southern",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.966766
-              },
-              {
-                "opponent": "Texas Tech",
-                "home_away": "away",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.22885
-              },
-              {
-                "opponent": "Georgia Southern",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.649038
-              },
-              {
-                "opponent": "UCF",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.58437
-              }
-            ],
-            "condition": "Houston loses at least 3 of its next 4 games",
-            "headline": "Root against Houston.",
-            "story": "Devin gets a better shot if Houston loses at least 3 of its next 4 games.",
-            "why": "Devin picked Houston to fall short of its preseason win target. Losses are good news for that pick.",
-            "watch_heading": "Games to circle",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 12 out of 100 simulated seasons.",
-            "rival_note": null,
-            "narrative": "The awkward part: Devin benefits when Houston has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
-            "banter": "If Houston comes through, Devin gets more trophy-related material. The family should agree in advance how many World Cup references are permitted.",
-            "if_it_happens": "If this stretch lands, Devin has a stronger title case and a ready-made reason to remind everyone about this pick."
-          },
-          {
-            "team": "Texas Tech",
-            "direction": "U",
-            "line": 10.5,
-            "next_games": 4,
-            "needed": 2,
-            "event_probability": 0.13895,
-            "p_title_if": 0.211161,
-            "p_title_now": 0.139278,
-            "lift": 0.071883,
-            "matching_trials": 2779,
-            "games_to_watch": [
-              {
-                "opponent": "Colorado",
-                "home_away": "away",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.720743,
-                "rooting_note": "Texas Tech is favored. A loss here would be an upset."
-              },
-              {
-                "opponent": "Houston",
-                "home_away": "home",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.77115,
-                "rooting_note": "Texas Tech is favored. A loss here would be an upset."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "Oregon State",
-                "home_away": "away",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.833051
-              },
-              {
-                "opponent": "Houston",
-                "home_away": "home",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.77115
-              },
-              {
-                "opponent": "Sam Houston",
-                "home_away": "home",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.964046
-              },
-              {
-                "opponent": "Colorado",
-                "home_away": "away",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.720743
-              }
-            ],
-            "condition": "Texas Tech loses at least 2 of its next 4 games",
-            "headline": "Root against Texas Tech.",
-            "story": "Devin gets a better shot if Texas Tech loses at least 2 of its next 4 games.",
-            "why": "Devin picked Texas Tech to fall short of its preseason win target. Losses are good news for that pick.",
-            "watch_heading": "Games to circle",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 14 out of 100 simulated seasons.",
-            "rival_note": null,
-            "narrative": "The awkward part: Devin benefits when Texas Tech has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
-            "banter": "Devin already has a World Cup title the family can discuss indefinitely. If Texas Tech helps him toward another trophy, everyone may need a second subject for dinner.",
-            "if_it_happens": "If this stretch lands, Devin has a stronger title case and a ready-made reason to remind everyone about this pick."
-          }
-        ],
-        "position": "Within striking distance",
-        "intro": "Think of this as a rooting guide: the results that would give Devin a better shot, with the rest of the season still to play."
-      },
-      {
-        "manager_id": "gayden",
-        "display_name": "Gayden",
-        "p_win_pool": 0.111059,
-        "finished": false,
-        "routes": [
-          {
-            "team": "UNLV",
-            "direction": "O",
-            "line": 7.5,
-            "next_games": 4,
-            "needed": 4,
-            "event_probability": 0.21435,
-            "p_title_if": 0.202741,
-            "p_title_now": 0.111059,
-            "lift": 0.091682,
-            "matching_trials": 4287,
-            "games_to_watch": [
-              {
-                "opponent": "North Dakota State",
-                "home_away": "home",
-                "week": 6,
-                "neutral": false,
-                "p_win": 0.568093,
-                "rooting_note": "This one could go either way."
-              },
-              {
-                "opponent": "California",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.672281,
-                "rooting_note": "UNLV is favored to beat California."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "North Texas",
-                "home_away": "away",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.700955
-              },
-              {
-                "opponent": "Akron",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.811419
-              },
-              {
-                "opponent": "California",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.672281
-              },
-              {
-                "opponent": "North Dakota State",
-                "home_away": "home",
-                "week": 6,
-                "neutral": false,
-                "p_win": 0.568093
-              }
-            ],
-            "condition": "UNLV wins all of its next 4 games",
-            "headline": "Root for UNLV.",
-            "story": "Gayden gets a better shot if UNLV wins all of its next 4 games.",
-            "why": "Gayden picked UNLV to beat its preseason win target. Wins are good news for that pick.",
-            "watch_heading": "The toughest hurdles",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 21 out of 100 simulated seasons.",
-            "rival_note": null,
-            "narrative": "Gayden does not need style points from UNLV. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
-            "banter": "Gayden does not have a casual setting. If UNLV struggles, the family can ask whether the problem is conditioning, technique, or a football team refusing to tap out on schedule.",
+            "narrative": "Gayden does not need style points from Michigan State. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
+            "banter": "If Michigan State makes this look clever, Gayden gets the floor. The family should set a time limit before the soccer opinions arrive.",
             "if_it_happens": "If this stretch lands, Gayden has a stronger title case and a ready-made reason to remind everyone about this pick."
           },
           {
@@ -2637,11 +2640,11 @@
             "line": 5.5,
             "next_games": 4,
             "needed": 3,
-            "event_probability": 0.2424,
-            "p_title_if": 0.189999,
-            "p_title_now": 0.111059,
-            "lift": 0.07894,
-            "matching_trials": 4848,
+            "event_probability": 0.23965,
+            "p_title_if": 0.178034,
+            "p_title_now": 0.106412,
+            "lift": 0.071622,
+            "matching_trials": 4793,
             "games_to_watch": [
               {
                 "opponent": "UT Martin",
@@ -2703,74 +2706,74 @@
             "if_it_happens": "If this stretch lands, Gayden has a stronger title case and a ready-made reason to remind everyone about this pick."
           },
           {
-            "team": "Michigan State",
+            "team": "UNLV",
             "direction": "O",
-            "line": 4.5,
+            "line": 7.5,
             "next_games": 4,
-            "needed": 3,
-            "event_probability": 0.18955,
-            "p_title_if": 0.184898,
-            "p_title_now": 0.111059,
-            "lift": 0.073839,
-            "matching_trials": 3791,
+            "needed": 4,
+            "event_probability": 0.21355,
+            "p_title_if": 0.180516,
+            "p_title_now": 0.106412,
+            "lift": 0.074104,
+            "matching_trials": 4271,
             "games_to_watch": [
               {
-                "opponent": "Eastern Michigan",
+                "opponent": "North Dakota State",
                 "home_away": "home",
-                "week": 2,
+                "week": 6,
                 "neutral": false,
-                "p_win": 0.821409,
-                "rooting_note": "Michigan State is favored to beat Eastern Michigan."
+                "p_win": 0.568093,
+                "rooting_note": "This one could go either way."
               },
               {
-                "opponent": "Wisconsin",
-                "home_away": "away",
+                "opponent": "California",
+                "home_away": "home",
                 "week": 5,
                 "neutral": false,
-                "p_win": 0.472251,
-                "rooting_note": "This one could go either way."
+                "p_win": 0.672281,
+                "rooting_note": "UNLV is favored to beat California."
               }
             ],
             "stretch": [
               {
-                "opponent": "Eastern Michigan",
-                "home_away": "home",
+                "opponent": "North Texas",
+                "home_away": "away",
                 "week": 2,
                 "neutral": false,
-                "p_win": 0.821409
+                "p_win": 0.700955
               },
               {
-                "opponent": "Notre Dame",
+                "opponent": "Akron",
                 "home_away": "away",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.099087
-              },
-              {
-                "opponent": "Nebraska",
-                "home_away": "home",
                 "week": 4,
                 "neutral": false,
-                "p_win": 0.371468
+                "p_win": 0.811419
               },
               {
-                "opponent": "Wisconsin",
-                "home_away": "away",
+                "opponent": "California",
+                "home_away": "home",
                 "week": 5,
                 "neutral": false,
-                "p_win": 0.472251
+                "p_win": 0.672281
+              },
+              {
+                "opponent": "North Dakota State",
+                "home_away": "home",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.568093
               }
             ],
-            "condition": "Michigan State wins at least 3 of its next 4 games",
-            "headline": "Root for Michigan State.",
-            "story": "Gayden gets a better shot if Michigan State wins at least 3 of its next 4 games.",
-            "why": "Gayden picked Michigan State to beat its preseason win target. Wins are good news for that pick.",
-            "watch_heading": "Games to circle",
+            "condition": "UNLV wins all of its next 4 games",
+            "headline": "Root for UNLV.",
+            "story": "Gayden gets a better shot if UNLV wins all of its next 4 games.",
+            "why": "Gayden picked UNLV to beat its preseason win target. Wins are good news for that pick.",
+            "watch_heading": "The toughest hurdles",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 19 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 21 out of 100 simulated seasons.",
             "rival_note": null,
-            "narrative": "Gayden does not need style points from Michigan State. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
-            "banter": "If Michigan State makes this look clever, Gayden gets the floor. The family should set a time limit before the soccer opinions arrive.",
+            "narrative": "Gayden does not need style points from UNLV. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
+            "banter": "Gayden does not have a casual setting. If UNLV struggles, the family can ask whether the problem is conditioning, technique, or a football team refusing to tap out on schedule.",
             "if_it_happens": "If this stretch lands, Gayden has a stronger title case and a ready-made reason to remind everyone about this pick."
           },
           {
@@ -2779,11 +2782,11 @@
             "line": 6.5,
             "next_games": 4,
             "needed": 2,
-            "event_probability": 0.40905,
-            "p_title_if": 0.1602,
-            "p_title_now": 0.111059,
-            "lift": 0.049141,
-            "matching_trials": 8181,
+            "event_probability": 0.41015,
+            "p_title_if": 0.157314,
+            "p_title_now": 0.106412,
+            "lift": 0.050903,
+            "matching_trials": 8203,
             "games_to_watch": [
               {
                 "opponent": "Arizona State",
@@ -2851,7 +2854,7 @@
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.081952,
+        "p_win_pool": 0.077307,
         "finished": false,
         "routes": [
           {
@@ -2860,11 +2863,11 @@
             "line": 7.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.1701,
-            "p_title_if": 0.164036,
-            "p_title_now": 0.081952,
-            "lift": 0.082083,
-            "matching_trials": 3402,
+            "event_probability": 0.17415,
+            "p_title_if": 0.151412,
+            "p_title_now": 0.077307,
+            "lift": 0.074105,
+            "matching_trials": 3483,
             "games_to_watch": [
               {
                 "opponent": "Air Force",
@@ -2931,11 +2934,11 @@
             "line": 5.5,
             "next_games": 4,
             "needed": 3,
-            "event_probability": 0.1555,
-            "p_title_if": 0.162996,
-            "p_title_now": 0.081952,
-            "lift": 0.081043,
-            "matching_trials": 3110,
+            "event_probability": 0.15255,
+            "p_title_if": 0.154567,
+            "p_title_now": 0.077307,
+            "lift": 0.07726,
+            "matching_trials": 3051,
             "games_to_watch": [
               {
                 "opponent": "Stanford",
@@ -2990,7 +2993,7 @@
             "why": "Zach picked Wake Forest to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "Games to circle",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 16 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 15 out of 100 simulated seasons.",
             "rival_note": null,
             "narrative": "Zach does not need style points from Wake Forest. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
             "banter": "Zach took his alma mater to the Over. The family should ask whether Wake Forest passed the model's tests or just knew the person administering them.",
@@ -3002,11 +3005,11 @@
             "line": 8.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.3084,
-            "p_title_if": 0.120923,
-            "p_title_now": 0.081952,
-            "lift": 0.03897,
-            "matching_trials": 6168,
+            "event_probability": 0.30805,
+            "p_title_if": 0.116226,
+            "p_title_now": 0.077307,
+            "lift": 0.038919,
+            "matching_trials": 6161,
             "games_to_watch": [
               {
                 "opponent": "Texas A&M",
@@ -3073,11 +3076,11 @@
             "line": 8.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.34695,
-            "p_title_if": 0.113201,
-            "p_title_now": 0.081952,
-            "lift": 0.031248,
-            "matching_trials": 6939,
+            "event_probability": 0.3467,
+            "p_title_if": 0.113773,
+            "p_title_now": 0.077307,
+            "lift": 0.036466,
+            "matching_trials": 6934,
             "games_to_watch": [
               {
                 "opponent": "Louisville",
@@ -3139,26 +3142,97 @@
             "if_it_happens": "If this stretch lands, Zach has a stronger title case and a ready-made reason to remind everyone about this pick."
           }
         ],
-        "position": "Within striking distance",
+        "position": "Needs a few breaks",
         "intro": "Think of this as a rooting guide: the results that would give Zach a better shot, with the rest of the season still to play."
       },
       {
         "manager_id": "gunner",
         "display_name": "Gunner",
-        "p_win_pool": 0.049801,
+        "p_win_pool": 0.047482,
         "finished": false,
         "routes": [
+          {
+            "team": "Purdue",
+            "direction": "O",
+            "line": 3.5,
+            "next_games": 4,
+            "needed": 3,
+            "event_probability": 0.09935,
+            "p_title_if": 0.122127,
+            "p_title_now": 0.047482,
+            "lift": 0.074645,
+            "matching_trials": 1987,
+            "games_to_watch": [
+              {
+                "opponent": "Wake Forest",
+                "home_away": "home",
+                "week": 2,
+                "neutral": false,
+                "p_win": 0.566274,
+                "rooting_note": "This one could go either way."
+              },
+              {
+                "opponent": "Illinois",
+                "home_away": "away",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.318003,
+                "rooting_note": "Purdue would need to pull off an upset."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "Wake Forest",
+                "home_away": "home",
+                "week": 2,
+                "neutral": false,
+                "p_win": 0.566274
+              },
+              {
+                "opponent": "UCLA",
+                "home_away": "away",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.291339
+              },
+              {
+                "opponent": "Notre Dame",
+                "home_away": "home",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.167982
+              },
+              {
+                "opponent": "Illinois",
+                "home_away": "away",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.318003
+              }
+            ],
+            "condition": "Purdue wins at least 3 of its next 4 games",
+            "headline": "Root for Purdue.",
+            "story": "Gunner gets a better shot if Purdue wins at least 3 of its next 4 games.",
+            "why": "Gunner picked Purdue to beat its preseason win target. Wins are good news for that pick.",
+            "watch_heading": "Games to circle",
+            "difficulty": "Needs a few things to break right",
+            "likelihood_text": "This stretch comes through in about 10 out of 100 simulated seasons.",
+            "rival_note": null,
+            "narrative": "Gunner does not need style points from Purdue. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
+            "banter": "Gunner has already lived through the family's World Cup scoring debate. If Purdue delivers, he has every reason to request that this trophy come with a very boring rulebook.",
+            "if_it_happens": "If this stretch lands, Gunner has a stronger title case and a ready-made reason to remind everyone about this pick."
+          },
           {
             "team": "Vanderbilt",
             "direction": "U",
             "line": 5.5,
             "next_games": 4,
             "needed": 3,
-            "event_probability": 0.1501,
-            "p_title_if": 0.10453,
-            "p_title_now": 0.049801,
-            "lift": 0.054729,
-            "matching_trials": 3002,
+            "event_probability": 0.14815,
+            "p_title_if": 0.099556,
+            "p_title_now": 0.047482,
+            "lift": 0.052074,
+            "matching_trials": 2963,
             "games_to_watch": [
               {
                 "opponent": "Georgia",
@@ -3225,11 +3299,11 @@
             "line": 6.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.1528,
-            "p_title_if": 0.101385,
-            "p_title_now": 0.049801,
-            "lift": 0.051584,
-            "matching_trials": 3056,
+            "event_probability": 0.1529,
+            "p_title_if": 0.096741,
+            "p_title_now": 0.047482,
+            "lift": 0.049259,
+            "matching_trials": 3058,
             "games_to_watch": [
               {
                 "opponent": "Arizona State",
@@ -3291,87 +3365,16 @@
             "if_it_happens": "If this stretch lands, Gunner has a stronger title case and Gayden will have been cheering against the very same results."
           },
           {
-            "team": "Purdue",
-            "direction": "O",
-            "line": 3.5,
-            "next_games": 4,
-            "needed": 3,
-            "event_probability": 0.0993,
-            "p_title_if": 0.10762,
-            "p_title_now": 0.049801,
-            "lift": 0.057819,
-            "matching_trials": 1986,
-            "games_to_watch": [
-              {
-                "opponent": "Wake Forest",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.566274,
-                "rooting_note": "This one could go either way."
-              },
-              {
-                "opponent": "Illinois",
-                "home_away": "away",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.318003,
-                "rooting_note": "Purdue would need to pull off an upset."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "Wake Forest",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.566274
-              },
-              {
-                "opponent": "UCLA",
-                "home_away": "away",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.291339
-              },
-              {
-                "opponent": "Notre Dame",
-                "home_away": "home",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.167982
-              },
-              {
-                "opponent": "Illinois",
-                "home_away": "away",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.318003
-              }
-            ],
-            "condition": "Purdue wins at least 3 of its next 4 games",
-            "headline": "Root for Purdue.",
-            "story": "Gunner gets a better shot if Purdue wins at least 3 of its next 4 games.",
-            "why": "Gunner picked Purdue to beat its preseason win target. Wins are good news for that pick.",
-            "watch_heading": "Games to circle",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 10 out of 100 simulated seasons.",
-            "rival_note": null,
-            "narrative": "Gunner does not need style points from Purdue. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
-            "banter": "Gunner has already lived through the family's World Cup scoring debate. If Purdue delivers, he has every reason to request that this trophy come with a very boring rulebook.",
-            "if_it_happens": "If this stretch lands, Gunner has a stronger title case and a ready-made reason to remind everyone about this pick."
-          },
-          {
             "team": "Virginia",
             "direction": "O",
             "line": 7.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.3218,
-            "p_title_if": 0.080389,
-            "p_title_now": 0.049801,
-            "lift": 0.030588,
-            "matching_trials": 6436,
+            "event_probability": 0.239,
+            "p_title_if": 0.08628,
+            "p_title_now": 0.047482,
+            "lift": 0.038798,
+            "matching_trials": 4780,
             "games_to_watch": [
               {
                 "opponent": "Florida State",
@@ -3382,22 +3385,15 @@
                 "rooting_note": "This one could go either way."
               },
               {
-                "opponent": "West Virginia",
+                "opponent": "Syracuse",
                 "home_away": "home",
-                "week": 3,
-                "neutral": true,
-                "p_win": 0.764548,
-                "rooting_note": "Virginia is favored to beat West Virginia."
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.720743,
+                "rooting_note": "Virginia is favored to beat Syracuse."
               }
             ],
             "stretch": [
-              {
-                "opponent": "Norfolk State",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.976814
-              },
               {
                 "opponent": "West Virginia",
                 "home_away": "home",
@@ -3418,6 +3414,13 @@
                 "week": 5,
                 "neutral": false,
                 "p_win": 0.511109
+              },
+              {
+                "opponent": "Syracuse",
+                "home_away": "home",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.720743
               }
             ],
             "condition": "Virginia wins all of its next 4 games",
@@ -3426,7 +3429,7 @@
             "why": "Gunner picked Virginia to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "The toughest hurdles",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 32 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 24 out of 100 simulated seasons.",
             "rival_note": null,
             "narrative": "Gunner does not need style points from Virginia. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
             "banter": "Gunner is a physical therapist. If Virginia hurts this pick, the family should avoid asking him for a recovery timetable.",
@@ -3439,11 +3442,83 @@
       {
         "manager_id": "john",
         "display_name": "John",
-        "p_win_pool": 0.004331,
+        "p_win_pool": 0.003849,
         "finished": false,
-        "routes": [],
+        "routes": [
+          {
+            "team": "Mississippi State",
+            "direction": "U",
+            "line": 4.5,
+            "next_games": 4,
+            "needed": 4,
+            "event_probability": 0.12415,
+            "p_title_if": 0.014096,
+            "p_title_now": 0.003849,
+            "lift": 0.010247,
+            "matching_trials": 2483,
+            "games_to_watch": [
+              {
+                "opponent": "Missouri",
+                "home_away": "home",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.509258,
+                "rooting_note": "This one could go either way."
+              },
+              {
+                "opponent": "Minnesota",
+                "home_away": "away",
+                "week": 2,
+                "neutral": false,
+                "p_win": 0.422844,
+                "rooting_note": "This one could go either way."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "Minnesota",
+                "home_away": "away",
+                "week": 2,
+                "neutral": false,
+                "p_win": 0.422844
+              },
+              {
+                "opponent": "South Carolina",
+                "home_away": "away",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.302159
+              },
+              {
+                "opponent": "Missouri",
+                "home_away": "home",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.509258
+              },
+              {
+                "opponent": "Alabama",
+                "home_away": "home",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.380155
+              }
+            ],
+            "condition": "Mississippi State loses all of its next 4 games",
+            "headline": "Root against Mississippi State.",
+            "story": "John gets a better shot if Mississippi State loses all of its next 4 games.",
+            "why": "John picked Mississippi State to fall short of its preseason win target. Losses are good news for that pick.",
+            "watch_heading": "The toughest hurdles",
+            "difficulty": "Needs a few things to break right",
+            "likelihood_text": "This stretch comes through in about 12 out of 100 simulated seasons.",
+            "rival_note": "Vic is pulling the other way on Mississippi State.",
+            "narrative": "The awkward part: John benefits when Mississippi State has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
+            "banter": "John has been explaining football to this family for years. Mississippi State could save everyone a lengthy clarification by following the plan.",
+            "if_it_happens": "If this stretch lands, John has a stronger title case and Vic will have been cheering against the very same results."
+          }
+        ],
         "position": "Needs a few breaks",
-        "intro": "There is no clear short-term route in this forecast. That does not mean they are eliminated; the rest of the season still has to play out."
+        "intro": "Think of this as a rooting guide: the results that would give John a better shot, with the rest of the season still to play."
       }
     ],
     "trials": 20000,
@@ -5353,6 +5428,135 @@
         ]
       },
       {
+        "team": "Boston College",
+        "remaining_games": 10,
+        "compared_games": 9,
+        "unrated_games": 1,
+        "schedule_win_change": -0.132,
+        "opponent_rating_change": 0.989,
+        "direction": "harder",
+        "owners": [
+          {
+            "manager_id": "devin",
+            "display_name": "Devin",
+            "direction": "O",
+            "line": 3.5,
+            "expected_points_change": -0.132,
+            "effect": "hurts"
+          }
+        ],
+        "opponents": [
+          {
+            "opponent": "Syracuse",
+            "home_away": "home",
+            "week": 12,
+            "neutral": false,
+            "draft_rating": -1.9,
+            "current_rating": 2.7,
+            "rating_change": 4.6,
+            "draft_p_win": 0.562632,
+            "schedule_only_p_win": 0.477792,
+            "win_change": -0.0848
+          },
+          {
+            "opponent": "Pittsburgh",
+            "home_away": "home",
+            "week": 7,
+            "neutral": false,
+            "draft_rating": 6.2,
+            "current_rating": 10.1,
+            "rating_change": 3.9,
+            "draft_p_win": 0.413832,
+            "schedule_only_p_win": 0.345917,
+            "win_change": -0.0679
+          },
+          {
+            "opponent": "Georgia Tech",
+            "home_away": "away",
+            "week": 8,
+            "neutral": false,
+            "draft_rating": 5.9,
+            "current_rating": 1.7,
+            "rating_change": -4.2,
+            "draft_p_win": 0.28526,
+            "schedule_only_p_win": 0.352651,
+            "win_change": 0.0674
+          },
+          {
+            "opponent": "Virginia Tech",
+            "home_away": "home",
+            "week": 4,
+            "neutral": false,
+            "draft_rating": 8.6,
+            "current_rating": 12.4,
+            "rating_change": 3.8,
+            "draft_p_win": 0.371468,
+            "schedule_only_p_win": 0.308443,
+            "win_change": -0.063
+          },
+          {
+            "opponent": "Florida State",
+            "home_away": "home",
+            "week": 10,
+            "neutral": false,
+            "draft_rating": 9.1,
+            "current_rating": 6.9,
+            "rating_change": -2.2,
+            "draft_p_win": 0.362862,
+            "schedule_only_p_win": 0.401312,
+            "win_change": 0.0385
+          },
+          {
+            "opponent": "Miami",
+            "home_away": "away",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": 22.0,
+            "current_rating": 24.7,
+            "rating_change": 2.7,
+            "draft_p_win": 0.108022,
+            "schedule_only_p_win": 0.090207,
+            "win_change": -0.0178
+          },
+          {
+            "opponent": "Duke",
+            "home_away": "away",
+            "week": 9,
+            "neutral": false,
+            "draft_rating": 5.6,
+            "current_rating": 6.6,
+            "rating_change": 1.0,
+            "draft_p_win": 0.289812,
+            "schedule_only_p_win": 0.274807,
+            "win_change": -0.015
+          },
+          {
+            "opponent": "SMU",
+            "home_away": "away",
+            "week": 5,
+            "neutral": false,
+            "draft_rating": 12.1,
+            "current_rating": 11.1,
+            "rating_change": -1.0,
+            "draft_p_win": 0.201366,
+            "schedule_only_p_win": 0.213542,
+            "win_change": 0.0122
+          },
+          {
+            "opponent": "Notre Dame",
+            "home_away": "away",
+            "week": 11,
+            "neutral": false,
+            "draft_rating": 26.5,
+            "current_rating": 26.8,
+            "rating_change": 0.3,
+            "draft_p_win": 0.079846,
+            "schedule_only_p_win": 0.078228,
+            "win_change": -0.0016
+          }
+        ]
+      },
+      {
         "team": "Mississippi State",
         "remaining_games": 11,
         "compared_games": 10,
@@ -6674,147 +6878,6 @@
         ]
       },
       {
-        "team": "Boston College",
-        "remaining_games": 11,
-        "compared_games": 10,
-        "unrated_games": 1,
-        "schedule_win_change": -0.017,
-        "opponent_rating_change": 0.26,
-        "direction": "harder",
-        "owners": [
-          {
-            "manager_id": "devin",
-            "display_name": "Devin",
-            "direction": "O",
-            "line": 3.5,
-            "expected_points_change": -0.017,
-            "effect": "hurts"
-          }
-        ],
-        "opponents": [
-          {
-            "opponent": "Rutgers",
-            "home_away": "home",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": 2.7,
-            "current_rating": -3.6,
-            "rating_change": -6.3,
-            "draft_p_win": 0.477792,
-            "schedule_only_p_win": 0.593337,
-            "win_change": 0.1155
-          },
-          {
-            "opponent": "Syracuse",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": -1.9,
-            "current_rating": 2.7,
-            "rating_change": 4.6,
-            "draft_p_win": 0.562632,
-            "schedule_only_p_win": 0.477792,
-            "win_change": -0.0848
-          },
-          {
-            "opponent": "Pittsburgh",
-            "home_away": "home",
-            "week": 7,
-            "neutral": false,
-            "draft_rating": 6.2,
-            "current_rating": 10.1,
-            "rating_change": 3.9,
-            "draft_p_win": 0.413832,
-            "schedule_only_p_win": 0.345917,
-            "win_change": -0.0679
-          },
-          {
-            "opponent": "Georgia Tech",
-            "home_away": "away",
-            "week": 8,
-            "neutral": false,
-            "draft_rating": 5.9,
-            "current_rating": 1.7,
-            "rating_change": -4.2,
-            "draft_p_win": 0.28526,
-            "schedule_only_p_win": 0.352651,
-            "win_change": 0.0674
-          },
-          {
-            "opponent": "Virginia Tech",
-            "home_away": "home",
-            "week": 4,
-            "neutral": false,
-            "draft_rating": 8.6,
-            "current_rating": 12.4,
-            "rating_change": 3.8,
-            "draft_p_win": 0.371468,
-            "schedule_only_p_win": 0.308443,
-            "win_change": -0.063
-          },
-          {
-            "opponent": "Florida State",
-            "home_away": "home",
-            "week": 10,
-            "neutral": false,
-            "draft_rating": 9.1,
-            "current_rating": 6.9,
-            "rating_change": -2.2,
-            "draft_p_win": 0.362862,
-            "schedule_only_p_win": 0.401312,
-            "win_change": 0.0385
-          },
-          {
-            "opponent": "Miami",
-            "home_away": "away",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": 22.0,
-            "current_rating": 24.7,
-            "rating_change": 2.7,
-            "draft_p_win": 0.108022,
-            "schedule_only_p_win": 0.090207,
-            "win_change": -0.0178
-          },
-          {
-            "opponent": "Duke",
-            "home_away": "away",
-            "week": 9,
-            "neutral": false,
-            "draft_rating": 5.6,
-            "current_rating": 6.6,
-            "rating_change": 1.0,
-            "draft_p_win": 0.289812,
-            "schedule_only_p_win": 0.274807,
-            "win_change": -0.015
-          },
-          {
-            "opponent": "SMU",
-            "home_away": "away",
-            "week": 5,
-            "neutral": false,
-            "draft_rating": 12.1,
-            "current_rating": 11.1,
-            "rating_change": -1.0,
-            "draft_p_win": 0.201366,
-            "schedule_only_p_win": 0.213542,
-            "win_change": 0.0122
-          },
-          {
-            "opponent": "Notre Dame",
-            "home_away": "away",
-            "week": 11,
-            "neutral": false,
-            "draft_rating": 26.5,
-            "current_rating": 26.8,
-            "rating_change": 0.3,
-            "draft_p_win": 0.079846,
-            "schedule_only_p_win": 0.078228,
-            "win_change": -0.0016
-          }
-        ]
-      },
-      {
         "team": "Ohio State",
         "remaining_games": 11,
         "compared_games": 11,
@@ -7263,9 +7326,9 @@
       },
       {
         "team": "Virginia",
-        "remaining_games": 11,
+        "remaining_games": 10,
         "compared_games": 10,
-        "unrated_games": 1,
+        "unrated_games": 0,
         "schedule_win_change": -0.012,
         "opponent_rating_change": 0.25,
         "direction": "harder",
@@ -7550,63 +7613,63 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.967472,
-        "impact": 0.117485,
+        "impact": 0.117282,
         "managers": [
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.280981,
-            "p_if_loss": 0.398466,
-            "swing": -0.117485
+            "p_if_win": 0.265931,
+            "p_if_loss": 0.383213,
+            "swing": -0.117282
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.153225,
-            "p_if_loss": 0.082697,
-            "swing": 0.070528
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.178043,
-            "p_if_loss": 0.164251,
-            "swing": 0.013793
+            "p_if_win": 0.147289,
+            "p_if_loss": 0.079371,
+            "swing": 0.067918
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.139762,
-            "p_if_loss": 0.127679,
-            "swing": 0.012082
+            "p_if_win": 0.173096,
+            "p_if_loss": 0.157622,
+            "swing": 0.015474
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.177817,
+            "p_if_loss": 0.163982,
+            "swing": 0.013836
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.111472,
-            "p_if_loss": 0.102412,
-            "swing": 0.00906
+            "p_if_win": 0.106677,
+            "p_if_loss": 0.098229,
+            "swing": 0.008447
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.082286,
-            "p_if_loss": 0.075568,
-            "swing": 0.006718
+            "p_if_win": 0.077498,
+            "p_if_loss": 0.070914,
+            "swing": 0.006584
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.049859,
-            "p_if_loss": 0.045515,
-            "swing": 0.004344
+            "p_if_win": 0.047817,
+            "p_if_loss": 0.043702,
+            "swing": 0.004116
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004373,
-            "p_if_loss": 0.003412,
-            "swing": 0.000961
+            "p_if_win": 0.003874,
+            "p_if_loss": 0.002967,
+            "swing": 0.000907
           }
         ],
         "headline": "Holly is rooting for Western Kentucky.",
@@ -7621,69 +7684,69 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.752336,
-        "impact": 0.099574,
+        "impact": 0.098808,
         "managers": [
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.259257,
-            "p_if_loss": 0.358832,
-            "swing": -0.099574
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.184849,
-            "p_if_loss": 0.158597,
-            "swing": 0.026253
+            "p_if_win": 0.24664,
+            "p_if_loss": 0.345448,
+            "swing": -0.098808
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.144047,
-            "p_if_loss": 0.124254,
-            "swing": 0.019793
+            "p_if_win": 0.178162,
+            "p_if_loss": 0.153663,
+            "swing": 0.0245
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.183283,
+            "p_if_loss": 0.158882,
+            "swing": 0.024402
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.155001,
-            "p_if_loss": 0.138412,
-            "swing": 0.016588
+            "p_if_win": 0.148781,
+            "p_if_loss": 0.133651,
+            "swing": 0.01513
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.115043,
-            "p_if_loss": 0.098954,
-            "swing": 0.016089
+            "p_if_win": 0.109832,
+            "p_if_loss": 0.094842,
+            "swing": 0.01499
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.085254,
-            "p_if_loss": 0.073345,
-            "swing": 0.011909
+            "p_if_win": 0.080052,
+            "p_if_loss": 0.068871,
+            "swing": 0.011181
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.051977,
-            "p_if_loss": 0.044033,
-            "swing": 0.007943
+            "p_if_win": 0.049127,
+            "p_if_loss": 0.041559,
+            "swing": 0.007567
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004571,
-            "p_if_loss": 0.003572,
-            "swing": 0.000998
+            "p_if_win": 0.004122,
+            "p_if_loss": 0.003085,
+            "swing": 0.001037
           }
         ],
         "headline": "Holly is rooting for Georgia Southern.",
-        "story": "Holly has the most riding on this one. Rachel is rooting for the other side.",
+        "story": "Holly has the most riding on this one. Devin is rooting for the other side.",
         "root_for": "Georgia Southern",
-        "conversation": "Watch the group chat if Georgia Southern wins: good news for Holly, bad news for Rachel’s title chances. Same final score, very different moods."
+        "conversation": "Watch the group chat if Georgia Southern wins: good news for Holly, bad news for Devin’s title chances. Same final score, very different moods."
       },
       {
         "team": "Auburn",
@@ -7692,63 +7755,63 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.871973,
-        "impact": 0.097969,
+        "impact": 0.096847,
         "managers": [
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.164932,
-            "p_if_loss": 0.262901,
-            "swing": -0.097969
+            "p_if_win": 0.165215,
+            "p_if_loss": 0.262062,
+            "swing": -0.096847
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.148007,
-            "p_if_loss": 0.084761,
-            "swing": 0.063246
+            "p_if_win": 0.182371,
+            "p_if_loss": 0.103358,
+            "swing": 0.079013
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.286762,
-            "p_if_loss": 0.27454,
-            "swing": 0.012221
+            "p_if_win": 0.270657,
+            "p_if_loss": 0.264334,
+            "swing": 0.006323
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.152002,
-            "p_if_loss": 0.143974,
-            "swing": 0.008028
+            "p_if_win": 0.145973,
+            "p_if_loss": 0.140135,
+            "swing": 0.005838
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.082558,
-            "p_if_loss": 0.076455,
-            "swing": 0.006103
+            "p_if_win": 0.077736,
+            "p_if_loss": 0.074938,
+            "swing": 0.002798
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.111538,
-            "p_if_loss": 0.105686,
-            "swing": 0.005852
+            "p_if_win": 0.106697,
+            "p_if_loss": 0.104326,
+            "swing": 0.002372
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.049915,
-            "p_if_loss": 0.047709,
-            "swing": 0.002206
+            "p_if_win": 0.047459,
+            "p_if_loss": 0.047159,
+            "swing": 0.0003
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004285,
-            "p_if_loss": 0.003972,
-            "swing": 0.000313
+            "p_if_win": 0.003891,
+            "p_if_loss": 0.003688,
+            "swing": 0.000203
           }
         ],
         "headline": "Rachel is rooting for Southern Miss.",
@@ -7763,63 +7826,63 @@
         "home_away": "away",
         "neutral": false,
         "p_team_win": 0.74113,
-        "impact": 0.09119,
+        "impact": 0.090688,
         "managers": [
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.307827,
-            "p_if_loss": 0.216637,
-            "swing": 0.09119
+            "p_if_win": 0.294447,
+            "p_if_loss": 0.203759,
+            "swing": 0.090688
           },
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.172315,
-            "p_if_loss": 0.195823,
-            "swing": -0.023508
+            "p_if_win": 0.171958,
+            "p_if_loss": 0.194018,
+            "swing": -0.02206
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.134535,
-            "p_if_loss": 0.152892,
-            "swing": -0.018357
+            "p_if_win": 0.166818,
+            "p_if_loss": 0.18868,
+            "swing": -0.021862
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.146732,
-            "p_if_loss": 0.161825,
-            "swing": -0.015093
+            "p_if_win": 0.141067,
+            "p_if_loss": 0.155502,
+            "swing": -0.014434
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.10752,
-            "p_if_loss": 0.121871,
-            "swing": -0.014351
+            "p_if_win": 0.102453,
+            "p_if_loss": 0.116462,
+            "swing": -0.01401
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.078849,
-            "p_if_loss": 0.090137,
-            "swing": -0.011288
+            "p_if_win": 0.074253,
+            "p_if_loss": 0.084335,
+            "swing": -0.010082
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.048062,
-            "p_if_loss": 0.055737,
-            "swing": -0.007675
+            "p_if_win": 0.045354,
+            "p_if_loss": 0.052647,
+            "swing": -0.007293
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.00416,
-            "p_if_loss": 0.005078,
-            "swing": -0.000918
+            "p_if_win": 0.003649,
+            "p_if_loss": 0.004597,
+            "swing": -0.000947
           }
         ],
         "headline": "Holly is rooting for Tennessee.",
@@ -7834,63 +7897,63 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.827836,
-        "impact": 0.090738,
+        "impact": 0.088715,
         "managers": [
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.30091,
-            "p_if_loss": 0.210172,
-            "swing": 0.090738
+            "p_if_win": 0.285649,
+            "p_if_loss": 0.196934,
+            "swing": 0.088715
           },
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.173338,
-            "p_if_loss": 0.196907,
-            "swing": -0.023569
+            "p_if_win": 0.173418,
+            "p_if_loss": 0.195572,
+            "swing": -0.022155
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.136362,
-            "p_if_loss": 0.154483,
-            "swing": -0.018122
+            "p_if_win": 0.168882,
+            "p_if_loss": 0.190842,
+            "swing": -0.021961
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.148058,
-            "p_if_loss": 0.162699,
-            "swing": -0.014641
+            "p_if_win": 0.142196,
+            "p_if_loss": 0.156532,
+            "swing": -0.014337
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.108516,
-            "p_if_loss": 0.12305,
-            "swing": -0.014534
+            "p_if_win": 0.103999,
+            "p_if_loss": 0.117164,
+            "swing": -0.013165
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.08009,
-            "p_if_loss": 0.091246,
-            "swing": -0.011156
+            "p_if_win": 0.075696,
+            "p_if_loss": 0.085034,
+            "swing": -0.009338
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.048628,
-            "p_if_loss": 0.056246,
-            "swing": -0.007618
+            "p_if_win": 0.04648,
+            "p_if_loss": 0.053284,
+            "swing": -0.006804
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004097,
-            "p_if_loss": 0.005197,
-            "swing": -0.001099
+            "p_if_win": 0.003681,
+            "p_if_loss": 0.004636,
+            "swing": -0.000955
           }
         ],
         "headline": "Holly is rooting for UAB.",
@@ -7905,63 +7968,63 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.954862,
-        "impact": 0.089435,
+        "impact": 0.085949,
         "managers": [
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.173706,
-            "p_if_loss": 0.263141,
-            "swing": -0.089435
+            "p_if_win": 0.17355,
+            "p_if_loss": 0.259499,
+            "swing": -0.085949
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.286197,
-            "p_if_loss": 0.258107,
-            "swing": 0.02809
+            "p_if_win": 0.271415,
+            "p_if_loss": 0.245218,
+            "swing": 0.026198
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.151812,
-            "p_if_loss": 0.133513,
-            "swing": 0.0183
-          },
-          {
-            "manager_id": "gayden",
-            "display_name": "Gayden",
-            "p_if_win": 0.111638,
-            "p_if_loss": 0.098571,
-            "swing": 0.013067
-          },
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.082452,
-            "p_if_loss": 0.070462,
-            "swing": 0.011991
+            "p_if_win": 0.14557,
+            "p_if_loss": 0.127801,
+            "swing": 0.017769
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.139824,
-            "p_if_loss": 0.129602,
-            "swing": 0.010222
+            "p_if_win": 0.17317,
+            "p_if_loss": 0.160221,
+            "swing": 0.012949
+          },
+          {
+            "manager_id": "gayden",
+            "display_name": "Gayden",
+            "p_if_win": 0.106868,
+            "p_if_loss": 0.094989,
+            "swing": 0.011879
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.077827,
+            "p_if_loss": 0.067824,
+            "swing": 0.010002
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.050013,
-            "p_if_loss": 0.043194,
-            "swing": 0.006819
+            "p_if_win": 0.047722,
+            "p_if_loss": 0.041344,
+            "swing": 0.006378
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004356,
-            "p_if_loss": 0.00341,
-            "swing": 0.000946
+            "p_if_win": 0.003878,
+            "p_if_loss": 0.003104,
+            "swing": 0.000774
           }
         ],
         "headline": "Rachel is rooting for Rice.",
@@ -7970,140 +8033,69 @@
         "conversation": "Watch the group chat if Rice wins: good news for Rachel, bad news for Holly’s title chances. Same final score, very different moods."
       },
       {
-        "team": "Utah",
-        "opponent": "Arkansas",
-        "week": 2,
-        "home_away": "home",
-        "neutral": false,
-        "p_team_win": 0.733961,
-        "impact": 0.085038,
-        "managers": [
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.154863,
-            "p_if_loss": 0.239902,
-            "swing": -0.085038
-          },
-          {
-            "manager_id": "holly",
-            "display_name": "Holly",
-            "p_if_win": 0.292302,
-            "p_if_loss": 0.265695,
-            "swing": 0.026607
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.155293,
-            "p_if_loss": 0.137722,
-            "swing": 0.017571
-          },
-          {
-            "manager_id": "gayden",
-            "display_name": "Gayden",
-            "p_if_win": 0.114712,
-            "p_if_loss": 0.102217,
-            "swing": 0.012496
-          },
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.084844,
-            "p_if_loss": 0.073349,
-            "swing": 0.011495
-          },
-          {
-            "manager_id": "devin",
-            "display_name": "Devin",
-            "p_if_win": 0.142115,
-            "p_if_loss": 0.132469,
-            "swing": 0.009646
-          },
-          {
-            "manager_id": "gunner",
-            "display_name": "Gunner",
-            "p_if_win": 0.051254,
-            "p_if_loss": 0.044977,
-            "swing": 0.006277
-          },
-          {
-            "manager_id": "john",
-            "display_name": "John",
-            "p_if_win": 0.004616,
-            "p_if_loss": 0.003668,
-            "swing": 0.000947
-          }
-        ],
-        "headline": "Rachel is rooting for Arkansas.",
-        "story": "Rachel has the most riding on this one. Holly is rooting for the other side.",
-        "root_for": "Arkansas",
-        "conversation": "Watch the group chat if Arkansas wins: good news for Rachel, bad news for Holly’s title chances. Same final score, very different moods."
-      },
-      {
         "team": "Houston",
         "opponent": "Southern",
         "week": 2,
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.966766,
-        "impact": 0.074388,
+        "impact": 0.085835,
         "managers": [
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.13632,
-            "p_if_loss": 0.210707,
-            "swing": -0.074388
+            "p_if_win": 0.169355,
+            "p_if_loss": 0.25519,
+            "swing": -0.085835
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.286073,
-            "p_if_loss": 0.263731,
-            "swing": 0.022342
+            "p_if_win": 0.270955,
+            "p_if_loss": 0.24498,
+            "swing": 0.025975
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.151346,
-            "p_if_loss": 0.137542,
-            "swing": 0.013803
+            "p_if_win": 0.145516,
+            "p_if_loss": 0.130096,
+            "swing": 0.01542
           },
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.178089,
-            "p_if_loss": 0.166235,
-            "swing": 0.011854
+            "p_if_win": 0.177918,
+            "p_if_loss": 0.164884,
+            "swing": 0.013034
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.111422,
-            "p_if_loss": 0.10059,
-            "swing": 0.010832
+            "p_if_win": 0.106848,
+            "p_if_loss": 0.094061,
+            "swing": 0.012787
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.082273,
-            "p_if_loss": 0.07386,
-            "swing": 0.008413
+            "p_if_win": 0.077743,
+            "p_if_loss": 0.0679,
+            "swing": 0.009843
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.050055,
-            "p_if_loss": 0.043653,
-            "swing": 0.006402
+            "p_if_win": 0.047769,
+            "p_if_loss": 0.039759,
+            "swing": 0.00801
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004423,
-            "p_if_loss": 0.003681,
-            "swing": 0.000742
+            "p_if_win": 0.003895,
+            "p_if_loss": 0.00313,
+            "swing": 0.000765
           }
         ],
         "headline": "Devin is rooting for Southern.",
@@ -8118,63 +8110,63 @@
         "home_away": "away",
         "neutral": false,
         "p_team_win": 0.833051,
-        "impact": 0.071417,
+        "impact": 0.082483,
         "managers": [
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.127765,
-            "p_if_loss": 0.199182,
-            "swing": -0.071417
+            "p_if_win": 0.158348,
+            "p_if_loss": 0.24083,
+            "swing": -0.082483
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.288657,
-            "p_if_loss": 0.266784,
-            "swing": 0.021873
+            "p_if_win": 0.274634,
+            "p_if_loss": 0.249259,
+            "swing": 0.025375
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.153091,
-            "p_if_loss": 0.139953,
-            "swing": 0.013138
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.179473,
-            "p_if_loss": 0.168217,
-            "swing": 0.011257
+            "p_if_win": 0.147322,
+            "p_if_loss": 0.132593,
+            "swing": 0.01473
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.112604,
-            "p_if_loss": 0.102625,
-            "swing": 0.009979
+            "p_if_win": 0.108364,
+            "p_if_loss": 0.096209,
+            "swing": 0.012155
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.17959,
+            "p_if_loss": 0.167613,
+            "swing": 0.011977
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.083244,
-            "p_if_loss": 0.074911,
-            "swing": 0.008333
+            "p_if_win": 0.078957,
+            "p_if_loss": 0.069257,
+            "swing": 0.0097
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.050789,
-            "p_if_loss": 0.044616,
-            "swing": 0.006173
+            "p_if_win": 0.048777,
+            "p_if_loss": 0.041042,
+            "swing": 0.007735
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004377,
-            "p_if_loss": 0.003713,
-            "swing": 0.000664
+            "p_if_win": 0.004007,
+            "p_if_loss": 0.003197,
+            "swing": 0.000811
           }
         ],
         "headline": "Devin is rooting for Oregon State.",
@@ -8183,75 +8175,75 @@
         "conversation": "Watch the group chat if Oregon State wins: good news for Devin, bad news for Holly’s title chances. Same final score, very different moods."
       },
       {
-        "team": "Memphis",
-        "opponent": "Boise State",
+        "team": "Utah",
+        "opponent": "Arkansas",
         "week": 2,
-        "home_away": "away",
+        "home_away": "home",
         "neutral": false,
-        "p_team_win": 0.371468,
-        "impact": 0.070499,
+        "p_team_win": 0.733961,
+        "impact": 0.081833,
         "managers": [
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.195255,
-            "p_if_loss": 0.124756,
-            "swing": 0.070499
-          },
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.166684,
-            "p_if_loss": 0.183616,
-            "swing": -0.016932
+            "p_if_win": 0.15554,
+            "p_if_loss": 0.237373,
+            "swing": -0.081833
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.275151,
-            "p_if_loss": 0.291238,
-            "swing": -0.016087
+            "p_if_win": 0.277155,
+            "p_if_loss": 0.25264,
+            "swing": 0.024515
+          },
+          {
+            "manager_id": "vic",
+            "display_name": "Vic",
+            "p_if_win": 0.149107,
+            "p_if_loss": 0.132409,
+            "swing": 0.016698
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.131409,
-            "p_if_loss": 0.143613,
-            "swing": -0.012204
+            "p_if_win": 0.175958,
+            "p_if_loss": 0.16369,
+            "swing": 0.012268
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.104757,
-            "p_if_loss": 0.115236,
-            "swing": -0.010479
+            "p_if_win": 0.10901,
+            "p_if_loss": 0.097362,
+            "swing": 0.011648
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.076603,
-            "p_if_loss": 0.084981,
-            "swing": -0.008378
+            "p_if_win": 0.080144,
+            "p_if_loss": 0.070347,
+            "swing": 0.009797
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.046004,
-            "p_if_loss": 0.052111,
-            "swing": -0.006107
+            "p_if_win": 0.049036,
+            "p_if_loss": 0.042868,
+            "swing": 0.006168
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004137,
-            "p_if_loss": 0.004449,
-            "swing": -0.000312
+            "p_if_win": 0.004049,
+            "p_if_loss": 0.003312,
+            "swing": 0.000737
           }
         ],
-        "headline": "Vic is rooting for Memphis.",
-        "story": "Vic has the most riding on this one. Rachel is rooting for the other side.",
-        "root_for": "Memphis",
-        "conversation": "Watch the group chat if Memphis wins: good news for Vic, bad news for Rachel’s title chances. Same final score, very different moods."
+        "headline": "Rachel is rooting for Arkansas.",
+        "story": "Rachel has the most riding on this one. Holly is rooting for the other side.",
+        "root_for": "Arkansas",
+        "conversation": "Watch the group chat if Arkansas wins: good news for Rachel, bad news for Holly’s title chances. Same final score, very different moods."
       },
       {
         "team": "Mississippi State",
@@ -8260,63 +8252,63 @@
         "home_away": "away",
         "neutral": false,
         "p_team_win": 0.422844,
-        "impact": 0.070063,
+        "impact": 0.069502,
         "managers": [
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.192097,
-            "p_if_loss": 0.122033,
-            "swing": 0.070063
+            "p_if_win": 0.185352,
+            "p_if_loss": 0.115851,
+            "swing": 0.069502
           },
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.168619,
-            "p_if_loss": 0.184737,
-            "swing": -0.016118
+            "p_if_win": 0.168357,
+            "p_if_loss": 0.183968,
+            "swing": -0.015612
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.276211,
-            "p_if_loss": 0.291376,
-            "swing": -0.015165
+            "p_if_win": 0.261098,
+            "p_if_loss": 0.275796,
+            "swing": -0.014697
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.131731,
-            "p_if_loss": 0.143471,
-            "swing": -0.01174
+            "p_if_win": 0.164539,
+            "p_if_loss": 0.178385,
+            "swing": -0.013846
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.104939,
-            "p_if_loss": 0.115488,
-            "swing": -0.010549
+            "p_if_win": 0.1008,
+            "p_if_loss": 0.110748,
+            "swing": -0.009948
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.077447,
-            "p_if_loss": 0.084869,
-            "swing": -0.007422
+            "p_if_win": 0.073397,
+            "p_if_loss": 0.080388,
+            "swing": -0.006992
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.046918,
-            "p_if_loss": 0.052149,
-            "swing": -0.005231
+            "p_if_win": 0.044749,
+            "p_if_loss": 0.04951,
+            "swing": -0.004761
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.002037,
-            "p_if_loss": 0.005877,
-            "swing": -0.003839
+            "p_if_win": 0.001708,
+            "p_if_loss": 0.005353,
+            "swing": -0.003646
           }
         ],
         "headline": "Vic is rooting for Mississippi State.",
@@ -8325,69 +8317,140 @@
         "conversation": "Watch the group chat if Mississippi State wins: good news for Vic, bad news for Rachel’s title chances. Same final score, very different moods."
       },
       {
+        "team": "Memphis",
+        "opponent": "Boise State",
+        "week": 2,
+        "home_away": "away",
+        "neutral": false,
+        "p_team_win": 0.371468,
+        "impact": 0.069323,
+        "managers": [
+          {
+            "manager_id": "vic",
+            "display_name": "Vic",
+            "p_if_win": 0.189153,
+            "p_if_loss": 0.11983,
+            "swing": 0.069323
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.16637,
+            "p_if_loss": 0.183495,
+            "swing": -0.017125
+          },
+          {
+            "manager_id": "holly",
+            "display_name": "Holly",
+            "p_if_win": 0.260345,
+            "p_if_loss": 0.275535,
+            "swing": -0.01519
+          },
+          {
+            "manager_id": "devin",
+            "display_name": "Devin",
+            "p_if_win": 0.162942,
+            "p_if_loss": 0.177426,
+            "swing": -0.014484
+          },
+          {
+            "manager_id": "gayden",
+            "display_name": "Gayden",
+            "p_if_win": 0.099951,
+            "p_if_loss": 0.110257,
+            "swing": -0.010306
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.073155,
+            "p_if_loss": 0.079977,
+            "swing": -0.006822
+          },
+          {
+            "manager_id": "gunner",
+            "display_name": "Gunner",
+            "p_if_win": 0.044373,
+            "p_if_loss": 0.049522,
+            "swing": -0.005149
+          },
+          {
+            "manager_id": "john",
+            "display_name": "John",
+            "p_if_win": 0.003712,
+            "p_if_loss": 0.003958,
+            "swing": -0.000246
+          }
+        ],
+        "headline": "Vic is rooting for Memphis.",
+        "story": "Vic has the most riding on this one. Rachel is rooting for the other side.",
+        "root_for": "Memphis",
+        "conversation": "Watch the group chat if Memphis wins: good news for Vic, bad news for Rachel’s title chances. Same final score, very different moods."
+      },
+      {
         "team": "James Madison",
         "opponent": "Wagner",
         "week": 2,
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.946174,
-        "impact": 0.068392,
+        "impact": 0.067924,
         "managers": [
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.18106,
-            "p_if_loss": 0.112668,
-            "swing": 0.068392
+            "p_if_win": 0.181271,
+            "p_if_loss": 0.113347,
+            "swing": 0.067924
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.28415,
-            "p_if_loss": 0.305173,
-            "swing": -0.021022
+            "p_if_win": 0.26898,
+            "p_if_loss": 0.289731,
+            "swing": -0.020751
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.150118,
-            "p_if_loss": 0.164128,
-            "swing": -0.014009
-          },
-          {
-            "manager_id": "gayden",
-            "display_name": "Gayden",
-            "p_if_win": 0.110666,
-            "p_if_loss": 0.120539,
-            "swing": -0.009873
-          },
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.081452,
-            "p_if_loss": 0.090598,
-            "swing": -0.009146
+            "p_if_win": 0.143998,
+            "p_if_loss": 0.158604,
+            "swing": -0.014607
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.138759,
-            "p_if_loss": 0.147378,
-            "swing": -0.008619
+            "p_if_win": 0.172035,
+            "p_if_loss": 0.181476,
+            "swing": -0.009441
+          },
+          {
+            "manager_id": "gayden",
+            "display_name": "Gayden",
+            "p_if_win": 0.10591,
+            "p_if_loss": 0.114957,
+            "swing": -0.009047
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.076834,
+            "p_if_loss": 0.084753,
+            "swing": -0.007919
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.049463,
-            "p_if_loss": 0.05448,
-            "swing": -0.005017
+            "p_if_win": 0.047148,
+            "p_if_loss": 0.052693,
+            "swing": -0.005545
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004331,
-            "p_if_loss": 0.005037,
-            "swing": -0.000706
+            "p_if_win": 0.003824,
+            "p_if_loss": 0.004439,
+            "swing": -0.000615
           }
         ],
         "headline": "Rachel is rooting for James Madison.",
@@ -8402,63 +8465,63 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.96274,
-        "impact": 0.065661,
+        "impact": 0.063309,
         "managers": [
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.108536,
-            "p_if_loss": 0.174197,
-            "swing": -0.065661
+            "p_if_win": 0.104266,
+            "p_if_loss": 0.167575,
+            "swing": -0.063309
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.051032,
-            "p_if_loss": 0.025038,
-            "swing": 0.025993
+            "p_if_win": 0.04819,
+            "p_if_loss": 0.023984,
+            "swing": 0.024206
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.285589,
-            "p_if_loss": 0.273382,
-            "swing": 0.012207
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.177957,
-            "p_if_loss": 0.169253,
-            "swing": 0.008705
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.151106,
-            "p_if_loss": 0.143619,
-            "swing": 0.007487
+            "p_if_win": 0.270447,
+            "p_if_loss": 0.259587,
+            "swing": 0.01086
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.139484,
-            "p_if_loss": 0.133314,
-            "swing": 0.00617
+            "p_if_win": 0.172793,
+            "p_if_loss": 0.164647,
+            "swing": 0.008147
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.177836,
+            "p_if_loss": 0.170302,
+            "swing": 0.007534
+          },
+          {
+            "manager_id": "vic",
+            "display_name": "Vic",
+            "p_if_win": 0.145042,
+            "p_if_loss": 0.137665,
+            "swing": 0.007377
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.081948,
-            "p_if_loss": 0.077333,
-            "swing": 0.004615
+            "p_if_win": 0.077573,
+            "p_if_loss": 0.072856,
+            "swing": 0.004717
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004347,
-            "p_if_loss": 0.003863,
-            "swing": 0.000484
+            "p_if_win": 0.003853,
+            "p_if_loss": 0.003385,
+            "swing": 0.000468
           }
         ],
         "headline": "Gayden is rooting for Prairie View A&M.",
@@ -8467,140 +8530,69 @@
         "conversation": "Watch the group chat if Prairie View A&M wins: good news for Gayden, bad news for Gunner’s title chances. Same final score, very different moods."
       },
       {
-        "team": "Boston College",
-        "opponent": "Rutgers",
-        "week": 2,
-        "home_away": "home",
-        "neutral": false,
-        "p_team_win": 0.503704,
-        "impact": 0.063815,
-        "managers": [
-          {
-            "manager_id": "devin",
-            "display_name": "Devin",
-            "p_if_win": 0.171586,
-            "p_if_loss": 0.107771,
-            "swing": 0.063815
-          },
-          {
-            "manager_id": "holly",
-            "display_name": "Holly",
-            "p_if_win": 0.275032,
-            "p_if_loss": 0.294242,
-            "swing": -0.019209
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.145078,
-            "p_if_loss": 0.157267,
-            "swing": -0.012188
-          },
-          {
-            "manager_id": "gayden",
-            "display_name": "Gayden",
-            "p_if_win": 0.106154,
-            "p_if_loss": 0.115655,
-            "swing": -0.009501
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.172729,
-            "p_if_loss": 0.182059,
-            "swing": -0.00933
-          },
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.07824,
-            "p_if_loss": 0.085732,
-            "swing": -0.007492
-          },
-          {
-            "manager_id": "gunner",
-            "display_name": "Gunner",
-            "p_if_win": 0.047232,
-            "p_if_loss": 0.052577,
-            "swing": -0.005345
-          },
-          {
-            "manager_id": "john",
-            "display_name": "John",
-            "p_if_win": 0.003947,
-            "p_if_loss": 0.004698,
-            "swing": -0.00075
-          }
-        ],
-        "headline": "Devin is rooting for Boston College.",
-        "story": "Devin has the most riding on this one. Holly is rooting for the other side.",
-        "root_for": "Boston College",
-        "conversation": "Watch the group chat if Boston College wins: good news for Devin, bad news for Holly’s title chances. Same final score, very different moods."
-      },
-      {
         "team": "UNLV",
         "opponent": "North Texas",
         "week": 2,
         "home_away": "away",
         "neutral": false,
         "p_team_win": 0.700955,
-        "impact": 0.050758,
+        "impact": 0.049848,
         "managers": [
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.125615,
-            "p_if_loss": 0.074857,
-            "swing": 0.050758
+            "p_if_win": 0.120718,
+            "p_if_loss": 0.07087,
+            "swing": 0.049848
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.281302,
-            "p_if_loss": 0.295422,
-            "swing": -0.01412
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.174947,
-            "p_if_loss": 0.185384,
-            "swing": -0.010437
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.148127,
-            "p_if_loss": 0.157628,
-            "swing": -0.009502
+            "p_if_win": 0.26607,
+            "p_if_loss": 0.279247,
+            "swing": -0.013177
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.136481,
-            "p_if_loss": 0.145374,
-            "swing": -0.008893
+            "p_if_win": 0.169647,
+            "p_if_loss": 0.180202,
+            "swing": -0.010554
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.174786,
+            "p_if_loss": 0.184627,
+            "swing": -0.009841
+          },
+          {
+            "manager_id": "vic",
+            "display_name": "Vic",
+            "p_if_win": 0.142115,
+            "p_if_loss": 0.151527,
+            "swing": -0.009412
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.080224,
-            "p_if_loss": 0.085698,
-            "swing": -0.005474
+            "p_if_win": 0.075978,
+            "p_if_loss": 0.080907,
+            "swing": -0.004929
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.049111,
-            "p_if_loss": 0.050839,
-            "swing": -0.001728
+            "p_if_win": 0.046988,
+            "p_if_loss": 0.048437,
+            "swing": -0.001448
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004193,
-            "p_if_loss": 0.004798,
-            "swing": -0.000604
+            "p_if_win": 0.003697,
+            "p_if_loss": 0.004184,
+            "swing": -0.000487
           }
         ],
         "headline": "Gayden is rooting for UNLV.",
@@ -8609,140 +8601,69 @@
         "conversation": "Watch the group chat if UNLV wins: good news for Gayden, bad news for Holly’s title chances. Same final score, very different moods."
       },
       {
-        "team": "Purdue",
-        "opponent": "Wake Forest",
-        "week": 2,
-        "home_away": "home",
-        "neutral": false,
-        "p_team_win": 0.566274,
-        "impact": 0.049079,
-        "managers": [
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.060362,
-            "p_if_loss": 0.109442,
-            "swing": -0.049079
-          },
-          {
-            "manager_id": "gunner",
-            "display_name": "Gunner",
-            "p_if_win": 0.063457,
-            "p_if_loss": 0.032563,
-            "swing": 0.030894
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.180303,
-            "p_if_loss": 0.175382,
-            "swing": 0.004922
-          },
-          {
-            "manager_id": "holly",
-            "display_name": "Holly",
-            "p_if_win": 0.286152,
-            "p_if_loss": 0.281936,
-            "swing": 0.004216
-          },
-          {
-            "manager_id": "gayden",
-            "display_name": "Gayden",
-            "p_if_win": 0.112649,
-            "p_if_loss": 0.108537,
-            "swing": 0.004112
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.152442,
-            "p_if_loss": 0.149694,
-            "swing": 0.002748
-          },
-          {
-            "manager_id": "devin",
-            "display_name": "Devin",
-            "p_if_win": 0.140288,
-            "p_if_loss": 0.138266,
-            "swing": 0.002022
-          },
-          {
-            "manager_id": "john",
-            "display_name": "John",
-            "p_if_win": 0.004347,
-            "p_if_loss": 0.004181,
-            "swing": 0.000167
-          }
-        ],
-        "headline": "Zach is rooting for Wake Forest.",
-        "story": "Zach has the most riding on this one. Gunner is rooting for the other side.",
-        "root_for": "Wake Forest",
-        "conversation": "Watch the group chat if Wake Forest wins: good news for Zach, bad news for Gunner’s title chances. Same final score, very different moods."
-      },
-      {
         "team": "Michigan State",
         "opponent": "Eastern Michigan",
         "week": 2,
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.821409,
-        "impact": 0.048915,
+        "impact": 0.048385,
         "managers": [
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.119337,
-            "p_if_loss": 0.070422,
-            "swing": 0.048915
+            "p_if_win": 0.114912,
+            "p_if_loss": 0.066527,
+            "swing": 0.048385
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.282853,
-            "p_if_loss": 0.296711,
-            "swing": -0.013858
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.17616,
-            "p_if_loss": 0.186342,
-            "swing": -0.010182
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.149137,
-            "p_if_loss": 0.158258,
-            "swing": -0.009122
+            "p_if_win": 0.267982,
+            "p_if_loss": 0.28059,
+            "swing": -0.012607
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.137776,
-            "p_if_loss": 0.14613,
-            "swing": -0.008354
+            "p_if_win": 0.170622,
+            "p_if_loss": 0.180818,
+            "swing": -0.010196
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.175928,
+            "p_if_loss": 0.185586,
+            "swing": -0.009658
+          },
+          {
+            "manager_id": "vic",
+            "display_name": "Vic",
+            "p_if_win": 0.143304,
+            "p_if_loss": 0.152298,
+            "swing": -0.008994
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.080983,
-            "p_if_loss": 0.086231,
-            "swing": -0.005248
+            "p_if_win": 0.076257,
+            "p_if_loss": 0.081312,
+            "swing": -0.005055
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.049501,
-            "p_if_loss": 0.051007,
-            "swing": -0.001506
+            "p_if_win": 0.047171,
+            "p_if_loss": 0.048591,
+            "swing": -0.00142
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004253,
-            "p_if_loss": 0.004899,
-            "swing": -0.000646
+            "p_if_win": 0.003824,
+            "p_if_loss": 0.004278,
+            "swing": -0.000454
           }
         ],
         "headline": "Gayden is rooting for Michigan State.",
@@ -8757,63 +8678,63 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.92844,
-        "impact": 0.047175,
+        "impact": 0.046557,
         "managers": [
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.114413,
-            "p_if_loss": 0.067238,
-            "swing": 0.047175
+            "p_if_win": 0.109963,
+            "p_if_loss": 0.063407,
+            "swing": 0.046557
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.283825,
-            "p_if_loss": 0.29712,
-            "swing": -0.013295
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.177088,
-            "p_if_loss": 0.186841,
-            "swing": -0.009753
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.150428,
-            "p_if_loss": 0.159263,
-            "swing": -0.008836
+            "p_if_win": 0.269303,
+            "p_if_loss": 0.281413,
+            "swing": -0.012111
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.138698,
-            "p_if_loss": 0.146862,
-            "swing": -0.008164
+            "p_if_win": 0.171566,
+            "p_if_loss": 0.181557,
+            "swing": -0.009991
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.176904,
+            "p_if_loss": 0.186097,
+            "swing": -0.009193
+          },
+          {
+            "manager_id": "vic",
+            "display_name": "Vic",
+            "p_if_win": 0.144229,
+            "p_if_loss": 0.152953,
+            "swing": -0.008724
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.081568,
-            "p_if_loss": 0.086648,
-            "swing": -0.005081
+            "p_if_win": 0.076863,
+            "p_if_loss": 0.081629,
+            "swing": -0.004767
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.049742,
-            "p_if_loss": 0.051112,
-            "swing": -0.001369
+            "p_if_win": 0.047394,
+            "p_if_loss": 0.048687,
+            "swing": -0.001292
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004239,
-            "p_if_loss": 0.004916,
-            "swing": -0.000677
+            "p_if_win": 0.003778,
+            "p_if_loss": 0.004257,
+            "swing": -0.000479
           }
         ],
         "headline": "Gayden is rooting for West Virginia.",
@@ -8822,69 +8743,140 @@
         "conversation": "Watch the group chat if West Virginia wins: good news for Gayden, bad news for Holly’s title chances. Same final score, very different moods."
       },
       {
+        "team": "Purdue",
+        "opponent": "Wake Forest",
+        "week": 2,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.566274,
+        "impact": 0.045447,
+        "managers": [
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.05728,
+            "p_if_loss": 0.102727,
+            "swing": -0.045447
+          },
+          {
+            "manager_id": "gunner",
+            "display_name": "Gunner",
+            "p_if_win": 0.059684,
+            "p_if_loss": 0.029701,
+            "swing": 0.029983
+          },
+          {
+            "manager_id": "gayden",
+            "display_name": "Gayden",
+            "p_if_win": 0.108122,
+            "p_if_loss": 0.104155,
+            "swing": 0.003967
+          },
+          {
+            "manager_id": "holly",
+            "display_name": "Holly",
+            "p_if_win": 0.272399,
+            "p_if_loss": 0.269062,
+            "swing": 0.003337
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.179067,
+            "p_if_loss": 0.175918,
+            "swing": 0.003148
+          },
+          {
+            "manager_id": "vic",
+            "display_name": "Vic",
+            "p_if_win": 0.145697,
+            "p_if_loss": 0.143133,
+            "swing": 0.002564
+          },
+          {
+            "manager_id": "devin",
+            "display_name": "Devin",
+            "p_if_win": 0.173724,
+            "p_if_loss": 0.171435,
+            "swing": 0.002289
+          },
+          {
+            "manager_id": "john",
+            "display_name": "John",
+            "p_if_win": 0.004027,
+            "p_if_loss": 0.003869,
+            "swing": 0.000158
+          }
+        ],
+        "headline": "Zach is rooting for Wake Forest.",
+        "story": "Zach has the most riding on this one. Gunner is rooting for the other side.",
+        "root_for": "Wake Forest",
+        "conversation": "Watch the group chat if Wake Forest wins: good news for Zach, bad news for Gunner’s title chances. Same final score, very different moods."
+      },
+      {
         "team": "Navy",
         "opponent": "Florida Atlantic",
         "week": 2,
         "home_away": "away",
         "neutral": false,
         "p_team_win": 0.705593,
-        "impact": 0.043308,
+        "impact": 0.038761,
         "managers": [
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.094939,
-            "p_if_loss": 0.051631,
-            "swing": 0.043308
+            "p_if_win": 0.087772,
+            "p_if_loss": 0.049011,
+            "swing": 0.038761
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.282147,
-            "p_if_loss": 0.292498,
-            "swing": -0.010352
+            "p_if_win": 0.267866,
+            "p_if_loss": 0.277147,
+            "swing": -0.009282
           },
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.174743,
-            "p_if_loss": 0.184848,
-            "swing": -0.010105
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.148677,
-            "p_if_loss": 0.156067,
-            "swing": -0.00739
+            "p_if_win": 0.175126,
+            "p_if_loss": 0.183592,
+            "swing": -0.008466
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.137095,
-            "p_if_loss": 0.144012,
-            "swing": -0.006917
+            "p_if_win": 0.17014,
+            "p_if_loss": 0.178204,
+            "swing": -0.008064
+          },
+          {
+            "manager_id": "vic",
+            "display_name": "Vic",
+            "p_if_win": 0.143477,
+            "p_if_loss": 0.149502,
+            "swing": -0.006025
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.109253,
-            "p_if_loss": 0.114678,
-            "swing": -0.005424
+            "p_if_win": 0.104892,
+            "p_if_loss": 0.109867,
+            "swing": -0.004975
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.048982,
-            "p_if_loss": 0.051531,
-            "swing": -0.002549
+            "p_if_win": 0.046927,
+            "p_if_loss": 0.048522,
+            "swing": -0.001594
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004164,
-            "p_if_loss": 0.004735,
-            "swing": -0.000571
+            "p_if_win": 0.003801,
+            "p_if_loss": 0.004156,
+            "swing": -0.000355
           }
         ],
         "headline": "Zach is rooting for Navy.",
@@ -8899,63 +8891,63 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.909183,
-        "impact": 0.03893,
+        "impact": 0.036356,
         "managers": [
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.084865,
-            "p_if_loss": 0.045935,
-            "swing": 0.03893
+            "p_if_win": 0.081002,
+            "p_if_loss": 0.044646,
+            "swing": 0.036356
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.284406,
-            "p_if_loss": 0.293669,
-            "swing": -0.009263
+            "p_if_win": 0.269369,
+            "p_if_loss": 0.278435,
+            "swing": -0.009066
           },
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.176975,
-            "p_if_loss": 0.186198,
-            "swing": -0.009223
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.150413,
-            "p_if_loss": 0.15701,
-            "swing": -0.006597
+            "p_if_win": 0.176733,
+            "p_if_loss": 0.184305,
+            "swing": -0.007572
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.138767,
-            "p_if_loss": 0.145192,
-            "swing": -0.006424
+            "p_if_win": 0.17178,
+            "p_if_loss": 0.179332,
+            "swing": -0.007552
+          },
+          {
+            "manager_id": "vic",
+            "display_name": "Vic",
+            "p_if_win": 0.144229,
+            "p_if_loss": 0.150107,
+            "swing": -0.005878
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.110713,
-            "p_if_loss": 0.115337,
-            "swing": -0.004623
+            "p_if_win": 0.105794,
+            "p_if_loss": 0.110182,
+            "swing": -0.004388
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.049538,
-            "p_if_loss": 0.051878,
-            "swing": -0.00234
+            "p_if_win": 0.047247,
+            "p_if_loss": 0.048797,
+            "swing": -0.001549
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004322,
-            "p_if_loss": 0.004781,
-            "swing": -0.000458
+            "p_if_win": 0.003845,
+            "p_if_loss": 0.004197,
+            "swing": -0.000353
           }
         ],
         "headline": "Zach is rooting for LSU.",
@@ -8970,69 +8962,69 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.976133,
-        "impact": 0.038227,
+        "impact": 0.035207,
         "managers": [
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.082982,
-            "p_if_loss": 0.044754,
-            "swing": 0.038227
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.177402,
-            "p_if_loss": 0.186522,
-            "swing": -0.00912
+            "p_if_win": 0.078048,
+            "p_if_loss": 0.042842,
+            "swing": 0.035207
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.284781,
-            "p_if_loss": 0.293855,
-            "swing": -0.009074
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.150721,
-            "p_if_loss": 0.157204,
-            "swing": -0.006483
+            "p_if_win": 0.269797,
+            "p_if_loss": 0.278637,
+            "swing": -0.00884
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.139124,
-            "p_if_loss": 0.145304,
-            "swing": -0.00618
+            "p_if_win": 0.172406,
+            "p_if_loss": 0.179761,
+            "swing": -0.007355
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.177465,
+            "p_if_loss": 0.184749,
+            "swing": -0.007284
+          },
+          {
+            "manager_id": "vic",
+            "display_name": "Vic",
+            "p_if_win": 0.144675,
+            "p_if_loss": 0.15039,
+            "swing": -0.005715
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.110947,
-            "p_if_loss": 0.115632,
-            "swing": -0.004686
+            "p_if_win": 0.106353,
+            "p_if_loss": 0.110565,
+            "swing": -0.004212
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.04973,
-            "p_if_loss": 0.051956,
-            "swing": -0.002226
+            "p_if_win": 0.047407,
+            "p_if_loss": 0.048859,
+            "swing": -0.001453
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004314,
-            "p_if_loss": 0.004772,
-            "swing": -0.000458
+            "p_if_win": 0.003849,
+            "p_if_loss": 0.004197,
+            "swing": -0.000348
           }
         ],
         "headline": "Zach is rooting for SMU.",
-        "story": "Zach has the most riding on this one. Rachel is rooting for the other side.",
+        "story": "Zach has the most riding on this one. Holly is rooting for the other side.",
         "root_for": "SMU",
-        "conversation": "Watch the group chat if SMU wins: good news for Zach, bad news for Rachel’s title chances. Same final score, very different moods."
+        "conversation": "Watch the group chat if SMU wins: good news for Zach, bad news for Holly’s title chances. Same final score, very different moods."
       },
       {
         "team": "Vanderbilt",
@@ -9041,63 +9033,63 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.852652,
-        "impact": 0.034357,
+        "impact": 0.034549,
         "managers": [
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.044701,
-            "p_if_loss": 0.079058,
-            "swing": -0.034357
+            "p_if_win": 0.042136,
+            "p_if_loss": 0.076685,
+            "swing": -0.034549
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.286436,
-            "p_if_loss": 0.277247,
-            "swing": 0.009189
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.178683,
-            "p_if_loss": 0.171782,
-            "swing": 0.006901
+            "p_if_win": 0.271299,
+            "p_if_loss": 0.262638,
+            "swing": 0.008661
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.14024,
-            "p_if_loss": 0.13378,
-            "swing": 0.00646
+            "p_if_win": 0.174063,
+            "p_if_loss": 0.165849,
+            "swing": 0.008213
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.178575,
+            "p_if_loss": 0.171444,
+            "swing": 0.007131
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.151704,
-            "p_if_loss": 0.145573,
-            "swing": 0.006132
+            "p_if_win": 0.1456,
+            "p_if_loss": 0.139521,
+            "swing": 0.006079
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.082432,
-            "p_if_loss": 0.079271,
-            "swing": 0.003161
+            "p_if_win": 0.077685,
+            "p_if_loss": 0.075518,
+            "swing": 0.002167
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.111423,
-            "p_if_loss": 0.109197,
-            "swing": 0.002226
+            "p_if_win": 0.106756,
+            "p_if_loss": 0.104772,
+            "swing": 0.001984
           },
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004381,
-            "p_if_loss": 0.004092,
-            "swing": 0.000289
+            "p_if_win": 0.003887,
+            "p_if_loss": 0.003573,
+            "swing": 0.000313
           }
         ],
         "headline": "Gunner is rooting for Delaware.",
@@ -9106,140 +9098,69 @@
         "conversation": "Watch the group chat if Delaware wins: good news for Gunner, bad news for Holly’s title chances. Same final score, very different moods."
       },
       {
-        "team": "Virginia",
-        "opponent": "Norfolk State",
-        "week": 2,
-        "home_away": "home",
-        "neutral": false,
-        "p_team_win": 0.976814,
-        "impact": 0.024456,
-        "managers": [
-          {
-            "manager_id": "gunner",
-            "display_name": "Gunner",
-            "p_if_win": 0.050658,
-            "p_if_loss": 0.026202,
-            "swing": 0.024456
-          },
-          {
-            "manager_id": "holly",
-            "display_name": "Holly",
-            "p_if_win": 0.284933,
-            "p_if_loss": 0.290986,
-            "swing": -0.006053
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.177552,
-            "p_if_loss": 0.182632,
-            "swing": -0.005081
-          },
-          {
-            "manager_id": "vic",
-            "display_name": "Vic",
-            "p_if_win": 0.150644,
-            "p_if_loss": 0.155307,
-            "swing": -0.004662
-          },
-          {
-            "manager_id": "devin",
-            "display_name": "Devin",
-            "p_if_win": 0.139049,
-            "p_if_loss": 0.143687,
-            "swing": -0.004638
-          },
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.081867,
-            "p_if_loss": 0.084157,
-            "swing": -0.00229
-          },
-          {
-            "manager_id": "gayden",
-            "display_name": "Gayden",
-            "p_if_win": 0.111016,
-            "p_if_loss": 0.112396,
-            "swing": -0.00138
-          },
-          {
-            "manager_id": "john",
-            "display_name": "John",
-            "p_if_win": 0.004281,
-            "p_if_loss": 0.004632,
-            "swing": -0.000352
-          }
-        ],
-        "headline": "Gunner is rooting for Virginia.",
-        "story": "Gunner has the most riding on this one. Holly is rooting for the other side.",
-        "root_for": "Virginia",
-        "conversation": "Watch the group chat if Virginia wins: good news for Gunner, bad news for Holly’s title chances. Same final score, very different moods."
-      },
-      {
         "team": "Ohio State",
         "opponent": "Texas",
         "week": 2,
         "home_away": "away",
         "neutral": false,
         "p_team_win": 0.511109,
-        "impact": 0.004054,
+        "impact": 0.003775,
         "managers": [
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.006273,
-            "p_if_loss": 0.002218,
-            "swing": 0.004054
+            "p_if_win": 0.005727,
+            "p_if_loss": 0.001952,
+            "swing": 0.003775
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.284548,
-            "p_if_loss": 0.285587,
-            "swing": -0.00104
-          },
-          {
-            "manager_id": "rachel",
-            "display_name": "Rachel",
-            "p_if_win": 0.177235,
-            "p_if_loss": 0.178138,
-            "swing": -0.000903
-          },
-          {
-            "manager_id": "gayden",
-            "display_name": "Gayden",
-            "p_if_win": 0.110738,
-            "p_if_loss": 0.111378,
-            "swing": -0.000639
+            "p_if_win": 0.269606,
+            "p_if_loss": 0.270566,
+            "swing": -0.00096
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.138974,
-            "p_if_loss": 0.139547,
-            "swing": -0.000573
+            "p_if_win": 0.17219,
+            "p_if_loss": 0.172902,
+            "swing": -0.000712
+          },
+          {
+            "manager_id": "rachel",
+            "display_name": "Rachel",
+            "p_if_win": 0.177262,
+            "p_if_loss": 0.177911,
+            "swing": -0.000649
+          },
+          {
+            "manager_id": "gayden",
+            "display_name": "Gayden",
+            "p_if_win": 0.106197,
+            "p_if_loss": 0.106706,
+            "swing": -0.000508
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.081778,
-            "p_if_loss": 0.08219,
-            "swing": -0.000412
+            "p_if_win": 0.077017,
+            "p_if_loss": 0.077459,
+            "swing": -0.000442
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.04968,
-            "p_if_loss": 0.049957,
-            "swing": -0.000277
+            "p_if_win": 0.047311,
+            "p_if_loss": 0.047577,
+            "swing": -0.000267
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.150775,
-            "p_if_loss": 0.150985,
-            "swing": -0.00021
+            "p_if_win": 0.14469,
+            "p_if_loss": 0.144928,
+            "swing": -0.000238
           }
         ],
         "headline": "No clear edge for either side.",
@@ -9252,63 +9173,63 @@
         "home_away": "home",
         "neutral": false,
         "p_team_win": 0.961112,
-        "impact": 0.003,
+        "impact": 0.002606,
         "managers": [
           {
             "manager_id": "john",
             "display_name": "John",
-            "p_if_win": 0.004398,
-            "p_if_loss": 0.001397,
-            "swing": 0.003
+            "p_if_win": 0.003899,
+            "p_if_loss": 0.001293,
+            "swing": 0.002606
           },
           {
             "manager_id": "holly",
             "display_name": "Holly",
-            "p_if_win": 0.285027,
-            "p_if_loss": 0.285733,
-            "swing": -0.000707
+            "p_if_win": 0.269988,
+            "p_if_loss": 0.270687,
+            "swing": -0.000698
           },
           {
             "manager_id": "rachel",
             "display_name": "Rachel",
-            "p_if_win": 0.177706,
-            "p_if_loss": 0.178354,
-            "swing": -0.000648
+            "p_if_win": 0.177532,
+            "p_if_loss": 0.178027,
+            "swing": -0.000496
           },
           {
             "manager_id": "devin",
             "display_name": "Devin",
-            "p_if_win": 0.139253,
-            "p_if_loss": 0.139728,
-            "swing": -0.000475
+            "p_if_win": 0.172539,
+            "p_if_loss": 0.172981,
+            "swing": -0.000442
           },
           {
             "manager_id": "gayden",
             "display_name": "Gayden",
-            "p_if_win": 0.111059,
-            "p_if_loss": 0.111492,
+            "p_if_win": 0.106395,
+            "p_if_loss": 0.106827,
             "swing": -0.000432
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.081944,
-            "p_if_loss": 0.082267,
-            "swing": -0.000323
+            "p_if_win": 0.077307,
+            "p_if_loss": 0.077584,
+            "swing": -0.000278
           },
           {
             "manager_id": "gunner",
             "display_name": "Gunner",
-            "p_if_win": 0.049801,
-            "p_if_loss": 0.050025,
-            "swing": -0.000224
+            "p_if_win": 0.047482,
+            "p_if_loss": 0.047633,
+            "swing": -0.000152
           },
           {
             "manager_id": "vic",
             "display_name": "Vic",
-            "p_if_win": 0.150812,
-            "p_if_loss": 0.151003,
-            "swing": -0.000191
+            "p_if_win": 0.144858,
+            "p_if_loss": 0.144968,
+            "swing": -0.000109
           }
         ],
         "headline": "No clear edge for either side.",

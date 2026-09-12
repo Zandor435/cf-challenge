@@ -3,10 +3,10 @@
     "group_id": "church",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-11T16:50:09.836462+00:00",
-    "cache_fetched_at": "2026-09-11T16:50:09.194781+00:00",
+    "generated_at": "2026-09-12T15:56:29.497714+00:00",
+    "cache_fetched_at": "2026-09-12T15:56:28.878766+00:00",
     "ratings_source": "SP+",
-    "ratings_asof": "2026-09-11T16:50:09.194781+00:00",
+    "ratings_asof": "2026-09-12T15:56:28.878766+00:00",
     "prior_week": 1
   },
   "managers": [
@@ -21,7 +21,7 @@
       "p05": -1.0,
       "p50": 3.0,
       "p95": 8.0,
-      "p_win_pool": 0.498329,
+      "p_win_pool": 0.496541,
       "picks": [
         {
           "team": "Iowa State",
@@ -728,7 +728,7 @@
       "p05": -4.0,
       "p50": 1.0,
       "p95": 6.0,
-      "p_win_pool": 0.162098,
+      "p_win_pool": 0.160021,
       "picks": [
         {
           "team": "Stanford",
@@ -1396,7 +1396,7 @@
       "p05": -4.0,
       "p50": 0.0,
       "p95": 5.0,
-      "p_win_pool": 0.129265,
+      "p_win_pool": 0.132203,
       "picks": [
         {
           "team": "Texas A&M",
@@ -2103,7 +2103,7 @@
       "p05": -5.0,
       "p50": 0.0,
       "p95": 5.0,
-      "p_win_pool": 0.101992,
+      "p_win_pool": 0.100145,
       "picks": [
         {
           "team": "Virginia Tech",
@@ -2810,7 +2810,7 @@
       "p05": -5.0,
       "p50": -1.0,
       "p95": 4.0,
-      "p_win_pool": 0.077025,
+      "p_win_pool": 0.080387,
       "picks": [
         {
           "team": "Ole Miss",
@@ -3509,84 +3509,71 @@
     {
       "manager_id": "john_wells",
       "display_name": "John Wells",
-      "expected_total": -1.84,
+      "expected_total": -1.82,
       "expected_total_display": "-1.8",
       "expected_total_prior": -0.85,
-      "expected_total_move": -0.99,
+      "expected_total_move": -0.97,
       "expected_total_move_display": "-1.0",
       "p05": -6.0,
       "p50": -2.0,
       "p95": 3.0,
-      "p_win_pool": 0.031291,
+      "p_win_pool": 0.030703,
       "picks": [
         {
           "team": "Virginia",
           "conference": "ACC",
           "line": 7.5,
           "direction": "O",
-          "p_beat_line": 0.739271,
-          "expected_delta": 0.91,
-          "expected_final_wins": 8.405,
+          "p_beat_line": 0.745148,
+          "expected_delta": 0.93,
+          "expected_final_wins": 8.428,
           "win_distribution": [
             {
-              "wins": 1,
-              "prob": 0.0
-            },
-            {
               "wins": 2,
-              "prob": 2.2e-05
+              "prob": 1.4e-05
             },
             {
               "wins": 3,
-              "prob": 0.000405
+              "prob": 0.000334
             },
             {
               "wins": 4,
-              "prob": 0.003742
+              "prob": 0.003373
             },
             {
               "wins": 5,
-              "prob": 0.020446
+              "prob": 0.019289
             },
             {
               "wins": 6,
-              "prob": 0.071364
+              "prob": 0.069197
             },
             {
               "wins": 7,
-              "prob": 0.16475
+              "prob": 0.162644
             },
             {
               "wins": 8,
-              "prob": 0.253588
+              "prob": 0.253474
             },
             {
               "wins": 9,
-              "prob": 0.256229
+              "prob": 0.258399
             },
             {
               "wins": 10,
-              "prob": 0.162331
+              "prob": 0.164776
             },
             {
               "wins": 11,
-              "prob": 0.058169
+              "prob": 0.059333
             },
             {
               "wins": 12,
-              "prob": 0.008954
+              "prob": 0.009166
             }
           ],
           "remaining_games": [
-            {
-              "week": 2,
-              "opponent": "Norfolk State",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.9768,
-              "p_win_pct": "98%",
-              "bucket": "likely_win"
-            },
             {
               "week": 3,
               "opponent": "West Virginia",
@@ -3679,15 +3666,15 @@
             }
           ],
           "outlook": {
-            "likely_wins": 7,
+            "likely_wins": 6,
             "toss_ups": 4,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 1,
-            "actual_wins": 1,
-            "expected_wins": 0.77,
-            "delta": 0.23,
+            "banked_games": 2,
+            "actual_wins": 2,
+            "expected_wins": 1.75,
+            "delta": 0.25,
             "state": "on_pace"
           },
           "expected_delta_display": "+0.9"

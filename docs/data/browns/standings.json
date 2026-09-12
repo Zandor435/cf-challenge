@@ -4,8 +4,8 @@
     "season": 2026,
     "as_of_week": null,
     "draft_status": "final",
-    "generated_at": "2026-09-11T16:50:09.499139+00:00",
-    "cache_fetched_at": "2026-09-11T16:50:09.194781+00:00"
+    "generated_at": "2026-09-12T15:56:29.112664+00:00",
+    "cache_fetched_at": "2026-09-12T15:56:28.878766+00:00"
   },
   "managers": [
     {
@@ -71,12 +71,74 @@
       ]
     },
     {
+      "manager_id": "josh",
+      "display_name": "Josh",
+      "banked_total": 6.0,
+      "floor": -16.0,
+      "ceiling": 26.0,
+      "rank": 2,
+      "picks": [
+        {
+          "team": "Stanford",
+          "conference": "ACC",
+          "line": 3.5,
+          "direction": "O",
+          "banked_wins": 1,
+          "banked_losses": 1,
+          "games_remaining": 10,
+          "banked_delta": -2.5,
+          "floor": -2.5,
+          "ceiling": 7.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Florida",
+          "conference": "SEC",
+          "line": 7.5,
+          "direction": "U",
+          "banked_wins": 1,
+          "banked_losses": 0,
+          "games_remaining": 11,
+          "banked_delta": 6.5,
+          "floor": -4.5,
+          "ceiling": 6.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "BYU",
+          "conference": "Big 12",
+          "line": 8.5,
+          "direction": "U",
+          "banked_wins": 1,
+          "banked_losses": 0,
+          "games_remaining": 11,
+          "banked_delta": 7.5,
+          "floor": -3.5,
+          "ceiling": 7.5,
+          "status": "LIVE"
+        },
+        {
+          "team": "Virginia",
+          "conference": "ACC",
+          "line": 7.5,
+          "direction": "O",
+          "banked_wins": 2,
+          "banked_losses": 0,
+          "games_remaining": 10,
+          "banked_delta": -5.5,
+          "floor": -5.5,
+          "ceiling": 4.5,
+          "status": "LIVE"
+        }
+      ]
+    },
+    {
       "manager_id": "bryan",
       "display_name": "Bryan",
       "banked_total": 5.0,
       "floor": -17.0,
       "ceiling": 27.0,
-      "rank": 2,
+      "rank": 3,
       "picks": [
         {
           "team": "Michigan",
@@ -128,68 +190,6 @@
           "banked_delta": -7.5,
           "floor": -7.5,
           "ceiling": 3.5,
-          "status": "LIVE"
-        }
-      ]
-    },
-    {
-      "manager_id": "josh",
-      "display_name": "Josh",
-      "banked_total": 5.0,
-      "floor": -17.0,
-      "ceiling": 26.0,
-      "rank": 3,
-      "picks": [
-        {
-          "team": "Stanford",
-          "conference": "ACC",
-          "line": 3.5,
-          "direction": "O",
-          "banked_wins": 1,
-          "banked_losses": 1,
-          "games_remaining": 10,
-          "banked_delta": -2.5,
-          "floor": -2.5,
-          "ceiling": 7.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Florida",
-          "conference": "SEC",
-          "line": 7.5,
-          "direction": "U",
-          "banked_wins": 1,
-          "banked_losses": 0,
-          "games_remaining": 11,
-          "banked_delta": 6.5,
-          "floor": -4.5,
-          "ceiling": 6.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "BYU",
-          "conference": "Big 12",
-          "line": 8.5,
-          "direction": "U",
-          "banked_wins": 1,
-          "banked_losses": 0,
-          "games_remaining": 11,
-          "banked_delta": 7.5,
-          "floor": -3.5,
-          "ceiling": 7.5,
-          "status": "LIVE"
-        },
-        {
-          "team": "Virginia",
-          "conference": "ACC",
-          "line": 7.5,
-          "direction": "O",
-          "banked_wins": 1,
-          "banked_losses": 0,
-          "games_remaining": 11,
-          "banked_delta": -6.5,
-          "floor": -6.5,
-          "ceiling": 4.5,
           "status": "LIVE"
         }
       ]

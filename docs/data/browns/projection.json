@@ -3,10 +3,10 @@
     "group_id": "browns",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-11T16:50:09.586140+00:00",
-    "cache_fetched_at": "2026-09-11T16:50:09.194781+00:00",
+    "generated_at": "2026-09-12T15:56:29.176128+00:00",
+    "cache_fetched_at": "2026-09-12T15:56:28.878766+00:00",
     "ratings_source": "SP+",
-    "ratings_asof": "2026-09-11T16:50:09.194781+00:00",
+    "ratings_asof": "2026-09-12T15:56:28.878766+00:00",
     "prior_week": 1
   },
   "managers": [
@@ -21,7 +21,7 @@
       "p05": -2.0,
       "p50": 2.0,
       "p95": 7.0,
-      "p_win_pool": 0.241533,
+      "p_win_pool": 0.241767,
       "picks": [
         {
           "team": "Michigan",
@@ -720,15 +720,15 @@
     {
       "manager_id": "josh",
       "display_name": "Josh",
-      "expected_total": 2.23,
-      "expected_total_display": "+2.2",
+      "expected_total": 2.25,
+      "expected_total_display": "+2.3",
       "expected_total_prior": 2.2,
-      "expected_total_move": 0.03,
-      "expected_total_move_display": "0.0",
-      "p05": -3.0,
+      "expected_total_move": 0.05,
+      "expected_total_move_display": "+0.1",
+      "p05": -2.0,
       "p50": 2.0,
       "p95": 7.0,
-      "p_win_pool": 0.232715,
+      "p_win_pool": 0.235212,
       "picks": [
         {
           "team": "Stanford",
@@ -1234,76 +1234,63 @@
             "delta": 0.02,
             "state": "on_pace"
           },
-          "expected_delta_display": "+0.2"
+          "expected_delta_display": "+0.3"
         },
         {
           "team": "Virginia",
           "conference": "ACC",
           "line": 7.5,
           "direction": "O",
-          "p_beat_line": 0.739271,
-          "expected_delta": 0.91,
-          "expected_final_wins": 8.405,
+          "p_beat_line": 0.745148,
+          "expected_delta": 0.93,
+          "expected_final_wins": 8.428,
           "win_distribution": [
             {
-              "wins": 1,
-              "prob": 0.0
-            },
-            {
               "wins": 2,
-              "prob": 2.2e-05
+              "prob": 1.4e-05
             },
             {
               "wins": 3,
-              "prob": 0.000405
+              "prob": 0.000334
             },
             {
               "wins": 4,
-              "prob": 0.003742
+              "prob": 0.003373
             },
             {
               "wins": 5,
-              "prob": 0.020446
+              "prob": 0.019289
             },
             {
               "wins": 6,
-              "prob": 0.071364
+              "prob": 0.069197
             },
             {
               "wins": 7,
-              "prob": 0.16475
+              "prob": 0.162644
             },
             {
               "wins": 8,
-              "prob": 0.253588
+              "prob": 0.253474
             },
             {
               "wins": 9,
-              "prob": 0.256229
+              "prob": 0.258399
             },
             {
               "wins": 10,
-              "prob": 0.162331
+              "prob": 0.164776
             },
             {
               "wins": 11,
-              "prob": 0.058169
+              "prob": 0.059333
             },
             {
               "wins": 12,
-              "prob": 0.008954
+              "prob": 0.009166
             }
           ],
           "remaining_games": [
-            {
-              "week": 2,
-              "opponent": "Norfolk State",
-              "home_away": "home",
-              "neutral": false,
-              "p_win": 0.9768,
-              "p_win_pct": "98%",
-              "bucket": "likely_win"
-            },
             {
               "week": 3,
               "opponent": "West Virginia",
@@ -1396,15 +1383,15 @@
             }
           ],
           "outlook": {
-            "likely_wins": 7,
+            "likely_wins": 6,
             "toss_ups": 4,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 1,
-            "actual_wins": 1,
-            "expected_wins": 0.77,
-            "delta": 0.23,
+            "banked_games": 2,
+            "actual_wins": 2,
+            "expected_wins": 1.75,
+            "delta": 0.25,
             "state": "on_pace"
           },
           "expected_delta_display": "+0.9"
@@ -1422,7 +1409,7 @@
       "p05": -3.0,
       "p50": 2.0,
       "p95": 7.0,
-      "p_win_pool": 0.213531,
+      "p_win_pool": 0.210444,
       "picks": [
         {
           "team": "Boise State",
@@ -2116,7 +2103,7 @@
       "p05": -3.0,
       "p50": 1.0,
       "p95": 6.0,
-      "p_win_pool": 0.133303,
+      "p_win_pool": 0.13447,
       "picks": [
         {
           "team": "Navy",
@@ -2810,7 +2797,7 @@
       "p05": -4.0,
       "p50": 1.0,
       "p95": 5.0,
-      "p_win_pool": 0.103022,
+      "p_win_pool": 0.103149,
       "picks": [
         {
           "team": "Maryland",
@@ -3517,7 +3504,7 @@
       "p05": -5.0,
       "p50": 0.0,
       "p95": 4.0,
-      "p_win_pool": 0.053646,
+      "p_win_pool": 0.053191,
       "picks": [
         {
           "team": "Virginia Tech",
@@ -4222,9 +4209,9 @@
       "expected_total_move": 0.31,
       "expected_total_move_display": "+0.3",
       "p05": -6.0,
-      "p50": -2.0,
+      "p50": -1.0,
       "p95": 3.0,
-      "p_win_pool": 0.022251,
+      "p_win_pool": 0.021767,
       "picks": [
         {
           "team": "Texas Tech",
