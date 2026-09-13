@@ -2,7 +2,7 @@
 """
 test_should_run.py — the scheduled pipeline's run gate (CLAUDE.md rule 7).
 
-This gate decides whether the daily cron does any work at all, so both of its
+This gate decides whether the weekly cron does any work at all, so both of its
 failure directions are expensive and neither is loud on its own:
 
   stuck OPEN   every quiet day burns API budget against the free tier (rule 6).
@@ -94,8 +94,11 @@ def test_window():
     run, why = verdict(cache(offsets_h=(-2,)))
     check("game 2h ago (still in progress) -> skip, settle window", not run, why)
 
-    run, why = verdict(cache(offsets_h=(-40, +40)))
-    check("game 40h ago is outside lookback -> skip", not run, why)
+    run, why = verdict(cache(offsets_h=(-200, +40)))
+    check("game 200h ago is outside the week lookback -> skip", not run, why)
+
+    run, why = verdict(cache(offsets_h=(-24 * 5,)))
+    check("midweek-only game 5 days ago -> run (weekly cron spans the week)", run, why)
 
     # A whole Saturday slate, the ordinary Sunday-morning case.
     slate = tuple(range(-21, -9))
@@ -103,15 +106,16 @@ def test_window():
     check("full Saturday slate -> run", run, why)
 
 
-def test_sunday_early_passes():
-    """The 09:07 and 10:07 UTC Sunday fires must open off Saturday's slate.
+def test_weekly_2am_pass():
+    """The Sunday 2:07am ET fire (06:07 UTC EDT, 07:07 UTC EST) must open off
+    Saturday's slate even with late kicks still inside the settle window.
 
     Offsets are from NOW (Sunday 13:00 UTC): -21h is Saturday's noon ET kick,
-    -8h01m is 04:59 UTC, the latest Hawaii kickoff on the 2026 schedule.
+    -10h is 03:00 UTC (11pm ET), still settling at 06:07.
     """
-    print("\nearly Sunday passes (before 9am ET church)")
-    slate = (-21, -17, -13, -10, -8 - 1 / 60)
-    for hh in (9, 10):
+    print("\nweekly Sunday 2am ET pass")
+    slate = (-21, -17, -13, -10)
+    for hh in (6, 7):
         now = datetime(2026, 9, 13, hh, 7, tzinfo=timezone.utc)
         run, why = verdict(cache(offsets_h=slate), now=now)
         check(f"Sunday {hh:02d}:07 UTC after a Saturday slate -> run", run, why)
@@ -132,12 +136,12 @@ def test_season_edges():
 def test_bye_week_is_called_out():
     """A bye is a distinct verdict from a quiet day - CLAUDE.md rule 9."""
     print("\nbye week, called out explicitly")
-    run, why = verdict(cache(offsets_h=(-24 * 6, +24 * 6)))
+    run, why = verdict(cache(offsets_h=(-24 * 9, +24 * 9)))
     check("gap either side -> skip as a BYE WEEK, not a quiet day",
           not run and "bye week" in why, why)
 
-    run, why = verdict(cache(offsets_h=(-24 * 3, +24 * 2)))
-    check("game 3 days back, another in 2 -> quiet day, not a bye",
+    run, why = verdict(cache(offsets_h=(-24 * 8, +24 * 2)))
+    check("game 8 days back, another in 2 -> quiet day, not a bye",
           not run and "bye week" not in why, why)
 
 
@@ -201,7 +205,7 @@ def test_emitted_contract():
 def main():
     test_run_escapes()
     test_window()
-    test_sunday_early_passes()
+    test_weekly_2am_pass()
     test_season_edges()
     test_bye_week_is_called_out()
     test_malformed_input_is_tolerated()

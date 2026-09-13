@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """should_run.py — the scheduled pipeline's run gate (CLAUDE.md rule 7).
 
-The cron fires every day. Most days have no football, and the whole point of
-this gate is that those days cost NOTHING: no API call, no dependency install,
-no commit, no deploy. It decides purely off files already in the repo —
-data/cfbd_cache.json (which carries every game's `start_date` and `week`) and
-season.json. Zero network, so the gate can run before `pip install`.
+The cron fires once a week, early Sunday. Off-season and bye weeks have no
+football, and the whole point of this gate is that those fires cost NOTHING: no
+API call, no dependency install, no commit, no deploy. It decides purely off
+files already in the repo — data/cfbd_cache.json (which carries every game's
+`start_date` and `week`) and season.json. Zero network, so the gate can run
+before `pip install`.
 
-    python scripts/should_run.py [--force] [--lookback-hours 30]
+    python scripts/should_run.py [--force] [--lookback-hours 180]
                                  [--settle-hours 5] [--now ISO8601]
                                  [--cache PATH]
 
@@ -59,9 +60,10 @@ import utils
 # A game is assumed finished this long after kickoff. Keeps the gate from
 # firing mid-game, when a fetch would bank a partial slate.
 DEFAULT_SETTLE_HOURS = 5
-# How far back to look for a kickoff. 30h + a daily cron means each game day
-# is picked up by the next morning's run.
-DEFAULT_LOOKBACK_HOURS = 30
+# How far back to look for a kickoff. The cron is weekly, so the window spans a
+# full week (plus 12h of overlap for queue lag) — a Tuesday/Wednesday-only week
+# still opens the gate on Sunday.
+DEFAULT_LOOKBACK_HOURS = 7 * 24 + 12
 # A week with no game inside this radius is a bye/off week, not a quiet day.
 BYE_RADIUS_DAYS = 4
 
@@ -143,7 +145,7 @@ def emit(run, reason, now):
             fh.write(f"### {icon} Gate: {head}\n\n{reason}\n\n")
             if not run:
                 fh.write("_This is the rule-7 week-window gate, not a failure. "
-                         "The cron fires daily; days with no football cost no "
+                         "The cron fires weekly; weeks with no football cost no "
                          "API calls. Re-run with **Run workflow** to force._\n\n")
 
 
