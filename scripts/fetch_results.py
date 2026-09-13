@@ -48,9 +48,10 @@ from cfbd_client import CFBDClient, CFBDError
 
 # The pipeline fires DAILY, but scripts/should_run.py gates it to the morning
 # after a game day, so real passes track the schedule rather than the cron.
-# Budget against a conservative in-season worst case of ~5 game-days/week;
-# out of season the gate skips every day and this drops to zero.
-PASSES_PER_MONTH = 5 * 52 / 12  # ≈ 21.7 gated passes/month at peak
+# Budget against a conservative in-season worst case of ~5 game-days/week,
+# plus the two early Sunday passes (update-data.yml) that re-run off the same
+# Saturday slate; out of season the gate skips every day and this drops to zero.
+PASSES_PER_MONTH = (5 + 2) * 52 / 12  # ≈ 30.3 gated passes/month at peak
 MONTHLY_CEILING = 1000
 STALE_DAYS = 10  # fallback cache older than this = pipeline broken for cycles, not a blip
 
