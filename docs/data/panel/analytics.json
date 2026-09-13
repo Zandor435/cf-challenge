@@ -3,8 +3,8 @@
     "group_id": "panel",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-09-12T15:56:29.899025+00:00",
-    "cache_fetched_at": "2026-09-12T15:56:28.878766+00:00"
+    "generated_at": "2026-09-13T16:45:54.017272+00:00",
+    "cache_fetched_at": "2026-09-13T16:45:52.924980+00:00"
   },
   "race": {
     "board": "exact",
@@ -15,44 +15,44 @@
         "manager_id": "blaine",
         "display_name": "Blaine",
         "rank": 1,
-        "banked_total": 17.0,
-        "floor": -16.0,
-        "ceiling": 27.0,
+        "banked_total": 15.0,
+        "floor": -15.0,
+        "ceiling": 24.0,
         "gap_to_leader": 0.0,
-        "ceiling_remaining": 10.0,
+        "ceiling_remaining": 9.0,
         "week_move": 0
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
         "rank": 2,
-        "banked_total": -7.0,
-        "floor": -18.0,
-        "ceiling": 26.0,
-        "gap_to_leader": 24.0,
-        "ceiling_remaining": 33.0,
+        "banked_total": -5.0,
+        "floor": -15.0,
+        "ceiling": 25.0,
+        "gap_to_leader": 20.0,
+        "ceiling_remaining": 30.0,
         "week_move": 0
       },
       {
         "manager_id": "jonathan",
         "display_name": "Jonathan",
         "rank": 3,
-        "banked_total": -18.0,
-        "floor": -29.0,
-        "ceiling": 15.0,
-        "gap_to_leader": 35.0,
-        "ceiling_remaining": 33.0,
+        "banked_total": -17.0,
+        "floor": -27.0,
+        "ceiling": 13.0,
+        "gap_to_leader": 32.0,
+        "ceiling_remaining": 30.0,
         "week_move": 0
       },
       {
         "manager_id": "chris",
         "display_name": "Chris",
         "rank": 4,
-        "banked_total": -25.0,
-        "floor": -25.0,
+        "banked_total": -21.0,
+        "floor": -21.0,
         "ceiling": 18.0,
-        "gap_to_leader": 42.0,
-        "ceiling_remaining": 43.0,
+        "gap_to_leader": 36.0,
+        "ceiling_remaining": 39.0,
         "week_move": 0
       }
     ]
@@ -63,36 +63,36 @@
     "available": true,
     "managers": [
       {
-        "manager_id": "blaine",
-        "display_name": "Blaine",
-        "p_win_pool": 0.509962,
-        "week_move": 0.022787,
-        "draft_p_win_pool": 0.519433,
-        "draft_move": -0.009471
-      },
-      {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.385196,
-        "week_move": -0.025454,
+        "p_win_pool": 0.471,
+        "week_move": 0.06035,
         "draft_p_win_pool": 0.383442,
-        "draft_move": 0.001754
+        "draft_move": 0.087558
+      },
+      {
+        "manager_id": "blaine",
+        "display_name": "Blaine",
+        "p_win_pool": 0.419892,
+        "week_move": -0.067283,
+        "draft_p_win_pool": 0.519433,
+        "draft_move": -0.099541
       },
       {
         "manager_id": "chris",
         "display_name": "Chris",
-        "p_win_pool": 0.057696,
-        "week_move": -0.001846,
+        "p_win_pool": 0.08405,
+        "week_move": 0.024508,
         "draft_p_win_pool": 0.048625,
-        "draft_move": 0.009071
+        "draft_move": 0.035425
       },
       {
         "manager_id": "jonathan",
         "display_name": "Jonathan",
-        "p_win_pool": 0.047146,
-        "week_move": 0.004513,
+        "p_win_pool": 0.025058,
+        "week_move": -0.017575,
         "draft_p_win_pool": 0.0485,
-        "draft_move": -0.001354
+        "draft_move": -0.023442
       }
     ],
     "draft_baseline": {
@@ -112,7 +112,7 @@
         "conference": "Independent",
         "line": 11.5,
         "direction": "U",
-        "delta": 10.5
+        "delta": 9.5
       }
     ],
     "bust": [
@@ -138,7 +138,7 @@
             "conference": "Big Ten",
             "line": 10.5,
             "direction": "U",
-            "delta": 9.5
+            "delta": 8.5
           }
         ],
         "anchor": [
@@ -149,7 +149,7 @@
             "conference": "Pac-12",
             "line": 7.5,
             "direction": "O",
-            "delta": -7.5
+            "delta": -6.5
           }
         ]
       },
@@ -164,7 +164,7 @@
             "conference": "Independent",
             "line": 11.5,
             "direction": "U",
-            "delta": 10.5
+            "delta": 9.5
           }
         ],
         "anchor": [
@@ -175,7 +175,7 @@
             "conference": "Sun Belt",
             "line": 8.5,
             "direction": "O",
-            "delta": -7.5
+            "delta": -6.5
           }
         ]
       },
@@ -190,7 +190,7 @@
             "conference": "SEC",
             "line": 7.5,
             "direction": "U",
-            "delta": 6.5
+            "delta": 5.5
           }
         ],
         "anchor": [
@@ -216,7 +216,7 @@
             "conference": "Big Ten",
             "line": 4.5,
             "direction": "O",
-            "delta": -3.5
+            "delta": -2.5
           }
         ],
         "anchor": [
@@ -227,7 +227,7 @@
             "conference": "SEC",
             "line": 9.5,
             "direction": "O",
-            "delta": -8.5
+            "delta": -7.5
           }
         ]
       }
@@ -244,12 +244,12 @@
         "comparison": {
           "basis": "ceiling_vs_highest_floor",
           "my_field": "ceiling",
-          "my_value": 27.0,
+          "my_value": 24.0,
           "operator": ">",
           "other_manager_id": "zach",
           "other_display_name": "Zach",
           "other_field": "floor",
-          "other_value": -18.0
+          "other_value": -15.0
         }
       },
       {
@@ -259,12 +259,12 @@
         "comparison": {
           "basis": "ceiling_vs_leader_floor",
           "my_field": "ceiling",
-          "my_value": 26.0,
+          "my_value": 25.0,
           "operator": ">=",
           "other_manager_id": "blaine",
           "other_display_name": "Blaine",
           "other_field": "floor",
-          "other_value": -16.0
+          "other_value": -15.0
         }
       },
       {
@@ -274,12 +274,12 @@
         "comparison": {
           "basis": "ceiling_vs_leader_floor",
           "my_field": "ceiling",
-          "my_value": 15.0,
+          "my_value": 13.0,
           "operator": ">=",
           "other_manager_id": "blaine",
           "other_display_name": "Blaine",
           "other_field": "floor",
-          "other_value": -16.0
+          "other_value": -15.0
         }
       },
       {
@@ -294,7 +294,7 @@
           "other_manager_id": "blaine",
           "other_display_name": "Blaine",
           "other_field": "floor",
-          "other_value": -16.0
+          "other_value": -15.0
         }
       }
     ]
@@ -305,156 +305,156 @@
       {
         "manager_id": "blaine",
         "display_name": "Blaine",
-        "banked_total": 17.0,
-        "absolute_total": 32.0,
+        "banked_total": 15.0,
+        "absolute_total": 28.0,
         "picks": [
           {
             "team": "Boise State",
             "conference": "Pac-12",
             "line": 7.5,
             "direction": "O",
-            "banked_delta": -7.5,
-            "floor": -7.5,
+            "banked_delta": -6.5,
+            "floor": -6.5,
             "ceiling": 2.5,
             "status": "LIVE",
-            "games_remaining": 10,
-            "share_of_delta": 0.234375
+            "games_remaining": 9,
+            "share_of_delta": 0.232143
           },
           {
             "team": "Wisconsin",
             "conference": "Big Ten",
             "line": 6.5,
             "direction": "U",
-            "banked_delta": 6.5,
+            "banked_delta": 5.5,
             "floor": -4.5,
-            "ceiling": 6.5,
+            "ceiling": 5.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.203125
+            "games_remaining": 10,
+            "share_of_delta": 0.196429
           },
           {
             "team": "Indiana",
             "conference": "Big Ten",
             "line": 10.5,
             "direction": "U",
-            "banked_delta": 9.5,
+            "banked_delta": 8.5,
             "floor": -1.5,
-            "ceiling": 9.5,
+            "ceiling": 8.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.296875
+            "games_remaining": 10,
+            "share_of_delta": 0.303571
           },
           {
             "team": "Texas",
             "conference": "SEC",
             "line": 9.5,
             "direction": "U",
-            "banked_delta": 8.5,
+            "banked_delta": 7.5,
             "floor": -2.5,
-            "ceiling": 8.5,
+            "ceiling": 7.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.265625
+            "games_remaining": 10,
+            "share_of_delta": 0.267857
           }
         ]
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "banked_total": -7.0,
-        "absolute_total": 28.0,
+        "banked_total": -5.0,
+        "absolute_total": 24.0,
         "picks": [
           {
             "team": "Notre Dame",
             "conference": "Independent",
             "line": 11.5,
             "direction": "U",
-            "banked_delta": 10.5,
+            "banked_delta": 9.5,
             "floor": -0.5,
-            "ceiling": 10.5,
+            "ceiling": 9.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.375
+            "games_remaining": 10,
+            "share_of_delta": 0.395833
           },
           {
             "team": "Virginia Tech",
             "conference": "ACC",
             "line": 6.5,
             "direction": "O",
-            "banked_delta": -5.5,
-            "floor": -5.5,
+            "banked_delta": -4.5,
+            "floor": -4.5,
             "ceiling": 5.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.196429
+            "games_remaining": 10,
+            "share_of_delta": 0.1875
           },
           {
             "team": "Wake Forest",
             "conference": "ACC",
             "line": 5.5,
             "direction": "O",
-            "banked_delta": -4.5,
-            "floor": -4.5,
+            "banked_delta": -3.5,
+            "floor": -3.5,
             "ceiling": 6.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.160714
+            "games_remaining": 10,
+            "share_of_delta": 0.145833
           },
           {
             "team": "James Madison",
             "conference": "Sun Belt",
             "line": 8.5,
             "direction": "O",
-            "banked_delta": -7.5,
-            "floor": -7.5,
+            "banked_delta": -6.5,
+            "floor": -6.5,
             "ceiling": 3.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.267857
+            "games_remaining": 10,
+            "share_of_delta": 0.270833
           }
         ]
       },
       {
         "manager_id": "jonathan",
         "display_name": "Jonathan",
-        "banked_total": -18.0,
-        "absolute_total": 31.0,
+        "banked_total": -17.0,
+        "absolute_total": 28.0,
         "picks": [
           {
             "team": "LSU",
             "conference": "SEC",
             "line": 8.5,
             "direction": "O",
-            "banked_delta": -7.5,
-            "floor": -7.5,
+            "banked_delta": -6.5,
+            "floor": -6.5,
             "ceiling": 3.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.241935
+            "games_remaining": 10,
+            "share_of_delta": 0.232143
           },
           {
             "team": "Kansas State",
             "conference": "Big 12",
             "line": 8.5,
             "direction": "O",
-            "banked_delta": -7.5,
-            "floor": -7.5,
+            "banked_delta": -6.5,
+            "floor": -6.5,
             "ceiling": 3.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.241935
+            "games_remaining": 10,
+            "share_of_delta": 0.232143
           },
           {
             "team": "Ole Miss",
             "conference": "SEC",
             "line": 7.5,
             "direction": "U",
-            "banked_delta": 6.5,
+            "banked_delta": 5.5,
             "floor": -4.5,
-            "ceiling": 6.5,
+            "ceiling": 5.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.209677
+            "games_remaining": 10,
+            "share_of_delta": 0.196429
           },
           {
             "team": "Oregon",
@@ -463,66 +463,66 @@
             "direction": "O",
             "banked_delta": -9.5,
             "floor": -9.5,
-            "ceiling": 1.5,
+            "ceiling": 0.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.306452
+            "games_remaining": 10,
+            "share_of_delta": 0.339286
           }
         ]
       },
       {
         "manager_id": "chris",
         "display_name": "Chris",
-        "banked_total": -25.0,
-        "absolute_total": 25.0,
+        "banked_total": -21.0,
+        "absolute_total": 21.0,
         "picks": [
           {
             "team": "Texas",
             "conference": "SEC",
             "line": 9.5,
             "direction": "O",
-            "banked_delta": -8.5,
-            "floor": -8.5,
+            "banked_delta": -7.5,
+            "floor": -7.5,
             "ceiling": 2.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.34
+            "games_remaining": 10,
+            "share_of_delta": 0.357143
           },
           {
             "team": "Tennessee",
             "conference": "SEC",
             "line": 7.5,
             "direction": "O",
-            "banked_delta": -6.5,
-            "floor": -6.5,
+            "banked_delta": -5.5,
+            "floor": -5.5,
             "ceiling": 4.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.26
+            "games_remaining": 10,
+            "share_of_delta": 0.261905
           },
           {
             "team": "USC",
             "conference": "Big Ten",
             "line": 8.5,
             "direction": "O",
-            "banked_delta": -6.5,
-            "floor": -6.5,
+            "banked_delta": -5.5,
+            "floor": -5.5,
             "ceiling": 3.5,
             "status": "LIVE",
-            "games_remaining": 10,
-            "share_of_delta": 0.26
+            "games_remaining": 9,
+            "share_of_delta": 0.261905
           },
           {
             "team": "Michigan State",
             "conference": "Big Ten",
             "line": 4.5,
             "direction": "O",
-            "banked_delta": -3.5,
-            "floor": -3.5,
+            "banked_delta": -2.5,
+            "floor": -2.5,
             "ceiling": 7.5,
             "status": "LIVE",
-            "games_remaining": 11,
-            "share_of_delta": 0.14
+            "games_remaining": 10,
+            "share_of_delta": 0.119048
           }
         ]
       }
@@ -534,83 +534,124 @@
     "prior_week": 1,
     "managers": [
       {
-        "manager_id": "zach",
-        "display_name": "Zach",
-        "basis": "week",
-        "odds_change": -0.025454,
-        "drivers": [
-          {
-            "team": "Virginia Tech",
-            "direction": "O",
-            "line": 6.5,
-            "before": 0.46,
-            "now": 1.32,
-            "change": 0.86
-          },
-          {
-            "team": "James Madison",
-            "direction": "O",
-            "line": 8.5,
-            "before": 0.12,
-            "now": -0.16,
-            "change": -0.28
-          },
-          {
-            "team": "Notre Dame",
-            "direction": "U",
-            "line": 11.5,
-            "before": 1.33,
-            "now": 1.46,
-            "change": 0.13
-          },
-          {
-            "team": "Wake Forest",
-            "direction": "O",
-            "line": 5.5,
-            "before": 0.71,
-            "now": 0.6,
-            "change": -0.11
-          }
-        ],
-        "movement_summary": "They have lost some ground in the title race."
-      },
-      {
         "manager_id": "blaine",
         "display_name": "Blaine",
         "basis": "week",
-        "odds_change": 0.022787,
+        "odds_change": -0.067283,
         "drivers": [
           {
             "team": "Wisconsin",
             "direction": "U",
             "line": 6.5,
             "before": 0.82,
-            "now": 1.84,
-            "change": 1.02
+            "now": 1.79,
+            "change": 0.97
           },
           {
             "team": "Texas",
             "direction": "U",
             "line": 9.5,
             "before": 1.58,
-            "now": 1.32,
-            "change": -0.26
+            "now": 0.81,
+            "change": -0.77
           },
           {
             "team": "Boise State",
             "direction": "O",
             "line": 7.5,
             "before": -0.51,
-            "now": -0.43,
-            "change": 0.08
+            "now": -0.06,
+            "change": 0.45
           },
           {
             "team": "Indiana",
             "direction": "U",
             "line": 10.5,
             "before": 1.07,
-            "now": 1.13,
-            "change": 0.06
+            "now": 1.12,
+            "change": 0.05
+          }
+        ],
+        "movement_summary": "They have lost some ground in the title race."
+      },
+      {
+        "manager_id": "zach",
+        "display_name": "Zach",
+        "basis": "week",
+        "odds_change": 0.06035,
+        "drivers": [
+          {
+            "team": "Virginia Tech",
+            "direction": "O",
+            "line": 6.5,
+            "before": 0.46,
+            "now": 1.47,
+            "change": 1.01
+          },
+          {
+            "team": "Wake Forest",
+            "direction": "O",
+            "line": 5.5,
+            "before": 0.71,
+            "now": 1.17,
+            "change": 0.46
+          },
+          {
+            "team": "James Madison",
+            "direction": "O",
+            "line": 8.5,
+            "before": 0.12,
+            "now": -0.11,
+            "change": -0.23
+          },
+          {
+            "team": "Notre Dame",
+            "direction": "U",
+            "line": 11.5,
+            "before": 1.33,
+            "now": 1.42,
+            "change": 0.09
+          }
+        ],
+        "movement_summary": "Their title chances have improved."
+      },
+      {
+        "manager_id": "chris",
+        "display_name": "Chris",
+        "basis": "week",
+        "odds_change": 0.024508,
+        "drivers": [
+          {
+            "team": "Texas",
+            "direction": "O",
+            "line": 9.5,
+            "before": -1.58,
+            "now": -0.81,
+            "change": 0.77
+          },
+          {
+            "team": "Tennessee",
+            "direction": "O",
+            "line": 7.5,
+            "before": 0.14,
+            "now": 0.63,
+            "change": 0.49
+          },
+          {
+            "team": "USC",
+            "direction": "O",
+            "line": 8.5,
+            "before": -0.77,
+            "now": -0.47,
+            "change": 0.3
+          },
+          {
+            "team": "Michigan State",
+            "direction": "O",
+            "line": 4.5,
+            "before": 0.7,
+            "now": 0.96,
+            "change": 0.26
           }
         ],
         "movement_summary": "Their title chances have improved."
@@ -619,83 +660,42 @@
         "manager_id": "jonathan",
         "display_name": "Jonathan",
         "basis": "week",
-        "odds_change": 0.004513,
+        "odds_change": -0.017575,
         "drivers": [
           {
-            "team": "Ole Miss",
-            "direction": "U",
-            "line": 7.5,
-            "before": -0.06,
-            "now": 0.66,
-            "change": 0.72
+            "team": "Oregon",
+            "direction": "O",
+            "line": 10.5,
+            "before": -0.93,
+            "now": -2.23,
+            "change": -1.3
           },
           {
             "team": "Kansas State",
             "direction": "O",
             "line": 8.5,
             "before": -0.81,
-            "now": -0.28,
-            "change": 0.53
+            "now": -0.1,
+            "change": 0.71
           },
           {
-            "team": "Oregon",
-            "direction": "O",
-            "line": 10.5,
-            "before": -0.93,
-            "now": -1.42,
-            "change": -0.49
+            "team": "Ole Miss",
+            "direction": "U",
+            "line": 7.5,
+            "before": -0.06,
+            "now": 0.62,
+            "change": 0.68
           },
           {
             "team": "LSU",
             "direction": "O",
             "line": 8.5,
             "before": -0.1,
-            "now": 0.19,
-            "change": 0.29
+            "now": 0.28,
+            "change": 0.38
           }
         ],
-        "movement_summary": "Their title chances have barely moved."
-      },
-      {
-        "manager_id": "chris",
-        "display_name": "Chris",
-        "basis": "week",
-        "odds_change": -0.001846,
-        "drivers": [
-          {
-            "team": "Texas",
-            "direction": "O",
-            "line": 9.5,
-            "before": -1.58,
-            "now": -1.32,
-            "change": 0.26
-          },
-          {
-            "team": "Tennessee",
-            "direction": "O",
-            "line": 7.5,
-            "before": 0.14,
-            "now": 0.37,
-            "change": 0.23
-          },
-          {
-            "team": "USC",
-            "direction": "O",
-            "line": 8.5,
-            "before": -0.77,
-            "now": -0.59,
-            "change": 0.18
-          },
-          {
-            "team": "Michigan State",
-            "direction": "O",
-            "line": 4.5,
-            "before": 0.7,
-            "now": 0.78,
-            "change": 0.08
-          }
-        ],
-        "movement_summary": "Their title chances have barely moved."
+        "movement_summary": "They have lost some ground in the title race."
       }
     ],
     "note": "Pick changes are changes in expected final points, not an additive explanation of championship probability. Results, ratings, and model updates can all contribute.",
@@ -703,156 +703,145 @@
       {
         "manager_id": "jonathan",
         "display_name": "Jonathan",
-        "team": "Ole Miss",
-        "opponent": "Louisville",
-        "week": 1,
-        "result": "W",
-        "direction": "U",
-        "draft_p_win": 0.598688,
-        "points_surprise": -0.401
-      },
-      {
-        "manager_id": "zach",
-        "display_name": "Zach",
-        "team": "James Madison",
-        "opponent": "Liberty",
-        "week": 1,
-        "result": "W",
-        "direction": "O",
-        "draft_p_win": 0.650724,
-        "points_surprise": 0.349
-      },
-      {
-        "manager_id": "jonathan",
-        "display_name": "Jonathan",
-        "team": "LSU",
-        "opponent": "Clemson",
-        "week": 1,
-        "result": "W",
-        "direction": "O",
-        "draft_p_win": 0.697841,
-        "points_surprise": 0.302
-      },
-      {
-        "manager_id": "chris",
-        "display_name": "Chris",
-        "team": "Michigan State",
-        "opponent": "Toledo",
-        "week": 1,
-        "result": "W",
-        "direction": "O",
-        "draft_p_win": 0.756454,
-        "points_surprise": 0.244
-      },
-      {
-        "manager_id": "zach",
-        "display_name": "Zach",
-        "team": "Notre Dame",
-        "opponent": "Wisconsin",
-        "week": 1,
-        "result": "W",
-        "direction": "U",
-        "draft_p_win": 0.843101,
-        "points_surprise": -0.157
-      },
-      {
-        "manager_id": "blaine",
-        "display_name": "Blaine",
-        "team": "Wisconsin",
-        "opponent": "Notre Dame",
-        "week": 1,
-        "result": "L",
-        "direction": "U",
-        "draft_p_win": 0.156899,
-        "points_surprise": 0.157
-      },
-      {
-        "manager_id": "chris",
-        "display_name": "Chris",
-        "team": "USC",
-        "opponent": "Fresno State",
-        "week": 1,
-        "result": "W",
-        "direction": "O",
-        "draft_p_win": 0.84698,
-        "points_surprise": 0.153
-      },
-      {
-        "manager_id": "blaine",
-        "display_name": "Blaine",
-        "team": "Boise State",
-        "opponent": "Oregon",
-        "week": 1,
-        "result": "L",
-        "direction": "O",
-        "draft_p_win": 0.11091,
-        "points_surprise": -0.111
-      },
-      {
-        "manager_id": "jonathan",
-        "display_name": "Jonathan",
         "team": "Oregon",
-        "opponent": "Boise State",
-        "week": 1,
-        "result": "W",
+        "opponent": "Oklahoma State",
+        "week": 2,
+        "result": "L",
         "direction": "O",
-        "draft_p_win": 0.88909,
-        "points_surprise": 0.111
+        "draft_p_win": 0.795036,
+        "points_surprise": -0.795
       },
       {
         "manager_id": "blaine",
         "display_name": "Blaine",
         "team": "Texas",
-        "opponent": "Texas State",
-        "week": 1,
+        "opponent": "Ohio State",
+        "week": 2,
         "result": "W",
         "direction": "U",
-        "draft_p_win": 0.8948,
-        "points_surprise": -0.105
+        "draft_p_win": 0.392447,
+        "points_surprise": -0.608
       },
       {
         "manager_id": "chris",
         "display_name": "Chris",
         "team": "Texas",
-        "opponent": "Texas State",
-        "week": 1,
+        "opponent": "Ohio State",
+        "week": 2,
         "result": "W",
         "direction": "O",
-        "draft_p_win": 0.8948,
-        "points_surprise": 0.105
+        "draft_p_win": 0.392447,
+        "points_surprise": 0.608
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
         "team": "Wake Forest",
-        "opponent": "Akron",
-        "week": 1,
+        "opponent": "Purdue",
+        "week": 2,
         "result": "W",
         "direction": "O",
-        "draft_p_win": 0.90417,
-        "points_surprise": 0.096
+        "draft_p_win": 0.529595,
+        "points_surprise": 0.47
+      },
+      {
+        "manager_id": "chris",
+        "display_name": "Chris",
+        "team": "Tennessee",
+        "opponent": "Georgia Tech",
+        "week": 2,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.633706,
+        "points_surprise": 0.366
+      },
+      {
+        "manager_id": "blaine",
+        "display_name": "Blaine",
+        "team": "Boise State",
+        "opponent": "Memphis",
+        "week": 2,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.657428,
+        "points_surprise": 0.343
+      },
+      {
+        "manager_id": "jonathan",
+        "display_name": "Jonathan",
+        "team": "Kansas State",
+        "opponent": "Washington State",
+        "week": 2,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.785211,
+        "points_surprise": 0.215
+      },
+      {
+        "manager_id": "zach",
+        "display_name": "Zach",
+        "team": "Virginia Tech",
+        "opponent": "Old Dominion",
+        "week": 2,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.809142,
+        "points_surprise": 0.191
+      },
+      {
+        "manager_id": "chris",
+        "display_name": "Chris",
+        "team": "Michigan State",
+        "opponent": "Eastern Michigan",
+        "week": 2,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.839141,
+        "points_surprise": 0.161
       },
       {
         "manager_id": "chris",
         "display_name": "Chris",
         "team": "USC",
-        "opponent": "San José State",
-        "week": 1,
+        "opponent": "Louisiana",
+        "week": 2,
         "result": "W",
         "direction": "O",
-        "draft_p_win": 0.941054,
-        "points_surprise": 0.059
+        "draft_p_win": 0.916261,
+        "points_surprise": 0.084
       },
       {
-        "manager_id": "blaine",
-        "display_name": "Blaine",
-        "team": "Indiana",
-        "opponent": "North Texas",
-        "week": 1,
+        "manager_id": "jonathan",
+        "display_name": "Jonathan",
+        "team": "LSU",
+        "opponent": "Louisiana Tech",
+        "week": 2,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.922833,
+        "points_surprise": 0.077
+      },
+      {
+        "manager_id": "jonathan",
+        "display_name": "Jonathan",
+        "team": "Ole Miss",
+        "opponent": "Charlotte",
+        "week": 2,
         "result": "W",
         "direction": "U",
-        "draft_p_win": 0.955497,
-        "points_surprise": -0.045
+        "draft_p_win": 0.964556,
+        "points_surprise": -0.035
+      },
+      {
+        "manager_id": "zach",
+        "display_name": "Zach",
+        "team": "Notre Dame",
+        "opponent": "Rice",
+        "week": 2,
+        "result": "W",
+        "direction": "U",
+        "draft_p_win": 0.967472,
+        "points_surprise": -0.033
       }
     ]
   },
@@ -861,295 +850,9 @@
     "available": true,
     "managers": [
       {
-        "manager_id": "blaine",
-        "display_name": "Blaine",
-        "p_win_pool": 0.509962,
-        "finished": false,
-        "routes": [
-          {
-            "team": "Texas",
-            "direction": "U",
-            "line": 9.5,
-            "next_games": 4,
-            "needed": 3,
-            "event_probability": 0.1437,
-            "p_title_if": 0.691081,
-            "p_title_now": 0.509962,
-            "lift": 0.181118,
-            "matching_trials": 2874,
-            "games_to_watch": [
-              {
-                "opponent": "Ohio State",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.488891,
-                "rooting_note": "This one could go either way."
-              },
-              {
-                "opponent": "Tennessee",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.527749,
-                "rooting_note": "This one could go either way."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "Ohio State",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.488891
-              },
-              {
-                "opponent": "UTSA",
-                "home_away": "home",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.876853
-              },
-              {
-                "opponent": "Tennessee",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.527749
-              },
-              {
-                "opponent": "Oklahoma",
-                "home_away": "away",
-                "week": 6,
-                "neutral": true,
-                "p_win": 0.568093
-              }
-            ],
-            "condition": "Texas loses at least 3 of its next 4 games",
-            "headline": "Root against Texas.",
-            "story": "Blaine gets a better shot if Texas loses at least 3 of its next 4 games.",
-            "why": "Blaine picked Texas to fall short of its preseason win target. Losses are good news for that pick.",
-            "watch_heading": "Games to circle",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 14 out of 100 simulated seasons.",
-            "rival_note": "Chris is pulling the other way on Texas.",
-            "narrative": "The awkward part: Blaine benefits when Texas has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
-            "banter": "If Texas comes through, Blaine gets fresh material. If not, the group can ask whether sarcasm counts toward the tiebreaker.",
-            "if_it_happens": "If this stretch lands, Blaine has a stronger title case and Chris will have been cheering against the very same results."
-          },
-          {
-            "team": "Boise State",
-            "direction": "O",
-            "line": 7.5,
-            "next_games": 4,
-            "needed": 4,
-            "event_probability": 0.2986,
-            "p_title_if": 0.623326,
-            "p_title_now": 0.509962,
-            "lift": 0.113363,
-            "matching_trials": 5972,
-            "games_to_watch": [
-              {
-                "opponent": "Western Michigan",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.598688,
-                "rooting_note": "This one could go either way."
-              },
-              {
-                "opponent": "Memphis",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.628532,
-                "rooting_note": "This one could go either way."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "Memphis",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.628532
-              },
-              {
-                "opponent": "South Dakota",
-                "home_away": "home",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.963529
-              },
-              {
-                "opponent": "Western Michigan",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.598688
-              },
-              {
-                "opponent": "Utah State",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.822493
-              }
-            ],
-            "condition": "Boise State wins all of its next 4 games",
-            "headline": "Root for Boise State.",
-            "story": "Blaine gets a better shot if Boise State wins all of its next 4 games.",
-            "why": "Blaine picked Boise State to beat its preseason win target. Wins are good news for that pick.",
-            "watch_heading": "The toughest hurdles",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 30 out of 100 simulated seasons.",
-            "rival_note": null,
-            "narrative": "Blaine does not need style points from Boise State. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
-            "banter": "If Boise State comes through, Blaine gets fresh material. If not, the group can ask whether sarcasm counts toward the tiebreaker.",
-            "if_it_happens": "If this stretch lands, Blaine has a stronger title case and a ready-made reason to remind everyone about this pick."
-          },
-          {
-            "team": "Wisconsin",
-            "direction": "U",
-            "line": 6.5,
-            "next_games": 4,
-            "needed": 3,
-            "event_probability": 0.10905,
-            "p_title_if": 0.652491,
-            "p_title_now": 0.509962,
-            "lift": 0.142529,
-            "matching_trials": 2181,
-            "games_to_watch": [
-              {
-                "opponent": "Penn State",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.133071,
-                "rooting_note": "Penn State is favored to beat Wisconsin."
-              },
-              {
-                "opponent": "Michigan State",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.527749,
-                "rooting_note": "This one could go either way."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "Western Illinois",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.941463
-              },
-              {
-                "opponent": "Eastern Michigan",
-                "home_away": "home",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.792612
-              },
-              {
-                "opponent": "Penn State",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.133071
-              },
-              {
-                "opponent": "Michigan State",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.527749
-              }
-            ],
-            "condition": "Wisconsin loses at least 3 of its next 4 games",
-            "headline": "Root against Wisconsin.",
-            "story": "Blaine gets a better shot if Wisconsin loses at least 3 of its next 4 games.",
-            "why": "Blaine picked Wisconsin to fall short of its preseason win target. Losses are good news for that pick.",
-            "watch_heading": "Games to circle",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 11 out of 100 simulated seasons.",
-            "rival_note": null,
-            "narrative": "The awkward part: Blaine benefits when Wisconsin has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
-            "banter": "If Wisconsin comes through, Blaine gets fresh material. If not, the group can ask whether sarcasm counts toward the tiebreaker.",
-            "if_it_happens": "If this stretch lands, Blaine has a stronger title case and a ready-made reason to remind everyone about this pick."
-          },
-          {
-            "team": "Indiana",
-            "direction": "U",
-            "line": 10.5,
-            "next_games": 4,
-            "needed": 1,
-            "event_probability": 0.34355,
-            "p_title_if": 0.582581,
-            "p_title_now": 0.509962,
-            "lift": 0.072619,
-            "matching_trials": 6871,
-            "games_to_watch": [
-              {
-                "opponent": "Northwestern",
-                "home_away": "home",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.818126,
-                "rooting_note": "Indiana is favored. A loss here would be an upset."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "Howard",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.990752
-              },
-              {
-                "opponent": "Western Kentucky",
-                "home_away": "home",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.954862
-              },
-              {
-                "opponent": "Northwestern",
-                "home_away": "home",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.818126
-              },
-              {
-                "opponent": "Rutgers",
-                "home_away": "away",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.852652
-              }
-            ],
-            "condition": "Indiana loses at least 1 of its next 4 games",
-            "headline": "Root against Indiana.",
-            "story": "Blaine gets a better shot if Indiana loses at least 1 of its next 4 games.",
-            "why": "Blaine picked Indiana to fall short of its preseason win target. Losses are good news for that pick.",
-            "watch_heading": "Games to circle",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 34 out of 100 simulated seasons.",
-            "rival_note": null,
-            "narrative": "The awkward part: Blaine benefits when Indiana has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job. There is room for the other games to go the wrong way. One result is enough to satisfy this scenario.",
-            "banter": "Blaine runs bakeries. This Indiana pick still has to prove it is more than hot air. Please allow the group one baking joke before kickoff.",
-            "if_it_happens": "If this stretch lands, Blaine has a stronger title case and a ready-made reason to remind everyone about this pick."
-          }
-        ],
-        "position": "In the thick of it",
-        "intro": "Think of this as a rooting guide: the results that would give Blaine a better shot, with the rest of the season still to play."
-      },
-      {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.385196,
+        "p_win_pool": 0.471,
         "finished": false,
         "routes": [
           {
@@ -1158,11 +861,11 @@
             "line": 5.5,
             "next_games": 4,
             "needed": 3,
-            "event_probability": 0.1522,
-            "p_title_if": 0.537505,
-            "p_title_now": 0.385196,
-            "lift": 0.15231,
-            "matching_trials": 3044,
+            "event_probability": 0.16355,
+            "p_title_if": 0.645776,
+            "p_title_now": 0.471,
+            "lift": 0.174776,
+            "matching_trials": 3271,
             "games_to_watch": [
               {
                 "opponent": "Stanford",
@@ -1173,22 +876,15 @@
                 "rooting_note": "Wake Forest is favored to beat Stanford."
               },
               {
-                "opponent": "Purdue",
+                "opponent": "NC State",
                 "home_away": "away",
-                "week": 2,
+                "week": 6,
                 "neutral": false,
-                "p_win": 0.433726,
+                "p_win": 0.46856,
                 "rooting_note": "This one could go either way."
               }
             ],
             "stretch": [
-              {
-                "opponent": "Purdue",
-                "home_away": "away",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.433726
-              },
               {
                 "opponent": "Miami",
                 "home_away": "home",
@@ -1209,6 +905,13 @@
                 "week": 5,
                 "neutral": false,
                 "p_win": 0.681997
+              },
+              {
+                "opponent": "NC State",
+                "home_away": "away",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.46856
               }
             ],
             "condition": "Wake Forest wins at least 3 of its next 4 games",
@@ -1217,81 +920,10 @@
             "why": "Zach picked Wake Forest to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "Games to circle",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 15 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 16 out of 100 simulated seasons.",
             "rival_note": null,
             "narrative": "Zach does not need style points from Wake Forest. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
             "banter": "Zach went to Wake Forest and took the Over. This is where the group gets to ask whether the spreadsheet did the picking or just signed off on the school sweatshirt.",
-            "if_it_happens": "If this stretch lands, Zach has a stronger title case and a ready-made reason to remind everyone about this pick."
-          },
-          {
-            "team": "James Madison",
-            "direction": "O",
-            "line": 8.5,
-            "next_games": 4,
-            "needed": 4,
-            "event_probability": 0.15065,
-            "p_title_if": 0.53319,
-            "p_title_now": 0.385196,
-            "lift": 0.147994,
-            "matching_trials": 3013,
-            "games_to_watch": [
-              {
-                "opponent": "San Diego State",
-                "home_away": "away",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.366294,
-                "rooting_note": "This one could go either way."
-              },
-              {
-                "opponent": "Old Dominion",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.535127,
-                "rooting_note": "This one could go either way."
-              }
-            ],
-            "stretch": [
-              {
-                "opponent": "Wagner",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.946174
-              },
-              {
-                "opponent": "San Diego State",
-                "home_away": "away",
-                "week": 3,
-                "neutral": false,
-                "p_win": 0.366294
-              },
-              {
-                "opponent": "Old Dominion",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.535127
-              },
-              {
-                "opponent": "Marshall",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.792612
-              }
-            ],
-            "condition": "James Madison wins all of its next 4 games",
-            "headline": "Root for James Madison.",
-            "story": "Zach gets a better shot if James Madison wins all of its next 4 games.",
-            "why": "Zach picked James Madison to beat its preseason win target. Wins are good news for that pick.",
-            "watch_heading": "The toughest hurdles",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 15 out of 100 simulated seasons.",
-            "rival_note": null,
-            "narrative": "Zach does not need style points from James Madison. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
-            "banter": "The James Madison plan has reached the part Zach cannot code: the actual games. An inconvenient limitation of the platform.",
             "if_it_happens": "If this stretch lands, Zach has a stronger title case and a ready-made reason to remind everyone about this pick."
           },
           {
@@ -1300,11 +932,11 @@
             "line": 6.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.19125,
-            "p_title_if": 0.515643,
-            "p_title_now": 0.385196,
-            "lift": 0.130447,
-            "matching_trials": 3825,
+            "event_probability": 0.1635,
+            "p_title_if": 0.639985,
+            "p_title_now": 0.471,
+            "lift": 0.168985,
+            "matching_trials": 3270,
             "games_to_watch": [
               {
                 "opponent": "Maryland",
@@ -1325,13 +957,6 @@
             ],
             "stretch": [
               {
-                "opponent": "Old Dominion",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.842118
-              },
-              {
                 "opponent": "Maryland",
                 "home_away": "away",
                 "week": 3,
@@ -1351,6 +976,13 @@
                 "week": 5,
                 "neutral": false,
                 "p_win": 0.614594
+              },
+              {
+                "opponent": "California",
+                "home_away": "away",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.705593
               }
             ],
             "condition": "Virginia Tech wins all of its next 4 games",
@@ -1359,10 +991,81 @@
             "why": "Zach picked Virginia Tech to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "The toughest hurdles",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 19 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 16 out of 100 simulated seasons.",
             "rival_note": null,
             "narrative": "Zach does not need style points from Virginia Tech. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
             "banter": "If Virginia Tech cooperates, Zach can call it model validation. If not, the group should ask whether his next website will cover a different sport.",
+            "if_it_happens": "If this stretch lands, Zach has a stronger title case and a ready-made reason to remind everyone about this pick."
+          },
+          {
+            "team": "James Madison",
+            "direction": "O",
+            "line": 8.5,
+            "next_games": 4,
+            "needed": 3,
+            "event_probability": 0.3899,
+            "p_title_if": 0.578033,
+            "p_title_now": 0.471,
+            "lift": 0.107033,
+            "matching_trials": 7798,
+            "games_to_watch": [
+              {
+                "opponent": "Marshall",
+                "home_away": "home",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.792612,
+                "rooting_note": "James Madison is favored to beat Marshall."
+              },
+              {
+                "opponent": "Old Dominion",
+                "home_away": "away",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.535127,
+                "rooting_note": "This one could go either way."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "San Diego State",
+                "home_away": "away",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.366294
+              },
+              {
+                "opponent": "Old Dominion",
+                "home_away": "away",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.535127
+              },
+              {
+                "opponent": "Marshall",
+                "home_away": "home",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.792612
+              },
+              {
+                "opponent": "Georgia Southern",
+                "home_away": "away",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.527749
+              }
+            ],
+            "condition": "James Madison wins at least 3 of its next 4 games",
+            "headline": "Root for James Madison.",
+            "story": "Zach gets a better shot if James Madison wins at least 3 of its next 4 games.",
+            "why": "Zach picked James Madison to beat its preseason win target. Wins are good news for that pick.",
+            "watch_heading": "Games to circle",
+            "difficulty": "A realistic opening",
+            "likelihood_text": "This stretch comes through in about 39 out of 100 simulated seasons.",
+            "rival_note": null,
+            "narrative": "Zach does not need style points from James Madison. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
+            "banter": "The James Madison plan has reached the part Zach cannot code: the actual games. An inconvenient limitation of the platform.",
             "if_it_happens": "If this stretch lands, Zach has a stronger title case and a ready-made reason to remind everyone about this pick."
           },
           {
@@ -1370,12 +1073,12 @@
             "direction": "U",
             "line": 11.5,
             "next_games": 4,
-            "needed": 2,
-            "event_probability": 0.08545,
-            "p_title_if": 0.545836,
-            "p_title_now": 0.385196,
-            "lift": 0.16064,
-            "matching_trials": 1709,
+            "needed": 1,
+            "event_probability": 0.4585,
+            "p_title_if": 0.542348,
+            "p_title_now": 0.471,
+            "lift": 0.071348,
+            "matching_trials": 9170,
             "games_to_watch": [
               {
                 "opponent": "North Carolina",
@@ -1384,24 +1087,9 @@
                 "neutral": false,
                 "p_win": 0.778899,
                 "rooting_note": "Notre Dame is favored. A loss here would be an upset."
-              },
-              {
-                "opponent": "Purdue",
-                "home_away": "away",
-                "week": 4,
-                "neutral": false,
-                "p_win": 0.832018,
-                "rooting_note": "Notre Dame is favored. A loss here would be an upset."
               }
             ],
             "stretch": [
-              {
-                "opponent": "Rice",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.954862
-              },
               {
                 "opponent": "Michigan State",
                 "home_away": "home",
@@ -1422,17 +1110,24 @@
                 "week": 5,
                 "neutral": false,
                 "p_win": 0.778899
+              },
+              {
+                "opponent": "Stanford",
+                "home_away": "home",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.932744
               }
             ],
-            "condition": "Notre Dame loses at least 2 of its next 4 games",
+            "condition": "Notre Dame loses at least 1 of its next 4 games",
             "headline": "Root against Notre Dame.",
-            "story": "Zach gets a better shot if Notre Dame loses at least 2 of its next 4 games.",
+            "story": "Zach gets a better shot if Notre Dame loses at least 1 of its next 4 games.",
             "why": "Zach picked Notre Dame to fall short of its preseason win target. Losses are good news for that pick.",
             "watch_heading": "Games to circle",
-            "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 9 out of 100 simulated seasons.",
+            "difficulty": "A realistic opening",
+            "likelihood_text": "This stretch comes through in about 46 out of 100 simulated seasons.",
             "rival_note": null,
-            "narrative": "The awkward part: Zach benefits when Notre Dame has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
+            "narrative": "The awkward part: Zach benefits when Notre Dame has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job. There is room for the other games to go the wrong way. One result is enough to satisfy this scenario.",
             "banter": "Zach built the model. Now he needs Notre Dame to follow it. If the results go sideways, the group has an excellent opening to ask whether he has tried restarting the season.",
             "if_it_happens": "If this stretch lands, Zach has a stronger title case and a ready-made reason to remind everyone about this pick."
           }
@@ -1441,31 +1136,23 @@
         "intro": "Think of this as a rooting guide: the results that would give Zach a better shot, with the rest of the season still to play."
       },
       {
-        "manager_id": "chris",
-        "display_name": "Chris",
-        "p_win_pool": 0.057696,
+        "manager_id": "blaine",
+        "display_name": "Blaine",
+        "p_win_pool": 0.419892,
         "finished": false,
         "routes": [
           {
             "team": "Texas",
-            "direction": "O",
+            "direction": "U",
             "line": 9.5,
             "next_games": 4,
-            "needed": 4,
-            "event_probability": 0.1297,
-            "p_title_if": 0.120021,
-            "p_title_now": 0.057696,
-            "lift": 0.062325,
-            "matching_trials": 2594,
+            "needed": 2,
+            "event_probability": 0.40935,
+            "p_title_if": 0.530506,
+            "p_title_now": 0.419892,
+            "lift": 0.110614,
+            "matching_trials": 8187,
             "games_to_watch": [
-              {
-                "opponent": "Ohio State",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.488891,
-                "rooting_note": "This one could go either way."
-              },
               {
                 "opponent": "Tennessee",
                 "home_away": "away",
@@ -1473,16 +1160,17 @@
                 "neutral": false,
                 "p_win": 0.527749,
                 "rooting_note": "This one could go either way."
+              },
+              {
+                "opponent": "Oklahoma",
+                "home_away": "away",
+                "week": 6,
+                "neutral": true,
+                "p_win": 0.568093,
+                "rooting_note": "This one could go either way."
               }
             ],
             "stretch": [
-              {
-                "opponent": "Ohio State",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.488891
-              },
               {
                 "opponent": "UTSA",
                 "home_away": "home",
@@ -1503,32 +1191,270 @@
                 "week": 6,
                 "neutral": true,
                 "p_win": 0.568093
+              },
+              {
+                "opponent": "Florida",
+                "home_away": "home",
+                "week": 7,
+                "neutral": false,
+                "p_win": 0.689974
               }
             ],
-            "condition": "Texas wins all of its next 4 games",
-            "headline": "Root for Texas.",
-            "story": "Chris gets a better shot if Texas wins all of its next 4 games.",
-            "why": "Chris picked Texas to beat its preseason win target. Wins are good news for that pick.",
+            "condition": "Texas loses at least 2 of its next 4 games",
+            "headline": "Root against Texas.",
+            "story": "Blaine gets a better shot if Texas loses at least 2 of its next 4 games.",
+            "why": "Blaine picked Texas to fall short of its preseason win target. Losses are good news for that pick.",
+            "watch_heading": "Games to circle",
+            "difficulty": "A realistic opening",
+            "likelihood_text": "This stretch comes through in about 41 out of 100 simulated seasons.",
+            "rival_note": "Chris is pulling the other way on Texas.",
+            "narrative": "The awkward part: Blaine benefits when Texas has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
+            "banter": "If Texas comes through, Blaine gets fresh material. If not, the group can ask whether sarcasm counts toward the tiebreaker.",
+            "if_it_happens": "If this stretch lands, Blaine has a stronger title case and Chris will have been cheering against the very same results."
+          },
+          {
+            "team": "Indiana",
+            "direction": "U",
+            "line": 10.5,
+            "next_games": 4,
+            "needed": 2,
+            "event_probability": 0.1428,
+            "p_title_if": 0.577965,
+            "p_title_now": 0.419892,
+            "lift": 0.158073,
+            "matching_trials": 2856,
+            "games_to_watch": [
+              {
+                "opponent": "Nebraska",
+                "home_away": "away",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.64396,
+                "rooting_note": "This one could go either way."
+              },
+              {
+                "opponent": "Northwestern",
+                "home_away": "home",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.818126,
+                "rooting_note": "Indiana is favored. A loss here would be an upset."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "Western Kentucky",
+                "home_away": "home",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.954862
+              },
+              {
+                "opponent": "Northwestern",
+                "home_away": "home",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.818126
+              },
+              {
+                "opponent": "Rutgers",
+                "home_away": "away",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.852652
+              },
+              {
+                "opponent": "Nebraska",
+                "home_away": "away",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.64396
+              }
+            ],
+            "condition": "Indiana loses at least 2 of its next 4 games",
+            "headline": "Root against Indiana.",
+            "story": "Blaine gets a better shot if Indiana loses at least 2 of its next 4 games.",
+            "why": "Blaine picked Indiana to fall short of its preseason win target. Losses are good news for that pick.",
+            "watch_heading": "Games to circle",
+            "difficulty": "Needs a few things to break right",
+            "likelihood_text": "This stretch comes through in about 14 out of 100 simulated seasons.",
+            "rival_note": null,
+            "narrative": "The awkward part: Blaine benefits when Indiana has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
+            "banter": "Blaine runs bakeries. This Indiana pick still has to prove it is more than hot air. Please allow the group one baking joke before kickoff.",
+            "if_it_happens": "If this stretch lands, Blaine has a stronger title case and a ready-made reason to remind everyone about this pick."
+          },
+          {
+            "team": "Boise State",
+            "direction": "O",
+            "line": 7.5,
+            "next_games": 4,
+            "needed": 4,
+            "event_probability": 0.31275,
+            "p_title_if": 0.526485,
+            "p_title_now": 0.419892,
+            "lift": 0.106594,
+            "matching_trials": 6255,
+            "games_to_watch": [
+              {
+                "opponent": "Western Michigan",
+                "home_away": "away",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.598688,
+                "rooting_note": "This one could go either way."
+              },
+              {
+                "opponent": "Fresno State",
+                "home_away": "away",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.657428,
+                "rooting_note": "Boise State is favored to beat Fresno State."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "South Dakota",
+                "home_away": "home",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.963529
+              },
+              {
+                "opponent": "Western Michigan",
+                "home_away": "away",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.598688
+              },
+              {
+                "opponent": "Utah State",
+                "home_away": "home",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.822493
+              },
+              {
+                "opponent": "Fresno State",
+                "home_away": "away",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.657428
+              }
+            ],
+            "condition": "Boise State wins all of its next 4 games",
+            "headline": "Root for Boise State.",
+            "story": "Blaine gets a better shot if Boise State wins all of its next 4 games.",
+            "why": "Blaine picked Boise State to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "The toughest hurdles",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 13 out of 100 simulated seasons.",
-            "rival_note": "Blaine is pulling the other way on Texas.",
-            "narrative": "Chris does not need style points from Texas. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
-            "banter": "Chris needs Texas to keep winning. Consider this the Longhorns' audition for a favorable review. The group should request the one-star draft if things go wrong.",
-            "if_it_happens": "If this stretch lands, Chris has a stronger title case and Blaine will have been cheering against the very same results."
+            "likelihood_text": "This stretch comes through in about 31 out of 100 simulated seasons.",
+            "rival_note": null,
+            "narrative": "Blaine does not need style points from Boise State. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
+            "banter": "If Boise State comes through, Blaine gets fresh material. If not, the group can ask whether sarcasm counts toward the tiebreaker.",
+            "if_it_happens": "If this stretch lands, Blaine has a stronger title case and a ready-made reason to remind everyone about this pick."
           },
+          {
+            "team": "Wisconsin",
+            "direction": "U",
+            "line": 6.5,
+            "next_games": 4,
+            "needed": 3,
+            "event_probability": 0.41105,
+            "p_title_if": 0.509427,
+            "p_title_now": 0.419892,
+            "lift": 0.089535,
+            "matching_trials": 8221,
+            "games_to_watch": [
+              {
+                "opponent": "Penn State",
+                "home_away": "away",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.133071,
+                "rooting_note": "Penn State is favored to beat Wisconsin."
+              },
+              {
+                "opponent": "UCLA",
+                "home_away": "away",
+                "week": 7,
+                "neutral": false,
+                "p_win": 0.251828,
+                "rooting_note": "UCLA is favored to beat Wisconsin."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "Eastern Michigan",
+                "home_away": "home",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.792612
+              },
+              {
+                "opponent": "Penn State",
+                "home_away": "away",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.133071
+              },
+              {
+                "opponent": "Michigan State",
+                "home_away": "home",
+                "week": 5,
+                "neutral": false,
+                "p_win": 0.527749
+              },
+              {
+                "opponent": "UCLA",
+                "home_away": "away",
+                "week": 7,
+                "neutral": false,
+                "p_win": 0.251828
+              }
+            ],
+            "condition": "Wisconsin loses at least 3 of its next 4 games",
+            "headline": "Root against Wisconsin.",
+            "story": "Blaine gets a better shot if Wisconsin loses at least 3 of its next 4 games.",
+            "why": "Blaine picked Wisconsin to fall short of its preseason win target. Losses are good news for that pick.",
+            "watch_heading": "Games to circle",
+            "difficulty": "A realistic opening",
+            "likelihood_text": "This stretch comes through in about 41 out of 100 simulated seasons.",
+            "rival_note": null,
+            "narrative": "The awkward part: Blaine benefits when Wisconsin has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
+            "banter": "If Wisconsin comes through, Blaine gets fresh material. If not, the group can ask whether sarcasm counts toward the tiebreaker.",
+            "if_it_happens": "If this stretch lands, Blaine has a stronger title case and a ready-made reason to remind everyone about this pick."
+          }
+        ],
+        "position": "In the thick of it",
+        "intro": "Think of this as a rooting guide: the results that would give Blaine a better shot, with the rest of the season still to play."
+      },
+      {
+        "manager_id": "chris",
+        "display_name": "Chris",
+        "p_win_pool": 0.08405,
+        "finished": false,
+        "routes": [
           {
             "team": "USC",
             "direction": "O",
             "line": 8.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.21775,
-            "p_title_if": 0.104975,
-            "p_title_now": 0.057696,
-            "lift": 0.047279,
-            "matching_trials": 4355,
+            "event_probability": 0.09625,
+            "p_title_if": 0.176753,
+            "p_title_now": 0.08405,
+            "lift": 0.092703,
+            "matching_trials": 1925,
             "games_to_watch": [
+              {
+                "opponent": "Penn State",
+                "home_away": "away",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.388921,
+                "rooting_note": "This one could go either way."
+              },
               {
                 "opponent": "Oregon",
                 "home_away": "home",
@@ -1536,24 +1462,9 @@
                 "neutral": false,
                 "p_win": 0.459349,
                 "rooting_note": "This one could go either way."
-              },
-              {
-                "opponent": "Washington",
-                "home_away": "home",
-                "week": 5,
-                "neutral": false,
-                "p_win": 0.672281,
-                "rooting_note": "USC is favored to beat Washington."
               }
             ],
             "stretch": [
-              {
-                "opponent": "Louisiana",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.883873
-              },
               {
                 "opponent": "Rutgers",
                 "home_away": "away",
@@ -1574,6 +1485,13 @@
                 "week": 5,
                 "neutral": false,
                 "p_win": 0.672281
+              },
+              {
+                "opponent": "Penn State",
+                "home_away": "away",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.388921
               }
             ],
             "condition": "USC wins all of its next 4 games",
@@ -1582,11 +1500,82 @@
             "why": "Chris picked USC to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "The toughest hurdles",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 22 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 10 out of 100 simulated seasons.",
             "rival_note": null,
             "narrative": "Chris does not need style points from USC. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
             "banter": "If USC spoils this plan, the family of football takes may need Chris to file a review. His Paris credentials do not grant the pick diplomatic immunity.",
             "if_it_happens": "If this stretch lands, Chris has a stronger title case and a ready-made reason to remind everyone about this pick."
+          },
+          {
+            "team": "Texas",
+            "direction": "O",
+            "line": 9.5,
+            "next_games": 4,
+            "needed": 4,
+            "event_probability": 0.1822,
+            "p_title_if": 0.150636,
+            "p_title_now": 0.08405,
+            "lift": 0.066586,
+            "matching_trials": 3644,
+            "games_to_watch": [
+              {
+                "opponent": "Tennessee",
+                "home_away": "away",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.527749,
+                "rooting_note": "This one could go either way."
+              },
+              {
+                "opponent": "Oklahoma",
+                "home_away": "away",
+                "week": 6,
+                "neutral": true,
+                "p_win": 0.568093,
+                "rooting_note": "This one could go either way."
+              }
+            ],
+            "stretch": [
+              {
+                "opponent": "UTSA",
+                "home_away": "home",
+                "week": 3,
+                "neutral": false,
+                "p_win": 0.876853
+              },
+              {
+                "opponent": "Tennessee",
+                "home_away": "away",
+                "week": 4,
+                "neutral": false,
+                "p_win": 0.527749
+              },
+              {
+                "opponent": "Oklahoma",
+                "home_away": "away",
+                "week": 6,
+                "neutral": true,
+                "p_win": 0.568093
+              },
+              {
+                "opponent": "Florida",
+                "home_away": "home",
+                "week": 7,
+                "neutral": false,
+                "p_win": 0.689974
+              }
+            ],
+            "condition": "Texas wins all of its next 4 games",
+            "headline": "Root for Texas.",
+            "story": "Chris gets a better shot if Texas wins all of its next 4 games.",
+            "why": "Chris picked Texas to beat its preseason win target. Wins are good news for that pick.",
+            "watch_heading": "The toughest hurdles",
+            "difficulty": "Needs a few things to break right",
+            "likelihood_text": "This stretch comes through in about 18 out of 100 simulated seasons.",
+            "rival_note": "Blaine is pulling the other way on Texas.",
+            "narrative": "Chris does not need style points from Texas. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
+            "banter": "Chris needs Texas to keep winning. Consider this the Longhorns' audition for a favorable review. The group should request the one-star draft if things go wrong.",
+            "if_it_happens": "If this stretch lands, Chris has a stronger title case and Blaine will have been cheering against the very same results."
           },
           {
             "team": "Michigan State",
@@ -1594,20 +1583,12 @@
             "line": 4.5,
             "next_games": 4,
             "needed": 3,
-            "event_probability": 0.18745,
-            "p_title_if": 0.091647,
-            "p_title_now": 0.057696,
-            "lift": 0.033951,
-            "matching_trials": 3749,
+            "event_probability": 0.1108,
+            "p_title_if": 0.152377,
+            "p_title_now": 0.08405,
+            "lift": 0.068327,
+            "matching_trials": 2216,
             "games_to_watch": [
-              {
-                "opponent": "Eastern Michigan",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.821409,
-                "rooting_note": "Michigan State is favored to beat Eastern Michigan."
-              },
               {
                 "opponent": "Wisconsin",
                 "home_away": "away",
@@ -1615,16 +1596,17 @@
                 "neutral": false,
                 "p_win": 0.472251,
                 "rooting_note": "This one could go either way."
+              },
+              {
+                "opponent": "Illinois",
+                "home_away": "home",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.453836,
+                "rooting_note": "This one could go either way."
               }
             ],
             "stretch": [
-              {
-                "opponent": "Eastern Michigan",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.821409
-              },
               {
                 "opponent": "Notre Dame",
                 "home_away": "away",
@@ -1645,6 +1627,13 @@
                 "week": 5,
                 "neutral": false,
                 "p_win": 0.472251
+              },
+              {
+                "opponent": "Illinois",
+                "home_away": "home",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.453836
               }
             ],
             "condition": "Michigan State wins at least 3 of its next 4 games",
@@ -1653,20 +1642,20 @@
             "why": "Chris picked Michigan State to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "Games to circle",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 19 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 11 out of 100 simulated seasons.",
             "rival_note": null,
             "narrative": "Chris does not need style points from Michigan State. A messy win does the same job for this pick as a blowout. Survive first; look impressive later.",
             "banter": "Chris needs Michigan State to deliver. If this stretch goes sideways, the group can request a full review. One star: would not draft again.",
             "if_it_happens": "If this stretch lands, Chris has a stronger title case and a ready-made reason to remind everyone about this pick."
           }
         ],
-        "position": "Needs a few breaks",
+        "position": "Within striking distance",
         "intro": "Think of this as a rooting guide: the results that would give Chris a better shot, with the rest of the season still to play."
       },
       {
         "manager_id": "jonathan",
         "display_name": "Jonathan",
-        "p_win_pool": 0.047146,
+        "p_win_pool": 0.025058,
         "finished": false,
         "routes": [
           {
@@ -1674,38 +1663,31 @@
             "direction": "U",
             "line": 7.5,
             "next_games": 4,
-            "needed": 3,
-            "event_probability": 0.242,
-            "p_title_if": 0.09134,
-            "p_title_now": 0.047146,
-            "lift": 0.044194,
-            "matching_trials": 4840,
+            "needed": 4,
+            "event_probability": 0.09525,
+            "p_title_if": 0.078521,
+            "p_title_now": 0.025058,
+            "lift": 0.053463,
+            "matching_trials": 1905,
             "games_to_watch": [
               {
-                "opponent": "Florida",
-                "home_away": "away",
-                "week": 4,
+                "opponent": "Missouri",
+                "home_away": "home",
+                "week": 7,
                 "neutral": false,
-                "p_win": 0.33428,
-                "rooting_note": "Florida is favored to beat Ole Miss."
+                "p_win": 0.580768,
+                "rooting_note": "This one could go either way."
               },
               {
-                "opponent": "LSU",
-                "home_away": "home",
-                "week": 3,
+                "opponent": "Vanderbilt",
+                "home_away": "away",
+                "week": 6,
                 "neutral": false,
-                "p_win": 0.390682,
+                "p_win": 0.448333,
                 "rooting_note": "This one could go either way."
               }
             ],
             "stretch": [
-              {
-                "opponent": "Charlotte",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.961112
-              },
               {
                 "opponent": "LSU",
                 "home_away": "home",
@@ -1726,17 +1708,24 @@
                 "week": 6,
                 "neutral": false,
                 "p_win": 0.448333
+              },
+              {
+                "opponent": "Missouri",
+                "home_away": "home",
+                "week": 7,
+                "neutral": false,
+                "p_win": 0.580768
               }
             ],
-            "condition": "Ole Miss loses at least 3 of its next 4 games",
+            "condition": "Ole Miss loses all of its next 4 games",
             "headline": "Root against Ole Miss.",
-            "story": "Jonathan gets a better shot if Ole Miss loses at least 3 of its next 4 games.",
+            "story": "Jonathan gets a better shot if Ole Miss loses all of its next 4 games.",
             "why": "Jonathan picked Ole Miss to fall short of its preseason win target. Losses are good news for that pick.",
-            "watch_heading": "Games to circle",
+            "watch_heading": "The toughest hurdles",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 24 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 10 out of 100 simulated seasons.",
             "rival_note": null,
-            "narrative": "The awkward part: Jonathan benefits when Ole Miss has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job.",
+            "narrative": "The awkward part: Jonathan benefits when Ole Miss has a bad Saturday. A close escape still counts as a win, so ugly football alone will not do the job. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
             "banter": "Jonathan works on rockets. For now, his launch window depends on Ole Miss. The group is entitled to ask why NASA has not solved this part yet.",
             "if_it_happens": "If this stretch lands, Jonathan has a stronger title case and a ready-made reason to remind everyone about this pick."
           },
@@ -1746,11 +1735,11 @@
             "line": 8.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.3098,
-            "p_title_if": 0.084355,
-            "p_title_now": 0.047146,
-            "lift": 0.03721,
-            "matching_trials": 6196,
+            "event_probability": 0.23245,
+            "p_title_if": 0.054008,
+            "p_title_now": 0.025058,
+            "lift": 0.02895,
+            "matching_trials": 4649,
             "games_to_watch": [
               {
                 "opponent": "Texas A&M",
@@ -1771,13 +1760,6 @@
             ],
             "stretch": [
               {
-                "opponent": "Louisiana Tech",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.909183
-              },
-              {
                 "opponent": "Ole Miss",
                 "home_away": "away",
                 "week": 3,
@@ -1797,6 +1779,13 @@
                 "week": 5,
                 "neutral": false,
                 "p_win": 0.990193
+              },
+              {
+                "opponent": "Kentucky",
+                "home_away": "away",
+                "week": 6,
+                "neutral": false,
+                "p_win": 0.689974
               }
             ],
             "condition": "LSU wins all of its next 4 games",
@@ -1805,7 +1794,7 @@
             "why": "Jonathan picked LSU to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "The toughest hurdles",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 31 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 23 out of 100 simulated seasons.",
             "rival_note": null,
             "narrative": "Jonathan does not need style points from LSU. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
             "banter": "Jonathan can calculate a launch window. LSU still reserves the right to delay liftoff for football reasons.",
@@ -1817,11 +1806,11 @@
             "line": 8.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.26475,
-            "p_title_if": 0.079257,
-            "p_title_now": 0.047146,
-            "lift": 0.032111,
-            "matching_trials": 5295,
+            "event_probability": 0.21435,
+            "p_title_if": 0.049141,
+            "p_title_now": 0.025058,
+            "lift": 0.024082,
+            "matching_trials": 4287,
             "games_to_watch": [
               {
                 "opponent": "Cincinnati",
@@ -1832,22 +1821,15 @@
                 "rooting_note": "This one could go either way."
               },
               {
-                "opponent": "Houston",
+                "opponent": "Kansas",
                 "home_away": "home",
-                "week": 6,
+                "week": 7,
                 "neutral": false,
-                "p_win": 0.680388,
-                "rooting_note": "Kansas State is favored to beat Houston."
+                "p_win": 0.664069,
+                "rooting_note": "Kansas State is favored to beat Kansas."
               }
             ],
             "stretch": [
-              {
-                "opponent": "Washington State",
-                "home_away": "home",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.819226
-              },
               {
                 "opponent": "Tulane",
                 "home_away": "home",
@@ -1868,6 +1850,13 @@
                 "week": 6,
                 "neutral": false,
                 "p_win": 0.680388
+              },
+              {
+                "opponent": "Kansas",
+                "home_away": "home",
+                "week": 7,
+                "neutral": false,
+                "p_win": 0.664069
               }
             ],
             "condition": "Kansas State wins all of its next 4 games",
@@ -1876,7 +1865,7 @@
             "why": "Jonathan picked Kansas State to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "The toughest hurdles",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 26 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 21 out of 100 simulated seasons.",
             "rival_note": null,
             "narrative": "Jonathan does not need style points from Kansas State. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
             "banter": "Jonathan can calculate a launch window. Kansas State still reserves the right to delay liftoff for football reasons.",
@@ -1888,11 +1877,11 @@
             "line": 10.5,
             "next_games": 4,
             "needed": 4,
-            "event_probability": 0.33795,
-            "p_title_if": 0.075208,
-            "p_title_now": 0.047146,
-            "lift": 0.028063,
-            "matching_trials": 6759,
+            "event_probability": 0.32905,
+            "p_title_if": 0.041926,
+            "p_title_now": 0.025058,
+            "lift": 0.016868,
+            "matching_trials": 6581,
             "games_to_watch": [
               {
                 "opponent": "USC",
@@ -1903,22 +1892,15 @@
                 "rooting_note": "This one could go either way."
               },
               {
-                "opponent": "UCLA",
+                "opponent": "Nebraska",
                 "home_away": "home",
-                "week": 6,
+                "week": 7,
                 "neutral": false,
-                "p_win": 0.799822,
-                "rooting_note": "Oregon is favored to beat UCLA."
+                "p_win": 0.763212,
+                "rooting_note": "Oregon is favored to beat Nebraska."
               }
             ],
             "stretch": [
-              {
-                "opponent": "Oklahoma State",
-                "home_away": "away",
-                "week": 2,
-                "neutral": false,
-                "p_win": 0.801006
-              },
               {
                 "opponent": "Portland State",
                 "home_away": "home",
@@ -1939,6 +1921,13 @@
                 "week": 6,
                 "neutral": false,
                 "p_win": 0.799822
+              },
+              {
+                "opponent": "Nebraska",
+                "home_away": "home",
+                "week": 7,
+                "neutral": false,
+                "p_win": 0.763212
               }
             ],
             "condition": "Oregon wins all of its next 4 games",
@@ -1947,7 +1936,7 @@
             "why": "Jonathan picked Oregon to beat its preseason win target. Wins are good news for that pick.",
             "watch_heading": "The toughest hurdles",
             "difficulty": "Needs a few things to break right",
-            "likelihood_text": "This stretch comes through in about 34 out of 100 simulated seasons.",
+            "likelihood_text": "This stretch comes through in about 33 out of 100 simulated seasons.",
             "rival_note": null,
             "narrative": "Jonathan does not need style points from Oregon. A messy win does the same job for this pick as a blowout. Survive first; look impressive later. This particular route asks for a clean sweep; one wrong result breaks the streak, though other paths remain.",
             "banter": "Jonathan works on rockets. For now, his launch window depends on Oregon. The group is entitled to ask why NASA has not solved this part yet.",
@@ -1969,9 +1958,9 @@
     "teams": [
       {
         "team": "James Madison",
-        "remaining_games": 11,
+        "remaining_games": 10,
         "compared_games": 10,
-        "unrated_games": 1,
+        "unrated_games": 0,
         "schedule_win_change": -0.372,
         "opponent_rating_change": 2.46,
         "direction": "harder",
@@ -2110,11 +2099,11 @@
       },
       {
         "team": "Michigan State",
-        "remaining_games": 11,
-        "compared_games": 11,
+        "remaining_games": 10,
+        "compared_games": 10,
         "unrated_games": 0,
-        "schedule_win_change": 0.281,
-        "opponent_rating_change": -1.664,
+        "schedule_win_change": 0.286,
+        "opponent_rating_change": -1.88,
         "direction": "easier",
         "owners": [
           {
@@ -2122,7 +2111,7 @@
             "display_name": "Chris",
             "direction": "O",
             "line": 4.5,
-            "expected_points_change": 0.281,
+            "expected_points_change": 0.286,
             "effect": "helps"
           }
         ],
@@ -2236,18 +2225,6 @@
             "win_change": -0.05
           },
           {
-            "opponent": "Eastern Michigan",
-            "home_away": "home",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": -16.1,
-            "current_rating": -15.6,
-            "rating_change": 0.5,
-            "draft_p_win": 0.839141,
-            "schedule_only_p_win": 0.834079,
-            "win_change": -0.0051
-          },
-          {
             "opponent": "Notre Dame",
             "home_away": "away",
             "week": 3,
@@ -2262,12 +2239,282 @@
         ]
       },
       {
-        "team": "Ole Miss",
-        "remaining_games": 11,
+        "team": "Tennessee",
+        "remaining_games": 10,
         "compared_games": 10,
+        "unrated_games": 0,
+        "schedule_win_change": -0.285,
+        "opponent_rating_change": 1.93,
+        "direction": "harder",
+        "owners": [
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "direction": "O",
+            "line": 7.5,
+            "expected_points_change": -0.285,
+            "effect": "hurts"
+          }
+        ],
+        "opponents": [
+          {
+            "opponent": "South Carolina",
+            "home_away": "away",
+            "week": 8,
+            "neutral": false,
+            "draft_rating": 12.6,
+            "current_rating": 16.7,
+            "rating_change": 4.1,
+            "draft_p_win": 0.51296,
+            "schedule_only_p_win": 0.437368,
+            "win_change": -0.0756
+          },
+          {
+            "opponent": "Auburn",
+            "home_away": "home",
+            "week": 5,
+            "neutral": false,
+            "draft_rating": 11.5,
+            "current_rating": 7.0,
+            "rating_change": -4.5,
+            "draft_p_win": 0.673911,
+            "schedule_only_p_win": 0.742549,
+            "win_change": 0.0686
+          },
+          {
+            "opponent": "LSU",
+            "home_away": "home",
+            "week": 12,
+            "neutral": false,
+            "draft_rating": 20.4,
+            "current_rating": 23.3,
+            "rating_change": 2.9,
+            "draft_p_win": 0.51666,
+            "schedule_only_p_win": 0.463031,
+            "win_change": -0.0536
+          },
+          {
+            "opponent": "Texas A&M",
+            "home_away": "away",
+            "week": 11,
+            "neutral": false,
+            "draft_rating": 20.9,
+            "current_rating": 23.9,
+            "rating_change": 3.0,
+            "draft_p_win": 0.362862,
+            "schedule_only_p_win": 0.313203,
+            "win_change": -0.0497
+          },
+          {
+            "opponent": "Texas",
+            "home_away": "home",
+            "week": 4,
+            "neutral": false,
+            "draft_rating": 22.8,
+            "current_rating": 25.4,
+            "rating_change": 2.6,
+            "draft_p_win": 0.472251,
+            "schedule_only_p_win": 0.424652,
+            "win_change": -0.0476
+          },
+          {
+            "opponent": "Kentucky",
+            "home_away": "home",
+            "week": 10,
+            "neutral": false,
+            "draft_rating": 5.2,
+            "current_rating": 8.5,
+            "rating_change": 3.3,
+            "draft_p_win": 0.767204,
+            "schedule_only_p_win": 0.720743,
+            "win_change": -0.0465
+          },
+          {
+            "opponent": "Alabama",
+            "home_away": "home",
+            "week": 7,
+            "neutral": false,
+            "draft_rating": 17.6,
+            "current_rating": 20.0,
+            "rating_change": 2.4,
+            "draft_p_win": 0.568093,
+            "schedule_only_p_win": 0.524055,
+            "win_change": -0.044
+          },
+          {
+            "opponent": "Vanderbilt",
+            "home_away": "away",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": 9.8,
+            "current_rating": 12.1,
+            "rating_change": 2.3,
+            "draft_p_win": 0.564454,
+            "schedule_only_p_win": 0.522208,
+            "win_change": -0.0422
+          },
+          {
+            "opponent": "Arkansas",
+            "home_away": "away",
+            "week": 6,
+            "neutral": false,
+            "draft_rating": 5.6,
+            "current_rating": 3.3,
+            "rating_change": -2.3,
+            "draft_p_win": 0.638849,
+            "schedule_only_p_win": 0.677158,
+            "win_change": 0.0383
+          },
+          {
+            "opponent": "Kennesaw State",
+            "home_away": "home",
+            "week": 3,
+            "neutral": false,
+            "draft_rating": -12.9,
+            "current_rating": -7.4,
+            "rating_change": 5.5,
+            "draft_p_win": 0.926446,
+            "schedule_only_p_win": 0.893398,
+            "win_change": -0.033
+          }
+        ]
+      },
+      {
+        "team": "Wake Forest",
+        "remaining_games": 10,
+        "compared_games": 9,
         "unrated_games": 1,
-        "schedule_win_change": -0.235,
-        "opponent_rating_change": 1.21,
+        "schedule_win_change": 0.264,
+        "opponent_rating_change": -1.6,
+        "direction": "easier",
+        "owners": [
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "direction": "O",
+            "line": 5.5,
+            "expected_points_change": 0.264,
+            "effect": "helps"
+          }
+        ],
+        "opponents": [
+          {
+            "opponent": "California",
+            "home_away": "away",
+            "week": 7,
+            "neutral": false,
+            "draft_rating": 3.0,
+            "current_rating": -3.4,
+            "rating_change": -6.4,
+            "draft_p_win": 0.433726,
+            "schedule_only_p_win": 0.551667,
+            "win_change": 0.1179
+          },
+          {
+            "opponent": "NC State",
+            "home_away": "away",
+            "week": 6,
+            "neutral": false,
+            "draft_rating": 5.7,
+            "current_rating": -0.7,
+            "rating_change": -6.4,
+            "draft_p_win": 0.385406,
+            "schedule_only_p_win": 0.501852,
+            "win_change": 0.1164
+          },
+          {
+            "opponent": "Georgia Tech",
+            "home_away": "away",
+            "week": 12,
+            "neutral": false,
+            "draft_rating": 5.9,
+            "current_rating": 1.7,
+            "rating_change": -4.2,
+            "draft_p_win": 0.381902,
+            "schedule_only_p_win": 0.45751,
+            "win_change": 0.0756
+          },
+          {
+            "opponent": "Virginia",
+            "home_away": "home",
+            "week": 9,
+            "neutral": false,
+            "draft_rating": 8.1,
+            "current_rating": 11.5,
+            "rating_change": 3.4,
+            "draft_p_win": 0.48704,
+            "schedule_only_p_win": 0.424652,
+            "win_change": -0.0624
+          },
+          {
+            "opponent": "Stanford",
+            "home_away": "home",
+            "week": 5,
+            "neutral": false,
+            "draft_rating": -2.3,
+            "current_rating": -4.7,
+            "rating_change": -2.4,
+            "draft_p_win": 0.672281,
+            "schedule_only_p_win": 0.710188,
+            "win_change": 0.0379
+          },
+          {
+            "opponent": "Miami",
+            "home_away": "home",
+            "week": 3,
+            "neutral": false,
+            "draft_rating": 22.0,
+            "current_rating": 24.7,
+            "rating_change": 2.7,
+            "draft_p_win": 0.253226,
+            "schedule_only_p_win": 0.217298,
+            "win_change": -0.0359
+          },
+          {
+            "opponent": "Duke",
+            "home_away": "home",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": 5.6,
+            "current_rating": 6.6,
+            "rating_change": 1.0,
+            "draft_p_win": 0.533284,
+            "schedule_only_p_win": 0.51481,
+            "win_change": -0.0185
+          },
+          {
+            "opponent": "Louisville",
+            "home_away": "away",
+            "week": 4,
+            "neutral": false,
+            "draft_rating": 11.1,
+            "current_rating": 10.0,
+            "rating_change": -1.1,
+            "draft_p_win": 0.295948,
+            "schedule_only_p_win": 0.313203,
+            "win_change": 0.0173
+          },
+          {
+            "opponent": "SMU",
+            "home_away": "away",
+            "week": 11,
+            "neutral": false,
+            "draft_rating": 12.1,
+            "current_rating": 11.1,
+            "rating_change": -1.0,
+            "draft_p_win": 0.280751,
+            "schedule_only_p_win": 0.295948,
+            "win_change": 0.0152
+          }
+        ]
+      },
+      {
+        "team": "Ole Miss",
+        "remaining_games": 10,
+        "compared_games": 9,
+        "unrated_games": 1,
+        "schedule_win_change": -0.24,
+        "opponent_rating_change": 1.556,
         "direction": "harder",
         "owners": [
           {
@@ -2275,7 +2522,7 @@
             "display_name": "Jonathan",
             "direction": "U",
             "line": 7.5,
-            "expected_points_change": 0.235,
+            "expected_points_change": 0.24,
             "effect": "helps"
           }
         ],
@@ -2387,26 +2634,163 @@
             "draft_p_win": 0.392447,
             "schedule_only_p_win": 0.352651,
             "win_change": -0.0398
+          }
+        ]
+      },
+      {
+        "team": "Texas",
+        "remaining_games": 10,
+        "compared_games": 10,
+        "unrated_games": 0,
+        "schedule_win_change": -0.232,
+        "opponent_rating_change": 1.54,
+        "direction": "harder",
+        "owners": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "direction": "U",
+            "line": 9.5,
+            "expected_points_change": 0.232,
+            "effect": "helps"
           },
           {
-            "opponent": "Charlotte",
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "direction": "O",
+            "line": 9.5,
+            "expected_points_change": -0.232,
+            "effect": "hurts"
+          }
+        ],
+        "opponents": [
+          {
+            "opponent": "Florida",
             "home_away": "home",
-            "week": 2,
+            "week": 7,
             "neutral": false,
-            "draft_rating": -24.1,
-            "current_rating": -26.0,
-            "rating_change": -1.9,
-            "draft_p_win": 0.964556,
-            "schedule_only_p_win": 0.969065,
-            "win_change": 0.0045
+            "draft_rating": 15.2,
+            "current_rating": 18.6,
+            "rating_change": 3.4,
+            "draft_p_win": 0.702506,
+            "schedule_only_p_win": 0.647349,
+            "win_change": -0.0552
+          },
+          {
+            "opponent": "Texas A&M",
+            "home_away": "away",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": 20.9,
+            "current_rating": 23.9,
+            "rating_change": 3.0,
+            "draft_p_win": 0.461189,
+            "schedule_only_p_win": 0.406663,
+            "win_change": -0.0545
+          },
+          {
+            "opponent": "Oklahoma",
+            "home_away": "away",
+            "week": 6,
+            "neutral": true,
+            "draft_rating": 18.8,
+            "current_rating": 21.7,
+            "rating_change": 2.9,
+            "draft_p_win": 0.573537,
+            "schedule_only_p_win": 0.520359,
+            "win_change": -0.0532
+          },
+          {
+            "opponent": "LSU",
+            "home_away": "away",
+            "week": 11,
+            "neutral": false,
+            "draft_rating": 20.4,
+            "current_rating": 23.3,
+            "rating_change": 2.9,
+            "draft_p_win": 0.470405,
+            "schedule_only_p_win": 0.41743,
+            "win_change": -0.053
+          },
+          {
+            "opponent": "Mississippi State",
+            "home_away": "home",
+            "week": 9,
+            "neutral": false,
+            "draft_rating": 4.8,
+            "current_rating": 9.4,
+            "rating_change": 4.6,
+            "draft_p_win": 0.836119,
+            "schedule_only_p_win": 0.783959,
+            "win_change": -0.0522
+          },
+          {
+            "opponent": "Ole Miss",
+            "home_away": "home",
+            "week": 8,
+            "neutral": false,
+            "draft_rating": 16.5,
+            "current_rating": 13.3,
+            "rating_change": -3.2,
+            "draft_p_win": 0.681997,
+            "schedule_only_p_win": 0.731059,
+            "win_change": 0.0491
+          },
+          {
+            "opponent": "Tennessee",
+            "home_away": "away",
+            "week": 4,
+            "neutral": false,
+            "draft_rating": 17.3,
+            "current_rating": 19.9,
+            "rating_change": 2.6,
+            "draft_p_win": 0.527749,
+            "schedule_only_p_win": 0.479641,
+            "win_change": -0.0481
+          },
+          {
+            "opponent": "Missouri",
+            "home_away": "away",
+            "week": 10,
+            "neutral": false,
+            "draft_rating": 15.4,
+            "current_rating": 12.9,
+            "rating_change": -2.5,
+            "draft_p_win": 0.562632,
+            "schedule_only_p_win": 0.607553,
+            "win_change": 0.0449
+          },
+          {
+            "opponent": "UTSA",
+            "home_away": "home",
+            "week": 3,
+            "neutral": false,
+            "draft_rating": -1.1,
+            "current_rating": 2.9,
+            "rating_change": 4.0,
+            "draft_p_win": 0.887621,
+            "schedule_only_p_win": 0.854504,
+            "win_change": -0.0331
+          },
+          {
+            "opponent": "Arkansas",
+            "home_away": "home",
+            "week": 12,
+            "neutral": false,
+            "draft_rating": 5.6,
+            "current_rating": 3.3,
+            "rating_change": -2.3,
+            "draft_p_win": 0.827836,
+            "schedule_only_p_win": 0.850781,
+            "win_change": 0.0229
           }
         ]
       },
       {
         "team": "Wisconsin",
-        "remaining_games": 11,
+        "remaining_games": 10,
         "compared_games": 10,
-        "unrated_games": 1,
+        "unrated_games": 0,
         "schedule_win_change": -0.223,
         "opponent_rating_change": 1.45,
         "direction": "harder",
@@ -2544,165 +2928,12 @@
         ]
       },
       {
-        "team": "Tennessee",
-        "remaining_games": 11,
-        "compared_games": 11,
-        "unrated_games": 0,
-        "schedule_win_change": -0.217,
-        "opponent_rating_change": 1.373,
-        "direction": "harder",
-        "owners": [
-          {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "direction": "O",
-            "line": 7.5,
-            "expected_points_change": -0.217,
-            "effect": "hurts"
-          }
-        ],
-        "opponents": [
-          {
-            "opponent": "South Carolina",
-            "home_away": "away",
-            "week": 8,
-            "neutral": false,
-            "draft_rating": 12.6,
-            "current_rating": 16.7,
-            "rating_change": 4.1,
-            "draft_p_win": 0.51296,
-            "schedule_only_p_win": 0.437368,
-            "win_change": -0.0756
-          },
-          {
-            "opponent": "Georgia Tech",
-            "home_away": "away",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": 5.9,
-            "current_rating": 1.7,
-            "rating_change": -4.2,
-            "draft_p_win": 0.633706,
-            "schedule_only_p_win": 0.702506,
-            "win_change": 0.0688
-          },
-          {
-            "opponent": "Auburn",
-            "home_away": "home",
-            "week": 5,
-            "neutral": false,
-            "draft_rating": 11.5,
-            "current_rating": 7.0,
-            "rating_change": -4.5,
-            "draft_p_win": 0.673911,
-            "schedule_only_p_win": 0.742549,
-            "win_change": 0.0686
-          },
-          {
-            "opponent": "LSU",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 20.4,
-            "current_rating": 23.3,
-            "rating_change": 2.9,
-            "draft_p_win": 0.51666,
-            "schedule_only_p_win": 0.463031,
-            "win_change": -0.0536
-          },
-          {
-            "opponent": "Texas A&M",
-            "home_away": "away",
-            "week": 11,
-            "neutral": false,
-            "draft_rating": 20.9,
-            "current_rating": 23.9,
-            "rating_change": 3.0,
-            "draft_p_win": 0.362862,
-            "schedule_only_p_win": 0.313203,
-            "win_change": -0.0497
-          },
-          {
-            "opponent": "Texas",
-            "home_away": "home",
-            "week": 4,
-            "neutral": false,
-            "draft_rating": 22.8,
-            "current_rating": 25.4,
-            "rating_change": 2.6,
-            "draft_p_win": 0.472251,
-            "schedule_only_p_win": 0.424652,
-            "win_change": -0.0476
-          },
-          {
-            "opponent": "Kentucky",
-            "home_away": "home",
-            "week": 10,
-            "neutral": false,
-            "draft_rating": 5.2,
-            "current_rating": 8.5,
-            "rating_change": 3.3,
-            "draft_p_win": 0.767204,
-            "schedule_only_p_win": 0.720743,
-            "win_change": -0.0465
-          },
-          {
-            "opponent": "Alabama",
-            "home_away": "home",
-            "week": 7,
-            "neutral": false,
-            "draft_rating": 17.6,
-            "current_rating": 20.0,
-            "rating_change": 2.4,
-            "draft_p_win": 0.568093,
-            "schedule_only_p_win": 0.524055,
-            "win_change": -0.044
-          },
-          {
-            "opponent": "Vanderbilt",
-            "home_away": "away",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": 9.8,
-            "current_rating": 12.1,
-            "rating_change": 2.3,
-            "draft_p_win": 0.564454,
-            "schedule_only_p_win": 0.522208,
-            "win_change": -0.0422
-          },
-          {
-            "opponent": "Arkansas",
-            "home_away": "away",
-            "week": 6,
-            "neutral": false,
-            "draft_rating": 5.6,
-            "current_rating": 3.3,
-            "rating_change": -2.3,
-            "draft_p_win": 0.638849,
-            "schedule_only_p_win": 0.677158,
-            "win_change": 0.0383
-          },
-          {
-            "opponent": "Kennesaw State",
-            "home_away": "home",
-            "week": 3,
-            "neutral": false,
-            "draft_rating": -12.9,
-            "current_rating": -7.4,
-            "rating_change": 5.5,
-            "draft_p_win": 0.926446,
-            "schedule_only_p_win": 0.893398,
-            "win_change": -0.033
-          }
-        ]
-      },
-      {
         "team": "Virginia Tech",
-        "remaining_games": 11,
-        "compared_games": 11,
+        "remaining_games": 10,
+        "compared_games": 10,
         "unrated_games": 0,
-        "schedule_win_change": 0.211,
-        "opponent_rating_change": -1.109,
+        "schedule_win_change": 0.219,
+        "opponent_rating_change": -1.29,
         "direction": "easier",
         "owners": [
           {
@@ -2710,7 +2941,7 @@
             "display_name": "Zach",
             "direction": "O",
             "line": 6.5,
-            "expected_points_change": 0.211,
+            "expected_points_change": 0.219,
             "effect": "helps"
           }
         ],
@@ -2834,330 +3065,16 @@
             "draft_p_win": 0.364576,
             "schedule_only_p_win": 0.381902,
             "win_change": 0.0173
-          },
-          {
-            "opponent": "Old Dominion",
-            "home_away": "home",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": -6.9,
-            "current_rating": -6.2,
-            "rating_change": 0.7,
-            "draft_p_win": 0.809142,
-            "schedule_only_p_win": 0.801006,
-            "win_change": -0.0081
-          }
-        ]
-      },
-      {
-        "team": "Wake Forest",
-        "remaining_games": 11,
-        "compared_games": 10,
-        "unrated_games": 1,
-        "schedule_win_change": 0.201,
-        "opponent_rating_change": -1.1,
-        "direction": "easier",
-        "owners": [
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "direction": "O",
-            "line": 5.5,
-            "expected_points_change": 0.201,
-            "effect": "helps"
-          }
-        ],
-        "opponents": [
-          {
-            "opponent": "California",
-            "home_away": "away",
-            "week": 7,
-            "neutral": false,
-            "draft_rating": 3.0,
-            "current_rating": -3.4,
-            "rating_change": -6.4,
-            "draft_p_win": 0.433726,
-            "schedule_only_p_win": 0.551667,
-            "win_change": 0.1179
-          },
-          {
-            "opponent": "NC State",
-            "home_away": "away",
-            "week": 6,
-            "neutral": false,
-            "draft_rating": 5.7,
-            "current_rating": -0.7,
-            "rating_change": -6.4,
-            "draft_p_win": 0.385406,
-            "schedule_only_p_win": 0.501852,
-            "win_change": 0.1164
-          },
-          {
-            "opponent": "Georgia Tech",
-            "home_away": "away",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 5.9,
-            "current_rating": 1.7,
-            "rating_change": -4.2,
-            "draft_p_win": 0.381902,
-            "schedule_only_p_win": 0.45751,
-            "win_change": 0.0756
-          },
-          {
-            "opponent": "Purdue",
-            "home_away": "away",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": -2.2,
-            "current_rating": 1.2,
-            "rating_change": 3.4,
-            "draft_p_win": 0.529595,
-            "schedule_only_p_win": 0.466716,
-            "win_change": -0.0629
-          },
-          {
-            "opponent": "Virginia",
-            "home_away": "home",
-            "week": 9,
-            "neutral": false,
-            "draft_rating": 8.1,
-            "current_rating": 11.5,
-            "rating_change": 3.4,
-            "draft_p_win": 0.48704,
-            "schedule_only_p_win": 0.424652,
-            "win_change": -0.0624
-          },
-          {
-            "opponent": "Stanford",
-            "home_away": "home",
-            "week": 5,
-            "neutral": false,
-            "draft_rating": -2.3,
-            "current_rating": -4.7,
-            "rating_change": -2.4,
-            "draft_p_win": 0.672281,
-            "schedule_only_p_win": 0.710188,
-            "win_change": 0.0379
-          },
-          {
-            "opponent": "Miami",
-            "home_away": "home",
-            "week": 3,
-            "neutral": false,
-            "draft_rating": 22.0,
-            "current_rating": 24.7,
-            "rating_change": 2.7,
-            "draft_p_win": 0.253226,
-            "schedule_only_p_win": 0.217298,
-            "win_change": -0.0359
-          },
-          {
-            "opponent": "Duke",
-            "home_away": "home",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": 5.6,
-            "current_rating": 6.6,
-            "rating_change": 1.0,
-            "draft_p_win": 0.533284,
-            "schedule_only_p_win": 0.51481,
-            "win_change": -0.0185
-          },
-          {
-            "opponent": "Louisville",
-            "home_away": "away",
-            "week": 4,
-            "neutral": false,
-            "draft_rating": 11.1,
-            "current_rating": 10.0,
-            "rating_change": -1.1,
-            "draft_p_win": 0.295948,
-            "schedule_only_p_win": 0.313203,
-            "win_change": 0.0173
-          },
-          {
-            "opponent": "SMU",
-            "home_away": "away",
-            "week": 11,
-            "neutral": false,
-            "draft_rating": 12.1,
-            "current_rating": 11.1,
-            "rating_change": -1.0,
-            "draft_p_win": 0.280751,
-            "schedule_only_p_win": 0.295948,
-            "win_change": 0.0152
-          }
-        ]
-      },
-      {
-        "team": "Texas",
-        "remaining_games": 11,
-        "compared_games": 11,
-        "unrated_games": 0,
-        "schedule_win_change": -0.184,
-        "opponent_rating_change": 1.155,
-        "direction": "harder",
-        "owners": [
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "direction": "U",
-            "line": 9.5,
-            "expected_points_change": 0.184,
-            "effect": "helps"
-          },
-          {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "direction": "O",
-            "line": 9.5,
-            "expected_points_change": -0.184,
-            "effect": "hurts"
-          }
-        ],
-        "opponents": [
-          {
-            "opponent": "Florida",
-            "home_away": "home",
-            "week": 7,
-            "neutral": false,
-            "draft_rating": 15.2,
-            "current_rating": 18.6,
-            "rating_change": 3.4,
-            "draft_p_win": 0.702506,
-            "schedule_only_p_win": 0.647349,
-            "win_change": -0.0552
-          },
-          {
-            "opponent": "Texas A&M",
-            "home_away": "away",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": 20.9,
-            "current_rating": 23.9,
-            "rating_change": 3.0,
-            "draft_p_win": 0.461189,
-            "schedule_only_p_win": 0.406663,
-            "win_change": -0.0545
-          },
-          {
-            "opponent": "Oklahoma",
-            "home_away": "away",
-            "week": 6,
-            "neutral": true,
-            "draft_rating": 18.8,
-            "current_rating": 21.7,
-            "rating_change": 2.9,
-            "draft_p_win": 0.573537,
-            "schedule_only_p_win": 0.520359,
-            "win_change": -0.0532
-          },
-          {
-            "opponent": "LSU",
-            "home_away": "away",
-            "week": 11,
-            "neutral": false,
-            "draft_rating": 20.4,
-            "current_rating": 23.3,
-            "rating_change": 2.9,
-            "draft_p_win": 0.470405,
-            "schedule_only_p_win": 0.41743,
-            "win_change": -0.053
-          },
-          {
-            "opponent": "Mississippi State",
-            "home_away": "home",
-            "week": 9,
-            "neutral": false,
-            "draft_rating": 4.8,
-            "current_rating": 9.4,
-            "rating_change": 4.6,
-            "draft_p_win": 0.836119,
-            "schedule_only_p_win": 0.783959,
-            "win_change": -0.0522
-          },
-          {
-            "opponent": "Ole Miss",
-            "home_away": "home",
-            "week": 8,
-            "neutral": false,
-            "draft_rating": 16.5,
-            "current_rating": 13.3,
-            "rating_change": -3.2,
-            "draft_p_win": 0.681997,
-            "schedule_only_p_win": 0.731059,
-            "win_change": 0.0491
-          },
-          {
-            "opponent": "Ohio State",
-            "home_away": "home",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": 32.7,
-            "current_rating": 30.0,
-            "rating_change": -2.7,
-            "draft_p_win": 0.392447,
-            "schedule_only_p_win": 0.441017,
-            "win_change": 0.0486
-          },
-          {
-            "opponent": "Tennessee",
-            "home_away": "away",
-            "week": 4,
-            "neutral": false,
-            "draft_rating": 17.3,
-            "current_rating": 19.9,
-            "rating_change": 2.6,
-            "draft_p_win": 0.527749,
-            "schedule_only_p_win": 0.479641,
-            "win_change": -0.0481
-          },
-          {
-            "opponent": "Missouri",
-            "home_away": "away",
-            "week": 10,
-            "neutral": false,
-            "draft_rating": 15.4,
-            "current_rating": 12.9,
-            "rating_change": -2.5,
-            "draft_p_win": 0.562632,
-            "schedule_only_p_win": 0.607553,
-            "win_change": 0.0449
-          },
-          {
-            "opponent": "UTSA",
-            "home_away": "home",
-            "week": 3,
-            "neutral": false,
-            "draft_rating": -1.1,
-            "current_rating": 2.9,
-            "rating_change": 4.0,
-            "draft_p_win": 0.887621,
-            "schedule_only_p_win": 0.854504,
-            "win_change": -0.0331
-          },
-          {
-            "opponent": "Arkansas",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 5.6,
-            "current_rating": 3.3,
-            "rating_change": -2.3,
-            "draft_p_win": 0.827836,
-            "schedule_only_p_win": 0.850781,
-            "win_change": 0.0229
           }
         ]
       },
       {
         "team": "USC",
-        "remaining_games": 10,
-        "compared_games": 10,
+        "remaining_games": 9,
+        "compared_games": 9,
         "unrated_games": 0,
-        "schedule_win_change": 0.181,
-        "opponent_rating_change": -0.89,
+        "schedule_win_change": 0.213,
+        "opponent_rating_change": -1.533,
         "direction": "easier",
         "owners": [
           {
@@ -3165,7 +3082,7 @@
             "display_name": "Chris",
             "direction": "O",
             "line": 8.5,
-            "expected_points_change": 0.181,
+            "expected_points_change": 0.213,
             "effect": "helps"
           }
         ],
@@ -3267,18 +3184,6 @@
             "win_change": 0.0441
           },
           {
-            "opponent": "Louisiana",
-            "home_away": "home",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": -10.6,
-            "current_rating": -5.7,
-            "rating_change": 4.9,
-            "draft_p_win": 0.916261,
-            "schedule_only_p_win": 0.883873,
-            "win_change": -0.0324
-          },
-          {
             "opponent": "Indiana",
             "home_away": "away",
             "week": 11,
@@ -3293,445 +3198,10 @@
         ]
       },
       {
-        "team": "Oregon",
-        "remaining_games": 11,
-        "compared_games": 10,
-        "unrated_games": 1,
-        "schedule_win_change": 0.179,
-        "opponent_rating_change": -1.19,
-        "direction": "easier",
-        "owners": [
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "direction": "O",
-            "line": 10.5,
-            "expected_points_change": 0.179,
-            "effect": "helps"
-          }
-        ],
-        "opponents": [
-          {
-            "opponent": "Oklahoma State",
-            "home_away": "away",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": 6.9,
-            "current_rating": 1.1,
-            "rating_change": -5.8,
-            "draft_p_win": 0.795036,
-            "schedule_only_p_win": 0.856336,
-            "win_change": 0.0613
-          },
-          {
-            "opponent": "Michigan",
-            "home_away": "home",
-            "week": 11,
-            "neutral": false,
-            "draft_rating": 17.0,
-            "current_rating": 12.2,
-            "rating_change": -4.8,
-            "draft_p_win": 0.768525,
-            "schedule_only_p_win": 0.825715,
-            "win_change": 0.0572
-          },
-          {
-            "opponent": "Ohio State",
-            "home_away": "away",
-            "week": 10,
-            "neutral": false,
-            "draft_rating": 32.7,
-            "current_rating": 30.0,
-            "rating_change": -2.7,
-            "draft_p_win": 0.364576,
-            "schedule_only_p_win": 0.412036,
-            "win_change": 0.0475
-          },
-          {
-            "opponent": "Washington",
-            "home_away": "home",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": 15.8,
-            "current_rating": 12.0,
-            "rating_change": -3.8,
-            "draft_p_win": 0.783959,
-            "schedule_only_p_win": 0.827836,
-            "win_change": 0.0439
-          },
-          {
-            "opponent": "Illinois",
-            "home_away": "away",
-            "week": 8,
-            "neutral": false,
-            "draft_rating": 10.4,
-            "current_rating": 7.5,
-            "rating_change": -2.9,
-            "draft_p_win": 0.749566,
-            "schedule_only_p_win": 0.787699,
-            "win_change": 0.0381
-          },
-          {
-            "opponent": "UCLA",
-            "home_away": "home",
-            "week": 6,
-            "neutral": false,
-            "draft_rating": 5.4,
-            "current_rating": 9.2,
-            "rating_change": 3.8,
-            "draft_p_win": 0.88688,
-            "schedule_only_p_win": 0.855422,
-            "win_change": -0.0315
-          },
-          {
-            "opponent": "Nebraska",
-            "home_away": "home",
-            "week": 7,
-            "neutral": false,
-            "draft_rating": 9.3,
-            "current_rating": 12.1,
-            "rating_change": 2.8,
-            "draft_p_win": 0.854504,
-            "schedule_only_p_win": 0.826778,
-            "win_change": -0.0277
-          },
-          {
-            "opponent": "Northwestern",
-            "home_away": "home",
-            "week": 9,
-            "neutral": false,
-            "draft_rating": 5.1,
-            "current_rating": 7.8,
-            "rating_change": 2.7,
-            "draft_p_win": 0.88909,
-            "schedule_only_p_win": 0.867781,
-            "win_change": -0.0213
-          },
-          {
-            "opponent": "Michigan State",
-            "home_away": "away",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 2.2,
-            "current_rating": 1.0,
-            "rating_change": -1.2,
-            "draft_p_win": 0.846018,
-            "schedule_only_p_win": 0.857245,
-            "win_change": 0.0112
-          },
-          {
-            "opponent": "USC",
-            "home_away": "away",
-            "week": 4,
-            "neutral": false,
-            "draft_rating": 17.7,
-            "current_rating": 17.7,
-            "rating_change": 0.0,
-            "draft_p_win": 0.635424,
-            "schedule_only_p_win": 0.635424,
-            "win_change": 0.0
-          }
-        ]
-      },
-      {
-        "team": "Notre Dame",
-        "remaining_games": 11,
-        "compared_games": 11,
-        "unrated_games": 0,
-        "schedule_win_change": -0.168,
-        "opponent_rating_change": 1.155,
-        "direction": "harder",
-        "owners": [
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "direction": "U",
-            "line": 11.5,
-            "expected_points_change": 0.168,
-            "effect": "helps"
-          }
-        ],
-        "opponents": [
-          {
-            "opponent": "Miami",
-            "home_away": "home",
-            "week": 10,
-            "neutral": false,
-            "draft_rating": 22.0,
-            "current_rating": 24.7,
-            "rating_change": 2.7,
-            "draft_p_win": 0.652405,
-            "schedule_only_p_win": 0.605785,
-            "win_change": -0.0466
-          },
-          {
-            "opponent": "Syracuse",
-            "home_away": "away",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": -1.9,
-            "current_rating": 2.7,
-            "rating_change": 4.6,
-            "draft_p_win": 0.859048,
-            "schedule_only_p_win": 0.81255,
-            "win_change": -0.0465
-          },
-          {
-            "opponent": "BYU",
-            "home_away": "away",
-            "week": 7,
-            "neutral": false,
-            "draft_rating": 14.9,
-            "current_rating": 16.8,
-            "rating_change": 1.9,
-            "draft_p_win": 0.637138,
-            "schedule_only_p_win": 0.604015,
-            "win_change": -0.0331
-          },
-          {
-            "opponent": "Purdue",
-            "home_away": "away",
-            "week": 4,
-            "neutral": false,
-            "draft_rating": -2.2,
-            "current_rating": 1.2,
-            "rating_change": 3.4,
-            "draft_p_win": 0.861718,
-            "schedule_only_p_win": 0.82889,
-            "win_change": -0.0328
-          },
-          {
-            "opponent": "North Carolina",
-            "home_away": "away",
-            "week": 5,
-            "neutral": false,
-            "draft_rating": 3.5,
-            "current_rating": 5.8,
-            "rating_change": 2.3,
-            "draft_p_win": 0.803357,
-            "schedule_only_p_win": 0.775048,
-            "win_change": -0.0283
-          },
-          {
-            "opponent": "Boston College",
-            "home_away": "home",
-            "week": 11,
-            "neutral": false,
-            "draft_rating": -2.5,
-            "current_rating": -7.4,
-            "rating_change": -4.9,
-            "draft_p_win": 0.920154,
-            "schedule_only_p_win": 0.943075,
-            "win_change": 0.0229
-          },
-          {
-            "opponent": "Navy",
-            "home_away": "away",
-            "week": 9,
-            "neutral": true,
-            "draft_rating": 1.2,
-            "current_rating": 3.6,
-            "rating_change": 2.4,
-            "draft_p_win": 0.866929,
-            "schedule_only_p_win": 0.84505,
-            "win_change": -0.0219
-          },
-          {
-            "opponent": "Rice",
-            "home_away": "home",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": -15.3,
-            "current_rating": -10.4,
-            "rating_change": 4.9,
-            "draft_p_win": 0.967472,
-            "schedule_only_p_win": 0.953895,
-            "win_change": -0.0136
-          },
-          {
-            "opponent": "Stanford",
-            "home_away": "home",
-            "week": 6,
-            "neutral": false,
-            "draft_rating": -2.3,
-            "current_rating": -4.7,
-            "rating_change": -2.4,
-            "draft_p_win": 0.919059,
-            "schedule_only_p_win": 0.931337,
-            "win_change": 0.0123
-          },
-          {
-            "opponent": "SMU",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 12.1,
-            "current_rating": 11.1,
-            "rating_change": -1.0,
-            "draft_p_win": 0.796241,
-            "schedule_only_p_win": 0.807995,
-            "win_change": 0.0118
-          },
-          {
-            "opponent": "Michigan State",
-            "home_away": "home",
-            "week": 3,
-            "neutral": false,
-            "draft_rating": 2.2,
-            "current_rating": 1.0,
-            "rating_change": -1.2,
-            "draft_p_win": 0.890543,
-            "schedule_only_p_win": 0.898911,
-            "win_change": 0.0084
-          }
-        ]
-      },
-      {
-        "team": "LSU",
-        "remaining_games": 11,
-        "compared_games": 10,
-        "unrated_games": 1,
-        "schedule_win_change": -0.167,
-        "opponent_rating_change": 1.38,
-        "direction": "harder",
-        "owners": [
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "direction": "O",
-            "line": 8.5,
-            "expected_points_change": -0.167,
-            "effect": "hurts"
-          }
-        ],
-        "opponents": [
-          {
-            "opponent": "Auburn",
-            "home_away": "away",
-            "week": 8,
-            "neutral": false,
-            "draft_rating": 11.5,
-            "current_rating": 7.0,
-            "rating_change": -4.5,
-            "draft_p_win": 0.589757,
-            "schedule_only_p_win": 0.667366,
-            "win_change": 0.0776
-          },
-          {
-            "opponent": "Ole Miss",
-            "home_away": "away",
-            "week": 3,
-            "neutral": false,
-            "draft_rating": 16.5,
-            "current_rating": 13.3,
-            "rating_change": -3.2,
-            "draft_p_win": 0.498148,
-            "schedule_only_p_win": 0.557156,
-            "win_change": 0.059
-          },
-          {
-            "opponent": "Mississippi State",
-            "home_away": "home",
-            "week": 7,
-            "neutral": false,
-            "draft_rating": 4.8,
-            "current_rating": 9.4,
-            "rating_change": 4.6,
-            "draft_p_win": 0.810283,
-            "schedule_only_p_win": 0.752336,
-            "win_change": -0.0579
-          },
-          {
-            "opponent": "Texas A&M",
-            "home_away": "home",
-            "week": 4,
-            "neutral": false,
-            "draft_rating": 20.9,
-            "current_rating": 23.9,
-            "rating_change": 3.0,
-            "draft_p_win": 0.564454,
-            "schedule_only_p_win": 0.509258,
-            "win_change": -0.0552
-          },
-          {
-            "opponent": "Kentucky",
-            "home_away": "away",
-            "week": 6,
-            "neutral": false,
-            "draft_rating": 5.2,
-            "current_rating": 8.5,
-            "rating_change": 3.3,
-            "draft_p_win": 0.696277,
-            "schedule_only_p_win": 0.64226,
-            "win_change": -0.054
-          },
-          {
-            "opponent": "Texas",
-            "home_away": "home",
-            "week": 11,
-            "neutral": false,
-            "draft_rating": 22.8,
-            "current_rating": 25.4,
-            "rating_change": 2.6,
-            "draft_p_win": 0.529595,
-            "schedule_only_p_win": 0.48149,
-            "win_change": -0.0481
-          },
-          {
-            "opponent": "Tennessee",
-            "home_away": "away",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 17.3,
-            "current_rating": 19.9,
-            "rating_change": 2.6,
-            "draft_p_win": 0.48334,
-            "schedule_only_p_win": 0.435546,
-            "win_change": -0.0478
-          },
-          {
-            "opponent": "Alabama",
-            "home_away": "home",
-            "week": 10,
-            "neutral": false,
-            "draft_rating": 17.6,
-            "current_rating": 20.0,
-            "rating_change": 2.4,
-            "draft_p_win": 0.623329,
-            "schedule_only_p_win": 0.580768,
-            "win_change": -0.0426
-          },
-          {
-            "opponent": "Arkansas",
-            "home_away": "away",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": 5.6,
-            "current_rating": 3.3,
-            "rating_change": -2.3,
-            "draft_p_win": 0.689974,
-            "schedule_only_p_win": 0.725193,
-            "win_change": 0.0352
-          },
-          {
-            "opponent": "Louisiana Tech",
-            "home_away": "home",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": -9.1,
-            "current_rating": -3.8,
-            "rating_change": 5.3,
-            "draft_p_win": 0.922833,
-            "schedule_only_p_win": 0.889819,
-            "win_change": -0.033
-          }
-        ]
-      },
-      {
         "team": "Indiana",
-        "remaining_games": 11,
+        "remaining_games": 10,
         "compared_games": 10,
-        "unrated_games": 1,
+        "unrated_games": 0,
         "schedule_win_change": 0.154,
         "opponent_rating_change": -1.11,
         "direction": "easier",
@@ -3869,12 +3339,153 @@
         ]
       },
       {
-        "team": "Kansas State",
-        "remaining_games": 11,
-        "compared_games": 11,
+        "team": "Notre Dame",
+        "remaining_games": 10,
+        "compared_games": 10,
         "unrated_games": 0,
-        "schedule_win_change": -0.1,
-        "opponent_rating_change": 0.382,
+        "schedule_win_change": -0.154,
+        "opponent_rating_change": 0.78,
+        "direction": "harder",
+        "owners": [
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "direction": "U",
+            "line": 11.5,
+            "expected_points_change": 0.154,
+            "effect": "helps"
+          }
+        ],
+        "opponents": [
+          {
+            "opponent": "Miami",
+            "home_away": "home",
+            "week": 10,
+            "neutral": false,
+            "draft_rating": 22.0,
+            "current_rating": 24.7,
+            "rating_change": 2.7,
+            "draft_p_win": 0.652405,
+            "schedule_only_p_win": 0.605785,
+            "win_change": -0.0466
+          },
+          {
+            "opponent": "Syracuse",
+            "home_away": "away",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": -1.9,
+            "current_rating": 2.7,
+            "rating_change": 4.6,
+            "draft_p_win": 0.859048,
+            "schedule_only_p_win": 0.81255,
+            "win_change": -0.0465
+          },
+          {
+            "opponent": "BYU",
+            "home_away": "away",
+            "week": 7,
+            "neutral": false,
+            "draft_rating": 14.9,
+            "current_rating": 16.8,
+            "rating_change": 1.9,
+            "draft_p_win": 0.637138,
+            "schedule_only_p_win": 0.604015,
+            "win_change": -0.0331
+          },
+          {
+            "opponent": "Purdue",
+            "home_away": "away",
+            "week": 4,
+            "neutral": false,
+            "draft_rating": -2.2,
+            "current_rating": 1.2,
+            "rating_change": 3.4,
+            "draft_p_win": 0.861718,
+            "schedule_only_p_win": 0.82889,
+            "win_change": -0.0328
+          },
+          {
+            "opponent": "North Carolina",
+            "home_away": "away",
+            "week": 5,
+            "neutral": false,
+            "draft_rating": 3.5,
+            "current_rating": 5.8,
+            "rating_change": 2.3,
+            "draft_p_win": 0.803357,
+            "schedule_only_p_win": 0.775048,
+            "win_change": -0.0283
+          },
+          {
+            "opponent": "Boston College",
+            "home_away": "home",
+            "week": 11,
+            "neutral": false,
+            "draft_rating": -2.5,
+            "current_rating": -7.4,
+            "rating_change": -4.9,
+            "draft_p_win": 0.920154,
+            "schedule_only_p_win": 0.943075,
+            "win_change": 0.0229
+          },
+          {
+            "opponent": "Navy",
+            "home_away": "away",
+            "week": 9,
+            "neutral": true,
+            "draft_rating": 1.2,
+            "current_rating": 3.6,
+            "rating_change": 2.4,
+            "draft_p_win": 0.866929,
+            "schedule_only_p_win": 0.84505,
+            "win_change": -0.0219
+          },
+          {
+            "opponent": "Stanford",
+            "home_away": "home",
+            "week": 6,
+            "neutral": false,
+            "draft_rating": -2.3,
+            "current_rating": -4.7,
+            "rating_change": -2.4,
+            "draft_p_win": 0.919059,
+            "schedule_only_p_win": 0.931337,
+            "win_change": 0.0123
+          },
+          {
+            "opponent": "SMU",
+            "home_away": "home",
+            "week": 12,
+            "neutral": false,
+            "draft_rating": 12.1,
+            "current_rating": 11.1,
+            "rating_change": -1.0,
+            "draft_p_win": 0.796241,
+            "schedule_only_p_win": 0.807995,
+            "win_change": 0.0118
+          },
+          {
+            "opponent": "Michigan State",
+            "home_away": "home",
+            "week": 3,
+            "neutral": false,
+            "draft_rating": 2.2,
+            "current_rating": 1.0,
+            "rating_change": -1.2,
+            "draft_p_win": 0.890543,
+            "schedule_only_p_win": 0.898911,
+            "win_change": 0.0084
+          }
+        ]
+      },
+      {
+        "team": "LSU",
+        "remaining_games": 10,
+        "compared_games": 9,
+        "unrated_games": 1,
+        "schedule_win_change": -0.134,
+        "opponent_rating_change": 0.944,
         "direction": "harder",
         "owners": [
           {
@@ -3882,7 +3493,382 @@
             "display_name": "Jonathan",
             "direction": "O",
             "line": 8.5,
-            "expected_points_change": -0.1,
+            "expected_points_change": -0.134,
+            "effect": "hurts"
+          }
+        ],
+        "opponents": [
+          {
+            "opponent": "Auburn",
+            "home_away": "away",
+            "week": 8,
+            "neutral": false,
+            "draft_rating": 11.5,
+            "current_rating": 7.0,
+            "rating_change": -4.5,
+            "draft_p_win": 0.589757,
+            "schedule_only_p_win": 0.667366,
+            "win_change": 0.0776
+          },
+          {
+            "opponent": "Ole Miss",
+            "home_away": "away",
+            "week": 3,
+            "neutral": false,
+            "draft_rating": 16.5,
+            "current_rating": 13.3,
+            "rating_change": -3.2,
+            "draft_p_win": 0.498148,
+            "schedule_only_p_win": 0.557156,
+            "win_change": 0.059
+          },
+          {
+            "opponent": "Mississippi State",
+            "home_away": "home",
+            "week": 7,
+            "neutral": false,
+            "draft_rating": 4.8,
+            "current_rating": 9.4,
+            "rating_change": 4.6,
+            "draft_p_win": 0.810283,
+            "schedule_only_p_win": 0.752336,
+            "win_change": -0.0579
+          },
+          {
+            "opponent": "Texas A&M",
+            "home_away": "home",
+            "week": 4,
+            "neutral": false,
+            "draft_rating": 20.9,
+            "current_rating": 23.9,
+            "rating_change": 3.0,
+            "draft_p_win": 0.564454,
+            "schedule_only_p_win": 0.509258,
+            "win_change": -0.0552
+          },
+          {
+            "opponent": "Kentucky",
+            "home_away": "away",
+            "week": 6,
+            "neutral": false,
+            "draft_rating": 5.2,
+            "current_rating": 8.5,
+            "rating_change": 3.3,
+            "draft_p_win": 0.696277,
+            "schedule_only_p_win": 0.64226,
+            "win_change": -0.054
+          },
+          {
+            "opponent": "Texas",
+            "home_away": "home",
+            "week": 11,
+            "neutral": false,
+            "draft_rating": 22.8,
+            "current_rating": 25.4,
+            "rating_change": 2.6,
+            "draft_p_win": 0.529595,
+            "schedule_only_p_win": 0.48149,
+            "win_change": -0.0481
+          },
+          {
+            "opponent": "Tennessee",
+            "home_away": "away",
+            "week": 12,
+            "neutral": false,
+            "draft_rating": 17.3,
+            "current_rating": 19.9,
+            "rating_change": 2.6,
+            "draft_p_win": 0.48334,
+            "schedule_only_p_win": 0.435546,
+            "win_change": -0.0478
+          },
+          {
+            "opponent": "Alabama",
+            "home_away": "home",
+            "week": 10,
+            "neutral": false,
+            "draft_rating": 17.6,
+            "current_rating": 20.0,
+            "rating_change": 2.4,
+            "draft_p_win": 0.623329,
+            "schedule_only_p_win": 0.580768,
+            "win_change": -0.0426
+          },
+          {
+            "opponent": "Arkansas",
+            "home_away": "away",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": 5.6,
+            "current_rating": 3.3,
+            "rating_change": -2.3,
+            "draft_p_win": 0.689974,
+            "schedule_only_p_win": 0.725193,
+            "win_change": 0.0352
+          }
+        ]
+      },
+      {
+        "team": "Oregon",
+        "remaining_games": 10,
+        "compared_games": 9,
+        "unrated_games": 1,
+        "schedule_win_change": 0.117,
+        "opponent_rating_change": -0.678,
+        "direction": "easier",
+        "owners": [
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "direction": "O",
+            "line": 10.5,
+            "expected_points_change": 0.117,
+            "effect": "helps"
+          }
+        ],
+        "opponents": [
+          {
+            "opponent": "Michigan",
+            "home_away": "home",
+            "week": 11,
+            "neutral": false,
+            "draft_rating": 17.0,
+            "current_rating": 12.2,
+            "rating_change": -4.8,
+            "draft_p_win": 0.768525,
+            "schedule_only_p_win": 0.825715,
+            "win_change": 0.0572
+          },
+          {
+            "opponent": "Ohio State",
+            "home_away": "away",
+            "week": 10,
+            "neutral": false,
+            "draft_rating": 32.7,
+            "current_rating": 30.0,
+            "rating_change": -2.7,
+            "draft_p_win": 0.364576,
+            "schedule_only_p_win": 0.412036,
+            "win_change": 0.0475
+          },
+          {
+            "opponent": "Washington",
+            "home_away": "home",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": 15.8,
+            "current_rating": 12.0,
+            "rating_change": -3.8,
+            "draft_p_win": 0.783959,
+            "schedule_only_p_win": 0.827836,
+            "win_change": 0.0439
+          },
+          {
+            "opponent": "Illinois",
+            "home_away": "away",
+            "week": 8,
+            "neutral": false,
+            "draft_rating": 10.4,
+            "current_rating": 7.5,
+            "rating_change": -2.9,
+            "draft_p_win": 0.749566,
+            "schedule_only_p_win": 0.787699,
+            "win_change": 0.0381
+          },
+          {
+            "opponent": "UCLA",
+            "home_away": "home",
+            "week": 6,
+            "neutral": false,
+            "draft_rating": 5.4,
+            "current_rating": 9.2,
+            "rating_change": 3.8,
+            "draft_p_win": 0.88688,
+            "schedule_only_p_win": 0.855422,
+            "win_change": -0.0315
+          },
+          {
+            "opponent": "Nebraska",
+            "home_away": "home",
+            "week": 7,
+            "neutral": false,
+            "draft_rating": 9.3,
+            "current_rating": 12.1,
+            "rating_change": 2.8,
+            "draft_p_win": 0.854504,
+            "schedule_only_p_win": 0.826778,
+            "win_change": -0.0277
+          },
+          {
+            "opponent": "Northwestern",
+            "home_away": "home",
+            "week": 9,
+            "neutral": false,
+            "draft_rating": 5.1,
+            "current_rating": 7.8,
+            "rating_change": 2.7,
+            "draft_p_win": 0.88909,
+            "schedule_only_p_win": 0.867781,
+            "win_change": -0.0213
+          },
+          {
+            "opponent": "Michigan State",
+            "home_away": "away",
+            "week": 12,
+            "neutral": false,
+            "draft_rating": 2.2,
+            "current_rating": 1.0,
+            "rating_change": -1.2,
+            "draft_p_win": 0.846018,
+            "schedule_only_p_win": 0.857245,
+            "win_change": 0.0112
+          },
+          {
+            "opponent": "USC",
+            "home_away": "away",
+            "week": 4,
+            "neutral": false,
+            "draft_rating": 17.7,
+            "current_rating": 17.7,
+            "rating_change": 0.0,
+            "draft_p_win": 0.635424,
+            "schedule_only_p_win": 0.635424,
+            "win_change": 0.0
+          }
+        ]
+      },
+      {
+        "team": "Boise State",
+        "remaining_games": 9,
+        "compared_games": 8,
+        "unrated_games": 1,
+        "schedule_win_change": 0.101,
+        "opponent_rating_change": -0.975,
+        "direction": "easier",
+        "owners": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "direction": "O",
+            "line": 7.5,
+            "expected_points_change": 0.101,
+            "effect": "helps"
+          }
+        ],
+        "opponents": [
+          {
+            "opponent": "Fresno State",
+            "home_away": "away",
+            "week": 6,
+            "neutral": false,
+            "draft_rating": -1.4,
+            "current_rating": -7.6,
+            "rating_change": -6.2,
+            "draft_p_win": 0.546164,
+            "schedule_only_p_win": 0.655757,
+            "win_change": 0.1096
+          },
+          {
+            "opponent": "Texas State",
+            "home_away": "home",
+            "week": 9,
+            "neutral": false,
+            "draft_rating": -2.1,
+            "current_rating": -7.8,
+            "rating_change": -5.7,
+            "draft_p_win": 0.696277,
+            "schedule_only_p_win": 0.77762,
+            "win_change": 0.0813
+          },
+          {
+            "opponent": "Colorado State",
+            "home_away": "away",
+            "week": 10,
+            "neutral": false,
+            "draft_rating": -11.6,
+            "current_rating": -7.5,
+            "rating_change": 4.1,
+            "draft_p_win": 0.719249,
+            "schedule_only_p_win": 0.654083,
+            "win_change": -0.0652
+          },
+          {
+            "opponent": "Utah State",
+            "home_away": "home",
+            "week": 5,
+            "neutral": false,
+            "draft_rating": -7.9,
+            "current_rating": -11.5,
+            "rating_change": -3.6,
+            "draft_p_win": 0.778899,
+            "schedule_only_p_win": 0.821409,
+            "win_change": 0.0425
+          },
+          {
+            "opponent": "San Diego State",
+            "home_away": "home",
+            "week": 12,
+            "neutral": false,
+            "draft_rating": 0.7,
+            "current_rating": 3.1,
+            "rating_change": 2.4,
+            "draft_p_win": 0.650724,
+            "schedule_only_p_win": 0.609318,
+            "win_change": -0.0414
+          },
+          {
+            "opponent": "Western Michigan",
+            "home_away": "away",
+            "week": 4,
+            "neutral": false,
+            "draft_rating": -6.0,
+            "current_rating": -4.2,
+            "rating_change": 1.8,
+            "draft_p_win": 0.628532,
+            "schedule_only_p_win": 0.596907,
+            "win_change": -0.0316
+          },
+          {
+            "opponent": "Oregon State",
+            "home_away": "home",
+            "week": 11,
+            "neutral": false,
+            "draft_rating": -5.6,
+            "current_rating": -6.8,
+            "rating_change": -1.2,
+            "draft_p_win": 0.748172,
+            "schedule_only_p_win": 0.764548,
+            "win_change": 0.0164
+          },
+          {
+            "opponent": "Washington State",
+            "home_away": "away",
+            "week": 8,
+            "neutral": false,
+            "draft_rating": -4.3,
+            "current_rating": -3.7,
+            "rating_change": 0.6,
+            "draft_p_win": 0.598688,
+            "schedule_only_p_win": 0.587964,
+            "win_change": -0.0107
+          }
+        ]
+      },
+      {
+        "team": "Kansas State",
+        "remaining_games": 10,
+        "compared_games": 10,
+        "unrated_games": 0,
+        "schedule_win_change": -0.092,
+        "opponent_rating_change": 0.36,
+        "direction": "harder",
+        "owners": [
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "direction": "O",
+            "line": 8.5,
+            "expected_points_change": -0.092,
             "effect": "hurts"
           }
         ],
@@ -4006,147 +3992,6 @@
             "draft_p_win": 0.605785,
             "schedule_only_p_win": 0.621589,
             "win_change": 0.0158
-          },
-          {
-            "opponent": "Washington State",
-            "home_away": "home",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": -4.3,
-            "current_rating": -3.7,
-            "rating_change": 0.6,
-            "draft_p_win": 0.785211,
-            "schedule_only_p_win": 0.77762,
-            "win_change": -0.0076
-          }
-        ]
-      },
-      {
-        "team": "Boise State",
-        "remaining_games": 10,
-        "compared_games": 9,
-        "unrated_games": 1,
-        "schedule_win_change": 0.07,
-        "opponent_rating_change": -0.667,
-        "direction": "easier",
-        "owners": [
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "direction": "O",
-            "line": 7.5,
-            "expected_points_change": 0.07,
-            "effect": "helps"
-          }
-        ],
-        "opponents": [
-          {
-            "opponent": "Fresno State",
-            "home_away": "away",
-            "week": 6,
-            "neutral": false,
-            "draft_rating": -1.4,
-            "current_rating": -7.6,
-            "rating_change": -6.2,
-            "draft_p_win": 0.546164,
-            "schedule_only_p_win": 0.655757,
-            "win_change": 0.1096
-          },
-          {
-            "opponent": "Texas State",
-            "home_away": "home",
-            "week": 9,
-            "neutral": false,
-            "draft_rating": -2.1,
-            "current_rating": -7.8,
-            "rating_change": -5.7,
-            "draft_p_win": 0.696277,
-            "schedule_only_p_win": 0.77762,
-            "win_change": 0.0813
-          },
-          {
-            "opponent": "Colorado State",
-            "home_away": "away",
-            "week": 10,
-            "neutral": false,
-            "draft_rating": -11.6,
-            "current_rating": -7.5,
-            "rating_change": 4.1,
-            "draft_p_win": 0.719249,
-            "schedule_only_p_win": 0.654083,
-            "win_change": -0.0652
-          },
-          {
-            "opponent": "Utah State",
-            "home_away": "home",
-            "week": 5,
-            "neutral": false,
-            "draft_rating": -7.9,
-            "current_rating": -11.5,
-            "rating_change": -3.6,
-            "draft_p_win": 0.778899,
-            "schedule_only_p_win": 0.821409,
-            "win_change": 0.0425
-          },
-          {
-            "opponent": "San Diego State",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 0.7,
-            "current_rating": 3.1,
-            "rating_change": 2.4,
-            "draft_p_win": 0.650724,
-            "schedule_only_p_win": 0.609318,
-            "win_change": -0.0414
-          },
-          {
-            "opponent": "Western Michigan",
-            "home_away": "away",
-            "week": 4,
-            "neutral": false,
-            "draft_rating": -6.0,
-            "current_rating": -4.2,
-            "rating_change": 1.8,
-            "draft_p_win": 0.628532,
-            "schedule_only_p_win": 0.596907,
-            "win_change": -0.0316
-          },
-          {
-            "opponent": "Memphis",
-            "home_away": "home",
-            "week": 2,
-            "neutral": false,
-            "draft_rating": 0.3,
-            "current_rating": 2.1,
-            "rating_change": 1.8,
-            "draft_p_win": 0.657428,
-            "schedule_only_p_win": 0.626801,
-            "win_change": -0.0306
-          },
-          {
-            "opponent": "Oregon State",
-            "home_away": "home",
-            "week": 11,
-            "neutral": false,
-            "draft_rating": -5.6,
-            "current_rating": -6.8,
-            "rating_change": -1.2,
-            "draft_p_win": 0.748172,
-            "schedule_only_p_win": 0.764548,
-            "win_change": 0.0164
-          },
-          {
-            "opponent": "Washington State",
-            "home_away": "away",
-            "week": 8,
-            "neutral": false,
-            "draft_rating": -4.3,
-            "current_rating": -3.7,
-            "rating_change": 0.6,
-            "draft_p_win": 0.598688,
-            "schedule_only_p_win": 0.587964,
-            "win_change": -0.0107
           }
         ]
       }
@@ -4159,260 +4004,88 @@
   "leverage": {
     "board": "projection",
     "available": true,
-    "week": 2,
+    "week": 3,
     "trials": 20000,
     "games": [
       {
         "team": "Texas",
-        "opponent": "Ohio State",
-        "week": 2,
+        "opponent": "UTSA",
+        "week": 3,
         "home_away": "home",
         "neutral": false,
-        "p_team_win": 0.488891,
-        "impact": 0.126342,
+        "p_team_win": 0.876853,
+        "impact": 0.126258,
         "managers": [
           {
             "manager_id": "blaine",
             "display_name": "Blaine",
-            "p_if_win": 0.444933,
-            "p_if_loss": 0.571275,
-            "swing": -0.126342
+            "p_if_win": 0.403671,
+            "p_if_loss": 0.529929,
+            "swing": -0.126258
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.419433,
-            "p_if_loss": 0.352592,
-            "swing": 0.066842
+            "p_if_win": 0.479504,
+            "p_if_loss": 0.410687,
+            "swing": 0.068817
           },
           {
             "manager_id": "chris",
             "display_name": "Chris",
-            "p_if_win": 0.082225,
-            "p_if_loss": 0.035542,
-            "swing": 0.046683
+            "p_if_win": 0.091063,
+            "p_if_loss": 0.039238,
+            "swing": 0.051825
           },
           {
             "manager_id": "jonathan",
             "display_name": "Jonathan",
-            "p_if_win": 0.053408,
-            "p_if_loss": 0.040592,
-            "swing": 0.012817
+            "p_if_win": 0.025763,
+            "p_if_loss": 0.020146,
+            "swing": 0.005617
           }
         ],
-        "headline": "Blaine is rooting for Ohio State.",
+        "headline": "Blaine is rooting for UTSA.",
         "story": "Blaine has the most riding on this one. Zach is rooting for the other side.",
-        "root_for": "Ohio State",
-        "conversation": "Watch the group chat if Ohio State wins: good news for Blaine, bad news for Zach’s title chances. Same final score, very different moods."
-      },
-      {
-        "team": "Boise State",
-        "opponent": "Memphis",
-        "week": 2,
-        "home_away": "home",
-        "neutral": false,
-        "p_team_win": 0.628532,
-        "impact": 0.110617,
-        "managers": [
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "p_if_win": 0.550721,
-            "p_if_loss": 0.440104,
-            "swing": 0.110617
-          },
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.355796,
-            "p_if_loss": 0.435862,
-            "swing": -0.080067
-          },
-          {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "p_if_win": 0.051679,
-            "p_if_loss": 0.067029,
-            "swing": -0.01535
-          },
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "p_if_win": 0.041804,
-            "p_if_loss": 0.057004,
-            "swing": -0.0152
-          }
-        ],
-        "headline": "Blaine is rooting for Boise State.",
-        "story": "Blaine has the most riding on this one. Zach is rooting for the other side.",
-        "root_for": "Boise State",
-        "conversation": "Watch the group chat if Boise State wins: good news for Blaine, bad news for Zach’s title chances. Same final score, very different moods."
-      },
-      {
-        "team": "Notre Dame",
-        "opponent": "Rice",
-        "week": 2,
-        "home_away": "home",
-        "neutral": false,
-        "p_team_win": 0.954862,
-        "impact": 0.108817,
-        "managers": [
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.3802,
-            "p_if_loss": 0.489017,
-            "swing": -0.108817
-          },
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "p_if_win": 0.513533,
-            "p_if_loss": 0.430183,
-            "swing": 0.08335
-          },
-          {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "p_if_win": 0.05855,
-            "p_if_loss": 0.044367,
-            "swing": 0.014183
-          },
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "p_if_win": 0.047717,
-            "p_if_loss": 0.036433,
-            "swing": 0.011283
-          }
-        ],
-        "headline": "Zach is rooting for Rice.",
-        "story": "Zach has the most riding on this one. Blaine is rooting for the other side.",
-        "root_for": "Rice",
-        "conversation": "Watch the group chat if Rice wins: good news for Zach, bad news for Blaine’s title chances. Same final score, very different moods."
-      },
-      {
-        "team": "Wisconsin",
-        "opponent": "Western Illinois",
-        "week": 2,
-        "home_away": "home",
-        "neutral": false,
-        "p_team_win": 0.941463,
-        "impact": 0.108558,
-        "managers": [
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "p_if_win": 0.504054,
-            "p_if_loss": 0.612613,
-            "swing": -0.108558
-          },
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.389704,
-            "p_if_loss": 0.310054,
-            "swing": 0.07965
-          },
-          {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "p_if_win": 0.058479,
-            "p_if_loss": 0.043713,
-            "swing": 0.014767
-          },
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "p_if_win": 0.047762,
-            "p_if_loss": 0.033621,
-            "swing": 0.014142
-          }
-        ],
-        "headline": "Blaine is rooting for Western Illinois.",
-        "story": "Blaine has the most riding on this one. Zach is rooting for the other side.",
-        "root_for": "Western Illinois",
-        "conversation": "Watch the group chat if Western Illinois wins: good news for Blaine, bad news for Zach’s title chances. Same final score, very different moods."
-      },
-      {
-        "team": "Indiana",
-        "opponent": "Howard",
-        "week": 2,
-        "home_away": "home",
-        "neutral": false,
-        "p_team_win": 0.990752,
-        "impact": 0.108146,
-        "managers": [
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "p_if_win": 0.509112,
-            "p_if_loss": 0.617258,
-            "swing": -0.108146
-          },
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.385896,
-            "p_if_loss": 0.306625,
-            "swing": 0.079271
-          },
-          {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "p_if_win": 0.057737,
-            "p_if_loss": 0.043075,
-            "swing": 0.014662
-          },
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "p_if_win": 0.047254,
-            "p_if_loss": 0.033042,
-            "swing": 0.014212
-          }
-        ],
-        "headline": "Blaine is rooting for Howard.",
-        "story": "Blaine has the most riding on this one. Zach is rooting for the other side.",
-        "root_for": "Howard",
-        "conversation": "Watch the group chat if Howard wins: good news for Blaine, bad news for Zach’s title chances. Same final score, very different moods."
+        "root_for": "UTSA",
+        "conversation": "Watch the group chat if UTSA wins: good news for Blaine, bad news for Zach’s title chances. Same final score, very different moods."
       },
       {
         "team": "Wake Forest",
-        "opponent": "Purdue",
-        "week": 2,
-        "home_away": "away",
+        "opponent": "Miami",
+        "week": 3,
+        "home_away": "home",
         "neutral": false,
-        "p_team_win": 0.433726,
-        "impact": 0.106871,
+        "p_team_win": 0.195476,
+        "impact": 0.112525,
         "managers": [
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.446321,
-            "p_if_loss": 0.33945,
-            "swing": 0.106871
+            "p_if_win": 0.562217,
+            "p_if_loss": 0.449692,
+            "swing": 0.112525
           },
           {
             "manager_id": "blaine",
             "display_name": "Blaine",
-            "p_if_win": 0.463421,
-            "p_if_loss": 0.544442,
-            "swing": -0.081021
+            "p_if_win": 0.351675,
+            "p_if_loss": 0.435492,
+            "swing": -0.083817
           },
           {
             "manager_id": "chris",
             "display_name": "Chris",
-            "p_if_win": 0.049388,
-            "p_if_loss": 0.064058,
-            "swing": -0.014671
+            "p_if_win": 0.0666,
+            "p_if_loss": 0.088158,
+            "swing": -0.021558
           },
           {
             "manager_id": "jonathan",
             "display_name": "Jonathan",
-            "p_if_win": 0.040871,
-            "p_if_loss": 0.05205,
-            "swing": -0.011179
+            "p_if_win": 0.019508,
+            "p_if_loss": 0.026658,
+            "swing": -0.00715
           }
         ],
         "headline": "Zach is rooting for Wake Forest.",
@@ -4422,40 +4095,40 @@
       },
       {
         "team": "Virginia Tech",
-        "opponent": "Old Dominion",
-        "week": 2,
-        "home_away": "home",
+        "opponent": "Maryland",
+        "week": 3,
+        "home_away": "away",
         "neutral": false,
-        "p_team_win": 0.842118,
-        "impact": 0.102571,
+        "p_team_win": 0.48704,
+        "impact": 0.112354,
         "managers": [
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.40255,
-            "p_if_loss": 0.299979,
-            "swing": 0.102571
+            "p_if_win": 0.528625,
+            "p_if_loss": 0.416271,
+            "swing": 0.112354
           },
           {
             "manager_id": "blaine",
             "display_name": "Blaine",
-            "p_if_win": 0.496817,
-            "p_if_loss": 0.573604,
-            "swing": -0.076787
+            "p_if_win": 0.377217,
+            "p_if_loss": 0.460221,
+            "swing": -0.083004
           },
           {
             "manager_id": "chris",
             "display_name": "Chris",
-            "p_if_win": 0.055283,
-            "p_if_loss": 0.069763,
-            "swing": -0.014479
+            "p_if_win": 0.072633,
+            "p_if_loss": 0.094921,
+            "swing": -0.022288
           },
           {
             "manager_id": "jonathan",
             "display_name": "Jonathan",
-            "p_if_win": 0.04535,
-            "p_if_loss": 0.056654,
-            "swing": -0.011304
+            "p_if_win": 0.021525,
+            "p_if_loss": 0.028587,
+            "swing": -0.007062
           }
         ],
         "headline": "Zach is rooting for Virginia Tech.",
@@ -4465,40 +4138,40 @@
       },
       {
         "team": "James Madison",
-        "opponent": "Wagner",
-        "week": 2,
-        "home_away": "home",
+        "opponent": "San Diego State",
+        "week": 3,
+        "home_away": "away",
         "neutral": false,
-        "p_team_win": 0.946174,
-        "impact": 0.101525,
+        "p_team_win": 0.366294,
+        "impact": 0.112196,
         "managers": [
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.390975,
-            "p_if_loss": 0.28945,
-            "swing": 0.101525
+            "p_if_win": 0.543329,
+            "p_if_loss": 0.431133,
+            "swing": 0.112196
           },
           {
             "manager_id": "blaine",
             "display_name": "Blaine",
-            "p_if_win": 0.5058,
-            "p_if_loss": 0.581675,
-            "swing": -0.075875
+            "p_if_win": 0.366296,
+            "p_if_loss": 0.449117,
+            "swing": -0.082821
           },
           {
             "manager_id": "chris",
             "display_name": "Chris",
-            "p_if_win": 0.056858,
-            "p_if_loss": 0.071225,
-            "swing": -0.014367
+            "p_if_win": 0.069846,
+            "p_if_loss": 0.092183,
+            "swing": -0.022337
           },
           {
             "manager_id": "jonathan",
             "display_name": "Jonathan",
-            "p_if_win": 0.046367,
-            "p_if_loss": 0.05765,
-            "swing": -0.011283
+            "p_if_win": 0.020529,
+            "p_if_loss": 0.027567,
+            "swing": -0.007037
           }
         ],
         "headline": "Zach is rooting for James Madison.",
@@ -4507,305 +4180,391 @@
         "conversation": "Watch the group chat if James Madison wins: good news for Zach, bad news for Blaine’s title chances. Same final score, very different moods."
       },
       {
-        "team": "Ole Miss",
-        "opponent": "Charlotte",
-        "week": 2,
+        "team": "Indiana",
+        "opponent": "Western Kentucky",
+        "week": 3,
         "home_away": "home",
         "neutral": false,
-        "p_team_win": 0.961112,
-        "impact": 0.035325,
+        "p_team_win": 0.954862,
+        "impact": 0.110904,
         "managers": [
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "p_if_win": 0.045583,
-            "p_if_loss": 0.080908,
-            "swing": -0.035325
-          },
           {
             "manager_id": "blaine",
             "display_name": "Blaine",
-            "p_if_win": 0.510908,
-            "p_if_loss": 0.492458,
-            "swing": 0.01845
+            "p_if_win": 0.414475,
+            "p_if_loss": 0.525379,
+            "swing": -0.110904
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.385675,
-            "p_if_loss": 0.371933,
-            "swing": 0.013742
+            "p_if_win": 0.475342,
+            "p_if_loss": 0.391071,
+            "swing": 0.084271
           },
           {
             "manager_id": "chris",
             "display_name": "Chris",
-            "p_if_win": 0.057833,
-            "p_if_loss": 0.0547,
-            "swing": 0.003133
-          }
-        ],
-        "headline": "Jonathan is rooting for Charlotte.",
-        "story": "Jonathan has the most riding on this one. Blaine is rooting for the other side.",
-        "root_for": "Charlotte",
-        "conversation": "Watch the group chat if Charlotte wins: good news for Jonathan, bad news for Blaine’s title chances. Same final score, very different moods."
-      },
-      {
-        "team": "Tennessee",
-        "opponent": "Georgia Tech",
-        "week": 2,
-        "home_away": "away",
-        "neutral": false,
-        "p_team_win": 0.74113,
-        "impact": 0.028546,
-        "managers": [
-          {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "p_if_win": 0.065383,
-            "p_if_loss": 0.036838,
-            "swing": 0.028546
-          },
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "p_if_win": 0.506292,
-            "p_if_loss": 0.519846,
-            "swing": -0.013554
-          },
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.381833,
-            "p_if_loss": 0.394512,
-            "swing": -0.012679
+            "p_if_win": 0.084725,
+            "p_if_loss": 0.065079,
+            "swing": 0.019646
           },
           {
             "manager_id": "jonathan",
             "display_name": "Jonathan",
-            "p_if_win": 0.046492,
-            "p_if_loss": 0.048804,
-            "swing": -0.002313
+            "p_if_win": 0.025458,
+            "p_if_loss": 0.018471,
+            "swing": 0.006988
           }
         ],
-        "headline": "Chris is rooting for Tennessee.",
-        "story": "Chris has the most riding on this one. Blaine is rooting for the other side.",
-        "root_for": "Tennessee",
-        "conversation": "Watch the group chat if Tennessee wins: good news for Chris, bad news for Blaine’s title chances. Same final score, very different moods."
+        "headline": "Blaine is rooting for Western Kentucky.",
+        "story": "Blaine has the most riding on this one. Zach is rooting for the other side.",
+        "root_for": "Western Kentucky",
+        "conversation": "Watch the group chat if Western Kentucky wins: good news for Blaine, bad news for Zach’s title chances. Same final score, very different moods."
       },
       {
-        "team": "Michigan State",
+        "team": "Wisconsin",
         "opponent": "Eastern Michigan",
-        "week": 2,
+        "week": 3,
         "home_away": "home",
         "neutral": false,
-        "p_team_win": 0.821409,
-        "impact": 0.02735,
+        "p_team_win": 0.792612,
+        "impact": 0.110746,
         "managers": [
-          {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "p_if_win": 0.062883,
-            "p_if_loss": 0.035533,
-            "swing": 0.02735
-          },
           {
             "manager_id": "blaine",
             "display_name": "Blaine",
-            "p_if_win": 0.507633,
-            "p_if_loss": 0.520625,
-            "swing": -0.012992
+            "p_if_win": 0.396058,
+            "p_if_loss": 0.506804,
+            "swing": -0.110746
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.382842,
-            "p_if_loss": 0.395067,
-            "swing": -0.012225
+            "p_if_win": 0.489717,
+            "p_if_loss": 0.405371,
+            "swing": 0.084346
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.087608,
+            "p_if_loss": 0.068279,
+            "swing": 0.019329
           },
           {
             "manager_id": "jonathan",
             "display_name": "Jonathan",
-            "p_if_win": 0.046642,
-            "p_if_loss": 0.048775,
-            "swing": -0.002133
+            "p_if_win": 0.026617,
+            "p_if_loss": 0.019546,
+            "swing": 0.007071
           }
         ],
-        "headline": "Chris is rooting for Michigan State.",
-        "story": "Chris has the most riding on this one. Blaine is rooting for the other side.",
-        "root_for": "Michigan State",
-        "conversation": "Watch the group chat if Michigan State wins: good news for Chris, bad news for Blaine’s title chances. Same final score, very different moods."
+        "headline": "Blaine is rooting for Eastern Michigan.",
+        "story": "Blaine has the most riding on this one. Zach is rooting for the other side.",
+        "root_for": "Eastern Michigan",
+        "conversation": "Watch the group chat if Eastern Michigan wins: good news for Blaine, bad news for Zach’s title chances. Same final score, very different moods."
+      },
+      {
+        "team": "Boise State",
+        "opponent": "South Dakota",
+        "week": 3,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.963529,
+        "impact": 0.104475,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.423588,
+            "p_if_loss": 0.319113,
+            "swing": 0.104475
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.468321,
+            "p_if_loss": 0.547754,
+            "swing": -0.079433
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.083296,
+            "p_if_loss": 0.100654,
+            "swing": -0.017358
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.024796,
+            "p_if_loss": 0.032479,
+            "swing": -0.007683
+          }
+        ],
+        "headline": "Blaine is rooting for Boise State.",
+        "story": "Blaine has the most riding on this one. Zach is rooting for the other side.",
+        "root_for": "Boise State",
+        "conversation": "Watch the group chat if Boise State wins: good news for Blaine, bad news for Zach’s title chances. Same final score, very different moods."
+      },
+      {
+        "team": "Notre Dame",
+        "opponent": "Michigan State",
+        "week": 3,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.900913,
+        "impact": 0.098767,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.429825,
+            "p_if_loss": 0.331058,
+            "swing": 0.098767
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.462433,
+            "p_if_loss": 0.549642,
+            "swing": -0.087208
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.081892,
+            "p_if_loss": 0.101842,
+            "swing": -0.01995
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.02585,
+            "p_if_loss": 0.017458,
+            "swing": 0.008392
+          }
+        ],
+        "headline": "Blaine is rooting for Notre Dame.",
+        "story": "Blaine has the most riding on this one. Zach is rooting for the other side.",
+        "root_for": "Notre Dame",
+        "conversation": "Watch the group chat if Notre Dame wins: good news for Blaine, bad news for Zach’s title chances. Same final score, very different moods."
       },
       {
         "team": "USC",
-        "opponent": "Louisiana",
-        "week": 2,
-        "home_away": "home",
+        "opponent": "Rutgers",
+        "week": 3,
+        "home_away": "away",
         "neutral": false,
-        "p_team_win": 0.883873,
-        "impact": 0.026983,
+        "p_team_win": 0.782702,
+        "impact": 0.039467,
         "managers": [
           {
             "manager_id": "chris",
             "display_name": "Chris",
-            "p_if_win": 0.061012,
-            "p_if_loss": 0.034029,
-            "swing": 0.026983
-          },
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "p_if_win": 0.508471,
-            "p_if_loss": 0.521138,
-            "swing": -0.012667
+            "p_if_win": 0.092392,
+            "p_if_loss": 0.052925,
+            "swing": 0.039467
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.383621,
-            "p_if_loss": 0.395829,
-            "swing": -0.012208
+            "p_if_win": 0.466567,
+            "p_if_loss": 0.4864,
+            "swing": -0.019833
+          },
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.416467,
+            "p_if_loss": 0.434192,
+            "swing": -0.017725
           },
           {
             "manager_id": "jonathan",
             "display_name": "Jonathan",
-            "p_if_win": 0.046896,
-            "p_if_loss": 0.049004,
-            "swing": -0.002108
+            "p_if_win": 0.024575,
+            "p_if_loss": 0.026483,
+            "swing": -0.001908
           }
         ],
         "headline": "Chris is rooting for USC.",
-        "story": "Chris has the most riding on this one. Blaine is rooting for the other side.",
+        "story": "Chris has the most riding on this one. Zach is rooting for the other side.",
         "root_for": "USC",
-        "conversation": "Watch the group chat if USC wins: good news for Chris, bad news for Blaine’s title chances. Same final score, very different moods."
+        "conversation": "Watch the group chat if USC wins: good news for Chris, bad news for Zach’s title chances. Same final score, very different moods."
       },
       {
-        "team": "Oregon",
-        "opponent": "Oklahoma State",
-        "week": 2,
-        "home_away": "away",
-        "neutral": false,
-        "p_team_win": 0.801006,
-        "impact": 0.024842,
-        "managers": [
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "p_if_win": 0.052096,
-            "p_if_loss": 0.027254,
-            "swing": 0.024842
-          },
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "p_if_win": 0.507629,
-            "p_if_loss": 0.520563,
-            "swing": -0.012933
-          },
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "p_if_win": 0.383004,
-            "p_if_loss": 0.392671,
-            "swing": -0.009667
-          },
-          {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "p_if_win": 0.057271,
-            "p_if_loss": 0.059513,
-            "swing": -0.002242
-          }
-        ],
-        "headline": "Jonathan is rooting for Oregon.",
-        "story": "Jonathan has the most riding on this one. Blaine is rooting for the other side.",
-        "root_for": "Oregon",
-        "conversation": "Watch the group chat if Oregon wins: good news for Jonathan, bad news for Blaine’s title chances. Same final score, very different moods."
-      },
-      {
-        "team": "Kansas State",
-        "opponent": "Washington State",
-        "week": 2,
+        "team": "Tennessee",
+        "opponent": "Kennesaw State",
+        "week": 3,
         "home_away": "home",
         "neutral": false,
-        "p_team_win": 0.819226,
-        "impact": 0.024604,
+        "p_team_win": 0.910399,
+        "impact": 0.036954,
         "managers": [
           {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "p_if_win": 0.051367,
-            "p_if_loss": 0.026763,
-            "swing": 0.024604
-          },
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "p_if_win": 0.507625,
-            "p_if_loss": 0.520687,
-            "swing": -0.013062
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.087188,
+            "p_if_loss": 0.050233,
+            "swing": 0.036954
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.383658,
-            "p_if_loss": 0.393104,
-            "swing": -0.009446
+            "p_if_win": 0.469179,
+            "p_if_loss": 0.487842,
+            "swing": -0.018662
           },
           {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "p_if_win": 0.05735,
-            "p_if_loss": 0.059446,
-            "swing": -0.002096
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.418721,
+            "p_if_loss": 0.435283,
+            "swing": -0.016562
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.024913,
+            "p_if_loss": 0.026642,
+            "swing": -0.001729
           }
         ],
-        "headline": "Jonathan is rooting for Kansas State.",
-        "story": "Jonathan has the most riding on this one. Blaine is rooting for the other side.",
-        "root_for": "Kansas State",
-        "conversation": "Watch the group chat if Kansas State wins: good news for Jonathan, bad news for Blaine’s title chances. Same final score, very different moods."
+        "headline": "Chris is rooting for Tennessee.",
+        "story": "Chris has the most riding on this one. Zach is rooting for the other side.",
+        "root_for": "Tennessee",
+        "conversation": "Watch the group chat if Tennessee wins: good news for Chris, bad news for Zach’s title chances. Same final score, very different moods."
       },
       {
-        "team": "LSU",
-        "opponent": "Louisiana Tech",
-        "week": 2,
+        "team": "Ole Miss",
+        "opponent": "LSU",
+        "week": 3,
         "home_away": "home",
         "neutral": false,
-        "p_team_win": 0.909183,
-        "impact": 0.023687,
+        "p_team_win": 0.390682,
+        "impact": 0.027854,
         "managers": [
           {
             "manager_id": "jonathan",
             "display_name": "Jonathan",
-            "p_if_win": 0.049375,
-            "p_if_loss": 0.025687,
-            "swing": 0.023687
+            "p_if_win": 0.007917,
+            "p_if_loss": 0.035771,
+            "swing": -0.027854
           },
           {
             "manager_id": "blaine",
             "display_name": "Blaine",
-            "p_if_win": 0.508617,
-            "p_if_loss": 0.521129,
-            "swing": -0.012513
+            "p_if_win": 0.427725,
+            "p_if_loss": 0.414696,
+            "swing": 0.013029
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.384467,
-            "p_if_loss": 0.393621,
-            "swing": -0.009154
+            "p_if_win": 0.478108,
+            "p_if_loss": 0.466587,
+            "swing": 0.011521
           },
           {
             "manager_id": "chris",
             "display_name": "Chris",
-            "p_if_win": 0.057542,
-            "p_if_loss": 0.059562,
-            "swing": -0.002021
+            "p_if_win": 0.08625,
+            "p_if_loss": 0.082946,
+            "swing": 0.003304
           }
         ],
         "headline": "Jonathan is rooting for LSU.",
         "story": "Jonathan has the most riding on this one. Blaine is rooting for the other side.",
         "root_for": "LSU",
         "conversation": "Watch the group chat if LSU wins: good news for Jonathan, bad news for Blaine’s title chances. Same final score, very different moods."
+      },
+      {
+        "team": "Kansas State",
+        "opponent": "Tulane",
+        "week": 3,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.856336,
+        "impact": 0.01315,
+        "managers": [
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.02705,
+            "p_if_loss": 0.0139,
+            "swing": 0.01315
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.470125,
+            "p_if_loss": 0.475867,
+            "swing": -0.005742
+          },
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.419033,
+            "p_if_loss": 0.424767,
+            "swing": -0.005733
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.083792,
+            "p_if_loss": 0.085467,
+            "swing": -0.001675
+          }
+        ],
+        "headline": "Jonathan is rooting for Kansas State.",
+        "story": "Jonathan has the most riding on this one. Zach is rooting for the other side.",
+        "root_for": "Kansas State",
+        "conversation": "Watch the group chat if Kansas State wins: good news for Jonathan, bad news for Zach’s title chances. Same final score, very different moods."
+      },
+      {
+        "team": "Oregon",
+        "opponent": "Portland State",
+        "week": 3,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.990615,
+        "impact": 0.0124,
+        "managers": [
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.025267,
+            "p_if_loss": 0.012867,
+            "swing": 0.0124
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.470875,
+            "p_if_loss": 0.476317,
+            "swing": -0.005442
+          },
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.41985,
+            "p_if_loss": 0.4252,
+            "swing": -0.00535
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.084008,
+            "p_if_loss": 0.085617,
+            "swing": -0.001608
+          }
+        ],
+        "headline": "Jonathan is rooting for Oregon.",
+        "story": "Jonathan has the most riding on this one. Zach is rooting for the other side.",
+        "root_for": "Oregon",
+        "conversation": "Watch the group chat if Oregon wins: good news for Jonathan, bad news for Zach’s title chances. Same final score, very different moods."
       }
     ],
     "method": "One game forced each way; all other draws shared, ratings fixed. Tied titles split equally. Monte Carlo estimates."
