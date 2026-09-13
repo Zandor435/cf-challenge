@@ -103,6 +103,20 @@ def test_window():
     check("full Saturday slate -> run", run, why)
 
 
+def test_sunday_early_passes():
+    """The 09:07 and 10:07 UTC Sunday fires must open off Saturday's slate.
+
+    Offsets are from NOW (Sunday 13:00 UTC): -21h is Saturday's noon ET kick,
+    -8h01m is 04:59 UTC, the latest Hawaii kickoff on the 2026 schedule.
+    """
+    print("\nearly Sunday passes (before 9am ET church)")
+    slate = (-21, -17, -13, -10, -8 - 1 / 60)
+    for hh in (9, 10):
+        now = datetime(2026, 9, 13, hh, 7, tzinfo=timezone.utc)
+        run, why = verdict(cache(offsets_h=slate), now=now)
+        check(f"Sunday {hh:02d}:07 UTC after a Saturday slate -> run", run, why)
+
+
 def test_season_edges():
     """Pre-season and post-season, both self-removing rather than date literals."""
     print("\nseason edges")
@@ -187,6 +201,7 @@ def test_emitted_contract():
 def main():
     test_run_escapes()
     test_window()
+    test_sunday_early_passes()
     test_season_edges()
     test_bye_week_is_called_out()
     test_malformed_input_is_tolerated()

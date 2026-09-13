@@ -9,8 +9,24 @@ on:
   #
   # GitHub disables cron on a repo with no pushes for 60 days — if the boards
   # ever go quiet in the off-season, re-enable it before kickoff.
+  #
+  # SUNDAY EARLY PASSES. The board has to be current before church (9am ET
+  # Sunday), and the 13:00 slot can't promise that: GitHub queues scheduled
+  # runs behind load, and through Sept 2026 that cron started 3-4h late (the
+  # 2026-09-13 run began at 16:45 UTC, 12:45pm ET). So Sunday gets two extra
+  # fires, off the top of the hour because :00 is the most congested slot:
+  #   09:07 UTC  5:07am EDT  head start that absorbs the queue lag
+  #   10:07 UTC  6:07am EDT  the 6am pass; also scores a late Hawaii kickoff
+  #                          (latest on the 2026 slate is 04:59 UTC) that was
+  #                          still in progress at 09:07
+  # Cron is UTC, so after DST ends (Nov 1) both land an hour earlier in ET —
+  # still before church. The gate opens for all three Sunday fires off the
+  # same Saturday slate; each pass costs 3 CFBD calls and re-files the same
+  # week's column (idempotent), so the extra fires are cheap and safe.
   schedule:
     - cron: "0 13 * * *"
+    - cron: "7 9 * * 0"
+    - cron: "7 10 * * 0"
   workflow_dispatch: {}  # manual trigger — always bypasses the gate
 
 # This pipeline has NO `on: push` trigger, so nothing it commits can re-trigger
