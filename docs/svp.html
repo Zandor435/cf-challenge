@@ -494,7 +494,7 @@
       var html = rows.join('');
       if (c.implied_expected_wins !== null && c.implied_expected_wins !== undefined) {
         html += '<p class="svp-dispute-foot">Model implied total: ' +
-                esc(String(c.implied_expected_wins)) + ' wins</p>';
+                esc(fmtLine(c.implied_expected_wins)) + ' wins</p>';
       }
 
       document.getElementById('svp-dispute-head').textContent = 'The ' + c.team + ' dispute';
@@ -518,8 +518,8 @@
       var rows = [
         ['Manager', f.manager],
         ['Pick', word + ' ' + f.line],
-        ['Model implied', f.expected_final_wins],
-        ['Market gap', f.expected_delta, gapCls],
+        ['Projected finish', fmtLine(f.expected_final_wins)],
+        ['Pick pace', fmtSigned(f.expected_delta), gapCls],
       ].filter(function (r) {
         return r[1] !== null && r[1] !== undefined && String(r[1]).trim() !== '';
       }).map(function (r) {

@@ -31,6 +31,8 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
+import pace
+import pregame
 
 # --- Tuning knobs (exposed on purpose — these get A/B'd, §4/§12) -------------
 # scale/HFA JOINTLY fitted on the leak-free market bridge (calibrate_spread.py,
@@ -47,16 +49,10 @@ FCS_FALLBACK_RATING = -35.0        # SP+ for an unrated (typically FCS) opponent
 POOL_SIM_TRIALS = 20000            # Monte-Carlo trials for shared-draw pool odds
 POOL_SIM_SEED_BASE = 20250101      # base seed; combined w/ group + week for reproducibility
 
-# Display buckets for the per-game outlook. PRESENTATION ONLY — nothing scores
-# off these, and no probability is rounded or clipped by them; they exist so the
-# site can say "likely win / toss-up / likely loss" without the page deciding
-# where those words start. Tuning knobs, named here rather than inlined at the
-# call site, for the same reason the two constants above are (ARCHITECTURE §3).
-# The band is deliberately WIDE: at the calibrated 13.5-point scale a 0.65 game
-# is only about a touchdown-and-a-half favourite, and calling anything closer
-# than that "likely" would put a confident word on a coin flip.
-LIKELY_WIN_THRESHOLD = 0.65        # p_win >= this  -> likely_win
-LIKELY_LOSS_THRESHOLD = 0.35       # p_win <= this  -> likely_loss
+# Presentation only: raw probabilities still feed all calculations.
+LIKELY_WIN_THRESHOLD = 0.60        # strictly above -> Expected Win
+LIKELY_LOSS_THRESHOLD = 0.40       # strictly below -> Expected Loss
+# Legacy actual-vs-model diagnostic is retained in JSON, never used as pace.
 PACE_ON_PACE_BAND = 0.5            # |actual - expected| < this -> "on_pace"
 
 
@@ -105,9 +101,9 @@ def played_win_probs(state, sp_ratings):
 
 def game_bucket(p):
     """Display bucket for one game's win probability. Presentation only."""
-    if p >= LIKELY_WIN_THRESHOLD:
+    if p > LIKELY_WIN_THRESHOLD:
         return "likely_win"
-    if p <= LIKELY_LOSS_THRESHOLD:
+    if p < LIKELY_LOSS_THRESHOLD:
         return "likely_loss"
     return "toss_up"
 
@@ -132,9 +128,9 @@ def game_outlook(games, probs):
     for g, p in zip(games, probs):
         bucket = game_bucket(p)
         counts[tally[bucket]] += 1
-        rows.append({"week": g["week"], "opponent": g["opponent"],
+        rows.append({**g, "week": g["week"], "opponent": g["opponent"],
                      "home_away": g["home_away"], "neutral": bool(g["neutral"]),
-                     "p_win": round(float(p), 4), "p_win_pct": _percent(p),
+                     "p_win": float(p), "p_win_pct": _percent(p),
                      "bucket": bucket})
     return rows, counts
 
@@ -175,7 +171,7 @@ def poisson_binomial(probs):
 
 def signed_delta(direction, final_wins, line):
     """Delta in the pick's O/U direction; accepts scalars or numpy arrays."""
-    return (final_wins - line) if direction == "O" else (line - final_wins)
+    return pace.team_pace(direction, final_wins, line)
 
 
 def _safe_canonical(name):
@@ -374,7 +370,10 @@ def _team_cache(config, picks, as_of_week, sp_ratings):
                                 # workaround as preseason_baseline.py:416.
                                 "banked_games": (st["games_scheduled"]
                                                  - st["games_remaining"]),
-                                "played_probs": played_win_probs(st, sp_ratings)}
+                                "played_probs": played_win_probs(st, sp_ratings),
+                                "played_games": st["played_games"],
+                                "banked_losses": st["banked_losses"],
+                                "rating_estimated": (sp_ratings.get(canonical) or {}).get("rating") is None}
     return cache
 
 
@@ -438,28 +437,13 @@ def simulate_totals(config, picks, as_of_week=None, team_cache=None, return_draw
 
 
 # --- Display rounding: the parts must add to the whole ON SCREEN -------------
-# The Portfolios card prints a manager's expected_total as their headline and
-# each pick's expected_delta as a line item beneath it. `expected_total` IS the
-# sum of those deltas, so the identity holds in the data — but the card shows
-# one decimal, and four independently-rounded deltas can miss their own rounded
-# total by up to 0.2. A column of numbers that visibly does not add up is the
-# exact confusion this card was reworked to remove, so the rounding is done HERE,
-# once, by largest remainder, and published as strings the site prints verbatim.
-#
-# Same posture as `p_win_pct` (output-contract.md): the site never divides, never
-# rounds, and never sums — it iterates and prints.
-
+# Display strings round each value independently. Raw values determine rank.
 DISPLAY_DECIMALS = 1
 
 
 def _half_away(x):
-    """Round-half-away-from-zero at DISPLAY_DECIMALS, in integer units of the
-    last decimal place. Python's round() is half-to-even, which would render
-    0.05 and 0.15 to different-looking places for no reason a reader could
-    follow; the largest-remainder pass below corrects the total either way, so
-    this is purely about each individual figure landing where a reader expects."""
-    scaled = x * (10 ** DISPLAY_DECIMALS)
-    return int(scaled + (0.5 if scaled >= 0 else -0.5))
+    """Round half away from zero to an integer number of display tenths."""
+    return pace.display_units(x)
 
 
 def _fmt_signed(units):
@@ -472,48 +456,11 @@ def _fmt_signed(units):
 
 
 def display_deltas(total, deltas):
-    """(total_display, [delta_display, ...]) at DISPLAY_DECIMALS, where the
-    delta strings sum EXACTLY to the total string.
-
-    Largest remainder: round every part the ordinary way, then hand the shortfall
-    (or surplus) one step at a time to the parts whose rounding error already
-    leans that way. Nothing moves by more than one step in the last decimal
-    place, so no figure is misreported to make the column add up — the arithmetic
-    is unchanged, only which side of a tie each rounding falls on.
-
-    A manager with no picks gets ("0.0", []), which is what an empty sum is."""
-    target = _half_away(total)
-    parts = [_half_away(d) for d in deltas]
-    if not parts:
-        return _fmt_signed(target), []
-
-    diff = target - sum(parts)
-    if diff:
-        step = 1 if diff > 0 else -1
-        # Residual = how much each part lost to rounding. Give the steps to the
-        # parts that were rounded hardest in the direction we need to move.
-        residual = [d * (10 ** DISPLAY_DECIMALS) - parts[i] for i, d in enumerate(deltas)]
-        order = sorted(range(len(parts)), key=lambda i: residual[i], reverse=(diff > 0))
-        for k in range(abs(diff)):
-            parts[order[k % len(order)]] += step
-
-    return _fmt_signed(target), [_fmt_signed(u) for u in parts]
+    """Independent one-decimal rounding; never adjust a pick to force a sum."""
+    return _fmt_signed(_half_away(total)), [_fmt_signed(_half_away(d)) for d in deltas]
 
 
-# --- Week-over-week move on the PROJECTED total ------------------------------
-# WHY THIS NUMBER AND NOT THE EXACT ONE. The site's other "move" column measures
-# the change in banked_total, and it inherits banked_total's defect as a
-# progress read: every pick starts at +/- its line, so an UNDER holder's exact
-# score falls every week they are winning the bet and an OVER holder's rises
-# while they are losing it. A week-over-week change in the PROJECTED total is
-# free of that — it moves only when the model's view of the season moved, which
-# is what a one-week trend is supposed to mean.
-#
-# BOARD 2 MEASURES ITSELF. The move belongs on projection.json rather than on
-# standings.json (exact, and it would be mixing boards) or analytics.json (Board
-# 3 is a reshape, and index.html does not fetch it). The prior value it is
-# measured against comes from timeline.json's per-pick expected_delta, which
-# run_groups has recorded in every snapshot since the file existed.
+# Historical projections retain their original precision and vintage.
 
 
 def prior_expected_totals(prior):
@@ -528,7 +475,7 @@ def prior_expected_totals(prior):
     for m in (prior or {}).get("managers", []):
         deltas = [p.get("expected_delta") for p in m.get("picks", [])]
         if deltas and all(d is not None for d in deltas):
-            out[m["manager_id"]] = round(sum(deltas), 2)
+            out[m["manager_id"]] = pace.manager_pace(deltas)
     return out
 
 
@@ -590,6 +537,11 @@ def build_game_leverage(config, picks, as_of_week=None, team_cache=None):
             team = utils.resolve_canonical(pick['team'])
             coefficients[mid][team] = coefficients[mid].get(team, 0) + (
                 1 if pick['direction'] == 'O' else -1)
+    current_pace = {mid: pace.manager_pace(
+        pace.team_pace(p['direction'], pace.projected_final_wins(
+            team_cache[utils.resolve_canonical(p['team'])]['banked_wins'],
+            team_cache[utils.resolve_canonical(p['team'])]['probs']), float(p['line']))
+        for p in by_mgr[mid]) for mid in order}
     pair_by_slot = {(team, gi): info for info in pairs.values()
                     for team, gi in info['slots'].items()}
     seen = set()
@@ -624,6 +576,14 @@ def build_game_leverage(config, picks, as_of_week=None, team_cache=None):
                          'p_if_loss': round(float(branches[1][i]), 6),
                          'swing': round(float(branches[0][i] - branches[1][i]), 6)}
                         for i, mid in enumerate(order)]
+            for manager in managers:
+                mid = manager['manager_id']
+                manager['pace_now'] = current_pace[mid]
+                for outcome, field in ((1, 'pace_if_win'), (0, 'pace_if_loss')):
+                    changes = [coefficients[mid].get(t, 0) *
+                               ((outcome if t == team else 1 - outcome) - team_cache[t]['probs'][slot])
+                               for t, slot in affected.items()]
+                    manager[field] = current_pace[mid] + pace.manager_pace(changes)
             managers.sort(key=lambda m: (-abs(m['swing']), m['manager_id']))
             result['games'].append({
                 'team': team, 'opponent': game['opponent'], 'week': next_week,
@@ -719,8 +679,8 @@ def build_title_routes(config, picks, as_of_week=None, team_cache=None):
     return result
 
 
-def build_projection(config, picks, as_of_week=None, prior=None):
-    """Full projection.json object for a group (no I/O).
+def build_projection(config, picks, as_of_week=None, prior=None, include_simulation=True):
+    """Build projection.json; reads preserved pregame forecasts, writes nothing.
 
     `prior` is the timeline snapshot the week-over-week move is measured
     against (see load_prior_snapshot). None — the caller passing nothing, a
@@ -735,7 +695,14 @@ def build_projection(config, picks, as_of_week=None, prior=None):
     order, by_mgr = _group_by_manager(config, picks)
 
     # Pool sim (shared draws) — reuses the same team_cache the dists come from.
-    _, totals, p_win_pool = simulate_totals(config, picks, as_of_week, team_cache)
+    totals, p_win_pool, simulation_error = {}, {}, None
+    if include_simulation:
+        try:
+            _, totals, p_win_pool = simulate_totals(config, picks, as_of_week, team_cache)
+        except Exception as exc:
+            simulation_error = str(exc)
+            print(f"::warning:: Title simulation unavailable: {exc}")
+    forecasts = pregame.load_forecasts(config["group_id"], season)
 
     def pick_projection(pick):
         canonical = utils.resolve_canonical(pick["team"])
@@ -744,8 +711,8 @@ def build_projection(config, picks, as_of_week=None, prior=None):
         bw, probs = info["banked_wins"], info["probs"]
         dist = poisson_binomial(probs)                 # index j = additional wins
         finals = bw + np.arange(len(dist))             # final win totals
-        exp_final = bw + float(sum(probs))
-        exp_delta = signed_delta(direction, exp_final, line)
+        exp_final = pace.projected_final_wins(bw, probs)
+        exp_delta = pace.team_pace(direction, exp_final, line)
         p_beat = float(dist[finals > line].sum()) if direction == "O" \
             else float(dist[finals < line].sum())
         # Per-game view of the SAME probabilities the distribution above is
@@ -753,17 +720,24 @@ def build_projection(config, picks, as_of_week=None, prior=None):
         # are parallel arrays in schedule order (_team_cache builds both off one
         # team_state), so zipping them cannot mis-pair a game with its odds.
         rows, counts = game_outlook(info["remaining_games"], probs)
+        for row in rows:
+            row["probability_estimated"] = info["rating_estimated"] or (sp_ratings.get(row["opponent"]) or {}).get("rating") is None
+        completed = pregame.completed_rows(canonical, info["played_games"], forecasts, game_bucket, _percent)
         assert sum(counts.values()) == len(probs), \
             "outlook buckets must account for every remaining game"
         return {
             "team": canonical, "conference": info["conference"],
             "line": line, "direction": direction,
             "p_beat_line": round(p_beat, 6),
-            "expected_delta": round(exp_delta, 2),
-            "expected_final_wins": round(exp_final, 3),
+            "expected_delta": exp_delta,
+            "expected_final_wins": exp_final,
             "win_distribution": [{"wins": int(w), "prob": round(float(pr), 6)}
                                  for w, pr in zip(finals, dist)],
             "remaining_games": rows,
+            "played_games": completed,
+            "banked_wins": bw,
+            "banked_losses": info["banked_losses"],
+            "floor": pace.team_pace(direction, bw if direction == "O" else bw + len(probs), line),
             "outlook": counts,
             "pace": pace_state(info["banked_games"], bw,
                                float(sum(info["played_probs"]))),
@@ -775,19 +749,18 @@ def build_projection(config, picks, as_of_week=None, prior=None):
     managers = []
     for mid in order:
         mpicks = [pick_projection(p) for p in by_mgr[mid]]
-        arr = totals[mid]
-        p05, p50, p95 = (float(np.percentile(arr, q)) for q in (5, 50, 95))
+        arr = totals.get(mid)
+        p05, p50, p95 = ((float(np.percentile(arr, q)) for q in (5, 50, 95))
+                         if arr is not None else (None, None, None))
         # Summed, not accumulated, so it is the SAME arithmetic the renderer
         # reproduces when it prints each pick's expected_delta as a line item
         # under this figure. The card's whole claim is that the parts add to the
         # whole; a total computed any other way would be a second answer.
-        expected_total = round(sum(p["expected_delta"] for p in mpicks), 2)
+        expected_total = pace.manager_pace(p["expected_delta"] for p in mpicks)
         was = prior_totals.get(mid)
-        move = round(expected_total - was, 2) if was is not None else None
+        move = expected_total - was if was is not None else None
 
-        # Display strings, rounded together so the line items add to the
-        # headline on screen (see display_deltas). Written back onto each pick so
-        # the renderer reads one field per number and formats nothing.
+        # Display-only rounding; all aggregation and ordering use raw values.
         total_display, delta_displays = display_deltas(
             expected_total, [p["expected_delta"] for p in mpicks])
         for pick_row, text in zip(mpicks, delta_displays):
@@ -802,13 +775,16 @@ def build_projection(config, picks, as_of_week=None, prior=None):
             "expected_total_move": move,
             "expected_total_move_display": (_fmt_signed(_half_away(move))
                                             if move is not None else None),
-            "p05": round(p05, 2),
-            "p50": round(p50, 2),
-            "p95": round(p95, 2),
-            "p_win_pool": round(p_win_pool.get(mid, 0.0), 6),
+            "p05": round(p05, 2) if p05 is not None else None,
+            "p50": round(p50, 2) if p50 is not None else None,
+            "p95": round(p95, 2) if p95 is not None else None,
+            "p_win_pool": round(p_win_pool[mid], 6) if mid in p_win_pool else None,
+            "floor": pace.manager_pace(p["floor"] for p in mpicks),
             "picks": mpicks,
         })
-    managers.sort(key=lambda m: (-m["p_win_pool"], -m["expected_total"], m["manager_id"]))
+    managers.sort(key=pace.rank_key)
+    for rank, manager in enumerate(managers, 1):
+        manager["rank"] = rank
 
     cm = utils.cache_meta(season)
     return {
@@ -819,6 +795,8 @@ def build_projection(config, picks, as_of_week=None, prior=None):
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "cache_fetched_at": cm["fetched_at"],
             "ratings_source": "SP+",
+            "scoring_metric": "pace",
+            "simulation_error": simulation_error,
             "ratings_asof": cm["fetched_at"],
             # The week every expected_total_move is measured against — null when
             # no snapshot qualified, which is what makes an all-null move column
@@ -838,13 +816,8 @@ def write_projection(config, picks, as_of_week=None, prior=None):
     instead — it reads the timeline once, before appending this week's snapshot,
     and hands the same object to both boards so the two cannot disagree about
     which week they measured against."""
-    gid = config["group_id"]
-    if prior is None:
-        prior = load_prior_snapshot(gid, as_of_week)
-    out = build_projection(config, picks, as_of_week, prior)
-    path = utils.WEB_DATA_DIR / gid / "projection.json"
-    utils.save_json_atomic(path, out)
-    return out
+    from run_groups import publish_pace
+    return publish_pace(config, picks, as_of_week, utils.group_draft_status(config["group_id"]), prior)[1]
 
 
 def main():
@@ -864,7 +837,7 @@ def main():
         config, picks = utils.load_group(slug)
         out = write_projection(config, picks, args.as_of_week)
         top = out["managers"][0] if out["managers"] else None
-        lead = f"{top['display_name']} P(win)={top['p_win_pool']:.1%}" if top else "(no managers)"
+        lead = f"{top['display_name']} pace={top['expected_total']:+.1f}" if top else "(no managers)"
         print(f"  [{slug}] projection.json — {len(out['managers'])} managers, "
               f"favorite: {lead}")
 

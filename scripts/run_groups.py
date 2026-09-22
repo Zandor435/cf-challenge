@@ -82,11 +82,15 @@ def build_snapshot(standings, projection, eff_week):
                 "floor": sp["floor"],
                 "ceiling": sp["ceiling"],
                 "expected_delta": pp.get("expected_delta"),
+                "expected_final_wins": pp.get("expected_final_wins"),
+                "line": sp.get("line"), "direction": sp.get("direction"),
                 "p_beat_line": pp.get("p_beat_line"),
             })
         managers.append({
             "manager_id": mid,
             "p_win_pool": proj_mgr.get(mid, {}).get("p_win_pool"),
+            "expected_total": sm.get("expected_total"),
+            "rank": sm.get("rank"),
             "picks": picks,
         })
     return {
@@ -219,6 +223,50 @@ def run_fetch():
               f"existing cache (degraded).")
 
 
+def publish_pace(config, picks, as_of_week=None, draft_status=None, prior=None):
+    """Publish one coherent pace generation; retain the last valid one on failure."""
+    from datetime import datetime, timezone
+    import pregame
+    directory = utils.WEB_DATA_DIR / config["group_id"]
+    try:
+        if prior is None:
+            prior = projector.load_prior_snapshot(config["group_id"], as_of_week)
+        projection = projector.build_projection(config, picks, as_of_week, prior)
+        standings = scoring.build_standings(config, picks, as_of_week, draft_status, projection)
+    except Exception as exc:
+        print(f"::warning:: [{config['group_id']}] Pace refresh failed: {exc}")
+        try:
+            standings = pregame._read(directory / "standings.json")
+            projection = pregame._read(directory / "projection.json")
+            assert standings["meta"].get("scoring_metric") == "pace"
+            assert standings["meta"]["season"] == utils.get_season()
+            assert standings["meta"].get("as_of_week") == as_of_week
+            assert standings["meta"].get("count_conference_championship") == utils.counts_conference_championship(config)
+            assert standings["meta"]["generated_at"] == projection["meta"]["generated_at"]
+            old_picks = sorted((m["manager_id"], p["team"], p["direction"], p["line"])
+                               for m in standings["managers"] for p in m["picks"])
+            new_picks = sorted((p["manager"], p["team"], p["direction"], p["line"])
+                               for p in utils.real_picks(picks))
+            assert old_picks == new_picks
+        except (OSError, ValueError, KeyError, AssertionError):
+            standings = scoring.build_standings(config, picks, as_of_week, draft_status, {"managers": []})
+            projection = {"meta": dict(standings["meta"]), "managers": []}
+        for output in (standings, projection):
+            output["meta"].update(pace_stale=True, refresh_error=str(exc),
+                                  refresh_attempted_at=datetime.now(timezone.utc).isoformat())
+    else:
+        projection["meta"]["pace_stale"] = False
+        if as_of_week is None:
+            try:
+                pregame.save_forecasts(projection)
+            except Exception as exc:
+                print(f"::warning:: Pregame forecast preservation failed: {exc}")
+                projection["meta"]["pregame_error"] = str(exc)
+    utils.save_json_atomic(directory / "projection.json", projection)
+    utils.save_json_atomic(directory / "standings.json", standings)
+    return standings, projection
+
+
 def run_group(slug, as_of_week):
     """score (fatal) -> project (degraded on failure) -> timeline. Returns
     (standings, projection|None)."""
@@ -231,30 +279,15 @@ def run_group(slug, as_of_week):
                   f"— refusing to score. Run validate_team_names.py for detail.")
             sys.exit(1)
 
-    # Board 1 — fatal on failure (credibility spine).
-    standings = scoring.write_standings(config, picks, as_of_week,
-                                        utils.group_draft_status(slug))
-    print(f"  [{slug}] standings.json ({len(standings['managers'])} managers)")
-
-    # Board 2 — degrade, don't die.
-    #
-    # The prior snapshot is selected HERE, off the timeline as it stands BEFORE
-    # this week's row is appended, and handed to the projector. Board 2's
-    # expected_total_move and Board 3's week_move are then measured against the
-    # same snapshot by construction, rather than each picking one and hoping.
-    # projector.load_prior_snapshot would find the same row on its own (the
-    # selection is strictly-before, so the append below cannot change it) — this
-    # just makes the two boards share one read instead of racing the file.
-    projection = None
+    standings, projection = publish_pace(config, picks, as_of_week,
+                                         utils.group_draft_status(slug))
+    if standings["meta"].get("pace_stale"):
+        # Keep the last pace visible on analytics too; no false new timeline row.
+        out = analytics.build_analytics(config, standings, projection,
+                                        as_of_week=standings["meta"].get("as_of_week"))
+        utils.save_json_atomic(utils.WEB_DATA_DIR / slug / "analytics.json", out)
+        return standings, projection
     eff = effective_week(as_of_week)
-    try:
-        prior = projector.load_prior_snapshot(slug, as_of_week)
-        projection = projector.write_projection(config, picks, as_of_week, prior)
-        print(f"  [{slug}] projection.json"
-              + (f" (move vs wk {prior['as_of_week']})" if prior else " (no prior week)"))
-    except Exception as e:  # noqa: BLE001 — projector must never take down Board 1
-        print(f"::warning:: [{slug}] projector FAILED ({type(e).__name__}: {e}); "
-              f"standings.json still written, running degraded (§4).")
 
     timeline = append_timeline(config, build_snapshot(standings, projection, eff))
     print(f"  [{slug}] timeline.json (week {eff})")
@@ -306,23 +339,9 @@ def main():
 
     utils.assert_season_matches_cache()            # §6 season single-source guard
 
-    # ---- rule-5 clobber guard: never regenerate a board off an empty slate --
-    # With zero played games every board is still WRITABLE — the arithmetic is
-    # defined — but it is meaningless, and worse, it is meaningless in a
-    # direction that looks like a result: banked_delta collapses to -line for
-    # every OVER pick and +line for every UNDER pick, so the standings rank
-    # purely by which side a manager took and the site names a "current leader"
-    # before kickoff. Publishing that would overwrite a good board with an
-    # artifact of the draft.
-    #
-    # This is separate from the workflow's week-window gate. That gate stops
-    # SCHEDULED runs pre-season; a manual dispatch forces past it, and running
-    # one right after the season flip — to populate the new cache — is exactly
-    # the sequence that would otherwise deploy this board.
-    #
-    # Not fatal: pre-season and a dead feed are both normal, and rule 3 says a
-    # dead step must not take the pipeline dark. Warn loudly, write nothing,
-    # leave every existing board exactly as it was.
+    # Preserve the existing empty-results ingestion guard: an unexpectedly
+    # empty feed must not erase a live season. Preseason pace is meaningful;
+    # deliberate baseline publication continues to use --allow-empty.
     played = utils.count_played_games(season, args.as_of_week)
     if played == 0 and not args.allow_empty:
         horizon = f" through week {args.as_of_week}" if args.as_of_week is not None else ""

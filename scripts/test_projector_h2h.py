@@ -156,7 +156,7 @@ def test_per_pick_fields_untouched():
             exp_delta = P.signed_delta(p["direction"], exp_final, p["line"])
             beat = float(dist[finals > p["line"]].sum()) if p["direction"] == "O" \
                 else float(dist[finals < p["line"]].sum())
-            ok_delta &= (p["expected_delta"] == round(exp_delta, 2))
+            ok_delta &= (abs(p["expected_delta"] - exp_delta) < 1e-12)
             ok_beat &= (p["p_beat_line"] == round(beat, 6))
             ok_dist &= (len(p["win_distribution"]) == len(dist))
     check("expected_delta reproduces exactly from the pick's own probs", ok_delta)

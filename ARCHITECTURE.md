@@ -1,5 +1,22 @@
 # CF Challenge — Architecture & Handoff
 
+## Current scoring revision - September 22, 2026
+
+The [pace audit and migration](docs/scoring-audit.md) supersedes the original
+two-board scoring/presentation rules below. `pace.py` is the arithmetic authority:
+actual wins plus current expected remaining wins, signed against the original
+line, summed per manager. Rank by unrounded pace, then floor descending and ID.
+`standings.json` and `projection.json` publish one coherent generation. Banked
+deltas remain result-only evidence, not a competing standings score. Title odds
+remain optional explanations. The original model, championship boundaries,
+draft validation, and historical archives remain in force.
+
+Completed schedule rows retain W/L/T and strictly pre-kickoff forecast shading;
+unknown expectations are not reconstructed. See the output contract's current
+revision for new fields and stale-data behavior. Historical two-board references
+below describe the original implementation, not the current ranking/UI contract.
+
+
 > **What this is:** the portable handoff doc for building the College Football (CF) Challenge — a live, multi-group, win-totals fantasy scoring engine. It was written in the WC Challenge project (which has the full context) to be carried into the CF project (which starts with an empty memory space). It carries every locked decision so nothing has to be re-derived. Read this top to bottom before scaffolding anything.
 >
 > **Lineage:** CF reuses the *architecture* of WC Challenge (the completed 2026 World Cup fantasy league, repo `github.com/Zandor435/wc-challenge`, local `c:\Users\zacha\Claude Code\wc-challenge`). WC is finished — its live pipeline was retired, Devin won. CF is a fresh repo on the **work PC**. WC is reused via GitHub as reference, not copied machine-to-machine.
@@ -12,7 +29,7 @@
 - **Each manager drafts EXACTLY 4 college football teams, spanning a minimum of 3 distinct conferences** (settled format — the only draft rule; draft help is out of scope, Zach supplies the draft). Enforced per group by `validate_team_names.py` via `picks_per_manager: 4` / `min_distinct_conferences: 3` in the group's `config.json` — always on, no unenforced path. The only exception is per manager and named: a `conference_minimum_waivers` entry in the group config exempts that one manager from the conference minimum alone (every other rule still applies), and every applied waiver is printed on every run of the gate. Example on file: Chris, Panel 2026 — drafted 2 conferences, commissioner waiver granted 2026-08-21. (Family, church and browns still carry `min_distinct_conferences: 4` on their dummy-roster configs from the earlier 4-conference wording; that value gets set when each real draft is entered.)
 - **Each pick is an over/under bet against that team's preseason Vegas win total.** Example: Penn State over 10.5 → they must win 11+ to be positive. Win 11 → +0.5. Win 3 → the under would have been +7.5.
 - **Score per pick = signed delta in the owner's chosen direction:**
-  - Over: `actual_wins − line`
+  - Over: `projected_final_wins − line`
   - Under: `line − actual_wins`
 - **Owner's total = sum of their picks' deltas.** Highest aggregate wins.
 - **Multiple groups:** four independent friend groups (`panel`, `family`, `church`, `browns`), each its own set of owners/picks. **One codebase serves all** (see §5).

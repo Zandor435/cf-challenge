@@ -60,6 +60,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
+import pace
 import build_rail
 
 
@@ -100,7 +101,7 @@ def _r(x):
 def _sub(a, b):
     """a - b, but null if either side is unknown. Never substitutes 0.0 for
     'we don't know' — a fabricated zero is a number the column would print."""
-    return None if (a is None or b is None) else _r(a - b)
+    return None if (a is None or b is None) else a - b
 
 
 # --- Paths -------------------------------------------------------------------
@@ -140,7 +141,7 @@ def status_of(floor, ceiling):
 def rank_managers(totals):
     """Contract: rank 1-based by banked_total desc, ties by floor desc then
     manager_id. `totals` is {mid: (banked_total, floor)}. Distinct ranks."""
-    order = sorted(totals.items(), key=lambda kv: (-kv[1][0], -kv[1][1], kv[0]))
+    order = sorted(totals.items(), key=lambda kv: pace.rank_key({"manager_id": kv[0], "expected_total": kv[1][0], "floor": kv[1][1]}))
     return {mid: i + 1 for i, (mid, _) in enumerate(order)}
 
 
@@ -153,6 +154,7 @@ def state_from_snapshot(snapshot):
         for p in m.get("picks", []):
             picks[p["team"]] = {
                 "banked_delta": p.get("banked_delta"),
+                "expected_delta": p.get("expected_delta"),
                 "floor": p.get("floor"),
                 "ceiling": p.get("ceiling"),
                 "status": status_of(p.get("floor"), p.get("ceiling")),
@@ -161,14 +163,15 @@ def state_from_snapshot(snapshot):
         vals = list(picks.values())
         mgrs[m["manager_id"]] = {
             "banked_total": _r(sum(v["banked_delta"] or 0 for v in vals)),
+            "expected_total": pace.snapshot_total(m),
             "floor": _r(sum(v["floor"] or 0 for v in vals)),
             "ceiling": _r(sum(v["ceiling"] or 0 for v in vals)),
             "picks": picks,
         }
-    ranks = rank_managers({mid: (m["banked_total"], m["floor"])
-                           for mid, m in mgrs.items()})
+    ranks = rank_managers({mid: (m["expected_total"], m["floor"])
+                           for mid, m in mgrs.items() if m["expected_total"] is not None})
     for mid, m in mgrs.items():
-        m["rank"] = ranks[mid]
+        m["rank"] = ranks.get(mid)
     return mgrs
 
 
@@ -193,6 +196,7 @@ def state_from_standings(standings, projection):
                 "banked_wins": p.get("banked_wins"),
                 "games_remaining": p.get("games_remaining"),
                 "banked_delta": p.get("banked_delta"),
+                "expected_delta": p.get("expected_delta", pp.get("expected_delta")),
                 "floor": p.get("floor"),
                 "ceiling": p.get("ceiling"),
                 "status": p.get("status"),
@@ -205,6 +209,7 @@ def state_from_standings(standings, projection):
             "manager_id": mid,
             "display_name": m.get("display_name"),
             "banked_total": p_total(m, "banked_total"),
+            "expected_total": m.get("expected_total"),
             "floor": p_total(m, "floor"),
             "ceiling": p_total(m, "ceiling"),
             "rank": m.get("rank"),
@@ -291,8 +296,8 @@ def prior_snapshot(timeline, week):
 def build_race(cur, prior, config):
     names = {m["manager_id"]: m.get("display_name")
              for m in config.get("managers", [])}
-    ordered = sorted(cur.values(), key=lambda m: m["rank"])
-    leader_total = ordered[0]["banked_total"] if ordered else None
+    ordered = sorted(cur.values(), key=lambda m: (m["rank"] is None, m["rank"] or 0))
+    leader_total = ordered[0]["expected_total"] if ordered else None
 
     rows = []
     for m in ordered:
@@ -301,10 +306,10 @@ def build_race(cur, prior, config):
         rows.append({
             "manager_id": mid,
             "name": m.get("display_name") or names.get(mid) or mid,
-            "total_delta": m["banked_total"],
-            "gap_to_leader": _sub(leader_total, m["banked_total"]),
-            "delta_this_week": _sub(m["banked_total"],
-                                    pm["banked_total"] if pm else None),
+            "total_delta": m["expected_total"],
+            "gap_to_leader": _sub(leader_total, m["expected_total"]),
+            "delta_this_week": _sub(m["expected_total"],
+                                    pm["expected_total"] if pm else None),
             "rank": m["rank"],
             # Positive = climbed. Null when the manager has no prior snapshot.
             "rank_change": _sub(pm["rank"] if pm else None, m["rank"]),
@@ -336,6 +341,7 @@ def pick_payload(mid, pk, prior_pick):
         "line": pk["line"],
         "direction": pk["direction"],
         "banked_delta": pk["banked_delta"],
+        "expected_delta": pk.get("expected_delta"),
         "floor": pk["floor"],
         "ceiling": pk["ceiling"],
         "status": pk["status"],
@@ -498,8 +504,10 @@ def flip_attribution(cur, prior, prior_leader, leader):
     old, new = prior_leader, leader
     if not all(m in cur and m in prior for m in (old, new)):
         return None
-    swing = ((prior[old]["banked_total"] - prior[new]["banked_total"])
-             + (cur[new]["banked_total"] - cur[old]["banked_total"]))
+    if any(m.get("expected_total") is None for m in (prior[old], prior[new], cur[old], cur[new])):
+        return None
+    swing = ((prior[old]["expected_total"] - prior[new]["expected_total"])
+             + (cur[new]["expected_total"] - cur[old]["expected_total"]))
     if swing is None or swing <= 0:
         return None
 
@@ -507,11 +515,11 @@ def flip_attribution(cur, prior, prior_leader, leader):
     for mid, sign in ((new, 1.0), (old, -1.0)):
         for team, pk in cur[mid]["picks"].items():
             pp = _prior_pick(prior, mid, team)
-            if not pp or pp["banked_delta"] is None or pk["banked_delta"] is None:
+            if not pp or pp["expected_delta"] is None or pk["expected_delta"] is None:
                 continue
             # Signed so "helped the flip happen" is positive on both sides: the
             # new leader gaining ground, or the old leader shedding it.
-            contribution = sign * (pk["banked_delta"] - pp["banked_delta"])
+            contribution = sign * (pk["expected_delta"] - pp["expected_delta"])
             if contribution <= 0:
                 continue                   # moved against the flip, or not at all
             shares[(mid, team)] = (_r(contribution), contribution / swing)
@@ -623,7 +631,7 @@ def heater_streak(timeline, week, mid):
     totals = []
     for s in snaps:
         st = state_from_snapshot(s).get(mid)
-        totals.append(st["banked_total"] if st else None)
+        totals.append(st.get("expected_total") if st else None)
 
     gaining, oldest = 0, len(totals) - 1
     for i in range(len(totals) - 1, 0, -1):
@@ -677,7 +685,7 @@ def detect_heater(cur, prior, race_rows, timeline, week, weeks_elapsed):
     score = rate + HEATER_STREAK_WEIGHT * gaining
     m = cur[mid]
     movers = sorted(m["picks"].values(),
-                    key=lambda p: -(p["banked_delta"] or 0))[:2]
+                    key=lambda p: -(p.get("expected_delta") or 0))[:2]
     # "N gaining week(s) in the last M" — never "an N-week streak", which a
     # neutral (bye) week inside the run would make false.
     run = (f"{gaining} gaining week(s) in the last {run_span}" if run_span
@@ -692,9 +700,9 @@ def detect_heater(cur, prior, race_rows, timeline, week, weeks_elapsed):
         "picks": [pick_payload(mid, pk, _prior_pick(prior, mid, pk["team"]))
                   for pk in movers],
         "race_position": race_position(race_rows, [mid]),
-        "evidence": (f"{mid} banked {gain:+g} game(s) over {elapsed} week(s) "
+        "evidence": (f"{mid} gained {gain:+g} wins of pace over {elapsed} week(s) "
                      f"({rate:+g} per week), the group's largest gain, with "
-                     f"{run}; now rank {m['rank']} at {m['banked_total']:+g}."),
+                     f"{run}; now rank {m['rank']} at {m['expected_total']:+g}."),
     }]
 
 
@@ -1214,9 +1222,9 @@ def build_profiles(cur, picks):
     for mid, ps in by_mgr.items():
         m = cur.get(mid)
         cur_picks = list(m["picks"].values()) if m else []
-        scored = [p for p in cur_picks if p["banked_delta"] is not None]
-        best = max(scored, key=lambda p: p["banked_delta"]) if scored else None
-        worst = min(scored, key=lambda p: p["banked_delta"]) if scored else None
+        scored = [p for p in cur_picks if p.get("expected_delta") is not None]
+        best = max(scored, key=lambda p: p["expected_delta"]) if scored else None
+        worst = min(scored, key=lambda p: p["expected_delta"]) if scored else None
         over_rate = overs[mid] / totals[mid] if totals[mid] else 0.0
         profiles[mid] = {
             "over_count": overs[mid],
@@ -1228,10 +1236,10 @@ def build_profiles(cur, picks):
             "picks_dead": sum(1 for p in cur_picks if p["status"] == "DEAD"),
             "best_pick": ({"team": best["team"], "direction": best["direction"],
                            "line": best["line"],
-                           "banked_delta": best["banked_delta"]} if best else None),
+                           "banked_delta": best["banked_delta"], "expected_delta": best["expected_delta"]} if best else None),
             "worst_pick": ({"team": worst["team"], "direction": worst["direction"],
                             "line": worst["line"],
-                            "banked_delta": worst["banked_delta"]} if worst else None),
+                            "banked_delta": worst["banked_delta"], "expected_delta": worst["expected_delta"]} if worst else None),
             # Signed gap between this manager's over-rate and the field's.
             # Positive = took more overs than the room.
             "baseline_optimism_vs_field": _r(over_rate - field_over_rate),
@@ -1284,6 +1292,10 @@ def build_packet(group_id, cli_week=None):
     web = utils.WEB_DATA_DIR / group_id
     standings = _require(web / "standings.json", group_id)
     projection = _require(web / "projection.json", group_id)
+    if standings.get("meta", {}).get("scoring_metric") == "pace":
+        if (standings["meta"].get("pace_stale") or
+                standings["meta"]["generated_at"] != projection.get("meta", {}).get("generated_at")):
+            raise ValueError("Pace refresh is stale or mismatched; preserve the previously filed editorial.")
     timeline = _require(web / "timeline.json", group_id)
     # The `test` fixture has no groups/<slug>/ dir — utils.load_group()
     # synthesizes its config from data/test_picks.json (§10.2). Same carve-out

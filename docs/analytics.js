@@ -49,7 +49,7 @@ function renderRooting(routes) {
 
 function watchCard(game) {
   const chat = game.conversation ? `<p class="an-watch-chat"><b>The group chat angle</b>${esc(game.conversation)}</p>` : '';
-  return `<article class="an-watch-card"><p class="an-eyebrow">Week ${esc(String(game.week))}</p><p class="an-watch-matchup">${matchup(game.team, game)}</p><h3>${esc(game.headline || 'A game to keep an eye on.')}</h3><p class="an-watch-story">${esc(game.story || '')}</p>${chat}<details class="an-proof"><summary>See how much it matters</summary><div class="an-proof-content"><p class="an-fine">Each manager&rsquo;s title chance if one side or the other wins. The rest of the forecast stays the same.</p><div class="an-scenario-head"><span>Manager</span><span>${esc(game.team)} wins</span><span>${esc(game.opponent)} wins</span></div>${(game.managers || []).map(m => `<div class="an-scenario-row"><b>${esc(m.display_name)}</b><span>${oddsText(m.p_if_win)}</span><span>${oddsText(m.p_if_loss)}</span></div>`).join('')}</div></details></article>`;
+  return `<article class="an-watch-card"><p class="an-eyebrow">Week ${esc(String(game.week))}</p><p class="an-watch-matchup">${matchup(game.team, game)}</p><h3>${esc(game.headline || 'A game to keep an eye on.')}</h3><p class="an-watch-story">${esc(game.story || '')}</p>${chat}<details class="an-proof"><summary>See how much it matters</summary><div class="an-proof-content"><p>Projected pace after this result, holding remaining probabilities fixed:</p><div class="an-scenario-head"><span>Manager</span><span>${esc(game.team)} wins</span><span>${esc(game.opponent)} wins</span></div>${(game.managers || []).map(m => `<div class="an-scenario-row"><b>${esc(m.display_name)}</b><span>${fmtSigned(m.pace_if_win)}</span><span>${fmtSigned(m.pace_if_loss)}</span></div>`).join('')}<p class="an-fine">Each manager&rsquo;s title chance if one side or the other wins. The rest of the forecast stays the same.</p><div class="an-scenario-head"><span>Manager</span><span>${esc(game.team)} wins</span><span>${esc(game.opponent)} wins</span></div>${(game.managers || []).map(m => `<div class="an-scenario-row"><b>${esc(m.display_name)}</b><span>${oddsText(m.p_if_win)}</span><span>${oddsText(m.p_if_loss)}</span></div>`).join('')}</div></details></article>`;
 }
 
 function renderWatch(leverage) {
@@ -81,7 +81,7 @@ function renderChanges(story, odds) {
 
 function renderScores(race, portfolio) {
   if (!race) return '';
-  return `<details class="an-fold"><summary>The scorekeeping, explained</summary><div class="an-score-help"><h3>What do the plus and minus mean?</h3><p>They show how a pick compares with its preseason win target. An Over on 8.5 wins finishes at <b>+0.5</b> if the team wins nine games, or <b>&minus;0.5</b> if it wins eight. An Under flips those scores.</p><p>During the season, that running score is unfinished business. Over picks climb as wins arrive; Under picks start high and come down with each win. That is why the title forecast is more useful than the running score on its own.</p><div class="an-score-rows"><div class="an-score-head"><span>Manager</span><span>Running score</span></div>${(race.managers || []).map(m => `<div><b>${esc(m.display_name)}</b><span>${fmtSigned(m.banked_total)}</span></div>`).join('')}</div><details class="an-proof"><summary>See each pick&rsquo;s running score</summary><div class="an-proof-content">${((portfolio || {}).managers || []).map(m => `<div class="an-pick-scores"><h4>${esc(m.display_name)}</h4>${(m.picks || []).map(p => `<p><span>${esc(p.team)} &middot; ${p.direction === 'O' ? 'Over' : 'Under'} ${fmtLine(p.line)}</span><b>${fmtSigned(p.banked_delta)}</b></p>`).join('')}</div>`).join('')}</div></details></div></details>`;
+  return `<details class="an-fold"><summary>The scorekeeping, explained</summary><div class="an-score-help"><h3>What do the plus and minus mean?</h3><p>They show how a pick compares with its preseason win target. An Over on 8.5 wins finishes at <b>+0.5</b> if the team wins nine games, or <b>&minus;0.5</b> if it wins eight. An Under flips those scores.</p><p>Pace is projected final wins minus the original line for Over picks, reversed for Under picks. Projected wins combine actual wins and expected remaining wins. At season end the same score uses actual final wins.</p><div class="an-score-rows"><div class="an-score-head"><span>Manager</span><span>Pace</span></div>${(race.managers || []).map(m => `<div><b>${esc(m.display_name)}</b><span>${fmtSigned(m.expected_total)}</span></div>`).join('')}</div><details class="an-proof"><summary>See each pick&rsquo;s pace</summary><div class="an-proof-content">${((portfolio || {}).managers || []).map(m => `<div class="an-pick-scores"><h4>${esc(m.display_name)}</h4>${(m.picks || []).map(p => `<p><span>${esc(p.team)} &middot; ${p.direction === 'O' ? 'Over' : 'Under'} ${fmtLine(p.line)}</span><b>${fmtSigned(p.expected_delta)}</b></p>`).join('')}</div>`).join('')}</div></details></div></details>`;
 }
 
 function chooseManager(id) {
@@ -113,15 +113,21 @@ async function main() {
   renderNav(groupId);
   $('group-label').textContent = groupLabel(groupId);
   document.title = `${groupLabel(groupId)} — The rooting guide`;
-  const [a, standings] = await Promise.all([
+  const [report, standings] = await Promise.all([
     fetchJSON(`data/${groupId}/analytics.json`).catch(() => null),
     fetchJSON(`data/${groupId}/standings.json`).catch(() => null),
   ]);
-  if (!a) { fail('The race report could not be loaded.', 'Try again in a moment.'); return; }
+  if (!standings) { fail('The pace standings could not be loaded.', 'Try again in a moment.'); return; }
+  const matching = report && report.meta.generated_at === standings.meta.generated_at;
+  const a = matching ? report : {};
+  // Standings is authoritative even if optional analytics failed to refresh.
+  a.meta = standings.meta;
+  a.race = {managers: standings.managers};
+  a.portfolio = {managers: standings.managers};
   renderSampleBanner(standings && standings.meta);
   const pre = standings ? isPreseasonStandings(standings) : isPreseasonAnalytics(a);
-  $('an-intro').innerHTML = `<p class="an-eyebrow">${esc(groupLabel(groupId))} &nbsp; / &nbsp; The race, explained</p><h1>Your rooting <span>guide.</span></h1><p class="an-intro-deck">One trophy. A different wish list for everyone.</p><div class="an-intro-bottom"><nav aria-label="On this page"><a href="#an-projection">Who wins it</a><a href="#an-rooting">Find your path</a><a href="#an-stakes">What to watch</a></nav><span>${pre ? 'Preseason · ' : ''}Data through ${esc(dataDate((a.meta || {}).cache_fetched_at))}</span></div>`;
-  $('an-odds').innerHTML = renderOdds(a.championship_odds, pre);
+  $('an-intro').innerHTML = `<p class="an-eyebrow">${esc(groupLabel(groupId))} &nbsp; / &nbsp; The race, explained</p><h1>Your rooting <span>guide.</span></h1><p class="an-intro-deck">One trophy. A different wish list for everyone.</p><div class="an-intro-bottom"><nav aria-label="On this page"><a href="#an-projection">Pace standings</a><a href="#an-rooting">Find your path</a><a href="#an-stakes">What to watch</a></nav><span>${pre ? 'Preseason · ' : ''}Data through ${esc(dataDate((a.meta || {}).cache_fetched_at))}</span></div>`;
+  $('an-odds').innerHTML = paceFreshness(a.meta, a.race.managers.some(m => m.expected_total != null)) + `<div class="an-score-rows">${(a.race.managers || []).map(m => `<div><b>#${m.rank ?? '&mdash;'} ${esc(m.display_name)}</b><span>${fmtSigned(m.expected_total)} ${paceLabel(m.expected_total)}</span></div>`).join('')}</div><details class="an-fold"><summary>Title forecast</summary>${renderOdds(a.championship_odds, pre)}</details>`;
   $('an-rooting-content').innerHTML = renderRooting(a.title_routes);
   $('an-stakes-content').innerHTML = renderWatch(a.leverage);
   $('an-schedule-content').innerHTML = renderRoad(a.schedule_watch);

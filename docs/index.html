@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CFB Pick'Em — Standings</title>
-<meta name="description" content="Season-long college football pick'em: exact standings + a weekly SP+ projection.">
+<meta name="description" content="Season-long college football pick'em: wins ahead or behind pace.">
 <!-- Icon: the masthead shield, adapted for a tab bar. The SVG is the real
      asset; favicon.ico is declared after it purely so the browsers that ignore
      an SVG icon request a file that exists instead of 404ing on /favicon.ico. -->
@@ -75,8 +75,7 @@
         <h2 class="card-title">Standings</h2>
         <span class="card-tag tag-exact" id="detail-week"></span>
       </div>
-      <p class="card-sub">Every pick with its floor&ndash;ceiling range. Banked results
-        only — pure arithmetic, reproducible by hand. No estimates.</p>
+      <p class="card-sub">Ranked by wins ahead or behind pace. Open a pick to see its full schedule and projection.</p>
       <p class="preseason-note" id="detail-preseason" hidden></p>
       <div class="standings" id="standings-detail-list"></div>
     </section>
@@ -111,14 +110,11 @@
          Everything under the head is filled by renderPortfolios() in app.js. -->
     <section class="card portfolios" id="portfolios" hidden>
       <div class="card-head">
-        <h2 class="card-title">Portfolios</h2>
+        <h2 class="card-title">Wins Ahead / Behind Pace</h2>
         <span class="card-tag tag-exact" id="po-week"></span>
-        <span class="card-tag tag-proj">Projection</span>
+
       </div>
-      <p class="card-sub" id="po-sub">Every manager&rsquo;s four picks with the side they
-        took, and what each one contributes to their projected total &mdash; the four
-        add up to the number above them. Records and lines are exact; the projection,
-        pace and outlook are SP+. Pick a manager to see their remaining schedule.</p>
+      <p class="card-sub" id="po-sub">One score, four pick contributions. Open a manager to see the full schedule.</p>
       <p class="preseason-note" id="po-preseason" hidden></p>
       <div class="po-board" id="po-board"></div>
       <p class="po-legend is-proj" id="po-legend" hidden></p>
@@ -160,7 +156,7 @@
       <section class="card board2" id="board2" hidden>
         <div class="card-head">
           <h2 class="card-title">Win probabilities</h2>
-          <span class="card-tag tag-proj">Projection</span>
+
         </div>
         <p class="card-sub proj-disclaimer" id="proj-disclaimer"></p>
         <div class="projection" id="projection"></div>
@@ -184,8 +180,7 @@
 </main>
 
 <footer class="site-foot">
-  <p>Standings are exact arithmetic off committed game results. The projection is a
-     model estimate from SP+ ratings and updates weekly. Data via collegefootballdata.com.</p>
+  <p>Pace = projected wins against your original line, reversed for Under picks. Actual results replace probabilities as games finish.</p>
 </footer>
 
 <!-- Poster lightbox: one shared overlay for every manager card's persona art. -->

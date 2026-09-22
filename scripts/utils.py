@@ -644,19 +644,29 @@ def team_state(team, group_config, as_of_week=None):
     banked_wins = banked_losses = games_played = 0
     remaining = []
     played = []
-    for g in _season_games(season):
+    # Provider corrections for a fixture replace the prior row; postponed games
+    # remain eligible, while explicit cancellations leave the slate entirely.
+    slate = {}
+    for index, game in enumerate(_season_games(season)):
+        slate[game.get("id") if game.get("id") is not None else ("row", index)] = game
+    for g in slate.values():
+        if g.get("cancelled") or g.get("canceled") or str(g.get("status", "")).lower() in ("canceled", "cancelled"):
+            continue
         home, away = g.get("home_team"), g.get("away_team")
         if key != home and key != away:
             continue
         if g.get("conference_championship") and not flag:
             continue                        # off the slate when flag off (§1)
         is_home = key == home
-        rem = {"opponent": away if is_home else home,
+        rem = {"id": g.get("id"), "start_date": g.get("start_date"),
+               "opponent": away if is_home else home,
                "home_away": "home" if is_home else "away",
                "week": g.get("week"),
                "neutral": bool(g.get("neutral_site"))}
         hp, ap = g.get("home_points"), g.get("away_points")
-        if _game_played(g, as_of_week) and hp is not None and ap is not None:
+        if _game_played(g, as_of_week) and (hp is None or ap is None):
+            raise ValueError(f"Completed game {g.get('id')} for {key} has no final score")
+        if _game_played(g, as_of_week):
             games_played += 1
             mine, theirs = (hp, ap) if is_home else (ap, hp)
             if mine > theirs:

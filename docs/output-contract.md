@@ -1,5 +1,52 @@
 # Output Contract — the engine's write surface (LOCKED)
 
+## Current pace revision - September 22, 2026
+
+This section supersedes legacy two-board ranking, precision, display, and
+failure rules in the historical schema descriptions below. Unmentioned fields
+retain their meanings. See [the audit](scoring-audit.md).
+
+- `standings.json` and `projection.json` have matching `meta.generated_at`,
+  `meta.scoring_metric: "pace"`, and `meta.pace_stale`. On refresh failure,
+  `refresh_error` and `refresh_attempted_at` explain why saved values remain.
+- Managers in both files carry `expected_total`, independent one-decimal
+  `expected_total_display`, and canonical `rank`: unrounded total descending,
+  floor descending, manager ID ascending. Standings also carries
+  `expected_total_move` and its display string. Unknown pace/rank is null.
+- Picks in both files carry full-precision `expected_final_wins`,
+  `expected_delta`, `expected_delta_display`, `remaining_games`, `played_games`,
+  and `outlook`. No intermediate rounding determines a total or rank.
+- Game rows preserve `id` and `start_date`. Remaining `p_win` is unrounded;
+  `p_win_pct` is a display string, and `probability_estimated` identifies the
+  established rating fallback. Existing bucket keys remain `likely_win`,
+  `toss_up`, `likely_loss`, now meaning >60%, inclusive 40-60%, and <40%.
+- Completed rows add `completed: true`, `result: "W" | "L" | "T"`,
+  `forecast_captured_at`, and `forecast_source`. Their probability/bucket comes
+  only from a preserved pre-kickoff forecast, or is null. They never enter the
+  remaining-win sum. Canceled games do not count; postponements remain eligible.
+- `pregame-<season>.json` is an auxiliary per-group ledger: `{season, games}`,
+  keyed by team and fixture ID (exact schedule identity when no ID exists).
+  Each record has `p_win`, `captured_at`, `start_date`, `source`, and
+  `probability_estimated`. Refreshes may update a forecast only before kickoff.
+- Projection `pace` retains its legacy actual-versus-model diagnostic meaning
+  for compatibility; it is not displayed or used to score/rank. Likewise,
+  `banked_delta` / `banked_total` remain result-only arithmetic.
+- Analytics `race` and `best_worst` are projections. Race includes full-precision
+  `expected_total`; portfolio picks include `expected_delta`. Game leverage
+  managers add `pace_now`, `pace_if_win`, `pace_if_loss`; these are conditional
+  projected totals, not awarded points. Meta includes scoring/freshness fields.
+- New timeline snapshots preserve full-precision projected totals, pick
+  projections, line/direction, and rank. Old snapshots are not backfilled using
+  today's ratings. Missing legacy projections produce unavailable comparisons.
+- Optional simulation failure makes title odds/percentiles null while valid
+  pace publishes normally. Stale pace refreshes do not append timeline entries.
+  A missing initial forecast produces null pace/rank, never banked-score fallback.
+- The email's primary standings table uses `expected_total` and pace ordering.
+  The old secondary board is not rendered. Filed columns remain historical.
+
+## Legacy schema reference
+
+
 Every downstream consumer (site, email, pundit) reads **only** what this file
 defines. The engine writes exactly four files per group to the single write
 target `docs/data/<group_id>/` (GitHub Pages serves from `docs/` on main):

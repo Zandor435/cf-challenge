@@ -105,6 +105,7 @@
                     </div>
                     <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:1.5; color:#8b919c; padding-top:4px;">
                       {{ p.board1.sublabel }}
+                      {% if p.meta.pace_stale %}<br />Latest refresh unavailable. Last saved pace standings: {{ p.meta.generated_at }}.{% endif %}
                     </div>
                   </td>
                 </tr>
@@ -113,8 +114,7 @@
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                       <tr>
                         <td style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 0; border-bottom:1px solid #232838;">Manager</td>
-                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 0; border-bottom:1px solid #232838;">Banked</td>
-                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 8px; border-bottom:1px solid #232838;">Envelope</td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 0; border-bottom:1px solid #232838;">Pace</td>
                         <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:9px; font-weight:700; letter-spacing:1.2px; color:#6c7280; text-transform:uppercase; padding:0 0 8px 8px; border-bottom:1px solid #232838;">Back</td>
                       </tr>
                       {% for r in p.board1.rows %}
@@ -125,11 +125,9 @@
                           <span style="color:#6c7280; font-size:12px;">&nbsp;{{ r.move.arrow }}</span>
                         </td>
                         <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:700; color:#e8eaf0; padding:10px 0; border-bottom:1px solid #1b2030;">
-                          {{ r.banked_total }}
+                          {{ r.expected_total or 'Unavailable' }}
                         </td>
-                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#8b919c; padding:10px 0 10px 8px; border-bottom:1px solid #1b2030; white-space:nowrap;">
-                          {{ r.floor }} … {{ r.ceiling }}
-                        </td>
+
                         <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#8b919c; padding:10px 0 10px 8px; border-bottom:1px solid #1b2030;">
                           {% if r.gap_to_leader %}&minus;{{ r.gap_to_leader }}{% else %}&mdash;{% endif %}
                         </td>
@@ -146,7 +144,7 @@
           <!-- ======================= BOARD 2 — PROJECTION (modeled) ======================= -->
           {# Deliberately a SEPARATE tile with its own border colour and an inline
              disclaimer: Board 2 must never read as settled standings. #}
-          {% if p.board2 %}
+          {% if false %}
           <tr>
             <td style="padding:14px 28px 0 28px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#12151d" style="background-color:#12151d; border:1px dashed #2f3550; border-radius:6px;">
@@ -185,7 +183,7 @@
                           {{ r.p_win_pool }}
                         </td>
                         <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#8b919c; padding:10px 0 10px 8px; border-bottom:1px solid #1b2030;">
-                          {{ r.expected_total }}
+                          {{ r.expected_total or 'Unavailable' }}
                         </td>
                         <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#8b919c; padding:10px 0 10px 8px; border-bottom:1px solid #1b2030; white-space:nowrap;">
                           {{ r.p05 }} … {{ r.p95 }}
@@ -326,7 +324,7 @@
               <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; line-height:1.7; color:#5b6068; padding-top:14px;">
                 CF Challenge &middot; {{ p.meta.display_name }}
                 {% if p.meta.generated_at %}<br />Data generated {{ p.meta.generated_at }}{% endif %}
-                <br />Board 1 is settled. Board 2 is a model projection and will be wrong about someone.
+                <br />Pace uses actual wins plus expected remaining wins against each original line. At season end it is the final result.
               </div>
             </td>
           </tr>

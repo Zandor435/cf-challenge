@@ -1788,3 +1788,40 @@ body.svp-doc { background: var(--paper); }
   .svp-rail { margin-top: 0; }
   .svp-column p { font-size: 1rem; line-height: 1.62; }
 }
+
+/* Pace explanations share one accessible schedule across home and profiles. */
+.pace-facts { display:flex; flex-wrap:wrap; gap:12px 28px; margin:12px 0; }
+.pace-facts dt,.pace-help { font-size:.72rem; line-height:1.6; opacity:.8; }
+.pace-facts dd { margin:0; font-variant-numeric:tabular-nums; }
+.pace-game { display:grid; grid-template-columns:minmax(100px,1fr) 22px 45px minmax(100px,.6fr); gap:8px; align-items:center; padding:9px 10px; margin:4px 0; font-size:.75rem; border-left:3px solid transparent; }
+.pace-game.likely_win { background:rgba(72,170,108,.15); border-color:#48aa6c; }
+.pace-game.toss_up { background:rgba(207,163,71,.14); border-color:#cfa347; }
+.pace-game.likely_loss { background:rgba(200,83,83,.15); border-color:#c85353; }
+.pace-game.unknown { background:rgba(128,128,128,.12); border-color:#888; }
+.pace-game.completed .pace-matchup,.pace-game.completed .pace-probability { text-decoration:line-through; }
+.pace-result { text-decoration:none; }
+.pace-stale { border-left:3px solid #cfa347; padding:10px; font-size:.8rem; }
+.pace-explanation { padding:12px 0; }
+.pace-surprises { font-size:.8rem; }
+.pace-pick-details { padding:0 16px; }
+.pace-pick-details summary { cursor:pointer; font-size:.75rem; padding:8px 0; }
+@media(max-width:480px) { .pace-game { grid-template-columns:minmax(95px,1fr) 18px 38px; } .pace-bucket { grid-column:1 / -1; } }
+
+.po-team-detail > summary { cursor:pointer; list-style:none; }
+.po-team-detail > summary::-webkit-details-marker { display:none; }
+.po-team-detail > summary .po-team::after { content:' +'; color:var(--text-muted); }
+.po-team-detail[open] > summary .po-team::after { content:' -'; }
+.po-team-detail > summary:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.po-team-detail .pace-explanation { padding:6px 8px 16px; }
+
+/* One competitive number per manager. Movement lives in the race explanation. */
+.po-row, #standings-detail-list .mgr-row {
+  grid-template-columns:32px 36px minmax(0,1fr) 132px;
+  column-gap:8px;
+}
+.po-row .mgr-total .lbl, #standings-detail-list .mgr-total .lbl {
+  font-size:.6rem; letter-spacing:.04em; line-height:1.4;
+}
+@media(max-width:480px) {
+  .po-row, #standings-detail-list .mgr-row { grid-template-columns:24px 28px minmax(0,1fr) 112px; column-gap:6px; }
+}

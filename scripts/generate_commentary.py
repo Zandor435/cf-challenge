@@ -244,15 +244,10 @@ def build_prompt(group_id, packet_override=None):
     # is a false claim built out of true numbers.
     if preseason:
         basis_warning = (
-            "THIS IS WEEK 0 — the draft, before a single snap has been played. "
-            "No game has happened, so the packet carries NO final scores, NO "
-            "margins, NO results and NO standings worth the name: total_delta is "
-            "0.0 for every manager, gap_to_leader is 0.0 for every manager, and "
-            "NOBODY LEADS. The standings order is projected pool odds, not earned "
-            "position, so do not call anyone the leader, do not say anyone is "
-            "ahead of or behind anyone, and do not describe movement of any kind. "
-            "Every number in this packet is a projection from SP+ ratings and the "
-            "frozen Vegas win-total lines.")
+            "THIS IS WEEK 0: no games have been played. Pace still ranks managers "
+            "by projected final wins against their original lines. Describe the "
+            "pace leader as projected, never as having earned completed wins. "
+            "No results or week-over-week movement may be invented.")
     elif elapsed is None:
         basis_warning = (
             "There is NO prior snapshot, so every *_this_week field is null. Do "
@@ -857,6 +852,12 @@ def build_prompt(group_id, packet_override=None):
         "Return ONLY the DECK line and the column text. No preamble, no title, "
         "no explanation.",
     ]
+    parts.append("SCORING: The primary score is wins ahead/behind pace: actual wins plus "
+                 "expected remaining wins minus the original line for Over; reversed for Under. "
+                 "Manager pace sums four pick contributions. race.total_delta and race ranks "
+                 "use this metric. Banked deltas describe completed-result arithmetic only, "
+                 "never current competitive standing. Title odds are secondary explanations. "
+                 "At season end pace uses actual final wins without changing scoring.")
     return system_text, "\n".join(parts), packet
 
 

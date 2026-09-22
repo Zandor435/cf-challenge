@@ -59,6 +59,7 @@ import os
 import re
 import sys
 from pathlib import Path
+import pace
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCS_DATA = ROOT / "docs" / "data"
@@ -107,7 +108,7 @@ def fmt_signed(v):
     """-7.0 -> '-7.0';  17.0 -> '+17.0'. Sign only; the value is untouched."""
     if v is None:
         return None
-    return f"{v:+.1f}"
+    return pace.format_signed(v)
 
 
 def fmt_plain(v, places=1):
@@ -133,9 +134,9 @@ def move_arrow(week_move):
 # --- section builders: each returns None when its input is absent ------------
 
 def build_board1(analytics, standings):
-    """Board 1 — EXACT banked delta + the floor/ceiling envelope. Settled fact."""
+    """The canonical pace standings; analytics is optional explanatory context."""
     race = (analytics or {}).get("race") or {}
-    rows = race.get("managers")
+    rows = (standings or {}).get("managers")
     if not rows:
         return None
     out = []
@@ -145,18 +146,19 @@ def build_board1(analytics, standings):
             "display_name": m["display_name"],
             "rank": m.get("rank"),
             "banked_total": fmt_signed(m.get("banked_total")),
+            "expected_total": fmt_signed(m.get("expected_total")),
             "floor": fmt_signed(m.get("floor")),
             "ceiling": fmt_signed(m.get("ceiling")),
             "gap_to_leader": (None if not m.get("gap_to_leader")
                               else fmt_plain(m.get("gap_to_leader"))),
             "ceiling_remaining": fmt_plain(m.get("ceiling_remaining")),
             "move": move_arrow(m.get("week_move")),
-            "is_leader": m.get("manager_id") == race.get("leader_id"),
+            "is_leader": m.get("rank") == 1 and m.get("expected_total") is not None,
         })
     return {
-        "board": "exact",
-        "label": "Board 1 — Banked",
-        "sublabel": "Exact banked delta, with each manager's floor–ceiling envelope.",
+        "board": "projection",
+        "label": "Wins Ahead / Behind Pace",
+        "sublabel": "The sum of each manager's four pick contributions. Positive is ahead; negative is behind.",
         "prior_week": race.get("prior_week"),
         "rows": out,
     }
@@ -183,10 +185,9 @@ def build_board2(analytics, projection):
     meta = (projection or {}).get("meta") or {}
     return {
         "board": "projection",
-        "label": "Board 2 — Projection",
-        "sublabel": "Model projection, not standings. Odds to win the pool, "
-                    "with each manager's expected finish and 5th–95th percentile range.",
-        "disclaimer": "PROJECTION — modeled, not banked. Board 1 above is the settled board.",
+        "label": "Secondary forecast — Projection",
+        "sublabel": "Secondary title odds from simulated final pace, with the forecast range.",
+        "disclaimer": "Title odds explain the race; pace determines the standings.",
         "ratings_source": meta.get("ratings_source"),
         "rows": rows,
     }
@@ -238,7 +239,7 @@ def build_rail(rail):
         out["collision"] = {
             "team": c.get("team"),
             "line": fmt_plain(c.get("line")),
-            "implied_expected_wins": fmt_plain(c.get("implied_expected_wins"), 2),
+            "implied_expected_wins": fmt_plain(c.get("implied_expected_wins")),
             "picks": [{
                 "manager": p.get("manager"),
                 "direction": "Over" if p.get("direction") == "O" else "Under",
@@ -310,6 +311,12 @@ def build(group_id: str, week: int | None = None) -> dict:
     standings = load_json(gdir / "standings.json", required=False)
     projection = load_json(gdir / "projection.json", required=False)
     analytics = load_json(gdir / "analytics.json", required=False)
+    # Never combine stale optional analysis with a newer canonical pace board.
+    generation = (standings or {}).get("meta", {}).get("generated_at")
+    if (analytics or {}).get("meta", {}).get("generated_at") != generation:
+        analytics = None
+    if (projection or {}).get("meta", {}).get("generated_at") != generation:
+        projection = None
     index_doc = load_json(gdir / "columns" / "index.json", required=False)
     rail = load_json(gdir / "columns" / "rail.json", required=False)
 
@@ -331,6 +338,7 @@ def build(group_id: str, week: int | None = None) -> dict:
             "week": week_no,
             "generated_at": meta_src.get("generated_at"),
             "cache_fetched_at": meta_src.get("cache_fetched_at"),
+            "pace_stale": meta_src.get("pace_stale", False),
             "subject": subject_for(display, week_no, column),
             "from_address": ecfg.get("from"),
             "site_base_url": base_url,

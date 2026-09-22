@@ -10,6 +10,7 @@ from string import Formatter
 
 import projector
 import utils
+import pace
 
 
 def pick_key(p):
@@ -57,7 +58,7 @@ def build_race_story(projection, prior, baseline, draft):
         prev = prior_mgrs.get(mid)
         old = old_mgrs.get(mid)
         # A previous scored week is preferred. Missing is never a zero change.
-        source = prev if prev and prev.get('p_win_pool') is not None else old
+        source = prev if prev and pace.snapshot_total(prev) is not None else old
         basis = 'week' if source is prev and prev is not None else 'draft'
         old_picks = {p['team']: p for p in (source or {}).get('picks', [])}
         current_signature = sorted(pick_key(p) for p in manager.get('picks', []))
@@ -75,12 +76,13 @@ def build_race_story(projection, prior, baseline, draft):
         change = (round(manager['p_win_pool'] - before_odds, 6)
                   if manager.get('p_win_pool') is not None and before_odds is not None
                   and (basis == 'week' or draft['available']) else None)
+        before_pace = pace.snapshot_total(source or {})
+        pace_change = (manager.get('expected_total') - before_pace
+                       if before_pace is not None and manager.get('expected_total') is not None else None)
         rows.append({'manager_id': mid, 'display_name': manager['display_name'],
-                     'basis': basis, 'odds_change': change, 'drivers': drivers,
-                     'movement_summary': ('No directly comparable earlier title forecast.' if change is None else
-                                          'Their title chances have improved.' if change > .005 else
-                                          'They have lost some ground in the title race.' if change < -.005 else
-                                          'Their title chances have barely moved.')})
+                     'basis': basis, 'odds_change': change, 'pace_change': pace_change, 'drivers': drivers,
+                     'movement_summary': ('No directly comparable earlier pace.' if pace_change is None else
+                                          f"Pace moved {projector._fmt_signed(projector._half_away(pace_change))} wins.")})
     rows.sort(key=lambda m: (m['odds_change'] is None, -abs(m['odds_change'] or 0), m['manager_id']))
     return {'board': 'projection', 'available': True,
             'prior_week': (prior or {}).get('as_of_week'), 'managers': rows,
@@ -250,11 +252,14 @@ def describe_title_routes(routes, projection, commentary=None):
         for pick in manager.get('picks', []):
             holders.setdefault(pick['team'], []).append((manager['manager_id'],
                                                          manager['display_name'], pick['direction']))
+    by_manager = {m['manager_id']: m for m in projection.get('managers', [])}
+    routes['managers'].sort(key=lambda m: by_manager.get(m['manager_id'], {}).get('rank', 999))
     for manager in routes['managers']:
         name, chance = manager['display_name'], manager['p_win_pool']
-        manager['position'] = ('Season settled' if manager['finished'] else
-                               'In the thick of it' if chance >= .20 else
-                               'Within striking distance' if chance >= .08 else 'Needs a few breaks')
+        value = by_manager.get(manager['manager_id'], {}).get('expected_total')
+        manager['position'] = ('Pace unavailable' if value is None else
+                               projector._fmt_signed(projector._half_away(value)) + ' wins ' +
+                               ('ahead of pace' if value > 0 else 'behind pace' if value < 0 else 'on pace'))
         if manager['finished']:
             manager['intro'] = ('The games are finished. The title is theirs.' if chance == 1 else
                                 'The games are finished. They share the top score.' if chance > 0 else
@@ -309,10 +314,10 @@ def describe_title_routes(routes, projection, commentary=None):
                    'and a ready-made reason to remind everyone about this pick.'))
             for game in route['games_to_watch']:
                 favorable = 1 - game['p_win'] if under else game['p_win']
-                if favorable >= .65:
+                if favorable > .60:
                     game['rooting_note'] = (f'{game["opponent"]} is favored to beat {team}.' if under else
                                             f'{team} is favored to beat {game["opponent"]}.')
-                elif favorable >= .35:
+                elif favorable >= .40:
                     game['rooting_note'] = 'This one could go either way.'
                 else:
                     game['rooting_note'] = (f'{team} is favored. A loss here would be an upset.' if under else
@@ -363,8 +368,11 @@ def build_context(config, standings, projection, prior, as_of_week=None):
     story['results'] = result_surprises(projection, states, draft_ratings)
     commentary_path = utils.ROOT / 'groups' / config['group_id'] / 'analytics_commentary.json'
     commentary = utils.load_json(commentary_path)
-    return {'draft': draft, 'race_story': story,
-            'schedule_watch': schedule,
-            'title_routes': describe_title_routes(
-                projector.build_title_routes(config, picks, as_of_week, tc), projection, commentary),
-            'leverage': describe_watch_games(projector.build_game_leverage(config, picks, as_of_week, tc))}
+    try:
+        routes = describe_title_routes(projector.build_title_routes(config, picks, as_of_week, tc), projection, commentary)
+        leverage = describe_watch_games(projector.build_game_leverage(config, picks, as_of_week, tc))
+    except Exception as exc:
+        print(f"::warning:: Optional title analysis unavailable: {exc}")
+        routes = leverage = {'available': False}
+    return {'draft': draft, 'race_story': story, 'schedule_watch': schedule,
+            'title_routes': routes, 'leverage': leverage}

@@ -41,6 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
+import pace
 
 BOARD_EXACT = "exact"
 BOARD_PROJECTION = "projection"
@@ -68,13 +69,8 @@ def _ident(m):
 
 
 def _rank_map(rows):
-    """{manager_id -> 1-based rank} using EXACTLY scoring.py's ordering:
-    banked_total desc, floor desc, manager_id asc. Written as a pure function
-    over (manager_id, banked_total, floor) so it can also rank a historical
-    timeline snapshot — which carries no `rank` field — by the same rule that
-    produced today's ranks. A second, subtly-different ordering here is how
-    week_move ends up reporting moves that never happened."""
-    ordered = sorted(rows, key=lambda r: (-r["banked_total"], -r["floor"], r["manager_id"]))
+    """Canonical pace ranking for complete historical observations only."""
+    ordered = sorted((r for r in rows if r.get("expected_total") is not None), key=pace.rank_key)
     return {r["manager_id"]: i for i, r in enumerate(ordered, 1)}
 
 
@@ -198,6 +194,7 @@ def _snapshot_rows(snap):
         rows.append({
             "manager_id": m["manager_id"],
             "banked_total": round(sum(p.get("banked_delta") or 0 for p in picks), 2),
+            "expected_total": pace.snapshot_total(m),
             "floor": round(sum(p.get("floor") or 0 for p in picks), 2),
         })
     return rows
@@ -218,7 +215,7 @@ def build_race(standings, prior):
     ceiling - banked_total: the points still physically on the table."""
     managers = standings.get("managers", [])
     prev_ranks = _rank_map(_snapshot_rows(prior)) if prior else {}
-    leader_total = managers[0]["banked_total"] if managers else None
+    leader_total = managers[0].get("expected_total") if managers else None
 
     rows = []
     for m in managers:
@@ -227,15 +224,16 @@ def build_race(standings, prior):
             **_ident(m),
             "rank": m["rank"],
             "banked_total": _r2(m["banked_total"]),
+            "expected_total": m.get("expected_total"),
             "floor": _r2(m["floor"]),
             "ceiling": _r2(m["ceiling"]),
-            "gap_to_leader": (_r2(leader_total - m["banked_total"])
-                              if leader_total is not None else None),
+            "gap_to_leader": (_r2(leader_total - m["expected_total"])
+                              if leader_total is not None and m.get("expected_total") is not None else None),
             "ceiling_remaining": _r2(m["ceiling"] - m["banked_total"]),
-            "week_move": (prev - m["rank"]) if prev is not None else None,
+            "week_move": (prev - m["rank"]) if prev is not None and m["rank"] is not None else None,
         })
     return {
-        "board": BOARD_EXACT,
+        "board": BOARD_PROJECTION,
         "prior_week": prior.get("as_of_week") if prior else None,
         "leader_id": managers[0]["manager_id"] if managers else None,
         "managers": rows,
@@ -281,7 +279,7 @@ def build_championship_odds(standings, projection, prior):
         # False when the projector degraded this run: every p_win_pool is null
         # and the page should say the projection is unavailable rather than
         # print a column of blanks.
-        "available": bool(proj_by),
+        "available": any(r["p_win_pool"] is not None for r in rows),
         "managers": rows,
     }
 
@@ -296,7 +294,7 @@ def _pick_entry(m, p):
         "conference": p["conference"],
         "line": p["line"],
         "direction": p["direction"],
-        "delta": _r2(p["banked_delta"]),
+        "delta": p.get("expected_delta"),
     }
 
 
@@ -321,7 +319,7 @@ def build_best_worst(standings):
     all_entries = []
     rows = []
     for m in standings.get("managers", []):
-        entries = [_pick_entry(m, p) for p in m.get("picks", [])]
+        entries = [_pick_entry(m, p) for p in m.get("picks", []) if p.get("expected_delta") is not None]
         all_entries.extend(entries)
         rows.append({
             **_ident(m),
@@ -332,7 +330,7 @@ def build_best_worst(standings):
     positives = [e for e in all_entries if e["delta"] > 0]
     negatives = [e for e in all_entries if e["delta"] < 0]
     return {
-        "board": BOARD_EXACT,
+        "board": BOARD_PROJECTION,
         "steal": _extremes(positives, want_max=True),
         "bust": _extremes(negatives, want_max=False),
         "managers": rows,
@@ -440,6 +438,7 @@ def build_portfolio(standings):
         rows.append({
             **_ident(m),
             "banked_total": _r2(m["banked_total"]),
+            "expected_total": m.get("expected_total"),
             "absolute_total": abs_total,
             "picks": [{
                 "team": p["team"],
@@ -447,6 +446,7 @@ def build_portfolio(standings):
                 "line": p["line"],
                 "direction": p["direction"],
                 "banked_delta": _r2(p["banked_delta"]),
+                "expected_delta": p.get("expected_delta"),
                 "floor": _r2(p["floor"]),
                 "ceiling": _r2(p["ceiling"]),
                 "status": p["status"],
@@ -491,7 +491,9 @@ def build_analytics(config, standings, projection=None, timeline=None,
             "group_id": config["group_id"],
             "season": season,
             "as_of_week": as_of_week,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": standings.get("meta", {}).get("generated_at", datetime.now(timezone.utc).isoformat()),
+            "pace_stale": standings.get("meta", {}).get("pace_stale", False),
+            "scoring_metric": "pace",
             "cache_fetched_at": cm["fetched_at"],
         },
         "race": build_race(standings, prior),
@@ -512,7 +514,12 @@ def write_analytics(config, standings, projection=None, timeline=None,
     effective = eff_week if eff_week is not None else (
         as_of_week if as_of_week is not None else utils.cache_meta(utils.get_season())['week'])
     prior = prior_snapshot(timeline, effective, utils.get_season())
-    context = race_narrative.build_context(config, standings, projection, prior, as_of_week)
+    try:
+        context = (None if standings.get("meta", {}).get("pace_stale") else
+                   race_narrative.build_context(config, standings, projection, prior, as_of_week))
+    except Exception as exc:
+        print(f"::warning:: Optional race context unavailable: {exc}")
+        context = None
     out = build_analytics(config, standings, projection, timeline, as_of_week, eff_week, context)
     path = utils.WEB_DATA_DIR / config["group_id"] / "analytics.json"
     utils.save_json_atomic(path, out)
@@ -544,16 +551,9 @@ def main():
 
     for slug in slugs:
         config, picks = utils.load_group(slug)
-        # The standalone entry point rebuilds both inputs, so it can never emit
-        # an analytics board that disagrees with the standings next to it.
-        standings = scoring.build_standings(config, picks, args.as_of_week,
-                                            utils.group_draft_status(slug))
-        try:
-            projection = projector.build_projection(config, picks, args.as_of_week)
-        except Exception as e:  # noqa: BLE001 — same degrade contract as run_groups
-            print(f"::warning:: [{slug}] projector FAILED ({type(e).__name__}: {e}); "
-                  f"championship_odds will be null (degraded).")
-            projection = None
+        from run_groups import publish_pace
+        standings, projection = publish_pace(config, picks, args.as_of_week,
+                                             utils.group_draft_status(slug))
         out = write_analytics(config, standings, projection, load_timeline(slug),
                               args.as_of_week)
         states = {}

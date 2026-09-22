@@ -1,17 +1,9 @@
 #!/usr/bin/env python3
 """
-scoring.py — Board 1: Standings, pure arithmetic (ARCHITECTURE §3, §10.2).
-
-Emits docs/data/<group_id>/standings.json per docs/output-contract.md. Every
-number is exact, reproducible-by-hand arithmetic off utils.team_state (the sole
-flag-aware / as-of-aware source): banked delta in the pick's O/U direction, a
-floor/ceiling envelope from games_remaining, and a CLINCHED/DEAD/LIVE status.
-Zero model, zero randomness — this board is the credibility spine, and it must
-succeed even if the projector fails.
-
-team_state honors count_conference_championship (per group) and --as-of-week
-(global replay: games after week N are treated as unplayed, §7). Never reads the
-cache or the raw banked index directly — utils owns both (guarded).
+Pace standings with exact records, pick statuses, and final-score envelopes.
+The established projector supplies canonical full-precision pace; result-only
+arithmetic remains available for explanations and season-end verification.
+A failed refresh preserves the last coherent pace generation.
 
 Usage:
     python scripts/scoring.py --group all
@@ -26,11 +18,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
+import pace
 
 
 def signed_delta(direction, wins, line):
     """Delta in the pick's chosen direction (ARCHITECTURE §1)."""
-    return (wins - line) if direction == "O" else (line - wins)
+    return pace.team_pace(direction, wins, line)
 
 
 def pick_standing(pick, config, as_of_week):
@@ -66,8 +59,8 @@ def pick_standing(pick, config, as_of_week):
     }
 
 
-def build_standings(config, picks, as_of_week=None, draft_status=None):
-    """Full standings.json object for a group (no I/O). Pure arithmetic.
+def build_standings(config, picks, as_of_week=None, draft_status=None, projection=None):
+    """Join canonical projections to exact team state, with no output writes.
     `draft_status` (from picks.json) is surfaced into meta so the site can flag
     engineered sample data ("dummy") vs a real draft ("final") — STEP 4."""
     display = utils.manager_display_map(config)
@@ -93,14 +86,22 @@ def build_standings(config, picks, as_of_week=None, draft_status=None):
             "picks": mpicks,
         })
 
-    managers.sort(key=lambda m: (-m["banked_total"], -m["floor"], m["manager_id"]))
-    for i, m in enumerate(managers, 1):
-        m["rank"] = i
-    # emit rank alongside the identity/total fields (dict order is cosmetic)
-    managers = [{"manager_id": m["manager_id"], "display_name": m["display_name"],
-                 "banked_total": m["banked_total"], "floor": m["floor"],
-                 "ceiling": m["ceiling"], "rank": m["rank"], "picks": m["picks"]}
-                for m in managers]
+    if projection is None:
+        import projector
+        projection = projector.build_projection(config, picks, as_of_week, include_simulation=False)
+    projected = {m["manager_id"]: m for m in projection["managers"]}
+    for manager in managers:
+        model = projected.get(manager["manager_id"], {})
+        for key in ("expected_total", "expected_total_display", "expected_total_move", "expected_total_move_display"):
+            manager[key] = model.get(key)
+        by_team = {p["team"]: p for p in model.get("picks", [])}
+        for pick in manager["picks"]:
+            pr = by_team.get(pick["team"], {})
+            for key in ("expected_delta", "expected_delta_display", "expected_final_wins", "remaining_games", "played_games", "outlook"):
+                pick[key] = pr.get(key)
+    managers.sort(key=pace.rank_key)
+    for rank, manager in enumerate(managers, 1):
+        manager["rank"] = rank if manager["expected_total"] is not None else None
 
     season = utils.get_season()
     cm = utils.cache_meta(season)
@@ -110,7 +111,10 @@ def build_standings(config, picks, as_of_week=None, draft_status=None):
             "season": season,
             "as_of_week": as_of_week,
             "draft_status": draft_status,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": projection.get("meta", {}).get("generated_at", datetime.now(timezone.utc).isoformat()),
+            "scoring_metric": "pace",
+            "count_conference_championship": utils.counts_conference_championship(config),
+            "pace_stale": False,
             "cache_fetched_at": cm["fetched_at"],
         },
         "managers": managers,
@@ -118,10 +122,9 @@ def build_standings(config, picks, as_of_week=None, draft_status=None):
 
 
 def write_standings(config, picks, as_of_week=None, draft_status=None):
-    out = build_standings(config, picks, as_of_week, draft_status)
-    path = utils.WEB_DATA_DIR / config["group_id"] / "standings.json"
-    utils.save_json_atomic(path, out)
-    return out
+    # The standalone command uses the same coherent publication path.
+    from run_groups import publish_pace
+    return publish_pace(config, picks, as_of_week, draft_status)[0]
 
 
 def main():
@@ -141,7 +144,7 @@ def main():
         config, picks = utils.load_group(slug)
         out = write_standings(config, picks, args.as_of_week, utils.group_draft_status(slug))
         top = out["managers"][0] if out["managers"] else None
-        lead = f"{top['display_name']} {top['banked_total']:+g}" if top else "(no managers)"
+        lead = f"{top['display_name']} {top.get('expected_total_display') or 'pace unavailable'}" if top else "(no managers)"
         print(f"  [{slug}] standings.json — {len(out['managers'])} managers, "
               f"leader: {lead}")
 

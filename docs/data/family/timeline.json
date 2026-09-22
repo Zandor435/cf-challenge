@@ -314,94 +314,23 @@
     },
     {
       "as_of_week": 2,
-      "generated_at": "2026-09-13T16:45:53.681112+00:00",
+      "generated_at": "2026-09-22T19:35:27.866562+00:00",
       "managers": [
-        {
-          "manager_id": "rachel",
-          "p_win_pool": 0.150029,
-          "picks": [
-            {
-              "team": "Notre Dame",
-              "banked_delta": 9.5,
-              "floor": -0.5,
-              "ceiling": 9.5,
-              "expected_delta": 1.42,
-              "p_beat_line": 0.892516
-            },
-            {
-              "team": "Utah",
-              "banked_delta": 6.5,
-              "floor": -3.5,
-              "ceiling": 6.5,
-              "expected_delta": 0.1,
-              "p_beat_line": 0.517613
-            },
-            {
-              "team": "James Madison",
-              "banked_delta": -6.5,
-              "floor": -6.5,
-              "ceiling": 3.5,
-              "expected_delta": -0.11,
-              "p_beat_line": 0.480744
-            },
-            {
-              "team": "Auburn",
-              "banked_delta": 4.5,
-              "floor": -5.5,
-              "ceiling": 4.5,
-              "expected_delta": 0.49,
-              "p_beat_line": 0.650848
-            }
-          ]
-        },
-        {
-          "manager_id": "devin",
-          "p_win_pool": 0.173288,
-          "picks": [
-            {
-              "team": "Auburn",
-              "banked_delta": -4.5,
-              "floor": -4.5,
-              "ceiling": 5.5,
-              "expected_delta": -0.49,
-              "p_beat_line": 0.349152
-            },
-            {
-              "team": "Texas Tech",
-              "banked_delta": 8.5,
-              "floor": -1.5,
-              "ceiling": 8.5,
-              "expected_delta": 0.86,
-              "p_beat_line": 0.730405
-            },
-            {
-              "team": "Boston College",
-              "banked_delta": -2.5,
-              "floor": -2.5,
-              "ceiling": 7.5,
-              "expected_delta": 0.39,
-              "p_beat_line": 0.601285
-            },
-            {
-              "team": "Houston",
-              "banked_delta": 6.5,
-              "floor": -3.5,
-              "ceiling": 6.5,
-              "expected_delta": 1.42,
-              "p_beat_line": 0.827268
-            }
-          ]
-        },
         {
           "manager_id": "holly",
           "p_win_pool": 0.31492,
+          "expected_total": 3.2904204642181885,
+          "rank": 1,
           "picks": [
             {
               "team": "Georgia",
               "banked_delta": 7.5,
               "floor": -2.5,
               "ceiling": 7.5,
-              "expected_delta": -0.04,
+              "expected_delta": -0.04421552204091661,
+              "expected_final_wins": 9.544215522040917,
+              "line": 9.5,
+              "direction": "U",
               "p_beat_line": 0.463234
             },
             {
@@ -409,7 +338,10 @@
               "banked_delta": 6.5,
               "floor": -3.5,
               "ceiling": 6.5,
-              "expected_delta": 1.44,
+              "expected_delta": 1.4380763228787403,
+              "expected_final_wins": 6.06192367712126,
+              "line": 7.5,
+              "direction": "U",
               "p_beat_line": 0.8376
             },
             {
@@ -417,7 +349,10 @@
               "banked_delta": -2.5,
               "floor": -2.5,
               "ceiling": 7.5,
-              "expected_delta": 1.27,
+              "expected_delta": 1.2667503003966525,
+              "expected_final_wins": 4.7667503003966525,
+              "line": 3.5,
+              "direction": "O",
               "p_beat_line": 0.825404
             },
             {
@@ -425,135 +360,81 @@
               "banked_delta": -5.5,
               "floor": -5.5,
               "ceiling": 4.5,
-              "expected_delta": 0.63,
+              "expected_delta": 0.6298093629837123,
+              "expected_final_wins": 8.129809362983712,
+              "line": 7.5,
+              "direction": "O",
               "p_beat_line": 0.672932
             }
           ]
         },
         {
-          "manager_id": "gayden",
-          "p_win_pool": 0.079961,
+          "manager_id": "devin",
+          "p_win_pool": 0.173288,
+          "expected_total": 2.176309901156785,
+          "rank": 2,
           "picks": [
             {
-              "team": "Michigan State",
-              "banked_delta": -2.5,
-              "floor": -2.5,
-              "ceiling": 7.5,
-              "expected_delta": 0.96,
-              "p_beat_line": 0.739989
-            },
-            {
-              "team": "Baylor",
-              "banked_delta": 5.5,
+              "team": "Auburn",
+              "banked_delta": -4.5,
               "floor": -4.5,
               "ceiling": 5.5,
-              "expected_delta": 0.86,
-              "p_beat_line": 0.716985
+              "expected_delta": -0.48911377847119564,
+              "expected_final_wins": 6.010886221528804,
+              "line": 6.5,
+              "direction": "O",
+              "p_beat_line": 0.349152
             },
             {
-              "team": "UNLV",
-              "banked_delta": -6.5,
-              "floor": -6.5,
-              "ceiling": 2.5,
-              "expected_delta": -0.48,
-              "p_beat_line": 0.370841
+              "team": "Texas Tech",
+              "banked_delta": 8.5,
+              "floor": -1.5,
+              "ceiling": 8.5,
+              "expected_delta": 0.8611482269180541,
+              "expected_final_wins": 9.638851773081946,
+              "line": 10.5,
+              "direction": "U",
+              "p_beat_line": 0.730405
             },
             {
-              "team": "West Virginia",
-              "banked_delta": -3.5,
-              "floor": -3.5,
-              "ceiling": 6.5,
-              "expected_delta": -0.53,
-              "p_beat_line": 0.341463
-            }
-          ]
-        },
-        {
-          "manager_id": "gunner",
-          "p_win_pool": 0.028968,
-          "picks": [
-            {
-              "team": "Baylor",
-              "banked_delta": -5.5,
-              "floor": -5.5,
-              "ceiling": 4.5,
-              "expected_delta": -0.86,
-              "p_beat_line": 0.283015
-            },
-            {
-              "team": "Virginia",
-              "banked_delta": -5.5,
-              "floor": -5.5,
-              "ceiling": 4.5,
-              "expected_delta": 0.93,
-              "p_beat_line": 0.745148
-            },
-            {
-              "team": "Purdue",
+              "team": "Boston College",
               "banked_delta": -2.5,
               "floor": -2.5,
               "ceiling": 7.5,
-              "expected_delta": 0.58,
-              "p_beat_line": 0.649566
+              "expected_delta": 0.387397619390486,
+              "expected_final_wins": 3.887397619390486,
+              "line": 3.5,
+              "direction": "O",
+              "p_beat_line": 0.601285
             },
             {
-              "team": "Vanderbilt",
-              "banked_delta": 3.5,
-              "floor": -6.5,
-              "ceiling": 3.5,
-              "expected_delta": -1.39,
-              "p_beat_line": 0.175019
-            }
-          ]
-        },
-        {
-          "manager_id": "john",
-          "p_win_pool": 0.000981,
-          "picks": [
-            {
-              "team": "Ohio State",
-              "banked_delta": -8.5,
-              "floor": -8.5,
-              "ceiling": 1.5,
-              "expected_delta": -0.82,
-              "p_beat_line": 0.271683
-            },
-            {
-              "team": "Miami",
-              "banked_delta": -8.5,
-              "floor": -8.5,
-              "ceiling": 1.5,
-              "expected_delta": -0.65,
-              "p_beat_line": 0.314114
-            },
-            {
-              "team": "Mississippi State",
-              "banked_delta": 2.5,
-              "floor": -7.5,
-              "ceiling": 2.5,
-              "expected_delta": -1.91,
-              "p_beat_line": 0.081646
-            },
-            {
-              "team": "Ole Miss",
-              "banked_delta": -5.5,
-              "floor": -5.5,
-              "ceiling": 4.5,
-              "expected_delta": -0.62,
-              "p_beat_line": 0.326117
+              "team": "Houston",
+              "banked_delta": 6.5,
+              "floor": -3.5,
+              "ceiling": 6.5,
+              "expected_delta": 1.4168778333194405,
+              "expected_final_wins": 7.0831221666805595,
+              "line": 8.5,
+              "direction": "U",
+              "p_beat_line": 0.827268
             }
           ]
         },
         {
           "manager_id": "vic",
           "p_win_pool": 0.174595,
+          "expected_total": 2.0623749485818266,
+          "rank": 3,
           "picks": [
             {
               "team": "Florida State",
               "banked_delta": -5.5,
               "floor": -5.5,
               "ceiling": 4.5,
-              "expected_delta": -0.57,
+              "expected_delta": -0.5667789563038861,
+              "expected_final_wins": 5.933221043696114,
+              "line": 6.5,
+              "direction": "O",
               "p_beat_line": 0.339445
             },
             {
@@ -561,7 +442,10 @@
               "banked_delta": -5.5,
               "floor": -5.5,
               "ceiling": 3.5,
-              "expected_delta": 0.68,
+              "expected_delta": 0.6762059884118052,
+              "expected_final_wins": 8.176205988411805,
+              "line": 7.5,
+              "direction": "O",
               "p_beat_line": 0.707711
             },
             {
@@ -569,7 +453,10 @@
               "banked_delta": -2.5,
               "floor": -2.5,
               "ceiling": 7.5,
-              "expected_delta": 1.91,
+              "expected_delta": 1.9087323944329908,
+              "expected_final_wins": 6.408732394432991,
+              "line": 4.5,
+              "direction": "O",
               "p_beat_line": 0.918354
             },
             {
@@ -577,21 +464,81 @@
               "banked_delta": -7.5,
               "floor": -7.5,
               "ceiling": 2.5,
-              "expected_delta": 0.04,
+              "expected_delta": 0.04421552204091661,
+              "expected_final_wins": 9.544215522040917,
+              "line": 9.5,
+              "direction": "O",
               "p_beat_line": 0.536766
+            }
+          ]
+        },
+        {
+          "manager_id": "rachel",
+          "p_win_pool": 0.150029,
+          "expected_total": 1.8999735124728216,
+          "rank": 4,
+          "picks": [
+            {
+              "team": "Notre Dame",
+              "banked_delta": 9.5,
+              "floor": -0.5,
+              "ceiling": 9.5,
+              "expected_delta": 1.4155041992996864,
+              "expected_final_wins": 10.084495800700314,
+              "line": 11.5,
+              "direction": "U",
+              "p_beat_line": 0.892516
+            },
+            {
+              "team": "Utah",
+              "banked_delta": 6.5,
+              "floor": -3.5,
+              "ceiling": 6.5,
+              "expected_delta": 0.1033321195628254,
+              "expected_final_wins": 8.396667880437175,
+              "line": 8.5,
+              "direction": "U",
+              "p_beat_line": 0.517613
+            },
+            {
+              "team": "James Madison",
+              "banked_delta": -6.5,
+              "floor": -6.5,
+              "ceiling": 3.5,
+              "expected_delta": -0.1079765848608858,
+              "expected_final_wins": 8.392023415139114,
+              "line": 8.5,
+              "direction": "O",
+              "p_beat_line": 0.480744
+            },
+            {
+              "team": "Auburn",
+              "banked_delta": 4.5,
+              "floor": -5.5,
+              "ceiling": 4.5,
+              "expected_delta": 0.48911377847119564,
+              "expected_final_wins": 6.010886221528804,
+              "line": 6.5,
+              "direction": "U",
+              "p_beat_line": 0.650848
             }
           ]
         },
         {
           "manager_id": "zach",
           "p_win_pool": 0.077259,
+          "expected_total": 0.8387940789614783,
+          "rank": 5,
           "picks": [
             {
               "team": "Wake Forest",
               "banked_delta": -3.5,
               "floor": -3.5,
               "ceiling": 6.5,
-              "expected_delta": 1.17,
+              "expected_delta": 1.1702409427557168,
+              "expected_final_wins": 6.670240942755717,
+              "line": 5.5,
+              "direction": "O",
               "p_beat_line": 0.792055
             },
             {
@@ -599,7 +546,10 @@
               "banked_delta": -6.5,
               "floor": -6.5,
               "ceiling": 3.5,
-              "expected_delta": 0.28,
+              "expected_delta": 0.27739228610973043,
+              "expected_final_wins": 8.77739228610973,
+              "line": 8.5,
+              "direction": "O",
               "p_beat_line": 0.589581
             },
             {
@@ -607,7 +557,10 @@
               "banked_delta": -6.5,
               "floor": -6.5,
               "ceiling": 3.5,
-              "expected_delta": -0.46,
+              "expected_delta": -0.46477431070704345,
+              "expected_final_wins": 7.0352256892929566,
+              "line": 7.5,
+              "direction": "O",
               "p_beat_line": 0.37828
             },
             {
@@ -615,8 +568,167 @@
               "banked_delta": -6.5,
               "floor": -6.5,
               "ceiling": 3.5,
-              "expected_delta": -0.14,
+              "expected_delta": -0.14406483919692548,
+              "expected_final_wins": 8.355935160803075,
+              "line": 8.5,
+              "direction": "O",
               "p_beat_line": 0.468483
+            }
+          ]
+        },
+        {
+          "manager_id": "gayden",
+          "p_win_pool": 0.079961,
+          "expected_total": 0.8132878668758972,
+          "rank": 6,
+          "picks": [
+            {
+              "team": "Michigan State",
+              "banked_delta": -2.5,
+              "floor": -2.5,
+              "ceiling": 7.5,
+              "expected_delta": 0.9603022587786771,
+              "expected_final_wins": 5.460302258778677,
+              "line": 4.5,
+              "direction": "O",
+              "p_beat_line": 0.739989
+            },
+            {
+              "team": "Baylor",
+              "banked_delta": 5.5,
+              "floor": -4.5,
+              "ceiling": 5.5,
+              "expected_delta": 0.8559843968761687,
+              "expected_final_wins": 5.644015603123831,
+              "line": 6.5,
+              "direction": "U",
+              "p_beat_line": 0.716985
+            },
+            {
+              "team": "UNLV",
+              "banked_delta": -6.5,
+              "floor": -6.5,
+              "ceiling": 2.5,
+              "expected_delta": -0.4778346969658278,
+              "expected_final_wins": 7.022165303034172,
+              "line": 7.5,
+              "direction": "O",
+              "p_beat_line": 0.370841
+            },
+            {
+              "team": "West Virginia",
+              "banked_delta": -3.5,
+              "floor": -3.5,
+              "ceiling": 6.5,
+              "expected_delta": -0.5251640918131208,
+              "expected_final_wins": 4.974835908186879,
+              "line": 5.5,
+              "direction": "O",
+              "p_beat_line": 0.341463
+            }
+          ]
+        },
+        {
+          "manager_id": "gunner",
+          "p_win_pool": 0.028967,
+          "expected_total": -0.7395398906142967,
+          "rank": 7,
+          "picks": [
+            {
+              "team": "Baylor",
+              "banked_delta": -5.5,
+              "floor": -5.5,
+              "ceiling": 4.5,
+              "expected_delta": -0.8559843968761687,
+              "expected_final_wins": 5.644015603123831,
+              "line": 6.5,
+              "direction": "O",
+              "p_beat_line": 0.283015
+            },
+            {
+              "team": "Virginia",
+              "banked_delta": -5.5,
+              "floor": -5.5,
+              "ceiling": 4.5,
+              "expected_delta": 0.9284597009147397,
+              "expected_final_wins": 8.42845970091474,
+              "line": 7.5,
+              "direction": "O",
+              "p_beat_line": 0.745148
+            },
+            {
+              "team": "Purdue",
+              "banked_delta": -2.5,
+              "floor": -2.5,
+              "ceiling": 7.5,
+              "expected_delta": 0.5773837102839705,
+              "expected_final_wins": 4.0773837102839705,
+              "line": 3.5,
+              "direction": "O",
+              "p_beat_line": 0.649566
+            },
+            {
+              "team": "Vanderbilt",
+              "banked_delta": 3.5,
+              "floor": -6.5,
+              "ceiling": 3.5,
+              "expected_delta": -1.3893989049368383,
+              "expected_final_wins": 6.889398904936838,
+              "line": 5.5,
+              "direction": "U",
+              "p_beat_line": 0.175019
+            }
+          ]
+        },
+        {
+          "manager_id": "john",
+          "p_win_pool": 0.000981,
+          "expected_total": -3.9975958546923502,
+          "rank": 8,
+          "picks": [
+            {
+              "team": "Ohio State",
+              "banked_delta": -8.5,
+              "floor": -8.5,
+              "ceiling": 1.5,
+              "expected_delta": -0.8178158476819739,
+              "expected_final_wins": 8.682184152318026,
+              "line": 9.5,
+              "direction": "O",
+              "p_beat_line": 0.271683
+            },
+            {
+              "team": "Miami",
+              "banked_delta": -8.5,
+              "floor": -8.5,
+              "ceiling": 1.5,
+              "expected_delta": -0.6476718579414218,
+              "expected_final_wins": 9.852328142058578,
+              "line": 10.5,
+              "direction": "O",
+              "p_beat_line": 0.314114
+            },
+            {
+              "team": "Mississippi State",
+              "banked_delta": 2.5,
+              "floor": -7.5,
+              "ceiling": 2.5,
+              "expected_delta": -1.9087323944329908,
+              "expected_final_wins": 6.408732394432991,
+              "line": 4.5,
+              "direction": "U",
+              "p_beat_line": 0.081646
+            },
+            {
+              "team": "Ole Miss",
+              "banked_delta": -5.5,
+              "floor": -5.5,
+              "ceiling": 4.5,
+              "expected_delta": -0.6233757546359637,
+              "expected_final_wins": 6.876624245364036,
+              "line": 7.5,
+              "direction": "O",
+              "p_beat_line": 0.326117
             }
           ]
         }

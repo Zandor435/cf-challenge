@@ -61,6 +61,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
 import projector
+import pace
 import build_rail
 # The uniform-field rule has ONE implementation, and it lives with the live
 # packet builder. This file used to carry a second copy under a "same contract
@@ -436,7 +437,8 @@ def _pick_row(pick, mid, baseline, reference, sp_ratings, config):
               f"do not reseed it; investigate the cache.")
 
     direction = pick["direction"]
-    market_gap = float(projector.signed_delta(direction, implied, line))
+    implied = pace.projected_final_wins(0, probs)
+    market_gap = pace.team_pace(direction, implied, line)
 
     # Hard Week 0 envelope: every pick can still finish anywhere from 0 wins to
     # its full slate, so the envelope is the signed delta at both extremes.
@@ -476,9 +478,9 @@ def _pick_row(pick, mid, baseline, reference, sp_ratings, config):
         "direction": direction,
         "sp_rating": row["sp_rating"],
         "sp_ranking": row.get("sp_ranking"),
-        "implied_expected_wins": round(float(implied), 3),
+        "implied_expected_wins": float(implied),
         # Signed in the manager's chosen direction: positive = SP+ agrees.
-        "market_gap": round(market_gap, 3),
+        "market_gap": market_gap,
         "games_scheduled": games,
         "p_beat_line": round(p_beat, 6),
         "floor": round(floor, 3),
@@ -835,15 +837,14 @@ def _build_week0_packet(group_id, baseline_path=None):
         managers.append({
             "manager_id": mid,
             "name": display.get(mid, mid),
-            "aggregate_market_gap": round(sum(r["market_gap"] for r in rows), 3),
+            "aggregate_market_gap": pace.manager_pace(r["market_gap"] for r in rows),
             "floor": round(sum(r["floor"] for r in rows), 3),
             "ceiling": round(sum(r["ceiling"] for r in rows), 3),
             "p_win_pool": round(float(p_win_pool.get(mid, 0.0)), 6),
             "concentration": concentration[mid],
             "picks": rows,
         })
-    managers.sort(key=lambda m: (-m["p_win_pool"], -m["aggregate_market_gap"],
-                                 m["manager_id"]))
+    managers.sort(key=lambda m: (-m["aggregate_market_gap"], -m["floor"], m["manager_id"]))
     for i, m in enumerate(managers):
         m["rank"] = i + 1
 
@@ -853,12 +854,12 @@ def _build_week0_packet(group_id, baseline_path=None):
     # projected, not earned. `basis` says so in words, because a 0.0 read off one
     # row looks exactly like a real standing.
     race = {
-        "leader": None,
+        "leader": managers[0]["manager_id"] if managers else None,
         "standings": [{
             "manager_id": m["manager_id"],
             "name": m["name"],
-            "total_delta": 0.0,
-            "gap_to_leader": 0.0,
+            "total_delta": m["aggregate_market_gap"],
+            "gap_to_leader": managers[0]["aggregate_market_gap"] - m["aggregate_market_gap"],
             "delta_this_week": None,
             "rank": m["rank"],
             "rank_change": None,
@@ -879,7 +880,7 @@ def _build_week0_packet(group_id, baseline_path=None):
                     for r in rows) / len(rows), 3),
             "opponents_sp_top25": sum(r["strength_of_schedule"]["opponents_sp_top25"]
                                       for r in rows),
-            "aggregate_market_gap": round(sum(r["market_gap"] for r in rows), 3),
+            "aggregate_market_gap": pace.manager_pace(r["market_gap"] for r in rows),
         }
 
     storylines = _preseason_storylines(by_mgr, display, collisions,
@@ -942,9 +943,8 @@ def _build_week0_packet(group_id, baseline_path=None):
             "prior_week": None,
             "weeks_elapsed": None,
             "basis": (f"Week 0 — no games have been played in season {season}. "
-                      f"Nothing is banked, every manager's total_delta is 0.0, "
-                      f"and the standings order is projected pool odds, not "
-                      f"earned position. There is no leader."),
+                      "Standings rank projected wins ahead/behind pace. "
+                      "No completed results or weekly movement exist yet."),
         },
         "meta": {
             "baseline": {

@@ -382,8 +382,8 @@ function blockDossier(m, p) {
 // on this page hardcodes a pick, a line or a conference.
 function blockPicks(m, ctx) {
   const picks = m.picks || [];
-  const live = Number.isInteger(ctx.week);
-  const label = live ? `Week ${ctx.week} board` : `${ctx.season} preseason picks`;
+  const live = picks.some(p => (p.played_games || []).length > 0);
+  const label = live ? `Current picks` : `${ctx.season} preseason picks`;
 
   if (!picks.length) {
     // Pre-draft is a real state, not a failure — say so instead of printing an
@@ -403,7 +403,7 @@ function blockPicks(m, ctx) {
       // resolves black-or-white against the team's own primary so a light
       // primary (Wake Forest gold) does not draw white type on gold.
       : `<span class="pf-mark"${mark && mark.color ? ` style="--pf-team-color:${esc(mark.color)};--pf-team-ink:${esc(mark.ink || '#fff')}"` : ''} aria-hidden="true">${esc(mark ? mark.abbr : (pk.team || '?').slice(0, 3).toUpperCase())}</span>`;
-    const d = Number(pk.banked_delta);
+    const d = pk.expected_delta;
     const dCls = d > 0 ? ' pos' : d < 0 ? ' neg' : '';
     // The call stays a WORD with a distinct shape (filled vs outlined) as well
     // as a colour, at a smaller size. Abbreviating it to O/U would have been
@@ -414,7 +414,7 @@ function blockPicks(m, ctx) {
       <span class="pf-pick-team">${esc(pk.team)}</span>
       <span class="pf-pick-line">${fmtLine(pk.line)}</span>
       <span class="pf-pick-call ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'}</span>
-      ${live ? `<span class="pf-pick-delta${dCls}">${fmtSigned(d)}</span>` : ''}
+      <span class="pf-pick-delta${dCls}">${fmtSigned(d)}</span>
     </li>`;
   }).join('');
 
@@ -442,7 +442,9 @@ function blockPicks(m, ctx) {
 
   return `<section class="pf-picks" aria-label="Picks">
     <div class="pf-picks-head"><span class="pf-label">${esc(label)}</span>${spread}</div>
+    <p class="pf-label">#${m.rank ?? '&mdash;'} &middot; ${fmtSigned(m.expected_total)} ${paceLabel(m.expected_total)}</p>
     <ul class="pf-pickstrip">${items}</ul>
+    ${picks.map(p => `<details class="pace-pick-details"><summary>${esc(p.team)}: record and full schedule</summary>${paceSchedule(p)}</details>`).join('')}
   </section>`;
 }
 
@@ -804,6 +806,7 @@ async function main() {
      <h1 class="pf-intro-title">${esc(groupLabel(groupId))}</h1>
      <p class="pf-intro-sub">${mgrs.length} manager${mgrs.length === 1 ? '' : 's'}, ` +
     `in standings order &middot; ${esc(wk)}</p>`;
+  $('mgr-intro').insertAdjacentHTML('beforeend', paceFreshness(meta, mgrs.some(m => m.expected_total != null)));
   show($('mgr-intro'));
 
   renderContents(mgrs, personas);

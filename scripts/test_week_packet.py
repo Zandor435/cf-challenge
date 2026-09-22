@@ -194,13 +194,14 @@ def test_helpers():
 def _mgr(mid, rank, picks):
     return {"manager_id": mid, "display_name": mid.title(), "rank": rank,
             "banked_total": sum(p["banked_delta"] for p in picks.values()),
+            "expected_total": sum(p["expected_delta"] for p in picks.values()),
             "floor": 0.0, "ceiling": 0.0, "picks": picks}
 
 
 def _pick(team, direction, line, banked):
     return {"team": team, "conference": "Big Ten", "line": line,
             "direction": direction, "banked_wins": 0, "games_remaining": 0,
-            "banked_delta": banked, "floor": banked, "ceiling": banked,
+            "banked_delta": banked, "expected_delta": banked, "floor": banked, "ceiling": banked,
             "status": B.status_of(banked, banked), "p_beat_line": None}
 
 
@@ -391,7 +392,7 @@ def _mgr_snap(week, mid, total, ceiling=0.0):
     return {"as_of_week": week, "generated_at": "", "managers": [
         {"manager_id": mid, "p_win_pool": None, "picks": [
             {"team": "Ohio State", "banked_delta": total, "floor": 0.0,
-             "ceiling": ceiling, "expected_delta": None, "p_beat_line": None}]}]}
+             "ceiling": ceiling, "expected_delta": total, "p_beat_line": None}]}]}
 
 
 def test_byes():
@@ -595,7 +596,7 @@ def test_irony_scoring():
 
 def _spick(mid, team, banked=1.0):
     return {"manager_id": mid, "team": team, "line": 9.5, "direction": "O",
-            "banked_delta": banked, "floor": banked, "ceiling": banked,
+            "banked_delta": banked, "expected_delta": banked, "floor": banked, "ceiling": banked,
             "status": B.status_of(banked, banked), "floor_change_this_week": None,
             "ceiling_change_this_week": None, "p_beat_line": None}
 

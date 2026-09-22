@@ -96,6 +96,8 @@ def normalize_game(g):
         "season_type": g.get("seasonType", g.get("season_type", "regular")),
         "start_date": g.get("startDate", g.get("start_date")),
         "completed": g.get("completed", False),
+        "cancelled": bool(g.get("cancelled") or g.get("canceled")),
+        "status": g.get("status"),
         "home_team": g.get("homeTeam", g.get("home_team")),
         "home_points": g.get("homePoints", g.get("home_points")),
         "home_conference": g.get("homeConference", g.get("home_conference")),

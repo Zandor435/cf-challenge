@@ -511,7 +511,7 @@ function snapshotTotals(snap) {
   const out = {};
   (snap.managers || []).forEach((m) => {
     out[m.manager_id] = round1((m.picks || [])
-      .reduce((s, p) => s + Number(p.banked_delta), 0));
+      .reduce((s, p) => s + Number(p.expected_delta), 0));
   });
   return out;
 }
@@ -695,16 +695,16 @@ function renderHero(standings, pre) {
   // has no art. An emitted-but-empty <p class="hero-sub"> would still spend its
   // line-height on the band, which is the gap this is removing.
   let subHTML = '';
-  if (!pre) {
+  if (leader.expected_total != null) {
     let sub;
     if (mgrs.length > 1) {
-      const gap = round1(leader.banked_total - mgrs[1].banked_total);
+      const gap = leader.expected_total - mgrs[1].expected_total;
       sub = gap === 0
-        ? `Tied with <b>${esc(mgrs[1].display_name)}</b> at <span class="mono">${fmtSigned(leader.banked_total)}</span>.`
-        : `Score <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span> &middot; ` +
+        ? `Tied with <b>${esc(mgrs[1].display_name)}</b> at <span class="mono">${fmtSigned(leader.expected_total)}</span>.`
+        : `Pace <span class="mono hero-pos">${fmtSigned(leader.expected_total)}</span> &middot; ` +
           `<span class="mono">${fmtLine(gap)}</span> clear of <b>${esc(mgrs[1].display_name)}</b>.`;
     } else {
-      sub = `Score <span class="mono hero-pos">${fmtSigned(leader.banked_total)}</span>.`;
+      sub = `Pace <span class="mono hero-pos">${fmtSigned(leader.expected_total)}</span>.`;
     }
     subHTML = `<p class="hero-sub">${sub}</p>`;
   }
@@ -732,9 +732,7 @@ function renderHero(standings, pre) {
     `<div class="hero-main">
       <div class="hero-kicker">${esc(season)} CFB Over/Under Challenge &middot; ` +
         `${esc(groupLabel(meta.group_id || currentGroupId()))} &middot; ${esc(wk)}</div>
-      <h1 class="hero-title">${pre
-        ? 'Drafted &mdash; <span>no games played</span>'
-        : `Current leader: <span>${esc(leader.display_name)}</span>`}</h1>
+      <h1 class="hero-title">${leader.expected_total == null ? 'Pace standings unavailable' : `${pre ? 'Preseason pace leader' : meta.pace_stale ? 'Last saved pace leader' : 'Pace leader'}: <span>${esc(leader.display_name)}</span>`}</h1>
       ${subHTML}
     </div>`;
   // Third-tier fallback, same contract as logos and portraits: if the banner
@@ -774,19 +772,19 @@ function pickRow(p, gMin, gMax, color) {
   const cls = p.status === 'DEAD' ? ' dead' : '';
   const rem = p.games_remaining > 0 ? `${p.games_remaining} left` : 'final';
   const stCls = p.status === 'LIVE' ? 'st-live' : p.status === 'CLINCHED' ? 'st-clinched' : 'st-dead';
-  const dCls = p.banked_delta > 0 ? ' pos' : p.banked_delta < 0 ? ' neg' : '';
+  const dCls = p.expected_delta > 0 ? ' pos' : p.expected_delta < 0 ? ' neg' : '';
   return `<div class="pick${cls}">
     <div class="pick-line1">
       <div class="pick-team">${esc(p.team)}<span class="conf">${esc(p.conference || '')}</span></div>
       <span class="dir-badge ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'} ${fmtLine(p.line)}</span>
-      <span class="pick-delta mono${dCls}">${fmtSigned(p.banked_delta)}</span>
+      <span class="pick-delta mono${dCls}">${fmtSigned(p.expected_delta)}</span>
     </div>
     <div class="pick-sub">
       <span>${p.banked_wins}&ndash;${p.banked_losses}</span>
       <span>${rem}</span>
       <span class="${stCls}">${p.status}</span>
     </div>
-    ${rangeBar(p.floor, p.ceiling, p.banked_delta, gMin, gMax, color)}
+    ${rangeBar(p.floor, p.ceiling, p.expected_delta, gMin, gMax, color)}
   </div>`;
 }
 
@@ -803,21 +801,14 @@ function moveHead(moves) {
   return moves ? `Since wk ${esc(String(moves.week))}` : 'Move';
 }
 function totalCell(m) {
-  return `<div class="mgr-total">
-    <div class="val mono${m.banked_total < 0 ? ' neg' : ''}">${fmtSigned(m.banked_total)}</div>
-    <div class="lbl">Score</div>
-  </div>`;
+  return `<div class="mgr-total"><div class="val mono${m.expected_total < 0 ? ' neg' : ''}">${esc(m.expected_total_display || fmtSigned(m.expected_total))}</div><div class="lbl">${paceLabel(m.expected_total)}</div></div>`;
 }
-// `pos` overrides the exact rank for a board that is not ordered by it. The
-// STANDINGS tab passes nothing and keeps m.rank — the real standing, and what
-// settles the pool. The Portfolios card is ordered by the PROJECTED total, so
-// it passes its own 1..n position: printing exact ranks down a projected board
-// would put the numbers out of order (panel's committed board reads 1, 2, 4, 3),
-// which reads as broken rather than as two boards.
+
+// Server-produced ranks; null means pace is unavailable.
 function identityCell(m, id, picks, pos) {
   // The name is the link to the profile page — the row's own affordance, so
   // no extra chevron or "view" column is needed on either board density.
-  return `<div class="rank">${pos === undefined ? m.rank : pos}</div>
+  return `<div class="rank">${(pos === undefined ? m.rank : pos) ?? "&mdash;"}</div>
     ${avatar(id, 'avatar-md')}
     <div class="mgr-id">
       <div class="mgr-name"><a class="mgr-profile-link" href="${id.profile}">${esc(m.display_name)}</a></div>
@@ -887,62 +878,17 @@ function indexProjection(projection) {
     if (typeof m.expected_total === 'number') totalsByMgr[m.manager_id] = m;
     const teams = {};
     (m.picks || []).forEach((p) => {
-      if (Array.isArray(p.remaining_games) && p.outlook && p.pace) teams[p.team] = p;
+      if (Array.isArray(p.remaining_games) && p.outlook) teams[p.team] = p;
     });
     if (Object.keys(teams).length) teamsByMgr[m.manager_id] = teams;
   });
   return { teams: teamsByMgr, totals: totalsByMgr };
 }
 
-// The manager's headline number on the Portfolios card.
-//
-// WHY THE PROJECTION LEADS AND THE EXACT SCORE DOES NOT. The exact total is the
-// real scoring and it is what rank is computed from, but as a PROGRESS read it
-// is close to information-free: every pick starts at +/- its line, so the total
-// ranks managers by how many Unders they drafted long before it ranks them by
-// how they are doing. On the committed boards it reproduces the unders-drafted
-// order exactly in both large groups, and it puts Vic 7th of 8 in family while
-// the projection and the pool odds both put him 4th. It also drifts a
-// predetermined direction per pick: an Under holder's falls all season while
-// they are winning the bet. So the projection leads, and the exact number sits
-// under it -- still visible, still what rank and the STANDINGS tab are built on.
-//
-// AMBER STAYS ON THE EXACT NUMBER. The token block in style.css reserves
-// --accent for exact values, so the projected figure renders in ink and the
-// exact one keeps the accent: the color marks the number you can check by hand.
-function portfolioTotalCell(m, mproj) {
-  // No projection for this manager: the exact score takes the headline back
-  // rather than leaving an empty slot or asserting a number we do not have.
-  if (!mproj) return totalCell(m);
-  const exp = mproj.expected_total;
-  // PRINTED, NOT FORMATTED. expected_total_display is rounded by the projector
-  // together with the picks' expected_delta_display, so the line items below add
-  // to this figure on screen and not merely at full precision. Re-deriving it
-  // here with fmtSigned would round the headline independently of its own parts
-  // and could put a column on screen that does not add up — which is the defect
-  // this card was reworked to remove. Older files without the field fall back.
-  const head = mproj.expected_total_display || fmtSigned(exp);
-  return `<div class="mgr-total po-total">
-    <div class="val proj mono${exp < 0 ? ' neg' : ''}">${esc(head)}</div>
-    <div class="lbl">Projected</div>
-    <div class="po-exact mono" title="Exact score off games played — the STANDINGS tab, and what settles the pool">
-      <span class="po-exact-val${m.banked_total < 0 ? ' neg' : ''}">${fmtSigned(m.banked_total)}</span>
-      <span class="po-exact-lbl">score</span>
-    </div>
-  </div>`;
-}
+// All score surfaces consume the same canonical pace.
+function portfolioTotalCell(m, mproj) { return totalCell(mproj || m); }
 
-// ---------- Week-over-week move on the PROJECTED total ---------------------
-// The Portfolios card's Change column. Distinct from moveCell (the STANDINGS
-// tab's), and deliberately so: that one measures the change in banked_total,
-// which inherits banked_total's defect as a progress read — every pick starts at
-// ±its line, so an Under holder's exact score falls every week they are winning
-// the bet. A change in the PROJECTED total moves only when the model's view of
-// the season moved, which is what a one-week trend is meant to mean.
-//
-// Computed in Python (projection.json's expected_total_move), not here: this is
-// a number, and numbers come from the pipeline. moveCell stays a JS derivation
-// off timeline.json only because standings.json carries no such field.
+// Week-over-week change in pace, supplied by the engine.
 function projMoveCell(mproj) {
   const v = mproj && mproj.expected_total_move;
   if (!mproj || v === null || v === undefined) {
@@ -958,220 +904,39 @@ function projMoveHead(projection) {
   return Number.isInteger(wk) ? `vs wk ${esc(String(wk))}` : 'Change';
 }
 
-// The pace read, as a chip. An em dash in preseason on purpose: pace.state is
-// "preseason" with null figures whenever nothing has been played, and printing
-// "0.0 on pace" there would assert something the engine deliberately declined
-// to say.
-const PACE_MARK = { ahead: '▲', behind: '▼', on_pace: '▬' };
-const PACE_WORD = { ahead: 'ahead', behind: 'behind', on_pace: 'on pace' };
-
-function paceChip(pace) {
-  if (!pace || pace.state === 'preseason' || pace.delta === null) {
-    return `<span class="po-pace none mono" title="Nothing played yet">&mdash;</span>`;
-  }
-  const cls = pace.state === 'ahead' ? 'pos' : pace.state === 'behind' ? 'neg' : 'flat';
-  return `<span class="po-pace ${cls} mono" title="${fmtSigned(pace.actual_wins)} actual vs ${fmtLine(pace.expected_wins)} expected through ${pace.games_played} game${pace.games_played === 1 ? '' : 's'}">
-    ${PACE_MARK[pace.state]} ${fmtSigned(pace.delta)} ${PACE_WORD[pace.state]}</span>`;
-}
-
-// One pick, collapsed: the side taken, the record, this pick's CONTRIBUTION TO
-// THE HEADLINE, the status, and the pace read.
-//
-// THE LINE ITEM IS THE PROJECTED CONTRIBUTION, NOT THE EXACT DELTA, AND THAT IS
-// THE POINT OF THIS CARD. The headline above these lines is the projected total.
-// It always was, but the lines underneath used to show banked_delta — the exact
-// board's number — so a manager reading down the card found four figures that
-// summed to something other than the number over them. (David's committed week-1
-// row: a +0.9 headline over -5.5, -4.5, +6.5, +7.5, which sum to +4.0, the amber
-// exact score sitting beside it.) Two boards stacked in one card with no way to
-// reconcile them by eye, and nothing on screen said so. Now the parts add to the
-// whole: expected_total IS the sum of these expected_deltas, and the projector
-// rounds them together for display so it holds at one decimal too.
-//
-// The exact per-pick delta is not lost — the STANDINGS tab shows it in full,
-// with the record, the floor/ceiling bar and the status, and the exact total
-// still sits under this card's headline in amber. This card is Board 2; that
-// one is Board 1.
-//
-// No projection for this pick (older projection.json, or a degraded run): the
-// exact delta takes the line back, marked as exact, rather than blanking.
+// A pick row shows its contribution to the manager pace.
 function pfPick(p, proj) {
-  const over = p.direction === 'O';
-  const stCls = p.status === 'LIVE' ? 'st-live' : p.status === 'CLINCHED' ? 'st-clinched' : 'st-dead';
-  const ed = proj && proj.expected_delta;
-  const hasProj = ed !== null && ed !== undefined;
-  const val = hasProj ? ed : p.banked_delta;
-  const dCls = val > 0 ? ' pos' : val < 0 ? ' neg' : '';
-  const text = hasProj ? (proj.expected_delta_display || fmtSigned(ed)) : fmtSigned(p.banked_delta);
-  const title = hasProj
-    ? `Projected contribution to ${esc(p.team)}&rsquo;s owner&rsquo;s total. Exact delta today: ${fmtSigned(p.banked_delta)}`
-    : 'Exact delta — no projection for this pick';
-  return `<div class="po-pick${p.status === 'DEAD' ? ' dead' : ''}">
-    ${teamMark(p.team, 'chip')}
-    <span class="po-team">${esc(p.team)}</span>
-    <span class="dir-badge ${over ? 'over' : 'under'}">${over ? 'Over' : 'Under'} ${fmtLine(p.line)}</span>
+  const pr = proj || p;
+  return `<div class="po-pick">${teamMark(p.team, 'chip')}<span class="po-team">${esc(p.team)}</span>
+    <span class="dir-badge ${p.direction === 'O' ? 'over' : 'under'}">${p.direction === 'O' ? 'Over' : 'Under'} ${fmtLine(p.line)}</span>
     <span class="po-rec mono">${p.banked_wins}&ndash;${p.banked_losses}</span>
-    <span class="po-delta mono${dCls}${hasProj ? ' is-proj' : ''}" title="${title}">${esc(text)}</span>
-    <span class="po-status ${stCls}">${esc(p.status)}</span>
-    ${proj ? paceChip(proj.pace) : '<span class="po-pace none"></span>'}
-  </div>`;
-}
-
-// The expansion: each pick's remaining schedule, game by game. Everything in
-// here is model output, so the whole panel sits inside .is-proj and says so
-// once at the bottom rather than per chip.
-const BUCKET_CLS = { likely_win: 'bk-win', toss_up: 'bk-toss', likely_loss: 'bk-loss' };
-
-function gameChip(g) {
-  const side = g.neutral ? 'vs' : (g.home_away === 'home' ? 'vs' : '@');
-  const wk = g.week === null || g.week === undefined ? '&mdash;' : `wk${g.week}`;
-  return `<span class="po-game ${BUCKET_CLS[g.bucket] || 'bk-toss'}">
-    <span class="po-gwk">${wk}</span>
-    <span class="po-gopp">${side} ${esc(g.opponent)}</span>
-    <span class="po-gp mono">${esc(g.p_win_pct)}</span>
-  </span>`;
-}
-
-function outlookPanel(picks, proj) {
-  const blocks = picks.map((p) => {
-    const pr = proj[p.team];
-    if (!pr) return '';
-    const o = pr.outlook;
-    const games = pr.remaining_games.length
-      ? pr.remaining_games.map(gameChip).join('')
-      : `<span class="po-none">Nothing left to play.</span>`;
-    return `<div class="po-out">
-      <div class="po-out-head">
-        <span class="po-out-team">${esc(p.team)}</span>
-        <span class="po-tally">
-          <span class="bk-win">${o.likely_wins} likely W</span>
-          <span class="bk-toss">${o.toss_ups} toss-up</span>
-          <span class="bk-loss">${o.likely_losses} likely L</span>
-        </span>
-      </div>
-      <div class="po-games">${games}</div>
+    <span class="po-delta mono${pr.expected_delta < 0 ? ' neg' : ' pos'}">${esc(pr.expected_delta_display || fmtSigned(pr.expected_delta))}</span>
     </div>`;
-  }).join('');
-  return `<div class="po-panel is-proj">${blocks}
-    <p class="po-panel-note">Per-game odds from the SP+ rating gap plus home field.
-      Likely at ${pct(0.65)} or better, unlikely at ${pct(0.35)} or worse, toss-up in
-      between. These move every week as the ratings do.</p>
-  </div>`;
 }
 
-function portfolioRow(m, ident, moves, proj, mproj, pos, anyProj) {
+function portfolioRow(m, ident, moves, proj, mproj) {
   const picks = m.picks || [];
   const id = ident[m.manager_id];
-  const open = !!proj;   // no per-game data for this manager => no disclosure
-  return `<article class="mgr-po${open ? ' can-open' : ''}" style="--mc:${id.color}"
-      data-mgr="${esc(m.manager_id)}">
-    <div class="po-row">
-      ${identityCell(m, id, picks, pos)}
-      ${portfolioTotalCell(m, mproj)}
-      ${anyProj ? projMoveCell(mproj) : moveCell(m.manager_id, moves)}
-      ${open ? `<button type="button" class="po-toggle" aria-expanded="false"
-        aria-label="Show ${esc(m.display_name)}&rsquo;s remaining schedule"><span class="po-caret"></span></button>`
-        : '<span class="po-toggle-spacer"></span>'}
-    </div>
-    <div class="po-picks">${picks.map((p) => pfPick(p, proj && proj[p.team])).join('')}</div>
-    ${open ? outlookPanel(picks, proj) : ''}
+  return `<article class="mgr-po" style="--mc:${id.color}" data-mgr="${esc(m.manager_id)}">
+    <div class="po-row">${identityCell(m, id, picks)}${totalCell(m)}</div>
+    <div class="po-picks">${picks.map(p => `<details class="po-team-detail"><summary aria-label="${esc(p.team)}: record and full schedule">${pfPick(p,p)}</summary>${paceSchedule(p)}</details>`).join('')}</div>
   </article>`;
 }
 
-// ORDERED BY THE NUMBER IT PRINTS. The card leads with the projected total, so
-// it is sorted by the projected total — panel's committed board sorted by exact
-// rank runs 2.96, 2.62, -1.90, -1.51 down the Projected column, and a column of
-// numbers out of order reads as a bug, not as a second board. Ties fall back to
-// the exact rank so the order is total and stable.
-//
-// Managers with no projection sort last rather than at 0: an absent figure is
-// not a middling one. They keep their exact score in the headline (see
-// portfolioTotalCell), so the column is still readable top to bottom.
-//
-// The STANDINGS tab is untouched and stays ordered by the exact rank, which is
-// the real standing and what settles the pool. Two boards, each ordered by its
-// own number, each labeled — rather than one board ordered by a number it does
-// not show.
-function orderForPortfolios(managers, totalsByMgr, anyProj) {
-  const rows = managers.slice();
-  if (!anyProj) return rows.sort((a, b) => a.rank - b.rank);
-  const key = (m) => {
-    const t = totalsByMgr[m.manager_id];
-    return t && typeof t.expected_total === 'number' ? t.expected_total : null;
-  };
-  return rows.sort((a, b) => {
-    const ka = key(a), kb = key(b);
-    if (ka === null && kb === null) return a.rank - b.rank;
-    if (ka === null) return 1;
-    if (kb === null) return -1;
-    return kb - ka || a.rank - b.rank;
-  });
-}
+function orderForPortfolios(managers) { return managers.slice(); }
 
 function renderPortfolios(standings, projection, ident, moves, pre) {
-  const meta = standings.meta || {};
-  const proj = indexProjection(projection);
-  const anyProj = Object.keys(proj.totals).length > 0;
-  const mgrs = orderForPortfolios(standings.managers || [], proj.totals, anyProj);
-  $('po-week').textContent = weekLabel(meta.as_of_week, pre);
-
-  // One line, not two. The static .card-sub describes a board with results in
-  // it, which before kickoff there are none of, so it steps aside rather than
-  // stacking above a correction that contradicts it.
-  (pre ? hide : show)($('po-sub'));
-  // With no projection the card has fallen back to the exact board, and the
-  // static subtitle's claim — that the line items add up to the figure above
-  // them — is about the PROJECTED total and would be describing a card that is
-  // no longer on screen. Exact deltas do sum to the exact score, but they are
-  // not "a share of" anything, so the sentence is replaced rather than reworded.
-  if (!anyProj) {
-    $('po-sub').textContent = 'Every manager\u2019s four picks with the side they took, '
-      + 'their record and their exact delta. The projection is unavailable this run, '
-      + 'so this card is showing the exact board.';
-  }
-  preseasonNote('po-preseason', pre,
-    'Preseason &mdash; nothing has been played, so every record is 0&ndash;0 and the ' +
-    'amber exact score is just each manager&rsquo;s lines restated in the direction ' +
-    'they took them. The projected total and the per-team numbers under it are live ' +
-    'now, along with the remaining-schedule outlook. Pace has no games to measure ' +
-    'yet and reads as a dash, and there is no earlier week to show a Change against.');
-
-  // The column says "Projected" only where a projection actually landed; with
-  // none, every cell has fallen back to the exact score and the header follows —
-  // and so does the rest of the card: exact order, exact line items, and the
-  // exact week-over-week move, which is the right board to degrade to.
-  const head = `<div class="po-head">
-    <span>${anyProj ? 'Proj' : 'Rank'}</span><span></span><span>Manager</span>
-    <span>${anyProj ? 'Projected' : 'Score'}</span>
-    <span>${anyProj ? projMoveHead(projection) : moveHead(moves)}</span><span></span>
-  </div>`;
-  $('po-board').innerHTML = head + mgrs.map((m, i) =>
-    portfolioRow(m, ident, moves, proj.teams[m.manager_id] || null,
-                 proj.totals[m.manager_id] || null,
-                 anyProj ? i + 1 : undefined, anyProj)).join('');
-  wireImageFallbacks($('po-board'));
-  wirePortfolioToggles();
-
-  // Only claim the projection legend when a projection actually landed.
-  const legend = $('po-legend');
-  if (anyProj) {
-    legend.innerHTML = 'Each team&rsquo;s number is its share of that manager&rsquo;s ' +
-      'projected total, so the four line items add up to the figure above them. ' +
-      'Change is the one-week move in that projected total. The projection, the ' +
-      'pace and the game-by-game outlook are SP+ and update weekly; the records, ' +
-      'lines and the amber score are exact. This card is ordered by the projection; ' +
-      'the STANDINGS tab is ordered by the exact score, which is what settles the pool.';
-    show(legend);
-  } else {
-    hide(legend);
-  }
-  show($('portfolios'));
+  const proj = indexProjection(standings);
+  $('po-week').textContent = weekLabel(standings.meta.as_of_week, pre);
+  hide($('po-preseason'));
+  $('po-sub').textContent = 'One score: the sum of your four picks\' wins ahead or behind pace.';
+  $('po-board').innerHTML = paceFreshness(standings.meta, standings.managers.some(m => m.expected_total != null)) + standings.managers.map(m =>
+    portfolioRow(m, ident, null, proj.teams[m.manager_id] || {}, m, undefined, true)).join('');
+  $('po-legend').textContent = 'Projected finish = actual wins + expected remaining wins. Over pace = projected finish minus line; Under reverses it. Open a pick to see its full schedule.';
+  show($('po-legend')); show($('portfolios'));
+  wireImageFallbacks($('po-board')); wirePortfolioToggles();
 }
 
-// One delegated listener on the board, the same posture wirePosters() uses —
-// the rows are re-rendered wholesale, so per-row listeners would leak.
-// Deliberately no hash and no routing: this is an in-place disclosure, not a
-// second view of the page.
 function wirePortfolioToggles() {
   const board = $('po-board');
   if (!board || board.dataset.wired === '1') return;
@@ -1189,29 +954,12 @@ function wirePortfolioToggles() {
 // Rendered once from the same standings.json main() already fetched; the nav
 // only toggles its visibility.
 function renderStandingsDetail(standings, ident, moves, pre) {
-  const mgrs = (standings.managers || []).slice().sort((a, b) => a.rank - b.rank);
-  const meta = standings.meta || {};
-  $('detail-week').textContent = weekLabel(meta.as_of_week, pre);
-  preseasonNote('detail-preseason', pre,
-    'Preseason &mdash; nothing has been played, so each pick&rsquo;s banked figure is ' +
-    'its line restated in the direction it was taken, and every marker sits pinned at ' +
-    'one end of its own range: the ceiling for an Under, the floor for an Over. An ' +
-    'all-Under manager therefore shows no ceiling left. The ranking is the draft, ' +
-    'read back.');
-
-  // Shared scale across every pick in the group so bars are comparable.
-  const allPicks = mgrs.flatMap((m) => m.picks || []);
-  const gMin = Math.min(0, ...allPicks.map((p) => p.floor));
-  const gMax = Math.max(0, ...allPicks.map((p) => p.ceiling));
-
-  const head = `<div class="mgr-head">
-    <span>Rank</span><span></span><span>Manager</span><span>Score</span>
-    <span>${moveHead(moves)}</span>
-  </div>`;
-  $('standings-detail-list').innerHTML =
-    head + mgrs.map((m) => managerCard(m, ident, gMin, gMax, moves)).join('');
+  $('detail-week').textContent = weekLabel(standings.meta.as_of_week, pre);
+  hide($('detail-preseason'));
+  $('standings-detail-list').innerHTML = paceFreshness(standings.meta, standings.managers.some(m => m.expected_total != null)) + standings.managers.map(m =>
+    `<article class="mgr" style="--mc:${ident[m.manager_id].color}"><div class="mgr-main"><div class="mgr-row">${identityCell(m, ident[m.manager_id], m.picks)}${totalCell(m)}</div>
+    ${m.picks.map(p => `${pfPick(p,p)}<details class="pace-pick-details"><summary>${esc(p.team)}: record and full schedule</summary>${paceSchedule(p)}</details>`).join('')}</div></article>`).join('');
   wireImageFallbacks($('standings-detail-list'));
-  wirePosters($('standings-detail-list'));
 }
 
 // ---------- Scoreboard — standings.json re-pivoted by team -----------------
@@ -1240,7 +988,7 @@ function buildTeamRows(standings) {
       const key = `${p.line}${p.direction}`;
       let side = row.sides.find((s) => s.key === key);
       if (!side) {
-        side = { key, line: p.line, direction: p.direction, banked_delta: p.banked_delta, status: p.status };
+        side = { key, line: p.line, direction: p.direction, expected_delta: p.expected_delta, status: p.status };
         row.sides.push(side);
       }
     });
@@ -1257,8 +1005,8 @@ function teamRowHTML(r, ident) {
   const ou = r.sides.map((s) =>
     `<span>${fmtLine(s.line)}&nbsp;${s.direction === 'O' ? 'O' : 'U'}</span>`).join('');
   const delta = r.sides.map((s) => {
-    const cls = s.banked_delta > 0 ? 'pos' : s.banked_delta < 0 ? 'neg' : 'flat';
-    return `<span class="${cls}">${fmtSigned(s.banked_delta)}</span>`;
+    const cls = s.expected_delta > 0 ? 'pos' : s.expected_delta < 0 ? 'neg' : 'flat';
+    return `<span class="${cls}">${fmtSigned(s.expected_delta)}</span>`;
   }).join('');
   const rem = r.games_remaining > 0 ? `${r.games_remaining} left` : 'final';
 
@@ -1279,15 +1027,12 @@ function teamRowHTML(r, ident) {
 function renderScoreboard(standings, ident, pre) {
   const rows = buildTeamRows(standings);
   if (!rows.length) return;
-  preseasonNote('sb-preseason', pre,
-    'Preseason &mdash; every record below is 0&ndash;0, so the &Delta; column is each ' +
-    'team&rsquo;s line restated in its owner&rsquo;s direction rather than anything that ' +
-    'has happened.');
+  preseasonNote('sb-preseason', pre, 'Preseason pace uses the current probabilities for the full schedule.');
   const mid = Math.ceil(rows.length / 2);
   const header = `<div class="sb-row sb-head">
     <span></span><span>Team</span>
     <span class="sb-meta"><span>Owner</span><span>O/U</span><span>Cur</span></span>
-    <span>&Delta;</span>
+    <span>Pace</span>
   </div>`;
   const col = (list) => `<div class="sb-col">${header}${list.map((r) => teamRowHTML(r, ident)).join('')}</div>`;
   $('sb-cols').innerHTML = col(rows.slice(0, mid)) + col(rows.slice(mid));
@@ -1532,12 +1277,7 @@ async function main() {
 
   // Week-over-week move is a nice-to-have: a missing timeline.json must not
   // affect anything else on the page.
-  let moves = null;
-  try {
-    moves = computeMoves(standings, await fetchJSON(`data/${groupId}/timeline.json`));
-  } catch (e) {
-    moves = null;
-  }
+  const moves = null;
 
   // Preseason is a posture, not a filter: nothing below is recomputed, re-ranked
   // or suppressed because of it. What changes is what the page CLAIMS about the
@@ -1549,7 +1289,8 @@ async function main() {
   // now that the manager strip is gone, and its banner carries its own error
   // handler inside renderHero.
   renderHero(standings, pre);
-  const projection = projRes.status === 'fulfilled' ? projRes.value : null;
+  const candidate = projRes.status === 'fulfilled' ? projRes.value : null;
+  const projection = candidate && candidate.meta.generated_at === meta.generated_at ? candidate : null;
   renderPortfolios(standings, projection, ident, moves, pre); // Home tab
   renderStandingsDetail(standings, ident, moves, pre); // Standings tab — full detail
   renderScoreboard(standings, ident, pre);
@@ -1559,14 +1300,8 @@ async function main() {
   // in when it lands, and lands on its own empty state if it does not.
   renderEditorial(groupId);
 
-  // Board 2 degrades independently of Board 1 (STEP 4). Same file the
-  // Portfolios board read, fetched once above.
-  if (projection) {
-    renderBoard2(projection, standings, ident, pre);
-  } else {
-    renderBoard2Unavailable(
-      `It was not found for this group (${esc(projRes.reason && projRes.reason.message || 'fetch failed')}).`);
-  }
+  hide($('board2'));
+
 }
 
 main();

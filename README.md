@@ -1,31 +1,37 @@
 # CFB Fantasy Platform
 
-Multi-group college football fantasy platform: season-long win-totals pool with
-two scoring boards (exact standings + a labeled SP+ projection), automated
-weekly updates via GitHub Actions. See `ARCHITECTURE.md` for the full design and
-`docs/output-contract.md` for the locked output schemas.
+Multi-group college football win-total competition with one competitive metric:
+**wins ahead or behind pace**. Each manager's score sums their four picks'
+projected final wins against the original lines, reversing the sign for Under.
 
 ## Architecture
 
-One codebase, N groups. The data fetch is shared (same CFB games + SP+ ratings,
-one cache); scoring/projection run **per group** off that one cache, keyed by
-`group_id`. Two boards (ARCHITECTURE §3):
-
-- **Board 1 — standings** (`scoring.py`): pure, reproducible-by-hand arithmetic —
-  banked delta in each pick's O/U direction + a floor/ceiling envelope + a
-  CLINCHED/DEAD/LIVE status. The credibility spine.
-- **Board 2 — projection** (`projector.py`): per-game win probability from the
-  SP+ differential + home field → exact Poisson-binomial per pick → shared-draw
-  Monte-Carlo pool odds. Clearly labeled a projection.
+The existing SP+ model supplies current remaining-game probabilities. Python
+calculates pace at full precision; the site displays one decimal. Completed
+results replace probabilities, so season-end pace equals actual performance
+against the lines. Title simulations remain secondary explanations.
 
 ```
-fetch_results.py (shared: results + SP+ -> data/cfbd_cache.json)
-        │
-run_groups.py  ──loop groups──▶  validate ─▶ score ─▶ project ─▶ timeline
-        │                          (§9)     (Board 1)  (Board 2)  (append-only)
-        ▼
-docs/data/<group_id>/{standings,projection,timeline}.json   ← the only write target
+fetch_results.py -> shared results + current SP+ cache
+run_groups.py -> validate -> projector + pace.py -> coherent standings/projection
+             -> timeline -> analytics -> editorial inputs
 ```
+
+Standings and projection share one generation timestamp. A failed pace refresh
+keeps the last coherent standings with a stale notice; title simulation failures
+do not prevent pace updates. Original records, floor/ceiling bounds, statuses,
+ratings archives, and historical projections are preserved.
+
+For a deliberate preseason refresh, use `python scripts/run_groups.py --group all --allow-empty`; the existing empty-results ingestion guard otherwise preserves published boards.
+
+Team drilldowns show the full schedule. Completed games are struck through,
+with W/L/T and preserved pregame expectation shading. Upcoming games use current
+probabilities. `pregame-<season>.json` preserves these forecasts automatically;
+`python scripts/backfill_pregame.py --group all` can recover verifiable published
+pregame forecasts from a full Git checkout without recomputing any historical model.
+
+See [the scoring audit](docs/scoring-audit.md), [architecture](ARCHITECTURE.md),
+and [output contract](docs/output-contract.md).
 
 ## Groups
 

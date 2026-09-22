@@ -70,8 +70,12 @@ async function fetchJSON(path) {
 
 // Number formatting matches the boards exactly — a delta that reads +2.5 on
 // the standings page must not read 2.50 on a profile.
-const fmtSigned = (n) => (n > 0 ? '+' : n < 0 ? '' : '') + Number(n).toFixed(1);
-const fmtLine = (n) => Number(n).toFixed(1);
+const displayTenths = n => Math.sign(Number(n)) * Math.floor(Math.abs(Number(n)) * 10 + 0.5);
+const fmtSigned = n => n == null || !Number.isFinite(Number(n)) ? '\u2014' :
+  (displayTenths(n) > 0 ? '+' : displayTenths(n) < 0 ? '-' : '') + (Math.abs(displayTenths(n)) / 10).toFixed(1);
+const fmtLine = n => n == null ? '\u2014' : (displayTenths(n) / 10).toFixed(1);
+const paceLabel = n => n == null ? 'Pace unavailable' : displayTenths(n) > 0 ? 'Wins ahead of pace' : displayTenths(n) < 0 ? 'Wins behind pace' : 'On pace';
+
 const pct = (p) => (Number(p) * 100).toFixed(0) + '%';
 
 // A signed percentage, for a CHANGE in probability rather than a level.
@@ -357,4 +361,31 @@ function resolveArt(groupId, slot, week, tokens) {
     pick = list[Math.floor(Math.random() * list.length)];
   }
   return expandArt(pick, groupId, tokens);
+}
+
+// Shared schedule explanation: completed games keep their pregame shading.
+function paceSchedule(pick) {
+  const names = {likely_win: 'Expected Win', toss_up: 'Toss-Up', likely_loss: 'Expected Loss'};
+  const played = pick.played_games || [];
+  const remaining = pick.remaining_games || [];
+  const rows = [...played, ...remaining].sort((a, b) => (a.week ?? 999) - (b.week ?? 999));
+  const surprises = played.filter(g => g.result === 'W' && g.bucket === 'likely_loss').length;
+  return `<div class="pace-explanation">
+    <p>${esc(pick.team)} &mdash; ${pick.direction === 'O' ? 'OVER' : 'UNDER'} ${fmtLine(pick.line)}</p>
+    <dl class="pace-facts"><div><dt>Current record</dt><dd>${pick.banked_wins ?? 0}&ndash;${pick.banked_losses ?? 0}${played.some(g => g.result === 'T') ? '&ndash;' + played.filter(g => g.result === 'T').length : ''}</dd></div>
+    <div><dt>Projected finish</dt><dd>${fmtLine(pick.expected_final_wins)} wins</dd></div>
+    <div><dt>Your pace</dt><dd>${fmtSigned(pick.expected_delta)}</dd></div></dl>
+    ${surprises ? `<p class="pace-surprises">${surprises} win${surprises === 1 ? '' : 's'} in games they were expected to lose.</p>` : ''}
+    <div class="pace-schedule" role="list">${rows.map(g => `<div role="listitem" class="pace-game ${g.bucket || 'unknown'}${g.completed ? ' completed' : ''}">
+      <span class="pace-matchup">W${esc(String(g.week ?? '?'))} &middot; ${g.home_away === 'away' ? '@ ' : 'vs '}${esc(g.opponent)}</span>
+      <strong class="pace-result">${esc(g.result || '')}</strong>
+      <span class="pace-probability">${g.p_win_pct ? esc(g.p_win_pct) + (g.probability_estimated ? '*' : '') : '&mdash;'}</span>
+      <span class="pace-bucket">${esc(names[g.bucket] || 'Expectation unavailable')}</span>
+    </div>`).join('') || '<p>No scheduled games.</p>'}</div>
+    <p class="pace-help">Projected finish = actual wins + expected wins from remaining games. Completed games are struck through; their shading records the last saved forecast before kickoff. Unavailable means no preserved forecast. Expected Win: &gt;60%; Toss-Up: 40&ndash;60%; Expected Loss: &lt;40%. *Estimated using the established missing-rating fallback. Figures are rounded independently.</p>
+  </div>`;
+}
+function paceFreshness(meta, available = true) {
+  if (!meta || !meta.pace_stale) return '';
+  return `<p class="pace-stale" role="status">Pace refresh unavailable. ${available ? 'Last saved standings: ' + esc(meta.generated_at || 'date unavailable') : 'No saved pace standings available'}.</p>`;
 }
