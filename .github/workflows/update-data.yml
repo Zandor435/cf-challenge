@@ -1,32 +1,30 @@
 name: Weekly Data Update
 
 on:
-  # Daily at 13:00 UTC (~9am ET) — the morning after each game day. Most days
-  # have no football, and the rule-7 gate below skips those BEFORE the
-  # dependency install or any API call, so an off-cycle run costs nothing. A
-  # daily fire with a tight window beats a weekly one: Thursday and Friday
-  # night games reach the board the next morning instead of waiting for Sunday.
+  # WEEKLY, Sunday 2:07am ET — once per game week, after Saturday's slate and
+  # well before Sunday morning (the board must be current before 9am church).
+  # Thursday/Friday/midweek games wait for Sunday; the gate's 180h lookback
+  # (scripts/should_run.py) spans the whole week so a midweek-only week still
+  # opens it. GitHub queues scheduled runs behind load and has started this
+  # cron 3-4h late, which only pushes the pass later, never earlier.
+  #
+  # Cron is UTC-only, so 2am ET is two entries split at the DST change, which
+  # always falls on the first Sunday of November:
+  #   Aug-Oct  06:07 UTC = 2:07am EDT
+  #   Nov-Dec  07:07 UTC = 2:07am EST
+  # Off the top of the hour because :00 is the most congested slot. No fires
+  # Jan-Jul: the fetch is regular-season only, which ends in early December.
+  #
+  # Caveat: an 11pm ET kickoff (a few late West Coast / Hawaii games) can still
+  # be in progress at 2:07am. It is not lost — the fetch pulls the full season
+  # each pass — but it reaches the board a week late, or sooner via a manual
+  # Run workflow.
   #
   # GitHub disables cron on a repo with no pushes for 60 days — if the boards
   # ever go quiet in the off-season, re-enable it before kickoff.
-  #
-  # SUNDAY EARLY PASSES. The board has to be current before church (9am ET
-  # Sunday), and the 13:00 slot can't promise that: GitHub queues scheduled
-  # runs behind load, and through Sept 2026 that cron started 3-4h late (the
-  # 2026-09-13 run began at 16:45 UTC, 12:45pm ET). So Sunday gets two extra
-  # fires, off the top of the hour because :00 is the most congested slot:
-  #   09:07 UTC  5:07am EDT  head start that absorbs the queue lag
-  #   10:07 UTC  6:07am EDT  the 6am pass; also scores a late Hawaii kickoff
-  #                          (latest on the 2026 slate is 04:59 UTC) that was
-  #                          still in progress at 09:07
-  # Cron is UTC, so after DST ends (Nov 1) both land an hour earlier in ET —
-  # still before church. The gate opens for all three Sunday fires off the
-  # same Saturday slate; each pass costs 3 CFBD calls and re-files the same
-  # week's column (idempotent), so the extra fires are cheap and safe.
   schedule:
-    - cron: "0 13 * * *"
-    - cron: "7 9 * * 0"
-    - cron: "7 10 * * 0"
+    - cron: "7 6 * 8-10 0"
+    - cron: "7 7 * 11-12 0"
   workflow_dispatch: {}  # manual trigger — always bypasses the gate
 
 # This pipeline has NO `on: push` trigger, so nothing it commits can re-trigger

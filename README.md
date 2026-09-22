@@ -142,12 +142,12 @@ it reads the live cache, not the frozen contract fixture.
 4. **Run:** `python scripts/run_groups.py --group all`.
 
 The weekly workflow (`.github/workflows/update-data.yml`) is **armed**: an active
-daily cron at `0 13 * * *` (13:00 UTC, ~9am ET), plus two early Sunday passes at
-`7 9 * * 0` and `7 10 * * 0` (5:07 and 6:07am EDT) so the board is current before
-9am church even when GitHub starts the scheduled run hours late (it routinely
-does). It is safe to leave running in
+weekly cron, Sunday 2:07am ET: `7 6 * 8-10 0` (EDT months) and `7 7 * 11-12 0`
+(EST months), split because cron is UTC-only. Midweek games wait for Sunday. An
+11pm ET kickoff can still be in progress at 2am; it lands the following week, or
+sooner via a manual run. It is safe to leave running in
 the off-season because the rule-7 week-window gate (`scripts/should_run.py`)
-skips any day with no games *before* the dependency install or any API call, so
+skips any week with no games *before* the dependency install or any API call, so
 an off-cycle fire costs one checkout and nothing else. A manual
 `workflow_dispatch` always bypasses that gate.
 
@@ -180,7 +180,7 @@ down so it isn't reconstructed from memory in August. Each step gates the next.
    banner.
 6. **Confirm the cron is still live — before kickoff, not after.** There is
    nothing to re-enable by editing: the `schedule:` block is already armed at
-   `0 13 * * *` plus the two early Sunday passes. The risk is GitHub's inactivity rule — scheduled workflows are
+   the weekly Sunday 2am ET entries. The risk is GitHub's inactivity rule — scheduled workflows are
    disabled on a repo with no pushes for 60 days, which an off-season repo hits
    easily. Check it directly: Actions → *Weekly Data Update* shows a disabled
    state with a re-enable prompt if it has been switched off. Re-enable it there.

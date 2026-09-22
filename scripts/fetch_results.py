@@ -46,12 +46,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import utils
 from cfbd_client import CFBDClient, CFBDError
 
-# The pipeline fires DAILY, but scripts/should_run.py gates it to the morning
-# after a game day, so real passes track the schedule rather than the cron.
-# Budget against a conservative in-season worst case of ~5 game-days/week,
-# plus the two early Sunday passes (update-data.yml) that re-run off the same
-# Saturday slate; out of season the gate skips every day and this drops to zero.
-PASSES_PER_MONTH = (5 + 2) * 52 / 12  # ≈ 30.3 gated passes/month at peak
+# The pipeline fires WEEKLY (Sunday 2am ET, update-data.yml), and
+# scripts/should_run.py gates each fire to a week that had games, so in season
+# that is one pass per week; out of season the gate skips and this drops to zero.
+PASSES_PER_MONTH = 52 / 12  # ≈ 4.3 gated passes/month at peak
 MONTHLY_CEILING = 1000
 STALE_DAYS = 10  # fallback cache older than this = pipeline broken for cycles, not a blip
 
@@ -296,7 +294,7 @@ def report_budget(calls):
     print("API CALL BUDGET (BUILD 3)")
     print("-" * 60)
     print(f"  calls this pass:            {calls}")
-    print(f"  cadence:                    daily cron, rule-7 gated "
+    print(f"  cadence:                    weekly cron, rule-7 gated "
           f"(~{PASSES_PER_MONTH:.1f} passes/mo at peak season)")
     print(f"  projected monthly total:    {monthly:.0f} calls")
     print(f"  free-tier ceiling:          {MONTHLY_CEILING} calls/mo")
