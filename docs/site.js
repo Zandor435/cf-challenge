@@ -370,6 +370,9 @@ function paceSchedule(pick) {
   const remaining = pick.remaining_games || [];
   const rows = [...played, ...remaining].sort((a, b) => (a.week ?? 999) - (b.week ?? 999));
   const surprises = played.filter(g => g.result === 'W' && g.bucket === 'likely_loss').length;
+  const hasProjection = Number.isFinite(pick.expected_final_wins) && Number.isFinite(pick.banked_wins);
+  // Explain the canonical published total; never compute a separate projection here.
+  const expectedRemaining = hasProjection ? pick.expected_final_wins - pick.banked_wins : null;
   return `<div class="pace-explanation">
     <p>${esc(pick.team)} &mdash; ${pick.direction === 'O' ? 'OVER' : 'UNDER'} ${fmtLine(pick.line)}</p>
     <dl class="pace-facts"><div><dt>Current record</dt><dd>${pick.banked_wins ?? 0}&ndash;${pick.banked_losses ?? 0}${played.some(g => g.result === 'T') ? '&ndash;' + played.filter(g => g.result === 'T').length : ''}</dd></div>
@@ -380,9 +383,11 @@ function paceSchedule(pick) {
       <span class="pace-matchup">W${esc(String(g.week ?? '?'))} &middot; ${g.home_away === 'away' ? '@ ' : 'vs '}${esc(g.opponent)}</span>
       <strong class="pace-result">${esc(g.result || '')}</strong>
       <span class="pace-probability">${g.p_win_pct ? esc(g.p_win_pct) + (g.probability_estimated ? '*' : '') : '&mdash;'}</span>
+      <span class="pace-contribution">${g.completed ? (g.result === 'W' ? '+1 actual win' : '+0 actual wins') : (Number.isFinite(g.p_win) ? '+' + g.p_win.toFixed(2) + ' projected wins' : 'Contribution unavailable')}</span>
       <span class="pace-bucket">${esc(names[g.bucket] || 'Expectation unavailable')}</span>
     </div>`).join('') || '<p>No scheduled games.</p>'}</div>
-    <p class="pace-help">Projected finish = actual wins + win probabilities from remaining games. Completed games are struck through; their shading records the last saved forecast before kickoff. Unavailable means no preserved forecast. Expected Win: &gt;65%; Toss-Up: 35&ndash;65%; Expected Loss: &lt;35%. *Estimated using the established missing-rating fallback. Figures are rounded independently.</p>
+    ${hasProjection ? `<p class="pace-calculation"><strong>${pick.banked_wins} actual wins + ${expectedRemaining.toFixed(2)} expected remaining wins = ${fmtLine(pick.expected_final_wins)} projected wins</strong></p>` : ''}
+    <p class="pace-help">Projected finish = actual wins + win probabilities from remaining games. Each remaining game contributes its probability, regardless of its label. Completed games are struck through; their shading records the last saved forecast before kickoff. Unavailable means no preserved forecast. Expected Win: &gt;65%; Toss-Up: 35&ndash;65%; Expected Loss: &lt;35%. *Estimated using the established missing-rating fallback. Contributions show two decimals to explain the total; calculations use full precision and figures are rounded independently.</p>
   </div>`;
 }
 function paceFreshness(meta, available = true) {

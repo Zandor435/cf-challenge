@@ -1793,7 +1793,10 @@ body.svp-doc { background: var(--paper); }
 .pace-facts { display:flex; flex-wrap:wrap; gap:12px 28px; margin:12px 0; }
 .pace-facts dt,.pace-help { font-size:.72rem; line-height:1.6; opacity:.8; }
 .pace-facts dd { margin:0; font-variant-numeric:tabular-nums; }
-.pace-game { display:grid; grid-template-columns:minmax(100px,1fr) 22px 45px minmax(100px,.6fr); gap:8px; align-items:center; padding:9px 10px; margin:4px 0; font-size:.75rem; border-left:3px solid transparent; }
+.pace-game { display:grid; grid-template-columns:minmax(100px,1fr) 22px 45px minmax(125px,.6fr); gap:8px; align-items:center; padding:9px 10px; margin:4px 0; font-size:.75rem; border-left:3px solid transparent; }
+.pace-contribution { font-variant-numeric:tabular-nums; }
+.pace-bucket { grid-column:1 / -1; }
+.pace-calculation { font-size:.8rem; line-height:1.6; margin:14px 0; }
 .pace-game.likely_win { background:rgba(72,170,108,.15); border-color:#48aa6c; }
 .pace-game.toss_up { background:rgba(207,163,71,.14); border-color:#cfa347; }
 .pace-game.likely_loss { background:rgba(200,83,83,.15); border-color:#c85353; }
@@ -1805,7 +1808,7 @@ body.svp-doc { background: var(--paper); }
 .pace-surprises { font-size:.8rem; }
 .pace-pick-details { padding:0 16px; }
 .pace-pick-details summary { cursor:pointer; font-size:.75rem; padding:8px 0; }
-@media(max-width:480px) { .pace-game { grid-template-columns:minmax(95px,1fr) 18px 38px; } .pace-bucket { grid-column:1 / -1; } }
+@media(max-width:480px) { .pace-game { grid-template-columns:minmax(95px,1fr) 18px 38px; } .pace-contribution,.pace-bucket { grid-column:1 / -1; } }
 
 .po-team-detail > summary { cursor:pointer; list-style:none; }
 .po-team-detail > summary::-webkit-details-marker { display:none; }
