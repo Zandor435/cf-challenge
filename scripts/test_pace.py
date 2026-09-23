@@ -46,9 +46,63 @@ def test_invalid_probability_is_not_a_missing_game(value):
 
 
 def test_thresholds_do_not_change_math():
-    assert [projector.game_bucket(p) for p in [.39999, .4, .5, .6, .60001]] == [
+    assert [projector.game_bucket(p) for p in [.34, .35, .5, .65, .66]] == [
         "likely_loss", "toss_up", "toss_up", "toss_up", "likely_win"]
     assert pace.projected_final_wins(0, [.75, .52, .41, .18]) == pytest.approx(1.86)
+
+
+def test_boise_visible_probabilities():
+    # The reported 5.83 sum was an arithmetic error: these eight values sum to 5.53.
+    probabilities = [.59, .79, .57, .67, .78, .67, .76, .70]
+    assert math.fsum(probabilities) == pytest.approx(5.53)
+    finish = pace.projected_final_wins(2, probabilities)
+    assert finish == pytest.approx(7.53)
+    assert pace.display_units(finish) / 10 == 7.5
+    for direction, expected in [("O", .03), ("U", -.03)]:
+        value = pace.team_pace(direction, finish, 7.5)
+        assert value == pytest.approx(expected)
+        assert pace.format_signed(value) == "0.0"
+    # A genuinely 7.83 projection still has the requested symmetric pace/display.
+    assert pace.display_units(7.83) / 10 == 7.8
+    assert pace.format_signed(pace.team_pace("O", 7.83, 7.5)) == "+0.3"
+    assert pace.format_signed(pace.team_pace("U", 7.83, 7.5)) == "-0.3"
+
+
+def test_projection_consumers_and_classification_independence(monkeypatch):
+    config, picks = _fixture()
+    original = projector.build_projection(config, picks, 3)
+    monkeypatch.setattr(projector, "game_bucket", lambda p: "toss_up")
+    changed = projector.build_projection(config, picks, 3, include_simulation=False)
+    standings = scoring.build_standings(config, picks, 3, projection=changed)
+    for before, manager, standing in zip(original["managers"], changed["managers"], standings["managers"]):
+        assert manager["expected_total"] == before["expected_total"] == standing["expected_total"]
+        for pick, sp in zip(manager["picks"], standing["picks"]):
+            assert pick["banked_wins"] == sum(g["result"] == "W" for g in pick["played_games"])
+            assert pick["expected_final_wins"] == pace.projected_final_wins(
+                pick["banked_wins"], (g["p_win"] for g in pick["remaining_games"]))
+            for key in ("expected_final_wins", "expected_delta", "remaining_games", "played_games"):
+                assert sp[key] == pick[key]
+
+
+def test_published_surfaces_share_canonical_pace():
+    import json
+    for path in utils.WEB_DATA_DIR.glob("*/projection.json"):
+        projection = json.loads(path.read_text(encoding="utf-8"))
+        if projection.get("meta", {}).get("scoring_metric") != "pace":
+            continue
+        standings = json.loads(path.with_name("standings.json").read_text(encoding="utf-8"))
+        analytics = json.loads(path.with_name("analytics.json").read_text(encoding="utf-8"))
+        sm = {m["manager_id"]: m for m in standings["managers"]}
+        am = {m["manager_id"]: m for m in analytics["race"]["managers"]}
+        for m in projection["managers"]:
+            for p in m["picks"]:
+                assert p["expected_final_wins"] == pace.projected_final_wins(
+                    p["banked_wins"], (g["p_win"] for g in p["remaining_games"]))
+                assert p["expected_delta"] == pace.team_pace(p["direction"], p["expected_final_wins"], p["line"])
+                assert not ({g["id"] for g in p["played_games"]} & {g["id"] for g in p["remaining_games"]})
+            assert m["expected_total"] == pace.manager_pace(p["expected_delta"] for p in m["picks"])
+            for surface in (sm, am):
+                assert surface[m["manager_id"]]["expected_total"] == m["expected_total"]
 
 
 def test_results_byes_cancellation_ties_and_rescheduling(monkeypatch):

@@ -12,9 +12,9 @@ views of numbers projector.py already computed for the Poisson-binomial — so t
 risk here is never "is the model right", it is "did the view drift from the model
 it claims to be showing". That is what this file asserts:
 
-  - BUCKET BOUNDARIES are closed the way the contract says: >= 0.60 is a likely
-    win, <= 0.40 a likely loss, and the open interval between them is a toss-up.
-    The boundaries themselves are tested explicitly because "<=" vs "<" at 0.40
+  - BUCKET BOUNDARIES are closed the way the contract says: > 0.65 is a likely
+    win, < 0.35 a likely loss, and the closed interval between them is a toss-up.
+    The boundaries themselves are tested explicitly because "<=" vs "<" at 0.35
     is exactly the kind of edge that silently reclassifies games.
   - ROWS MIRROR THE MODEL: remaining_games[i].p_win is the SAME probability the
     distribution was convolved from, paired with the SAME game — a zip over two
@@ -82,16 +82,16 @@ def test_bucket_boundaries():
     print("\n[1] buckets are cut exactly where the contract says")
     win_t, loss_t = P.LIKELY_WIN_THRESHOLD, P.LIKELY_LOSS_THRESHOLD
 
-    check("thresholds are the documented 0.60 / 0.40",
-          (win_t, loss_t) == (0.60, 0.40), f"{win_t} / {loss_t}")
-    # The boundaries are CLOSED into the confident buckets on both sides.
-    check("p == 0.60 is a toss_up (closed boundary)",
+    check("thresholds are the documented 0.65 / 0.35",
+          (win_t, loss_t) == (0.65, 0.35), f"{win_t} / {loss_t}")
+    # The boundaries are CLOSED into the toss-up bucket on both sides.
+    check("p == 0.65 is a toss_up (closed boundary)",
           P.game_bucket(win_t) == "toss_up")
-    check("p == 0.40 is a toss_up (closed boundary)",
+    check("p == 0.35 is a toss_up (closed boundary)",
           P.game_bucket(loss_t) == "toss_up")
-    # ...and the open interval between them is the toss-up.
-    check("just inside 0.60 is a toss_up", P.game_bucket(win_t - 1e-9) == "toss_up")
-    check("just inside 0.40 is a toss_up", P.game_bucket(loss_t + 1e-9) == "toss_up")
+    # ...and the interval between them is also toss-up.
+    check("just inside 0.65 is a toss_up", P.game_bucket(win_t - 1e-9) == "toss_up")
+    check("just inside 0.35 is a toss_up", P.game_bucket(loss_t + 1e-9) == "toss_up")
     check("0.50 is a toss_up", P.game_bucket(0.5) == "toss_up")
     check("the extremes land where expected",
           P.game_bucket(1.0) == "likely_win" and P.game_bucket(0.0) == "likely_loss")

@@ -12,7 +12,7 @@
 | Ranking | Exact standings ranked banked delta, floor, and manager ID; projection output ranked title odds; homepage portfolios independently ranked projected total. |
 | Old pace | A separate actual-versus-current-model diagnostic for completed games. This is not the new pick-relative pace and is no longer displayed. The legacy JSON field retains its original meaning. |
 | Precision | Pick deltas were rounded before aggregation. Largest-remainder display adjustments made displayed picks sum by moving individual values. Both behaviors were replaced. |
-| Classifications | Previously 35%/65%; now strictly below 40% / inclusive 40–60% / strictly above 60%. Classification does not score games. |
+| Classifications | Expected Win >65%; Toss-Up inclusive 35-65%; Expected Loss <35%. Presentation only. |
 
 ## Consumer migration
 
@@ -55,3 +55,26 @@ Unknown historical expectations remain null and use neutral shading.
 - Explicit cancellations leave the eligible slate; postponements remain. Fixture IDs deduplicate provider corrections. Byes add nothing; completed ties add no wins and no remaining probability. Championship eligibility and replay rules are unchanged.
 - The provider's existing normalized feed did not expose a reliable cancellation signal. The adapter now preserves explicit cancellation/status fields when supplied; a game merely marked incomplete cannot safely be inferred canceled.
 - Generated artifacts use the committed cache. No live fetch, deployment, email send, model retuning, or historical-column regeneration is part of this migration.
+
+
+## Boise State arithmetic audit (September 22, 2026)
+
+The published September 20 cache yields a 2-1 record and eight remaining games.
+The displayed percentages (59, 79, 57, 67, 78, 67, 76, 70) total **553%**, or
+**5.53 expected wins**, not 5.83. Full-precision remaining probabilities total
+5.539910547662377; adding two banked wins gives **7.539910547662377**, displayed
+as **7.5**. Over 7.5 pace is +0.03991054766237667 (display 0.0); Under is its
+negative (also display 0.0). No displayed game was omitted, and the projection
+and schedule rows are built from the same probability array in
+`projector.build_projection`. Neither categorical scoring nor stale data caused
+the reported discrepancy. No Boise-specific adjustment is warranted.
+
+`pace.projected_final_wins` remains canonical. Standings copy its projection
+fields; homepage/profile drilldowns render those fields through `paceSchedule`;
+analytics/scenarios and Games That Matter consume projection fields and shared
+pace arithmetic; recap packets and email consume the same generated fields.
+No competing projected-wins formula was found. Email featured-pick projection
+formatting was two decimals and is now one decimal, consistent with the site.
+The explanatory bands are now strictly >65%, inclusive 35-65%, and strictly <35%.
+Completed-game shading uses preserved pregame probabilities under these bands;
+completed games still contribute only actual results to current projected wins.

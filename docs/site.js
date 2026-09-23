@@ -382,7 +382,7 @@ function paceSchedule(pick) {
       <span class="pace-probability">${g.p_win_pct ? esc(g.p_win_pct) + (g.probability_estimated ? '*' : '') : '&mdash;'}</span>
       <span class="pace-bucket">${esc(names[g.bucket] || 'Expectation unavailable')}</span>
     </div>`).join('') || '<p>No scheduled games.</p>'}</div>
-    <p class="pace-help">Projected finish = actual wins + expected wins from remaining games. Completed games are struck through; their shading records the last saved forecast before kickoff. Unavailable means no preserved forecast. Expected Win: &gt;60%; Toss-Up: 40&ndash;60%; Expected Loss: &lt;40%. *Estimated using the established missing-rating fallback. Figures are rounded independently.</p>
+    <p class="pace-help">Projected finish = actual wins + win probabilities from remaining games. Completed games are struck through; their shading records the last saved forecast before kickoff. Unavailable means no preserved forecast. Expected Win: &gt;65%; Toss-Up: 35&ndash;65%; Expected Loss: &lt;35%. *Estimated using the established missing-rating fallback. Figures are rounded independently.</p>
   </div>`;
 }
 function paceFreshness(meta, available = true) {

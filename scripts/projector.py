@@ -50,8 +50,8 @@ POOL_SIM_TRIALS = 20000            # Monte-Carlo trials for shared-draw pool odd
 POOL_SIM_SEED_BASE = 20250101      # base seed; combined w/ group + week for reproducibility
 
 # Presentation only: raw probabilities still feed all calculations.
-LIKELY_WIN_THRESHOLD = 0.60        # strictly above -> Expected Win
-LIKELY_LOSS_THRESHOLD = 0.40       # strictly below -> Expected Loss
+LIKELY_WIN_THRESHOLD = 0.65        # strictly above -> Expected Win
+LIKELY_LOSS_THRESHOLD = 0.35       # strictly below -> Expected Loss
 # Legacy actual-vs-model diagnostic is retained in JSON, never used as pace.
 PACE_ON_PACE_BAND = 0.5            # |actual - expected| < this -> "on_pace"
 

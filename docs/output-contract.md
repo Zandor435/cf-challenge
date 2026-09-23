@@ -19,7 +19,7 @@ retain their meanings. See [the audit](scoring-audit.md).
 - Game rows preserve `id` and `start_date`. Remaining `p_win` is unrounded;
   `p_win_pct` is a display string, and `probability_estimated` identifies the
   established rating fallback. Existing bucket keys remain `likely_win`,
-  `toss_up`, `likely_loss`, now meaning >60%, inclusive 40-60%, and <40%.
+  `toss_up`, `likely_loss`, now meaning >65%, inclusive 35-65%, and <35%.
 - Completed rows add `completed: true`, `result: "W" | "L" | "T"`,
   `forecast_captured_at`, and `forecast_source`. Their probability/bucket comes
   only from a preserved pre-kickoff forecast, or is null. They never enter the

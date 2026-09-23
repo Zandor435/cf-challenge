@@ -254,7 +254,7 @@ def build_rail(rail):
             "team": f.get("team"),
             "direction": "Over" if f.get("direction") == "O" else "Under",
             "line": fmt_plain(f.get("line")),
-            "expected_final_wins": fmt_plain(f.get("expected_final_wins"), 2),
+            "expected_final_wins": fmt_plain(f.get("expected_final_wins"), 1),
             "expected_delta": fmt_signed(f.get("expected_delta")),
         }
     return out or None
