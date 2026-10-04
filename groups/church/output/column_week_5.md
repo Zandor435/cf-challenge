@@ -1,0 +1,7 @@
+John K's climb to second place might seem like a win, but the numbers tell a different story. While his total delta improved slightly to 1.672, he's still trailing David by 1.487 points. This week's movement owes more to Josh B's stumble than to any triumph of John's picks. His Texas Tech under 10.5 remains alive, but faltered with a ceiling drop to 5.5. The odds of beating the line stand at a reasonable 63%, but it's clear the margin for error is shrinking. 
+
+Meanwhile, his Texas A&M over 8.5 is becoming a millstone. The ceiling holds at a mere 1.5, and with just a 2% chance of beating the line, John might be learning a hard lesson about faith in the Aggies. Yet, despite the struggles, John finds himself in a slightly better rank, thanks to Josh B's misstep.
+
+Speaking of Josh B, his Miami (OH) over 7.5 took a hit this week. A home loss to Bowling Green by four points claimed one game of ceiling, pushing his delta further into the red. This cedes enough ground for John to step into second, if precariously. 
+
+And lastly, David's Virginia Tech over 6.5 pick deserves a bad beat mention. A narrow home loss to Pittsburgh by two points clipped a game off its ceiling. It’s a painful reminder that even the most promising picks can sting. That's the column. Don't take the points personally. They were always going to be exactly what they are.

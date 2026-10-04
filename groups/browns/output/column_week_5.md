@@ -1,0 +1,7 @@
+Bryan and Todd continue their riveting face-off over South Florida's 8.5-win projection. With Bryan betting on the over, he stands with a 60% probability of success. Meanwhile, Todd places his faith in the under, holding a 40% chance. This conflict has become the heartbeat of the season, a personal rivalry that defines each manager's weekly fortunes. Todd, this week, enjoyed a boost to his standing, climbing a rank and closing his gap to the leader, Mark, by over half a point. Bryan, on the other hand, felt the sting of a minor setback, dropping a rank despite his modest gain. As South Florida's results continue to swing the pendulum, each game keeps the tension high in this duel of belief versus skepticism.
+
+Mark, meanwhile, has taken the lead with a notable improvement this week, adding a little over a point to his total delta and securing his place at the top of the standings. Though his Notre Dame under pick experienced a drop in its ceiling, it didn't stop him from overtaking Bryan, who now trails him by less than half a game. The standings continue to shift, but the grit of each manager remains on display.
+
+Switching to this week's hard luck tale, Zach's Virginia Tech over 6.5 took a painful hit. Virginia Tech's narrow two-point loss at home to Pittsburgh slashed Zach's ceiling by a game. Such is the unpredictable nature of an over pick: alive but fragile, always a score away from ruin.
+
+That's the column. Don't take the points personally. They were always going to be exactly what they are.
