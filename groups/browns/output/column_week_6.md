@@ -1,0 +1,9 @@
+Bryan and Todd's rivalry over South Florida's 8.5-win line provides this week's peak drama. Bryan holds the over, while Todd stands firm with the under. The projections give Todd a 58% chance, leaving Bryan with a narrower 42% path to victory. Todd's belief in South Florida's limitations is rewarded, as his floor rose by a game in the last week. South Florida's performance continues to dictate the fortunes of these two managers, providing each with a weekly pulse check on their standings and the season's trajectory.
+
+This week's results have left both Bryan and Todd contemplating their positions in the race. Bryan remains just a quarter game behind the leader, Mark, despite his struggles with the South Florida pick. Todd, however, finds himself further down, over three and a half games off the lead. Yet, the strength of his conviction keeps him alive and competitive. It's a duel where every South Florida outcome could sway their standings, making each game crucial for their season.
+
+Meanwhile, Mark maintains his lead at the top, though not without his own struggles. His Notre Dame under saw a ceiling drop of a game, but he remains ahead. His grip on the lead is firm, though Bryan and Todd's feud could still shift the dynamics in the coming weeks.
+
+In this week's hard-luck tale, Zach's Oregon over 10.5 met a grim end. Oregon fell to UCLA by a heartbreaking two-point margin, at home, no less. The loss axed a game from Zach's ceiling, sealing the pick's fate. It's a reminder that no over is safe until it's clinched. 
+
+That's the column. Don't take the points personally. They were always going to be exactly what they are.
