@@ -59,7 +59,7 @@ def main(argv=None):
     with open(out, "w", encoding="utf-8", newline="\n") as f:
         f.write(html)
 
-    shown = [k for k in ("column", "board1", "board2", "best_worst", "rail") if payload.get(k)]
+    shown = [k for k in ("recap", "column", "board1", "board2", "best_worst", "rail") if payload.get(k)]
     print(f"{args.group}: week {payload['meta']['week']} -> {out}  ({len(html):,} bytes)")
     print(f"  sections rendered: {', '.join(shown)}")
     if args.open_browser:

@@ -62,12 +62,20 @@ HARD_BANNED = (
     # Prior-season results (the cache is 2026-only; the prompt bans the
     # vocabulary, this catches the explicit phrasings)
     "last season", "last year", "a year ago", "previous season",
-    # Schedule specifics. The packet carries COUNTS -- games_scheduled, and the
-    # strength-of-schedule summary -- and no opponent, no date, no venue. Any
-    # sentence placing a game somewhere or against someone is recall.
-    "travel to", "travels to", "road trip", "at home against",
-    "opens against", "opens the season against", "rivalry game",
 )
+
+# Schedule specifics. The column packet carries COUNTS -- games_scheduled, and
+# the strength-of-schedule summary -- and no opponent, no date, no venue. Any
+# sentence placing a game somewhere or against someone is recall. The weekly
+# recap packet (build_recap_packet.py) DOES carry the next opponent and home/away
+# for every pick, so it passes schedule_licensed=True and these become legal
+# there; "rivalry game" stays banned everywhere, since no packet says which
+# games are rivalries.
+SCHEDULE_PHRASES = (
+    "travel to", "travels to", "road trip", "at home against",
+    "opens against", "opens the season against",
+)
+HARD_BANNED = HARD_BANNED + SCHEDULE_PHRASES + ("rivalry game",)
 
 # MONTHS, matched CASE-SENSITIVELY as proper nouns and not as substrings of the
 # lowercased column. As lowercase substrings they are a false-positive machine:
@@ -227,8 +235,14 @@ def _mask_literals(low):
     return low
 
 
-def check_column(text, packet):
-    """[Violation]. Empty means nothing this check can see is unsupported."""
+def check_column(text, packet, schedule_licensed=False):
+    """[Violation]. Empty means nothing this check can see is unsupported.
+
+    schedule_licensed: the packet carries real opponents and home/away (the
+    weekly recap's does), so SCHEDULE_PHRASES are not recall there."""
+    banned = HARD_BANNED
+    if schedule_licensed:
+        banned = tuple(p for p in HARD_BANNED if p not in SCHEDULE_PHRASES)
     allowed = packet_numbers(packet)
     packet_keys = set()
 
@@ -300,7 +314,7 @@ def check_column(text, packet):
                     f"packet names no opponents, only schedule counts",
                     sent))
 
-        for phrase in HARD_BANNED:
+        for phrase in banned:
             if phrase in low:
                 out.append(Violation(
                     "UNSUPPORTABLE",

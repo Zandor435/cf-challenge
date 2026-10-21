@@ -202,6 +202,24 @@ jobs:
             python scripts/generate_commentary.py --group "$g"
           done
 
+      # ====== THE WEEKLY RECAP: SVP's roundup for the Sunday email ======
+      # Reshapes-existing-data: the recap packet is read from the boards
+      # run_groups.py just wrote (standings + analytics leverage), so it gates on
+      # the run gate alone, like the column. It does NOT need the week packet, so
+      # it runs for every group even if a packet build failed. Fail-soft inside:
+      # no key / dead API / guard rejection files a data_only recap and exits 0,
+      # and the email still sends with the numbers. Skip-if-exists (rule 7): a
+      # week already filed with prose is never paid for twice. The filed
+      # groups/<g>/output/recap_week_<N>.json is staged by the commit loop below;
+      # send-email.yml mails it on Sunday morning.
+      - name: Write the SVP weekly recap
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          groups=$(python -c "import sys; sys.path.insert(0, 'scripts'); import utils; print(' '.join(utils.get_all_group_ids()))")
+          for g in $groups; do
+            python scripts/generate_recap.py --group "$g"
+          done
+
       # ====== COMMIT the fresh boards to the repo (history + raw files) ======
       # No [skip ci]: a commit pushed with GITHUB_TOKEN can't trigger a workflow
       # anyway (rule 9), so [skip ci] would buy nothing and only obscure intent.

@@ -1,0 +1,120 @@
+name: Weekly Recap Email
+
+# Mails each group its weekly recap: SVP's roundup (generate_recap.py, filed by
+# update-data.yml at ~2am ET), the pace standings, every manager's week, and
+# next week's games that matter.
+#
+# A SEPARATE workflow from the data run on purpose. should_send.py refuses to
+# send before 13:00 UTC (9am ET) so late West Coast results are scored, and the
+# data run fires at 06:07 UTC. Splitting them also means a dead CFBD feed or a
+# dead OpenAI key can never stop the email: this job only reads committed files
+# (playbook rule 3, reshapes-existing-data) and makes no fetch.
+#
+# Sunday 9:37am ET, with the same DST split as update-data.yml (the change is
+# always the first Sunday of November):
+#   Aug-Oct  13:37 UTC = 9:37am EDT
+#   Nov-Dec  14:37 UTC = 9:37am EST
+# plus a 1:37pm ET retry, for the Sundays GitHub starts the data run hours late.
+# The retry is free when the morning send went out: should_send.py compares the
+# payload's week with email/state/<group>/last_send.json and skips a week that
+# was already mailed, so a group can never get two emails for one week.
+on:
+  schedule:
+    - cron: "37 13 * 8-10 0"
+    - cron: "37 17 * 8-10 0"
+    - cron: "37 14 * 11-12 0"
+    - cron: "37 18 * 11-12 0"
+  workflow_dispatch:
+    inputs:
+      group:
+        description: "Group slug, or 'all'"
+        required: false
+        default: "all"
+      to:
+        description: "Test send: one address instead of the roster. Bypasses the send gate and writes no state, so the real weekly send still goes out."
+        required: false
+        default: ""
+
+permissions:
+  contents: write   # commit email/state/<group>/last_send.json after a real send
+
+# One sender at a time: two overlapping runs could both pass the gate before
+# either stamps state, and double-send.
+concurrency:
+  group: email
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    env:
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      # manager_id -> address map for every group (scripts/recipients.py). The
+      # repo is public, so addresses live ONLY in this secret.
+      RECIPIENTS_JSON: ${{ secrets.RECIPIENTS_JSON }}
+      # Inputs reach the shell as env vars, never interpolated into the script.
+      GROUP_INPUT: ${{ github.event.inputs.group || 'all' }}
+      TO_INPUT: ${{ github.event.inputs.to || '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install jinja2 resend
+
+      - name: Build and send
+        run: |
+          if [ "$GROUP_INPUT" = "all" ]; then
+            groups=$(python -c "import sys; sys.path.insert(0, 'scripts'); import utils; print(' '.join(utils.get_all_group_ids()))")
+          else
+            groups="$GROUP_INPUT"
+          fi
+          failed=""
+          for g in $groups; do
+            echo "::group::$g"
+            if ! python scripts/build_email_payload.py --group "$g"; then
+              echo "::warning title=Email payload failed::[$g] build_email_payload.py exited non-zero; no email for this group."
+              failed="$failed $g"; echo "::endgroup::"; continue
+            fi
+            if [ -n "$TO_INPUT" ]; then
+              python scripts/send_email.py --group "$g" --to "$TO_INPUT" || failed="$failed $g"
+            elif python scripts/should_send.py --group "$g"; then
+              python scripts/send_email.py --group "$g" || failed="$failed $g"
+            fi
+            echo "::endgroup::"
+          done
+          if [ -n "$failed" ]; then
+            echo "::error title=Email not sent::Failed for:$failed"
+            echo "failed=true" >> "$GITHUB_ENV"
+          fi
+
+      # Persist the per-group send markers so the retry fire, and next week,
+      # know what already went out. Runs even if one group failed, so the
+      # groups that DID send are recorded and never re-sent.
+      - name: Commit send state
+        if: always()
+        run: |
+          [ -d email/state ] || exit 0
+          git config user.name "CFB Fantasy Bot"
+          git config user.email "bot@cfb-fantasy.local"
+          git add email/state
+          if git diff --cached --quiet; then
+            echo "No send state to commit"
+            exit 0
+          fi
+          git commit -m "Email: $(date +%Y-%m-%d) weekly recap sent"
+          for i in 1 2 3 4; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push && exit 0
+            sleep $((2 ** i))
+          done
+          echo "::error::Could not push email state; the retry fire may re-send."
+          exit 1
+
+      - name: Fail if any group failed
+        if: env.failed == 'true'
+        run: exit 1

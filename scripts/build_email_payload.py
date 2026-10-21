@@ -28,6 +28,9 @@ Reads (all committed, all overridable):
   docs/data/<g>/columns/index.json      which week is current
   docs/data/<g>/columns/week_<N>.json   the filed SVP column (deck + paragraphs)
   docs/data/<g>/columns/rail.json       collision + featured pick (optional)
+  groups/<g>/output/recap_week_<N>.json the SVP weekly recap (generate_recap.py):
+                                        every manager's week + next week's games
+                                        that matter, prose AND the frozen packet
   groups/<g>/config.json                display_name (NOT addresses — see below)
   email/config.json                     from, site_base_url
 
@@ -58,6 +61,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 import pace
 
@@ -229,6 +233,118 @@ def build_column(week_doc):
     }
 
 
+def _kickoff(iso):
+    """'2026-10-24T19:30:00.000Z' -> 'Sat Oct 24'. Presentation only. Dates in
+    the cache are UTC; the day is close enough for a 'when is it' hint and the
+    email does not pretend to a kickoff time it would have to localise."""
+    if not iso:
+        return None
+    try:
+        d = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return d.strftime("%a %b ") + str(d.day)
+
+
+def _venue(team, opponent, home_away, neutral):
+    if neutral:
+        return f"{team} vs {opponent}"
+    return f"{team} at {opponent}" if home_away == "away" else f"{team} vs {opponent}"
+
+
+def build_recap(recap_doc):
+    """The SVP weekly recap: prose from the filed recap, numbers from the packet
+    frozen beside it in the same file. Never recombines with a newer board —
+    the prose was written about THIS packet. A data_only recap (no prose) still
+    renders: the cards are the recap's facts, SVP's words are the garnish."""
+    if not recap_doc or not recap_doc.get("packet"):
+        return None
+    pk = recap_doc["packet"]
+    prose = recap_doc.get("prose") or {}
+    blurbs = prose.get("managers") or {}
+    game_blurbs = prose.get("games") or {}
+
+    managers = []
+    for m in pk.get("managers") or []:
+        picks = []
+        for p in m.get("picks") or []:
+            ng = p.get("next_game")
+            results = ", ".join(f"{g['result']} vs {g['opponent']}" if g.get("home_away") != "away"
+                                else f"{g['result']} at {g['opponent']}"
+                                for g in p.get("this_week") or [] if g.get("result"))
+            if ng:
+                nxt = (f"{_venue(p['team'], ng['opponent'], ng.get('home_away'), ng.get('neutral'))}"
+                       f" · root for {ng['root_for']}")
+                if ng.get("team_win_pct") is not None:
+                    nxt += f" · {p['team']} {ng['team_win_pct']}%"
+            elif p.get("bye"):
+                nxt = "Bye week"
+            else:
+                nxt = None
+            picks.append({
+                "team": p["team"],
+                "side": p["side"],
+                "status": (p.get("status") or "").title() or None,
+                "pick_pace": fmt_signed(p.get("pick_pace")),
+                "this_week": results or "Did not play",
+                "next": nxt,
+            })
+        managers.append({
+            "manager_id": m["manager_id"],
+            "display_name": m["name"],
+            "rank": m.get("rank"),
+            "pace": fmt_signed(m.get("pace")),
+            "pace_move": fmt_signed(m.get("pace_move")),
+            "move": move_arrow(m.get("rank_change")),
+            "title_odds": None if m.get("title_odds_pct") is None else f"{m['title_odds_pct']}%",
+            "blurb": blurbs.get(m["manager_id"]),
+            "picks": picks,
+        })
+
+    games = []
+    for g in pk.get("games_that_matter") or []:
+        games.append({
+            "matchup": _venue(g["team"], g["opponent"], g.get("home_away"), g.get("neutral")),
+            "kickoff": _kickoff(g.get("start_date")),
+            "line": (f"{g['team']} wins {g['team_win_pct']}% of the time"
+                     if g.get("team_win_pct") is not None else None),
+            "blurb": game_blurbs.get(g["game_key"]),
+            "rooting": [{
+                "display_name": s["name"],
+                "root_for": s["root_for"],
+                "odds": (None if s.get("title_odds_if_team_wins_pct") is None else
+                         f"title odds {s['title_odds_if_team_wins_pct']}% if {g['team']} win"
+                         f" · {s['title_odds_if_team_loses_pct']}% if they lose"),
+            } for s in g.get("managers") or []],
+        })
+
+    return {
+        "week": pk.get("week"),
+        "next_week": pk.get("next_week"),
+        "status": (recap_doc.get("meta") or {}).get("status"),
+        "byline": (recap_doc.get("meta") or {}).get("byline") or SVP_SEED_PROMPT_PLACEHOLDER["byline"],
+        "deck": prose.get("deck"),
+        "open": prose.get("open"),
+        "close": prose.get("close"),
+        "managers": managers,
+        "games": games,
+        "season_over": bool(pk.get("season_over")),
+    }
+
+
+def latest_recap(group_id):
+    """Newest groups/<g>/output/recap_week_<N>.json, or None."""
+    best = None
+    for path in (GROUPS / group_id / "output").glob("recap_week_*.json"):
+        try:
+            wk = int(path.stem.rsplit("_", 1)[1])
+        except ValueError:
+            continue
+        if best is None or wk > best[0]:
+            best = (wk, path)
+    return load_json(best[1], required=False) if best else None
+
+
 def build_rail(rail):
     """Optional garnish. A missing collision or featured_pick is an ORDINARY state."""
     if not rail:
@@ -273,10 +389,11 @@ def resolve_week(index_doc, requested):
     return cols[0]
 
 
-def subject_for(group_display, week, column):
-    """Subject from the column's own deck — content that already exists."""
+def subject_for(group_display, week, column, recap=None):
+    """Subject from SVP's own deck — the recap's, else the column's. Content
+    that already exists; nothing is written here."""
     base = f"{group_display} — Week {week}"
-    deck = (column or {}).get("deck")
+    deck = (recap or {}).get("deck") or (column or {}).get("deck")
     if not deck:
         return base
     deck = re.sub(r"\s+", " ", deck).strip()
@@ -320,8 +437,21 @@ def build(group_id: str, week: int | None = None) -> dict:
     index_doc = load_json(gdir / "columns" / "index.json", required=False)
     rail = load_json(gdir / "columns" / "rail.json", required=False)
 
-    entry = resolve_week(index_doc, week)
-    week_no = entry.get("week") if entry else None
+    # THE EMAIL'S WEEK is the recap's when one is filed: the recap is written
+    # every data run, while the column can lag (a guard rejection, a dead key)
+    # and was once three weeks behind the boards. A stale column is left out
+    # rather than mailed under a newer week's standings.
+    recap_doc = (latest_recap(group_id) if week is None else
+                 load_json(GROUPS / group_id / "output" / f"recap_week_{week}.json",
+                           required=False))
+    recap = build_recap(recap_doc)
+    if recap and recap.get("week") is not None:
+        week_no = recap["week"]
+        entry = next((c for c in (index_doc or {}).get("columns") or []
+                      if c.get("week") == week_no), None)
+    else:
+        entry = resolve_week(index_doc, week)
+        week_no = entry.get("week") if entry else None
     week_doc = (load_json(gdir / "columns" / entry["file"], required=False)
                 if entry else None)
 
@@ -339,7 +469,7 @@ def build(group_id: str, week: int | None = None) -> dict:
             "generated_at": meta_src.get("generated_at"),
             "cache_fetched_at": meta_src.get("cache_fetched_at"),
             "pace_stale": meta_src.get("pace_stale", False),
-            "subject": subject_for(display, week_no, column),
+            "subject": subject_for(display, week_no, column, recap),
             "from_address": ecfg.get("from"),
             "site_base_url": base_url,
             "svp_seed_prompt": SVP_SEED_PROMPT_PLACEHOLDER,
@@ -347,6 +477,7 @@ def build(group_id: str, week: int | None = None) -> dict:
         # `?group=` is the site's own entry form (docs/site.js) — the per-group
         # /panel/ path only redirects here, so link the canonical target.
         "cta_url": f"{base_url}/?group={group_id}" if base_url else None,
+        "recap": recap,
         "column": column,
         "board1": build_board1(analytics, standings),
         "board2": build_board2(analytics, projection),
@@ -380,8 +511,9 @@ def main(argv=None):
         f.write("\n")
     os.replace(tmp, out)
 
-    have = [k for k in ("column", "board1", "board2", "best_worst", "rail") if payload.get(k)]
-    hidden = [k for k in ("column", "board1", "board2", "best_worst", "rail") if not payload.get(k)]
+    sections = ("recap", "column", "board1", "board2", "best_worst", "rail")
+    have = [k for k in sections if payload.get(k)]
+    hidden = [k for k in sections if not payload.get(k)]
     print(f"{args.group}: week {payload['meta']['week']} -> {out}")
     print(f"  sections: {', '.join(have)}" + (f"  (hidden: {', '.join(hidden)})" if hidden else ""))
     print(f"  subject: {payload['meta']['subject']}")

@@ -43,6 +43,7 @@ docs/data/test/
 # continuity the pundit reads back), so they stay tracked.
 groups/*/output/week_packet.json
 groups/*/output/commentary_prompt_preview.txt
+groups/*/output/recap_prompt_preview.txt
 # Drafts the factual guard refused (scripts/column_guard.py). They are kept on
 # disk deliberately -- a rejected draft is the evidence for whatever prompt or
 # scan change comes next, and reading it is the only way to tell a real

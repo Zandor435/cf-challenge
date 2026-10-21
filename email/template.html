@@ -34,7 +34,7 @@
 
   {# Inbox preview line. Hidden in the body, shown next to the subject in the list. #}
   <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:#0c0e14; font-size:1px; line-height:1px;">
-    {% if p.column and p.column.deck %}{{ p.column.deck }}{% else %}{{ p.meta.display_name }} — Week {{ p.meta.week }}{% endif %}
+    {% if p.recap and p.recap.deck %}{{ p.recap.deck }}{% elif p.column and p.column.deck %}{{ p.column.deck }}{% else %}{{ p.meta.display_name }} — Week {{ p.meta.week }}{% endif %}
   </div>
 
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0c0e14" style="background-color:#0c0e14;">
@@ -58,36 +58,37 @@
             </td>
           </tr>
 
-          <!-- ======================= THE COLUMN ======================= -->
-          {% if p.column %}
+          <!-- ======================= SVP RECAP — THE OPEN ======================= -->
+          {# The weekly recap, written by the pinned SVP voice (generate_recap.py).
+             Prose is optional garnish: a data_only recap renders its cards below
+             with no open, no blurbs and no close. #}
+          {% if p.recap and p.recap.open %}
           <tr>
             <td style="padding:22px 28px 0 28px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141821" style="background-color:#141821; border:1px solid #232838; border-radius:6px;">
                 <tr>
                   <td style="padding:22px 22px 6px 22px;">
                     <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; color:#8b919c; text-transform:uppercase;">
-                      {{ p.column.byline }}{% if p.column.standfirst %} <span style="color:#3a3f4a;">&middot;</span> <span style="color:#6c7280;">{{ p.column.standfirst }}</span>{% endif %}
+                      {{ p.recap.byline }} <span style="color:#3a3f4a;">&middot;</span> <span style="color:#6c7280;">The weekly recap</span>
                     </div>
                   </td>
                 </tr>
-                {% if p.column.deck %}
+                {% if p.recap.deck %}
                 <tr>
                   <td style="padding:8px 22px 0 22px;">
                     <div style="font-family:Georgia,'Times New Roman',serif; font-size:23px; line-height:1.25; font-weight:700; color:#f5f6f8; letter-spacing:-0.2px;">
-                      {{ p.column.deck }}
+                      {{ p.recap.deck }}
                     </div>
                   </td>
                 </tr>
                 {% endif %}
-                {% for para in p.column.paragraphs %}
                 <tr>
-                  <td style="padding:{% if loop.first %}14{% else %}12{% endif %}px 22px {% if loop.last %}22{% else %}0{% endif %}px 22px;">
+                  <td style="padding:14px 22px 22px 22px;">
                     <div style="font-family:Georgia,'Times New Roman',serif; font-size:15px; line-height:1.62; color:#c8ccd6;">
-                      {{ para }}
+                      {{ p.recap.open }}
                     </div>
                   </td>
                 </tr>
-                {% endfor %}
               </table>
             </td>
           </tr>
@@ -136,6 +137,136 @@
                     </table>
                   </td>
                 </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ======================= SVP RECAP — AROUND THE ROOM ======================= -->
+          {% if p.recap and p.recap.managers %}
+          <tr>
+            <td style="padding:20px 28px 0 28px;">
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; color:#8b919c; text-transform:uppercase; padding:0 2px 8px 2px;">Around the room</div>
+              {% for m in p.recap.managers %}
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141821" style="background-color:#141821; border:1px solid #232838; border-radius:6px; margin-bottom:10px;">
+                <tr>
+                  <td style="padding:16px 20px 0 20px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-family:Arial,Helvetica,sans-serif; font-size:16px; font-weight:700; color:#f5f6f8;">
+                          <span style="color:#6c7280; font-size:12px;">{{ m.rank }}.</span>&nbsp;{{ m.display_name }}
+                          <span style="color:#6c7280; font-size:12px;">&nbsp;{{ m.move.arrow }}</span>
+                        </td>
+                        <td align="right" style="font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:700; color:#e8eaf0;">
+                          {{ m.pace or 'Unavailable' }}
+                          {% if m.pace_move %}<span style="font-size:11px; font-weight:400; color:#8b919c;">&nbsp;({{ m.pace_move }} this week)</span>{% endif %}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                {% if m.blurb %}
+                <tr>
+                  <td style="padding:10px 20px 0 20px;">
+                    <div style="font-family:Georgia,'Times New Roman',serif; font-size:14px; line-height:1.62; color:#c8ccd6;">{{ m.blurb }}</div>
+                  </td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td style="padding:12px 20px 16px 20px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      {% for pk in m.picks %}
+                      <tr>
+                        <td valign="top" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#e8eaf0; padding:7px 0; border-top:1px solid #1b2030;">
+                          <strong>{{ pk.team }}</strong> <span style="color:#8b919c;">{{ pk.side }}{% if pk.status %} &middot; {{ pk.status }}{% endif %}</span>
+                          <div style="font-size:11px; color:#8b919c; padding-top:3px;">This week: {{ pk.this_week }}</div>
+                          {% if pk.next %}<div style="font-size:11px; color:#f4c430; padding-top:2px;">Next: {{ pk.next }}</div>{% endif %}
+                        </td>
+                        <td align="right" valign="top" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; font-weight:700; color:#c8ccd6; padding:7px 0 7px 8px; border-top:1px solid #1b2030;">
+                          {{ pk.pick_pace or '' }}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              {% endfor %}
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ======================= SVP RECAP — GAMES THAT MATTER ======================= -->
+          {% if p.recap and p.recap.games %}
+          <tr>
+            <td style="padding:10px 28px 0 28px;">
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; color:#8b919c; text-transform:uppercase; padding:0 2px 8px 2px;">Games that matter{% if p.recap.next_week %} &middot; Week {{ p.recap.next_week }}{% endif %}</div>
+              {% for g in p.recap.games %}
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141821" style="background-color:#141821; border:1px solid #232838; border-radius:6px; margin-bottom:10px;">
+                <tr>
+                  <td style="padding:16px 20px 0 20px; border-left:3px solid #f4c430;">
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:700; color:#f5f6f8;">{{ g.matchup }}</div>
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; color:#8b919c; padding-top:3px;">
+                      {% if g.kickoff %}{{ g.kickoff }}{% endif %}{% if g.kickoff and g.line %} &middot; {% endif %}{% if g.line %}{{ g.line }}{% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% if g.blurb %}
+                <tr>
+                  <td style="padding:10px 20px 0 20px;">
+                    <div style="font-family:Georgia,'Times New Roman',serif; font-size:14px; line-height:1.62; color:#c8ccd6;">{{ g.blurb }}</div>
+                  </td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td style="padding:10px 20px 16px 20px;">
+                    {% for r in g.rooting %}
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#e8eaf0; padding-top:4px;">
+                      <strong>{{ r.display_name }}</strong> <span style="color:#8b919c;">roots for</span> {{ r.root_for }}
+                      {% if r.odds %}<span style="font-size:11px; color:#6c7280;">&nbsp;&middot; {{ r.odds }}</span>{% endif %}
+                    </div>
+                    {% endfor %}
+                  </td>
+                </tr>
+              </table>
+              {% endfor %}
+              {% if p.recap.close %}
+              <div style="font-family:Georgia,'Times New Roman',serif; font-size:14px; line-height:1.62; color:#c8ccd6; font-style:italic; padding:4px 2px 0 2px;">{{ p.recap.close }}</div>
+              {% endif %}
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- ======================= THE COLUMN ======================= -->
+          {% if p.column %}
+          <tr>
+            <td style="padding:22px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141821" style="background-color:#141821; border:1px solid #232838; border-radius:6px;">
+                <tr>
+                  <td style="padding:22px 22px 6px 22px;">
+                    <div style="font-family:Arial,Helvetica,sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; color:#8b919c; text-transform:uppercase;">
+                      {{ p.column.byline }}{% if p.column.standfirst %} <span style="color:#3a3f4a;">&middot;</span> <span style="color:#6c7280;">{{ p.column.standfirst }}</span>{% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% if p.column.deck %}
+                <tr>
+                  <td style="padding:8px 22px 0 22px;">
+                    <div style="font-family:Georgia,'Times New Roman',serif; font-size:23px; line-height:1.25; font-weight:700; color:#f5f6f8; letter-spacing:-0.2px;">
+                      {{ p.column.deck }}
+                    </div>
+                  </td>
+                </tr>
+                {% endif %}
+                {% for para in p.column.paragraphs %}
+                <tr>
+                  <td style="padding:{% if loop.first %}14{% else %}12{% endif %}px 22px {% if loop.last %}22{% else %}0{% endif %}px 22px;">
+                    <div style="font-family:Georgia,'Times New Roman',serif; font-size:15px; line-height:1.62; color:#c8ccd6;">
+                      {{ para }}
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
               </table>
             </td>
           </tr>

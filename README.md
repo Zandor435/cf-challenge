@@ -30,6 +30,28 @@ probabilities. `pregame-<season>.json` preserves these forecasts automatically;
 `python scripts/backfill_pregame.py --group all` can recover verifiable published
 pregame forecasts from a full Git checkout without recomputing any historical model.
 
+### Weekly recap email
+
+```
+update-data.yml (Sun ~2am ET)
+  run_groups.py -> standings.json + analytics.json (incl. next week's leverage)
+  build_recap_packet.py -> generate_recap.py (SVP voice, factual guard)
+    -> groups/<g>/output/recap_week_<N>.json   (committed; data_only if no prose)
+send-email.yml (Sun 9:37am ET, 1:37pm ET retry)
+  build_email_payload.py -> should_send.py -> send_email.py (Resend)
+    -> email/state/<g>/last_send.json          (one email per group per week)
+```
+
+The recap is SVP's roundup: an open on the race, two or three sentences on every
+manager, and next week's games that matter (who roots for which side, and what
+it does to their title odds). It uses the same persona as the column
+(`templates/svp_persona.md`) plus the recap brief (`templates/svp_recap.md`). If
+OpenAI is down or the guard rejects the prose twice, the email still goes out
+with the numbers and no prose. Needs the `RESEND_API_KEY` and `RECIPIENTS_JSON`
+secrets; a group mails only when its `email_enabled` is true. For a test send,
+run **Weekly Recap Email** manually with a `to` address; that bypasses the gate
+and writes no state.
+
 See [the scoring audit](docs/scoring-audit.md), [architecture](ARCHITECTURE.md),
 and [output contract](docs/output-contract.md).
 
