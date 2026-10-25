@@ -3,29 +3,29 @@
     "group_id": "panel",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-10-18T10:54:42.391022+00:00",
-    "cache_fetched_at": "2026-10-18T10:54:41.088547+00:00",
+    "generated_at": "2026-10-25T11:15:08.946004+00:00",
+    "cache_fetched_at": "2026-10-25T11:15:07.529947+00:00",
     "ratings_source": "SP+",
     "scoring_metric": "pace",
     "simulation_error": null,
-    "ratings_asof": "2026-10-18T10:54:41.088547+00:00",
-    "prior_week": 6,
+    "ratings_asof": "2026-10-25T11:15:07.529947+00:00",
+    "prior_week": 7,
     "pace_stale": false
   },
   "managers": [
     {
       "manager_id": "zach",
       "display_name": "Zach",
-      "expected_total": 8.528820748100639,
-      "expected_total_display": "+8.5",
-      "expected_total_prior": 6.480011762016245,
-      "expected_total_move": 2.048808986084394,
-      "expected_total_move_display": "+2.0",
-      "p05": 5.0,
+      "expected_total": 8.748710768564198,
+      "expected_total_display": "+8.7",
+      "expected_total_prior": 8.528820748100639,
+      "expected_total_move": 0.2198900204635592,
+      "expected_total_move_display": "+0.2",
+      "p05": 6.0,
       "p50": 9.0,
       "p95": 12.0,
-      "p_win_pool": 0.98975,
-      "floor": -2.0,
+      "p_win_pool": 0.9969,
+      "floor": -1.0,
       "picks": [
         {
           "team": "Notre Dame",
@@ -33,32 +33,32 @@
           "line": 11.5,
           "direction": "U",
           "p_beat_line": 1.0,
-          "expected_delta": 1.4293250673561761,
-          "expected_final_wins": 10.070674932643824,
+          "expected_delta": 1.5486450809657288,
+          "expected_final_wins": 9.951354919034271,
           "win_distribution": [
             {
               "wins": 6,
-              "prob": 7.8e-05
+              "prob": 0.000187
             },
             {
               "wins": 7,
-              "prob": 0.002731
+              "prob": 0.005033
             },
             {
               "wins": 8,
-              "prob": 0.033938
+              "prob": 0.049595
             },
             {
               "wins": 9,
-              "prob": 0.186699
+              "prob": 0.221369
             },
             {
               "wins": 10,
-              "prob": 0.442798
+              "prob": 0.436058
             },
             {
               "wins": 11,
-              "prob": 0.333755
+              "prob": 0.287758
             }
           ],
           "remaining_games": [
@@ -69,8 +69,8 @@
               "home_away": "away",
               "week": 9,
               "neutral": true,
-              "p_win": 0.8898185378030453,
-              "p_win_pct": "89%",
+              "p_win": 0.8608325624852289,
+              "p_win_pct": "86%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -81,8 +81,8 @@
               "home_away": "home",
               "week": 10,
               "neutral": false,
-              "p_win": 0.5771564475556816,
-              "p_win_pct": "58%",
+              "p_win": 0.5644541926113568,
+              "p_win_pct": "56%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -93,8 +93,8 @@
               "home_away": "home",
               "week": 11,
               "neutral": false,
-              "p_win": 0.938965148927008,
-              "p_win_pct": "94%",
+              "p_win": 0.9145398119521992,
+              "p_win_pct": "91%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -105,8 +105,8 @@
               "home_away": "home",
               "week": 12,
               "neutral": false,
-              "p_win": 0.8056865543797519,
-              "p_win_pct": "81%",
+              "p_win": 0.7645480070693192,
+              "p_win_pct": "76%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -117,8 +117,8 @@
               "home_away": "away",
               "week": 13,
               "neutral": false,
-              "p_win": 0.8590482439783372,
-              "p_win_pct": "86%",
+              "p_win": 0.846980344916167,
+              "p_win_pct": "85%",
               "bucket": "likely_win",
               "probability_estimated": false
             }
@@ -248,59 +248,43 @@
           "pace": {
             "banked_games": 7,
             "actual_wins": 6,
-            "expected_wins": 5.83,
-            "delta": 0.17,
+            "expected_wins": 5.68,
+            "delta": 0.32,
             "state": "on_pace"
           },
-          "expected_delta_display": "+1.4"
+          "expected_delta_display": "+1.5"
         },
         {
           "team": "Virginia Tech",
           "conference": "ACC",
           "line": 6.5,
           "direction": "O",
-          "p_beat_line": 0.868668,
-          "expected_delta": 1.0724938361064522,
-          "expected_final_wins": 7.572493836106452,
+          "p_beat_line": 0.97079,
+          "expected_delta": 1.5077448488108907,
+          "expected_final_wins": 8.00774484881089,
           "win_distribution": [
             {
-              "wins": 5,
-              "prob": 0.010345
-            },
-            {
               "wins": 6,
-              "prob": 0.120987
+              "prob": 0.02921
             },
             {
               "wins": 7,
-              "prob": 0.3388
+              "prob": 0.243286
             },
             {
               "wins": 8,
-              "prob": 0.363069
+              "prob": 0.451929
             },
             {
               "wins": 9,
-              "prob": 0.149295
+              "prob": 0.241702
             },
             {
               "wins": 10,
-              "prob": 0.017503
+              "prob": 0.033874
             }
           ],
           "remaining_games": [
-            {
-              "id": 401858276,
-              "start_date": "2026-10-24T04:00:00.000Z",
-              "opponent": "Clemson",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.5608086203330965,
-              "p_win_pct": "56%",
-              "bucket": "toss_up",
-              "probability_estimated": false
-            },
             {
               "id": 401858288,
               "start_date": "2026-11-07T00:00:00.000Z",
@@ -308,8 +292,8 @@
               "home_away": "away",
               "week": 10,
               "neutral": false,
-              "p_win": 0.3680152839195772,
-              "p_win_pct": "37%",
+              "p_win": 0.3560402145310153,
+              "p_win_pct": "36%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -320,8 +304,8 @@
               "home_away": "home",
               "week": 11,
               "neutral": false,
-              "p_win": 0.8912626383598443,
-              "p_win_pct": "89%",
+              "p_win": 0.8563359510945621,
+              "p_win_pct": "86%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -332,8 +316,8 @@
               "home_away": "away",
               "week": 12,
               "neutral": false,
-              "p_win": 0.16085882355459838,
-              "p_win_pct": "16%",
+              "p_win": 0.18077418491776273,
+              "p_win_pct": "18%",
               "bucket": "likely_loss",
               "probability_estimated": false
             },
@@ -344,8 +328,8 @@
               "home_away": "home",
               "week": 13,
               "neutral": false,
-              "p_win": 0.5915484699393357,
-              "p_win_pct": "59%",
+              "p_win": 0.6145944982675495,
+              "p_win_pct": "61%",
               "bucket": "toss_up",
               "probability_estimated": false
             }
@@ -462,24 +446,40 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401858276,
+              "start_date": "2026-10-24T23:00:00.000Z",
+              "opponent": "Clemson",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "W",
+              "completed": true,
+              "p_win": 0.5608086203330965,
+              "p_win_pct": "56%",
+              "bucket": "toss_up",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
-          "banked_wins": 5,
+          "banked_wins": 6,
           "banked_losses": 2,
-          "floor": -1.5,
+          "floor": -0.5,
           "outlook": {
             "likely_wins": 1,
-            "toss_ups": 3,
+            "toss_ups": 2,
             "likely_losses": 1
           },
           "pace": {
-            "banked_games": 7,
-            "actual_wins": 5,
-            "expected_wins": 5.05,
-            "delta": -0.05,
+            "banked_games": 8,
+            "actual_wins": 6,
+            "expected_wins": 5.58,
+            "delta": 0.42,
             "state": "on_pace"
           },
-          "expected_delta_display": "+1.1"
+          "expected_delta_display": "+1.5"
         },
         {
           "team": "Wake Forest",
@@ -487,45 +487,45 @@
           "line": 5.5,
           "direction": "O",
           "p_beat_line": 1.0,
-          "expected_delta": 3.6795162105145387,
-          "expected_final_wins": 9.179516210514539,
+          "expected_delta": 3.945969967304256,
+          "expected_final_wins": 9.445969967304256,
           "win_distribution": [
             {
               "wins": 6,
-              "prob": 0.000934
+              "prob": 0.000378
             },
             {
               "wins": 7,
-              "prob": 0.041437
+              "prob": 0.021274
             },
             {
               "wins": 8,
-              "prob": 0.201208
+              "prob": 0.13862
             },
             {
               "wins": 9,
-              "prob": 0.373773
+              "prob": 0.343872
             },
             {
               "wins": 10,
-              "prob": 0.298896
+              "prob": 0.363441
             },
             {
               "wins": 11,
-              "prob": 0.083752
+              "prob": 0.132415
             }
           ],
           "remaining_games": [
             {
               "id": 401858284,
-              "start_date": "2026-10-31T04:00:00.000Z",
+              "start_date": "2026-10-31T19:45:00.000Z",
               "opponent": "Virginia",
               "home_away": "home",
               "week": 9,
               "neutral": false,
-              "p_win": 0.6093175418435606,
-              "p_win_pct": "61%",
-              "bucket": "toss_up",
+              "p_win": 0.6931345620234882,
+              "p_win_pct": "69%",
+              "bucket": "likely_win",
               "probability_estimated": false
             },
             {
@@ -535,7 +535,7 @@
               "home_away": "home",
               "week": 10,
               "neutral": false,
-              "p_win": 0.975075573352886,
+              "p_win": 0.9800875413375482,
               "p_win_pct": "98%",
               "bucket": "likely_win",
               "probability_estimated": true
@@ -547,8 +547,8 @@
               "home_away": "away",
               "week": 11,
               "neutral": false,
-              "p_win": 0.3854055017324505,
-              "p_win_pct": "39%",
+              "p_win": 0.4391913796669035,
+              "p_win_pct": "44%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -559,8 +559,8 @@
               "home_away": "away",
               "week": 12,
               "neutral": false,
-              "p_win": 0.5951230953180932,
-              "p_win_pct": "60%",
+              "p_win": 0.6388486317860088,
+              "p_win_pct": "64%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -571,9 +571,9 @@
               "home_away": "home",
               "week": 13,
               "neutral": false,
-              "p_win": 0.6145944982675495,
-              "p_win_pct": "61%",
-              "bucket": "toss_up",
+              "p_win": 0.694707852490308,
+              "p_win_pct": "69%",
+              "bucket": "likely_win",
               "probability_estimated": false
             }
           ],
@@ -695,66 +695,50 @@
           "banked_losses": 1,
           "floor": 0.5,
           "outlook": {
-            "likely_wins": 1,
-            "toss_ups": 4,
+            "likely_wins": 3,
+            "toss_ups": 2,
             "likely_losses": 0
           },
           "pace": {
             "banked_games": 7,
             "actual_wins": 6,
-            "expected_wins": 4.38,
-            "delta": 1.62,
+            "expected_wins": 4.77,
+            "delta": 1.23,
             "state": "ahead"
           },
-          "expected_delta_display": "+3.7"
+          "expected_delta_display": "+3.9"
         },
         {
           "team": "James Madison",
           "conference": "Sun Belt",
           "line": 8.5,
           "direction": "O",
-          "p_beat_line": 0.990702,
-          "expected_delta": 2.3474856341234727,
-          "expected_final_wins": 10.847485634123473,
+          "p_beat_line": 0.98108,
+          "expected_delta": 1.7463508714833225,
+          "expected_final_wins": 10.246350871483322,
           "win_distribution": [
             {
               "wins": 7,
-              "prob": 0.000438
+              "prob": 0.000855
             },
             {
               "wins": 8,
-              "prob": 0.00886
+              "prob": 0.018065
             },
             {
               "wins": 9,
-              "prob": 0.068249
+              "prob": 0.136416
             },
             {
               "wins": 10,
-              "prob": 0.247144
+              "prob": 0.423201
             },
             {
               "wins": 11,
-              "prob": 0.415851
-            },
-            {
-              "wins": 12,
-              "prob": 0.259458
+              "prob": 0.421463
             }
           ],
           "remaining_games": [
-            {
-              "id": 401869845,
-              "start_date": "2026-10-22T23:00:00.000Z",
-              "opponent": "App State",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.6994004409005219,
-              "p_win_pct": "70%",
-              "bucket": "likely_win",
-              "probability_estimated": false
-            },
             {
               "id": 401869963,
               "start_date": "2026-10-29T23:30:00.000Z",
@@ -762,8 +746,8 @@
               "home_away": "home",
               "week": 9,
               "neutral": false,
-              "p_win": 0.8147962454552508,
-              "p_win_pct": "81%",
+              "p_win": 0.8652105853202262,
+              "p_win_pct": "87%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -774,8 +758,8 @@
               "home_away": "away",
               "week": 10,
               "neutral": false,
-              "p_win": 0.8526521506554455,
-              "p_win_pct": "85%",
+              "p_win": 0.8660721116759263,
+              "p_win_pct": "87%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -786,9 +770,9 @@
               "home_away": "away",
               "week": 11,
               "neutral": false,
-              "p_win": 0.6215885531339183,
-              "p_win_pct": "62%",
-              "bucket": "toss_up",
+              "p_win": 0.6507237894572695,
+              "p_win_pct": "65%",
+              "bucket": "likely_win",
               "probability_estimated": false
             },
             {
@@ -798,7 +782,7 @@
               "home_away": "home",
               "week": 13,
               "neutral": false,
-              "p_win": 0.8590482439783372,
+              "p_win": 0.8643443850299,
               "p_win_pct": "86%",
               "bucket": "likely_win",
               "probability_estimated": false
@@ -916,24 +900,40 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401869845,
+              "start_date": "2026-10-22T23:00:00.000Z",
+              "opponent": "App State",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "L",
+              "completed": true,
+              "p_win": 0.6994004409005219,
+              "p_win_pct": "70%",
+              "bucket": "likely_win",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
           "banked_wins": 7,
-          "banked_losses": 0,
+          "banked_losses": 1,
           "floor": -1.5,
           "outlook": {
             "likely_wins": 4,
-            "toss_ups": 1,
+            "toss_ups": 0,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 7,
+            "banked_games": 8,
             "actual_wins": 7,
-            "expected_wins": 5.45,
-            "delta": 1.55,
+            "expected_wins": 6.38,
+            "delta": 0.62,
             "state": "ahead"
           },
-          "expected_delta_display": "+2.3"
+          "expected_delta_display": "+1.7"
         }
       ],
       "rank": 1
@@ -941,64 +941,48 @@
     {
       "manager_id": "blaine",
       "display_name": "Blaine",
-      "expected_total": 1.9302451100364033,
-      "expected_total_display": "+1.9",
-      "expected_total_prior": 1.1300831760658365,
-      "expected_total_move": 0.8001619339705668,
-      "expected_total_move_display": "+0.8",
-      "p05": -1.0,
-      "p50": 2.0,
+      "expected_total": 1.462283914443498,
+      "expected_total_display": "+1.5",
+      "expected_total_prior": 1.9302451100364033,
+      "expected_total_move": -0.4679611955929053,
+      "expected_total_move_display": "-0.5",
+      "p05": -2.0,
+      "p50": 1.0,
       "p95": 5.0,
-      "p_win_pool": 0.00985,
-      "floor": -7.0,
+      "p_win_pool": 0.0031,
+      "floor": -6.0,
       "picks": [
         {
           "team": "Boise State",
           "conference": "Pac-12",
           "line": 7.5,
           "direction": "O",
-          "p_beat_line": 0.88469,
-          "expected_delta": 1.1770998141430837,
-          "expected_final_wins": 8.677099814143084,
+          "p_beat_line": 0.932976,
+          "expected_delta": 1.359987487034216,
+          "expected_final_wins": 8.859987487034216,
           "win_distribution": [
             {
-              "wins": 5,
-              "prob": 0.001032
-            },
-            {
               "wins": 6,
-              "prob": 0.01628
+              "prob": 0.005238
             },
             {
               "wins": 7,
-              "prob": 0.097999
+              "prob": 0.061786
             },
             {
               "wins": 8,
-              "prob": 0.282982
+              "prob": 0.252891
             },
             {
               "wins": 9,
-              "prob": 0.392662
+              "prob": 0.42792
             },
             {
               "wins": 10,
-              "prob": 0.209046
+              "prob": 0.252165
             }
           ],
           "remaining_games": [
-            {
-              "id": 401860907,
-              "start_date": "2026-10-24T22:00:00.000Z",
-              "opponent": "Washington State",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.7685247834990175,
-              "p_win_pct": "77%",
-              "bucket": "likely_win",
-              "probability_estimated": false
-            },
             {
               "id": 401860908,
               "start_date": "2026-11-01T02:00:00.000Z",
@@ -1006,8 +990,8 @@
               "home_away": "home",
               "week": 9,
               "neutral": false,
-              "p_win": 0.7281358579686819,
-              "p_win_pct": "73%",
+              "p_win": 0.6915567635462951,
+              "p_win_pct": "69%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -1018,8 +1002,8 @@
               "home_away": "away",
               "week": 10,
               "neutral": false,
-              "p_win": 0.7222310714698223,
-              "p_win_pct": "72%",
+              "p_win": 0.7523361988609284,
+              "p_win_pct": "75%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -1030,8 +1014,8 @@
               "home_away": "home",
               "week": 11,
               "neutral": false,
-              "p_win": 0.6093175418435606,
-              "p_win_pct": "61%",
+              "p_win": 0.5789631613906808,
+              "p_win_pct": "58%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -1042,8 +1026,8 @@
               "home_away": "home",
               "week": 12,
               "neutral": false,
-              "p_win": 0.8488905593620004,
-              "p_win_pct": "85%",
+              "p_win": 0.8371313632363113,
+              "p_win_pct": "84%",
               "bucket": "likely_win",
               "probability_estimated": false
             }
@@ -1144,86 +1128,86 @@
               "forecast_captured_at": "2026-10-04T12:14:44.967707+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401860907,
+              "start_date": "2026-10-24T22:00:00.000Z",
+              "opponent": "Washington State",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "W",
+              "completed": true,
+              "p_win": 0.7685247834990175,
+              "p_win_pct": "77%",
+              "bucket": "likely_win",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
-          "banked_wins": 5,
+          "banked_wins": 6,
           "banked_losses": 1,
-          "floor": -2.5,
+          "floor": -1.5,
           "outlook": {
-            "likely_wins": 4,
+            "likely_wins": 3,
             "toss_ups": 1,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 6,
-            "actual_wins": 5,
-            "expected_wins": 3.82,
-            "delta": 1.18,
+            "banked_games": 7,
+            "actual_wins": 6,
+            "expected_wins": 4.66,
+            "delta": 1.34,
             "state": "ahead"
           },
-          "expected_delta_display": "+1.2"
+          "expected_delta_display": "+1.4"
         },
         {
           "team": "Wisconsin",
           "conference": "Big Ten",
           "line": 6.5,
           "direction": "U",
-          "p_beat_line": 0.158311,
-          "expected_delta": -1.1409732467961033,
-          "expected_final_wins": 7.640973246796103,
+          "p_beat_line": 0.079605,
+          "expected_delta": -1.4765819719868283,
+          "expected_final_wins": 7.976581971986828,
           "win_distribution": [
             {
-              "wins": 4,
-              "prob": 0.002448
-            },
-            {
               "wins": 5,
-              "prob": 0.02849
+              "prob": 0.00807
             },
             {
               "wins": 6,
-              "prob": 0.127373
+              "prob": 0.071535
             },
             {
               "wins": 7,
-              "prob": 0.28236
+              "prob": 0.236984
             },
             {
               "wins": 8,
-              "prob": 0.328079
+              "prob": 0.364903
             },
             {
               "wins": 9,
-              "prob": 0.189156
+              "prob": 0.256169
             },
             {
               "wins": 10,
-              "prob": 0.042094
+              "prob": 0.062339
             }
           ],
           "remaining_games": [
             {
-              "id": 401858500,
-              "start_date": "2026-10-24T23:30:00.000Z",
-              "opponent": "USC",
-              "home_away": "home",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.5018518433843544,
-              "p_win_pct": "50%",
-              "bucket": "toss_up",
-              "probability_estimated": false
-            },
-            {
               "id": 401858502,
-              "start_date": "2026-10-31T04:00:00.000Z",
+              "start_date": "2026-10-31T16:00:00.000Z",
               "opponent": "Iowa",
               "home_away": "away",
               "week": 9,
               "neutral": false,
-              "p_win": 0.3819023560304163,
-              "p_win_pct": "38%",
-              "bucket": "toss_up",
+              "p_win": 0.3342802910107423,
+              "p_win_pct": "33%",
+              "bucket": "likely_loss",
               "probability_estimated": false
             },
             {
@@ -1233,8 +1217,8 @@
               "home_away": "home",
               "week": 10,
               "neutral": false,
-              "p_win": 0.8125502070042588,
-              "p_win_pct": "81%",
+              "p_win": 0.7672044266534728,
+              "p_win_pct": "77%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -1245,9 +1229,9 @@
               "home_away": "away",
               "week": 11,
               "neutral": false,
-              "p_win": 0.652405477093422,
-              "p_win_pct": "65%",
-              "bucket": "likely_win",
+              "p_win": 0.6302602229177513,
+              "p_win_pct": "63%",
+              "bucket": "toss_up",
               "probability_estimated": false
             },
             {
@@ -1257,8 +1241,8 @@
               "home_away": "away",
               "week": 12,
               "neutral": false,
-              "p_win": 0.5897574941378062,
-              "p_win_pct": "59%",
+              "p_win": 0.5807677629325316,
+              "p_win_pct": "58%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -1269,8 +1253,8 @@
               "home_away": "home",
               "week": 13,
               "neutral": false,
-              "p_win": 0.7025058691458458,
-              "p_win_pct": "70%",
+              "p_win": 0.6640692684723304,
+              "p_win_pct": "66%",
               "bucket": "likely_win",
               "probability_estimated": false
             }
@@ -1371,81 +1355,81 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401858500,
+              "start_date": "2026-10-24T23:30:00.000Z",
+              "opponent": "USC",
+              "home_away": "home",
+              "week": 8,
+              "neutral": false,
+              "result": "W",
+              "completed": true,
+              "p_win": 0.5018518433843544,
+              "p_win_pct": "50%",
+              "bucket": "toss_up",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
-          "banked_wins": 4,
+          "banked_wins": 5,
           "banked_losses": 2,
           "floor": -3.5,
           "outlook": {
-            "likely_wins": 3,
-            "toss_ups": 3,
-            "likely_losses": 0
+            "likely_wins": 2,
+            "toss_ups": 2,
+            "likely_losses": 1
           },
           "pace": {
-            "banked_games": 6,
-            "actual_wins": 4,
-            "expected_wins": 3.61,
-            "delta": 0.39,
-            "state": "on_pace"
+            "banked_games": 7,
+            "actual_wins": 5,
+            "expected_wins": 4.02,
+            "delta": 0.98,
+            "state": "ahead"
           },
-          "expected_delta_display": "-1.1"
+          "expected_delta_display": "-1.5"
         },
         {
           "team": "Indiana",
           "conference": "Big Ten",
           "line": 10.5,
           "direction": "U",
-          "p_beat_line": 0.687917,
-          "expected_delta": 0.5159226154228662,
-          "expected_final_wins": 9.984077384577134,
+          "p_beat_line": 0.619878,
+          "expected_delta": 0.34129469618337716,
+          "expected_final_wins": 10.158705303816623,
           "win_distribution": [
             {
-              "wins": 6,
-              "prob": 0.000213
-            },
-            {
               "wins": 7,
-              "prob": 0.005336
+              "prob": 0.001375
             },
             {
               "wins": 8,
-              "prob": 0.049572
+              "prob": 0.025757
             },
             {
               "wins": 9,
-              "prob": 0.212001
+              "prob": 0.165778
             },
             {
               "wins": 10,
-              "prob": 0.420794
+              "prob": 0.426968
             },
             {
               "wins": 11,
-              "prob": 0.312083
+              "prob": 0.380122
             }
           ],
           "remaining_games": [
             {
-              "id": 401858496,
-              "start_date": "2026-10-24T16:00:00.000Z",
-              "opponent": "Michigan",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.6706466282465361,
-              "p_win_pct": "67%",
-              "bucket": "likely_win",
-              "probability_estimated": false
-            },
-            {
               "id": 401858501,
-              "start_date": "2026-10-31T04:00:00.000Z",
+              "start_date": "2026-10-31T19:30:00.000Z",
               "opponent": "Minnesota",
               "home_away": "home",
               "week": 9,
               "neutral": false,
-              "p_win": 0.8868798771770475,
-              "p_win_pct": "89%",
+              "p_win": 0.8599427819341184,
+              "p_win_pct": "86%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -1456,8 +1440,8 @@
               "home_away": "home",
               "week": 11,
               "neutral": false,
-              "p_win": 0.7698398982245833,
-              "p_win_pct": "77%",
+              "p_win": 0.7132274766319778,
+              "p_win_pct": "71%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -1468,8 +1452,8 @@
               "home_away": "away",
               "week": 12,
               "neutral": false,
-              "p_win": 0.7605241983784435,
-              "p_win_pct": "76%",
+              "p_win": 0.6994004409005219,
+              "p_win_pct": "70%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -1480,8 +1464,8 @@
               "home_away": "home",
               "week": 13,
               "neutral": false,
-              "p_win": 0.8961867825505236,
-              "p_win_pct": "90%",
+              "p_win": 0.8861346043500052,
+              "p_win_pct": "89%",
               "bucket": "likely_win",
               "probability_estimated": false
             }
@@ -1598,85 +1582,85 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401858496,
+              "start_date": "2026-10-24T16:00:00.000Z",
+              "opponent": "Michigan",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "W",
+              "completed": true,
+              "p_win": 0.6706466282465361,
+              "p_win_pct": "67%",
+              "bucket": "likely_win",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
-          "banked_wins": 6,
+          "banked_wins": 7,
           "banked_losses": 1,
           "floor": -0.5,
           "outlook": {
-            "likely_wins": 5,
+            "likely_wins": 4,
             "toss_ups": 0,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 7,
-            "actual_wins": 6,
-            "expected_wins": 5.64,
-            "delta": 0.36,
-            "state": "on_pace"
+            "banked_games": 8,
+            "actual_wins": 7,
+            "expected_wins": 6.14,
+            "delta": 0.86,
+            "state": "ahead"
           },
-          "expected_delta_display": "+0.5"
+          "expected_delta_display": "+0.3"
         },
         {
           "team": "Texas",
           "conference": "SEC",
           "line": 9.5,
           "direction": "U",
-          "p_beat_line": 0.908158,
-          "expected_delta": 1.3781959272665567,
-          "expected_final_wins": 8.121804072733443,
+          "p_beat_line": 0.901407,
+          "expected_delta": 1.2375837032127333,
+          "expected_final_wins": 8.262416296787267,
           "win_distribution": [
             {
-              "wins": 4,
-              "prob": 0.000424
-            },
-            {
               "wins": 5,
-              "prob": 0.008545
+              "prob": 0.002465
             },
             {
               "wins": 6,
-              "prob": 0.060384
+              "prob": 0.036194
             },
             {
               "wins": 7,
-              "prob": 0.202703
+              "prob": 0.177001
             },
             {
               "wins": 8,
-              "prob": 0.347181
+              "prob": 0.363734
             },
             {
               "wins": 9,
-              "prob": 0.288922
+              "prob": 0.322013
             },
             {
               "wins": 10,
-              "prob": 0.091842
+              "prob": 0.098593
             }
           ],
           "remaining_games": [
             {
-              "id": 401856732,
-              "start_date": "2026-10-24T23:30:00.000Z",
-              "opponent": "Ole Miss",
-              "home_away": "home",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.7162480137085078,
-              "p_win_pct": "72%",
-              "bucket": "likely_win",
-              "probability_estimated": false
-            },
-            {
               "id": 401856737,
-              "start_date": "2026-10-31T04:00:00.000Z",
+              "start_date": "2026-10-31T23:30:00.000Z",
               "opponent": "Mississippi State",
               "home_away": "home",
               "week": 9,
               "neutral": false,
-              "p_win": 0.76321195538752,
-              "p_win_pct": "76%",
+              "p_win": 0.7889351210138257,
+              "p_win_pct": "79%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -1687,8 +1671,8 @@
               "home_away": "away",
               "week": 10,
               "neutral": false,
-              "p_win": 0.5443277578907744,
-              "p_win_pct": "54%",
+              "p_win": 0.5644541926113568,
+              "p_win_pct": "56%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -1699,8 +1683,8 @@
               "home_away": "away",
               "week": 11,
               "neutral": false,
-              "p_win": 0.47594451188535686,
-              "p_win_pct": "48%",
+              "p_win": 0.3995339388377276,
+              "p_win_pct": "40%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -1711,8 +1695,8 @@
               "home_away": "home",
               "week": 12,
               "neutral": false,
-              "p_win": 0.9073316863665544,
-              "p_win_pct": "91%",
+              "p_win": 0.8792328214066059,
+              "p_win_pct": "88%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -1723,9 +1707,9 @@
               "home_away": "away",
               "week": 13,
               "neutral": false,
-              "p_win": 0.7147401474947298,
-              "p_win_pct": "71%",
-              "bucket": "likely_win",
+              "p_win": 0.6302602229177513,
+              "p_win_pct": "63%",
+              "bucket": "toss_up",
               "probability_estimated": false
             }
           ],
@@ -1825,24 +1809,40 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401856732,
+              "start_date": "2026-10-24T23:30:00.000Z",
+              "opponent": "Ole Miss",
+              "home_away": "home",
+              "week": 8,
+              "neutral": false,
+              "result": "W",
+              "completed": true,
+              "p_win": 0.7162480137085078,
+              "p_win_pct": "72%",
+              "bucket": "likely_win",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
-          "banked_wins": 4,
+          "banked_wins": 5,
           "banked_losses": 2,
           "floor": -0.5,
           "outlook": {
-            "likely_wins": 4,
-            "toss_ups": 2,
+            "likely_wins": 2,
+            "toss_ups": 3,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 6,
-            "actual_wins": 4,
-            "expected_wins": 4.32,
-            "delta": -0.32,
+            "banked_games": 7,
+            "actual_wins": 5,
+            "expected_wins": 4.77,
+            "delta": 0.23,
             "state": "on_pace"
           },
-          "expected_delta_display": "+1.4"
+          "expected_delta_display": "+1.2"
         }
       ],
       "rank": 2
@@ -1850,77 +1850,61 @@
     {
       "manager_id": "chris",
       "display_name": "Chris",
-      "expected_total": -1.0618919811571486,
-      "expected_total_display": "-1.1",
-      "expected_total_prior": -0.3231301749016202,
-      "expected_total_move": -0.7387618062555283,
-      "expected_total_move_display": "-0.7",
-      "p05": -4.0,
-      "p50": -1.0,
-      "p95": 2.0,
-      "p_win_pool": 0.0004,
-      "floor": -12.0,
+      "expected_total": -1.9695081299155222,
+      "expected_total_display": "-2.0",
+      "expected_total_prior": -1.0618919811571486,
+      "expected_total_move": -0.9076161487583736,
+      "expected_total_move_display": "-0.9",
+      "p05": -5.0,
+      "p50": -2.0,
+      "p95": 1.0,
+      "p_win_pool": 0.0,
+      "floor": -11.0,
       "picks": [
         {
           "team": "Texas",
           "conference": "SEC",
           "line": 9.5,
           "direction": "O",
-          "p_beat_line": 0.091842,
-          "expected_delta": -1.3781959272665567,
-          "expected_final_wins": 8.121804072733443,
+          "p_beat_line": 0.098593,
+          "expected_delta": -1.2375837032127333,
+          "expected_final_wins": 8.262416296787267,
           "win_distribution": [
             {
-              "wins": 4,
-              "prob": 0.000424
-            },
-            {
               "wins": 5,
-              "prob": 0.008545
+              "prob": 0.002465
             },
             {
               "wins": 6,
-              "prob": 0.060384
+              "prob": 0.036194
             },
             {
               "wins": 7,
-              "prob": 0.202703
+              "prob": 0.177001
             },
             {
               "wins": 8,
-              "prob": 0.347181
+              "prob": 0.363734
             },
             {
               "wins": 9,
-              "prob": 0.288922
+              "prob": 0.322013
             },
             {
               "wins": 10,
-              "prob": 0.091842
+              "prob": 0.098593
             }
           ],
           "remaining_games": [
             {
-              "id": 401856732,
-              "start_date": "2026-10-24T23:30:00.000Z",
-              "opponent": "Ole Miss",
-              "home_away": "home",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.7162480137085078,
-              "p_win_pct": "72%",
-              "bucket": "likely_win",
-              "probability_estimated": false
-            },
-            {
               "id": 401856737,
-              "start_date": "2026-10-31T04:00:00.000Z",
+              "start_date": "2026-10-31T23:30:00.000Z",
               "opponent": "Mississippi State",
               "home_away": "home",
               "week": 9,
               "neutral": false,
-              "p_win": 0.76321195538752,
-              "p_win_pct": "76%",
+              "p_win": 0.7889351210138257,
+              "p_win_pct": "79%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -1931,8 +1915,8 @@
               "home_away": "away",
               "week": 10,
               "neutral": false,
-              "p_win": 0.5443277578907744,
-              "p_win_pct": "54%",
+              "p_win": 0.5644541926113568,
+              "p_win_pct": "56%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -1943,8 +1927,8 @@
               "home_away": "away",
               "week": 11,
               "neutral": false,
-              "p_win": 0.47594451188535686,
-              "p_win_pct": "48%",
+              "p_win": 0.3995339388377276,
+              "p_win_pct": "40%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -1955,8 +1939,8 @@
               "home_away": "home",
               "week": 12,
               "neutral": false,
-              "p_win": 0.9073316863665544,
-              "p_win_pct": "91%",
+              "p_win": 0.8792328214066059,
+              "p_win_pct": "88%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -1967,9 +1951,9 @@
               "home_away": "away",
               "week": 13,
               "neutral": false,
-              "p_win": 0.7147401474947298,
-              "p_win_pct": "71%",
-              "bucket": "likely_win",
+              "p_win": 0.6302602229177513,
+              "p_win_pct": "63%",
+              "bucket": "toss_up",
               "probability_estimated": false
             }
           ],
@@ -2069,72 +2053,72 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401856732,
+              "start_date": "2026-10-24T23:30:00.000Z",
+              "opponent": "Ole Miss",
+              "home_away": "home",
+              "week": 8,
+              "neutral": false,
+              "result": "W",
+              "completed": true,
+              "p_win": 0.7162480137085078,
+              "p_win_pct": "72%",
+              "bucket": "likely_win",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
-          "banked_wins": 4,
+          "banked_wins": 5,
           "banked_losses": 2,
-          "floor": -5.5,
+          "floor": -4.5,
           "outlook": {
-            "likely_wins": 4,
-            "toss_ups": 2,
+            "likely_wins": 2,
+            "toss_ups": 3,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 6,
-            "actual_wins": 4,
-            "expected_wins": 4.32,
-            "delta": -0.32,
+            "banked_games": 7,
+            "actual_wins": 5,
+            "expected_wins": 4.77,
+            "delta": 0.23,
             "state": "on_pace"
           },
-          "expected_delta_display": "-1.4"
+          "expected_delta_display": "-1.2"
         },
         {
           "team": "Tennessee",
           "conference": "SEC",
           "line": 7.5,
           "direction": "O",
-          "p_beat_line": 0.923421,
-          "expected_delta": 1.5395298762366458,
-          "expected_final_wins": 9.039529876236646,
+          "p_beat_line": 0.858125,
+          "expected_delta": 1.006543701505258,
+          "expected_final_wins": 8.506543701505258,
           "win_distribution": [
             {
               "wins": 6,
-              "prob": 0.008077
+              "prob": 0.016412
             },
             {
               "wins": 7,
-              "prob": 0.068502
+              "prob": 0.125464
             },
             {
               "wins": 8,
-              "prob": 0.224106
+              "prob": 0.338155
             },
             {
               "wins": 9,
-              "prob": 0.352942
+              "prob": 0.375109
             },
             {
               "wins": 10,
-              "prob": 0.267876
-            },
-            {
-              "wins": 11,
-              "prob": 0.078498
+              "prob": 0.144861
             }
           ],
           "remaining_games": [
-            {
-              "id": 401856731,
-              "start_date": "2026-10-24T19:30:00.000Z",
-              "opponent": "South Carolina",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.5516667684758811,
-              "p_win_pct": "55%",
-              "bucket": "toss_up",
-              "probability_estimated": false
-            },
             {
               "id": 401856745,
               "start_date": "2026-11-07T05:00:00.000Z",
@@ -2142,8 +2126,8 @@
               "home_away": "home",
               "week": 10,
               "neutral": false,
-              "p_win": 0.7192492593076152,
-              "p_win_pct": "72%",
+              "p_win": 0.7339613584433097,
+              "p_win_pct": "73%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -2154,8 +2138,8 @@
               "home_away": "away",
               "week": 11,
               "neutral": false,
-              "p_win": 0.5861684377520876,
-              "p_win_pct": "59%",
+              "p_win": 0.5662743941954392,
+              "p_win_pct": "57%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -2166,7 +2150,7 @@
               "home_away": "home",
               "week": 12,
               "neutral": false,
-              "p_win": 0.4814899443818492,
+              "p_win": 0.4796408924529757,
               "p_win_pct": "48%",
               "bucket": "toss_up",
               "probability_estimated": false
@@ -2178,8 +2162,8 @@
               "home_away": "away",
               "week": 13,
               "neutral": false,
-              "p_win": 0.7009554663192125,
-              "p_win_pct": "70%",
+              "p_win": 0.7266670564135332,
+              "p_win_pct": "73%",
               "bucket": "likely_win",
               "probability_estimated": false
             }
@@ -2296,82 +2280,82 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401856731,
+              "start_date": "2026-10-24T19:30:00.000Z",
+              "opponent": "South Carolina",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "L",
+              "completed": true,
+              "p_win": 0.5516667684758811,
+              "p_win_pct": "55%",
+              "bucket": "toss_up",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
           "banked_wins": 6,
-          "banked_losses": 1,
+          "banked_losses": 2,
           "floor": -1.5,
           "outlook": {
             "likely_wins": 2,
-            "toss_ups": 3,
+            "toss_ups": 2,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 7,
+            "banked_games": 8,
             "actual_wins": 6,
-            "expected_wins": 4.9,
-            "delta": 1.1,
-            "state": "ahead"
+            "expected_wins": 5.7,
+            "delta": 0.3,
+            "state": "on_pace"
           },
-          "expected_delta_display": "+1.5"
+          "expected_delta_display": "+1.0"
         },
         {
           "team": "USC",
           "conference": "Big Ten",
           "line": 8.5,
           "direction": "O",
-          "p_beat_line": 0.398407,
-          "expected_delta": -0.23693127315481455,
-          "expected_final_wins": 8.263068726845185,
+          "p_beat_line": 0.262107,
+          "expected_delta": -0.5603462463519868,
+          "expected_final_wins": 7.939653753648013,
           "win_distribution": [
             {
               "wins": 6,
-              "prob": 0.028615
+              "prob": 0.040333
             },
             {
               "wins": 7,
-              "prob": 0.199113
+              "prob": 0.281233
             },
             {
               "wins": 8,
-              "prob": 0.373865
+              "prob": 0.416327
             },
             {
               "wins": 9,
-              "prob": 0.289168
+              "prob": 0.22266
             },
             {
               "wins": 10,
-              "prob": 0.097475
-            },
-            {
-              "wins": 11,
-              "prob": 0.011764
+              "prob": 0.039447
             }
           ],
           "remaining_games": [
             {
-              "id": 401858500,
-              "start_date": "2026-10-24T23:30:00.000Z",
-              "opponent": "Wisconsin",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.49814815661564554,
-              "p_win_pct": "50%",
-              "bucket": "toss_up",
-              "probability_estimated": false
-            },
-            {
               "id": 401858509,
-              "start_date": "2026-10-31T04:00:00.000Z",
+              "start_date": "2026-10-31T23:30:00.000Z",
               "opponent": "Ohio State",
               "home_away": "home",
               "week": 9,
               "neutral": false,
-              "p_win": 0.30529214750969197,
-              "p_win_pct": "31%",
-              "bucket": "likely_loss",
+              "p_win": 0.3645764407416393,
+              "p_win_pct": "36%",
+              "bucket": "toss_up",
               "probability_estimated": false
             },
             {
@@ -2381,8 +2365,8 @@
               "home_away": "away",
               "week": 11,
               "neutral": false,
-              "p_win": 0.23016010177541665,
-              "p_win_pct": "23%",
+              "p_win": 0.28677252336802217,
+              "p_win_pct": "29%",
               "bucket": "likely_loss",
               "probability_estimated": false
             },
@@ -2393,8 +2377,8 @@
               "home_away": "home",
               "week": 12,
               "neutral": false,
-              "p_win": 0.8192258150822372,
-              "p_win_pct": "82%",
+              "p_win": 0.8381387868508301,
+              "p_win_pct": "84%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -2405,8 +2389,8 @@
               "home_away": "away",
               "week": 13,
               "neutral": false,
-              "p_win": 0.41024250586219385,
-              "p_win_pct": "41%",
+              "p_win": 0.45016600268752216,
+              "p_win_pct": "45%",
               "bucket": "toss_up",
               "probability_estimated": false
             }
@@ -2523,72 +2507,72 @@
               "forecast_captured_at": "2026-10-04T12:14:44.967707+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401858500,
+              "start_date": "2026-10-24T23:30:00.000Z",
+              "opponent": "Wisconsin",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "L",
+              "completed": true,
+              "p_win": 0.49814815661564554,
+              "p_win_pct": "50%",
+              "bucket": "toss_up",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
           "banked_wins": 6,
-          "banked_losses": 1,
+          "banked_losses": 2,
           "floor": -2.5,
           "outlook": {
             "likely_wins": 1,
             "toss_ups": 2,
-            "likely_losses": 2
+            "likely_losses": 1
           },
           "pace": {
-            "banked_games": 7,
+            "banked_games": 8,
             "actual_wins": 6,
-            "expected_wins": 4.9,
-            "delta": 1.1,
-            "state": "ahead"
+            "expected_wins": 5.53,
+            "delta": 0.47,
+            "state": "on_pace"
           },
-          "expected_delta_display": "-0.2"
+          "expected_delta_display": "-0.6"
         },
         {
           "team": "Michigan State",
           "conference": "Big Ten",
           "line": 4.5,
           "direction": "O",
-          "p_beat_line": 0.154597,
-          "expected_delta": -0.9862946569724231,
-          "expected_final_wins": 3.513705343027577,
+          "p_beat_line": 0.099778,
+          "expected_delta": -1.1781218818560601,
+          "expected_final_wins": 3.32187811814394,
           "win_distribution": [
             {
               "wins": 2,
-              "prob": 0.149316
+              "prob": 0.189561
             },
             {
               "wins": 3,
-              "prob": 0.368992
+              "prob": 0.408146
             },
             {
               "wins": 4,
-              "prob": 0.327095
+              "prob": 0.302515
             },
             {
               "wins": 5,
-              "prob": 0.129468
+              "prob": 0.09041
             },
             {
               "wins": 6,
-              "prob": 0.023524
-            },
-            {
-              "wins": 7,
-              "prob": 0.001604
+              "prob": 0.009368
             }
           ],
           "remaining_games": [
-            {
-              "id": 401858499,
-              "start_date": "2026-10-24T04:00:00.000Z",
-              "opponent": "UCLA",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.17967977869030857,
-              "p_win_pct": "18%",
-              "bucket": "likely_loss",
-              "probability_estimated": false
-            },
             {
               "id": 401858511,
               "start_date": "2026-11-07T05:00:00.000Z",
@@ -2596,8 +2580,8 @@
               "home_away": "away",
               "week": 10,
               "neutral": false,
-              "p_win": 0.20496359051890173,
-              "p_win_pct": "20%",
+              "p_win": 0.20738827040791036,
+              "p_win_pct": "21%",
               "bucket": "likely_loss",
               "probability_estimated": false
             },
@@ -2608,8 +2592,8 @@
               "home_away": "home",
               "week": 11,
               "neutral": false,
-              "p_win": 0.4210368386093191,
-              "p_win_pct": "42%",
+              "p_win": 0.40309334291999155,
+              "p_win_pct": "40%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -2620,8 +2604,8 @@
               "home_away": "home",
               "week": 12,
               "neutral": false,
-              "p_win": 0.20617329182469277,
-              "p_win_pct": "21%",
+              "p_win": 0.23545199293068078,
+              "p_win_pct": "24%",
               "bucket": "likely_loss",
               "probability_estimated": false
             },
@@ -2632,8 +2616,8 @@
               "home_away": "away",
               "week": 13,
               "neutral": false,
-              "p_win": 0.5018518433843544,
-              "p_win_pct": "50%",
+              "p_win": 0.47594451188535686,
+              "p_win_pct": "48%",
               "bucket": "toss_up",
               "probability_estimated": false
             }
@@ -2750,24 +2734,40 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401858499,
+              "start_date": "2026-10-24T19:30:00.000Z",
+              "opponent": "UCLA",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "L",
+              "completed": true,
+              "p_win": 0.17967977869030857,
+              "p_win_pct": "18%",
+              "bucket": "likely_loss",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
           "banked_wins": 2,
-          "banked_losses": 5,
+          "banked_losses": 6,
           "floor": -2.5,
           "outlook": {
             "likely_wins": 0,
             "toss_ups": 2,
-            "likely_losses": 3
+            "likely_losses": 2
           },
           "pace": {
-            "banked_games": 7,
+            "banked_games": 8,
             "actual_wins": 2,
-            "expected_wins": 2.63,
-            "delta": -0.63,
+            "expected_wins": 2.92,
+            "delta": -0.92,
             "state": "behind"
           },
-          "expected_delta_display": "-1.0"
+          "expected_delta_display": "-1.2"
         }
       ],
       "rank": 3
@@ -2775,64 +2775,48 @@
     {
       "manager_id": "jonathan",
       "display_name": "Jonathan",
-      "expected_total": -5.106888394400306,
-      "expected_total_display": "-5.1",
-      "expected_total_prior": -4.6049285910550894,
-      "expected_total_move": -0.5019598033452164,
-      "expected_total_move_display": "-0.5",
+      "expected_total": -5.830134981513489,
+      "expected_total_display": "-5.8",
+      "expected_total_prior": -5.106888394400306,
+      "expected_total_move": -0.7232465871131835,
+      "expected_total_move_display": "-0.7",
       "p05": -9.0,
-      "p50": -5.0,
-      "p95": -2.0,
+      "p50": -6.0,
+      "p95": -3.0,
       "p_win_pool": 0.0,
-      "floor": -18.0,
+      "floor": -16.0,
       "picks": [
         {
           "team": "LSU",
           "conference": "SEC",
           "line": 8.5,
           "direction": "O",
-          "p_beat_line": 0.340214,
-          "expected_delta": -0.4701004635087358,
-          "expected_final_wins": 8.029899536491264,
+          "p_beat_line": 0.554275,
+          "expected_delta": 0.0846076958018962,
+          "expected_final_wins": 8.584607695801896,
           "win_distribution": [
             {
-              "wins": 5,
-              "prob": 0.007186
-            },
-            {
               "wins": 6,
-              "prob": 0.068085
+              "prob": 0.01235
             },
             {
               "wins": 7,
-              "prob": 0.228359
+              "prob": 0.110016
             },
             {
               "wins": 8,
-              "prob": 0.356157
+              "prob": 0.323359
             },
             {
               "wins": 9,
-              "prob": 0.264441
+              "prob": 0.389226
             },
             {
               "wins": 10,
-              "prob": 0.075773
+              "prob": 0.165049
             }
           ],
           "remaining_games": [
-            {
-              "id": 401856728,
-              "start_date": "2026-10-24T16:00:00.000Z",
-              "opponent": "Auburn",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.6215885531339183,
-              "p_win_pct": "62%",
-              "bucket": "toss_up",
-              "probability_estimated": false
-            },
             {
               "id": 401856740,
               "start_date": "2026-11-07T05:00:00.000Z",
@@ -2840,8 +2824,8 @@
               "home_away": "home",
               "week": 10,
               "neutral": false,
-              "p_win": 0.5498339973124778,
-              "p_win_pct": "55%",
+              "p_win": 0.6456563062257954,
+              "p_win_pct": "65%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -2852,8 +2836,8 @@
               "home_away": "home",
               "week": 11,
               "neutral": false,
-              "p_win": 0.5240554881146431,
-              "p_win_pct": "52%",
+              "p_win": 0.6004660611622724,
+              "p_win_pct": "60%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -2864,7 +2848,7 @@
               "home_away": "away",
               "week": 12,
               "neutral": false,
-              "p_win": 0.5185100556181508,
+              "p_win": 0.5203591075470243,
               "p_win_pct": "52%",
               "bucket": "toss_up",
               "probability_estimated": false
@@ -2876,7 +2860,7 @@
               "home_away": "away",
               "week": 13,
               "neutral": false,
-              "p_win": 0.8159114423120752,
+              "p_win": 0.8181262208668038,
               "p_win_pct": "82%",
               "bucket": "likely_win",
               "probability_estimated": false
@@ -2994,85 +2978,85 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401856728,
+              "start_date": "2026-10-24T16:00:00.000Z",
+              "opponent": "Auburn",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "W",
+              "completed": true,
+              "p_win": 0.6215885531339183,
+              "p_win_pct": "62%",
+              "bucket": "toss_up",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
-          "banked_wins": 5,
+          "banked_wins": 6,
           "banked_losses": 2,
-          "floor": -3.5,
+          "floor": -2.5,
           "outlook": {
             "likely_wins": 1,
-            "toss_ups": 4,
+            "toss_ups": 3,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 7,
-            "actual_wins": 5,
-            "expected_wins": 5.47,
-            "delta": -0.47,
+            "banked_games": 8,
+            "actual_wins": 6,
+            "expected_wins": 6.21,
+            "delta": -0.21,
             "state": "on_pace"
           },
-          "expected_delta_display": "-0.5"
+          "expected_delta_display": "+0.1"
         },
         {
           "team": "Kansas State",
           "conference": "Big 12",
           "line": 8.5,
           "direction": "O",
-          "p_beat_line": 0.16605,
-          "expected_delta": -1.1735986103342597,
-          "expected_final_wins": 7.32640138966574,
+          "p_beat_line": 0.054735,
+          "expected_delta": -1.6779016126119242,
+          "expected_final_wins": 6.822098387388076,
           "win_distribution": [
             {
               "wins": 4,
-              "prob": 0.007253
+              "prob": 0.014535
             },
             {
               "wins": 5,
-              "prob": 0.056726
+              "prob": 0.099328
             },
             {
               "wins": 6,
-              "prob": 0.181618
+              "prob": 0.265289
             },
             {
               "wins": 7,
-              "prob": 0.304943
+              "prob": 0.345934
             },
             {
               "wins": 8,
-              "prob": 0.283411
+              "prob": 0.220179
             },
             {
               "wins": 9,
-              "prob": 0.138331
-            },
-            {
-              "wins": 10,
-              "prob": 0.027719
+              "prob": 0.054735
             }
           ],
           "remaining_games": [
             {
-              "id": 401856839,
-              "start_date": "2026-10-24T04:00:00.000Z",
-              "opponent": "Arizona State",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.5626322521365158,
-              "p_win_pct": "56%",
-              "bucket": "toss_up",
-              "probability_estimated": false
-            },
-            {
               "id": 401856846,
-              "start_date": "2026-10-31T04:00:00.000Z",
+              "start_date": "2026-10-31T18:00:00.000Z",
               "opponent": "Colorado",
               "home_away": "away",
               "week": 9,
               "neutral": false,
-              "p_win": 0.6673661024848887,
-              "p_win_pct": "67%",
+              "p_win": 0.6640692684723304,
+              "p_win_pct": "66%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -3083,8 +3067,8 @@
               "home_away": "home",
               "week": 10,
               "neutral": false,
-              "p_win": 0.5314399463007802,
-              "p_win_pct": "53%",
+              "p_win": 0.5699093913777125,
+              "p_win_pct": "57%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -3107,7 +3091,7 @@
               "home_away": "home",
               "week": 12,
               "neutral": false,
-              "p_win": 0.49629636403516086,
+              "p_win": 0.5037036359648392,
               "p_win_pct": "50%",
               "bucket": "toss_up",
               "probability_estimated": false
@@ -3119,8 +3103,8 @@
               "home_away": "away",
               "week": 13,
               "neutral": false,
-              "p_win": 0.6093175418435606,
-              "p_win_pct": "61%",
+              "p_win": 0.6250669087083595,
+              "p_win_pct": "63%",
               "bucket": "toss_up",
               "probability_estimated": false
             }
@@ -3221,85 +3205,85 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401856839,
+              "start_date": "2026-10-24T19:45:00.000Z",
+              "opponent": "Arizona State",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "L",
+              "completed": true,
+              "p_win": 0.5626322521365158,
+              "p_win_pct": "56%",
+              "bucket": "toss_up",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
           "banked_wins": 4,
-          "banked_losses": 2,
+          "banked_losses": 3,
           "floor": -4.5,
           "outlook": {
             "likely_wins": 1,
-            "toss_ups": 5,
+            "toss_ups": 4,
             "likely_losses": 0
           },
           "pace": {
-            "banked_games": 6,
+            "banked_games": 7,
             "actual_wins": 4,
-            "expected_wins": 4.36,
-            "delta": -0.36,
-            "state": "on_pace"
+            "expected_wins": 5.13,
+            "delta": -1.13,
+            "state": "behind"
           },
-          "expected_delta_display": "-1.2"
+          "expected_delta_display": "-1.7"
         },
         {
           "team": "Ole Miss",
           "conference": "SEC",
           "line": 7.5,
           "direction": "U",
-          "p_beat_line": 0.199659,
-          "expected_delta": -0.9017057917778573,
-          "expected_final_wins": 8.401705791777857,
+          "p_beat_line": 0.169926,
+          "expected_delta": -0.8938011134645549,
+          "expected_final_wins": 8.393801113464555,
           "win_distribution": [
             {
               "wins": 5,
-              "prob": 0.000498
+              "prob": 0.00031
             },
             {
               "wins": 6,
-              "prob": 0.031833
+              "prob": 0.021975
             },
             {
               "wins": 7,
-              "prob": 0.167328
+              "prob": 0.147642
             },
             {
               "wins": 8,
-              "prob": 0.337254
+              "prob": 0.359729
             },
             {
               "wins": 9,
-              "prob": 0.312048
+              "prob": 0.354368
             },
             {
               "wins": 10,
-              "prob": 0.130971
-            },
-            {
-              "wins": 11,
-              "prob": 0.020068
+              "prob": 0.115977
             }
           ],
           "remaining_games": [
             {
-              "id": 401856732,
-              "start_date": "2026-10-24T23:30:00.000Z",
-              "opponent": "Texas",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.2837519862914921,
-              "p_win_pct": "28%",
-              "bucket": "likely_loss",
-              "probability_estimated": false
-            },
-            {
               "id": 401856735,
-              "start_date": "2026-10-31T04:00:00.000Z",
+              "start_date": "2026-10-31T16:45:00.000Z",
               "opponent": "Auburn",
               "home_away": "home",
               "week": 9,
               "neutral": false,
-              "p_win": 0.659093971694352,
-              "p_win_pct": "66%",
+              "p_win": 0.7117100198171942,
+              "p_win_pct": "71%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -3310,9 +3294,9 @@
               "home_away": "home",
               "week": 10,
               "neutral": false,
-              "p_win": 0.34927621054273056,
-              "p_win_pct": "35%",
-              "bucket": "likely_loss",
+              "p_win": 0.401312339887548,
+              "p_win_pct": "40%",
+              "bucket": "toss_up",
               "probability_estimated": false
             },
             {
@@ -3322,8 +3306,8 @@
               "home_away": "away",
               "week": 11,
               "neutral": false,
-              "p_win": 0.4944446730568404,
-              "p_win_pct": "49%",
+              "p_win": 0.5608086203330965,
+              "p_win_pct": "56%",
               "bucket": "toss_up",
               "probability_estimated": false
             },
@@ -3334,7 +3318,7 @@
               "home_away": "home",
               "week": 12,
               "neutral": false,
-              "p_win": 0.9831542341120191,
+              "p_win": 0.9845648980939574,
               "p_win_pct": "98%",
               "bucket": "likely_win",
               "probability_estimated": true
@@ -3346,9 +3330,9 @@
               "home_away": "home",
               "week": 13,
               "neutral": false,
-              "p_win": 0.6319847160804228,
-              "p_win_pct": "63%",
-              "bucket": "toss_up",
+              "p_win": 0.735405235332759,
+              "p_win_pct": "74%",
+              "bucket": "likely_win",
               "probability_estimated": false
             }
           ],
@@ -3448,21 +3432,37 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401856732,
+              "start_date": "2026-10-24T23:30:00.000Z",
+              "opponent": "Texas",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "L",
+              "completed": true,
+              "p_win": 0.2837519862914921,
+              "p_win_pct": "28%",
+              "bucket": "likely_loss",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
           "banked_wins": 5,
-          "banked_losses": 1,
-          "floor": -3.5,
+          "banked_losses": 2,
+          "floor": -2.5,
           "outlook": {
-            "likely_wins": 2,
+            "likely_wins": 3,
             "toss_ups": 2,
-            "likely_losses": 2
+            "likely_losses": 0
           },
           "pace": {
-            "banked_games": 6,
+            "banked_games": 7,
             "actual_wins": 5,
-            "expected_wins": 3.73,
-            "delta": 1.27,
+            "expected_wins": 4.3,
+            "delta": 0.7,
             "state": "ahead"
           },
           "expected_delta_display": "-0.9"
@@ -3473,60 +3473,44 @@
           "line": 10.5,
           "direction": "O",
           "p_beat_line": 0.0,
-          "expected_delta": -2.561483528779453,
-          "expected_final_wins": 7.938516471220547,
+          "expected_delta": -3.3430399512389064,
+          "expected_final_wins": 7.156960048761094,
           "win_distribution": [
             {
               "wins": 4,
-              "prob": 0.000917
+              "prob": 0.004404
             },
             {
               "wins": 5,
-              "prob": 0.013501
+              "prob": 0.047571
             },
             {
               "wins": 6,
-              "prob": 0.079107
+              "prob": 0.19483
             },
             {
               "wins": 7,
-              "prob": 0.23329
+              "prob": 0.369322
             },
             {
               "wins": 8,
-              "prob": 0.357479
+              "prob": 0.307604
             },
             {
               "wins": 9,
-              "prob": 0.257224
-            },
-            {
-              "wins": 10,
-              "prob": 0.058483
+              "prob": 0.07627
             }
           ],
           "remaining_games": [
             {
-              "id": 401858495,
-              "start_date": "2026-10-24T04:00:00.000Z",
-              "opponent": "Illinois",
-              "home_away": "away",
-              "week": 8,
-              "neutral": false,
-              "p_win": 0.6962766112618517,
-              "p_win_pct": "70%",
-              "bucket": "likely_win",
-              "probability_estimated": false
-            },
-            {
               "id": 401858505,
-              "start_date": "2026-10-31T04:00:00.000Z",
+              "start_date": "2026-10-31T19:30:00.000Z",
               "opponent": "Northwestern",
               "home_away": "home",
               "week": 9,
               "neutral": false,
-              "p_win": 0.6673661024848887,
-              "p_win_pct": "67%",
+              "p_win": 0.6803880200051606,
+              "p_win_pct": "68%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -3537,8 +3521,8 @@
               "home_away": "away",
               "week": 10,
               "neutral": false,
-              "p_win": 0.2837519862914921,
-              "p_win_pct": "28%",
+              "p_win": 0.29133917497056444,
+              "p_win_pct": "29%",
               "bucket": "likely_loss",
               "probability_estimated": false
             },
@@ -3549,8 +3533,8 @@
               "home_away": "home",
               "week": 11,
               "neutral": false,
-              "p_win": 0.7071291263619278,
-              "p_win_pct": "71%",
+              "p_win": 0.6739106091552772,
+              "p_win_pct": "67%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -3561,8 +3545,8 @@
               "home_away": "away",
               "week": 12,
               "neutral": false,
-              "p_win": 0.7938267081753072,
-              "p_win_pct": "79%",
+              "p_win": 0.7645480070693192,
+              "p_win_pct": "76%",
               "bucket": "likely_win",
               "probability_estimated": false
             },
@@ -3573,8 +3557,8 @@
               "home_away": "home",
               "week": 13,
               "neutral": false,
-              "p_win": 0.79016593664508,
-              "p_win_pct": "79%",
+              "p_win": 0.7467742375607721,
+              "p_win_pct": "75%",
               "bucket": "likely_win",
               "probability_estimated": false
             }
@@ -3675,24 +3659,40 @@
               "forecast_captured_at": "2026-10-11T12:39:22.297501+00:00",
               "forecast_source": "published projection",
               "probability_estimated": false
+            },
+            {
+              "id": 401858495,
+              "start_date": "2026-10-24T19:00:00.000Z",
+              "opponent": "Illinois",
+              "home_away": "away",
+              "week": 8,
+              "neutral": false,
+              "result": "L",
+              "completed": true,
+              "p_win": 0.6962766112618517,
+              "p_win_pct": "70%",
+              "bucket": "likely_win",
+              "forecast_captured_at": "2026-10-18T10:54:42.391022+00:00",
+              "forecast_source": "published projection",
+              "probability_estimated": false
             }
           ],
           "banked_wins": 4,
-          "banked_losses": 2,
+          "banked_losses": 3,
           "floor": -6.5,
           "outlook": {
-            "likely_wins": 5,
+            "likely_wins": 4,
             "toss_ups": 0,
             "likely_losses": 1
           },
           "pace": {
-            "banked_games": 6,
+            "banked_games": 7,
             "actual_wins": 4,
-            "expected_wins": 4.19,
-            "delta": -0.19,
-            "state": "on_pace"
+            "expected_wins": 4.7,
+            "delta": -0.7,
+            "state": "behind"
           },
-          "expected_delta_display": "-2.6"
+          "expected_delta_display": "-3.3"
         }
       ],
       "rank": 4
