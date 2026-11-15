@@ -1,0 +1,9 @@
+In the great Texas debate, Blaine and Chris are locked in a philosophical standoff that defines their season. Blaine has taken a cautious stance with his under pick at 9.5 wins, a testament to his strategy of measured skepticism. Despite a decrease in ceiling this week by a full game, his faith in a conservative approach holds strong. The model gives him a 37% chance to triumph in this particular battle, a number that speaks to Blaine's preference for placing calculated bets.
+
+Chris, in contrast, is chasing the thrill of the unexpected with his over pick on Texas at 9.5 wins. His bet is less about the odds and more about the possibility of unpredictability, with a 63% probability in his favor. His decision reflects an embrace of the unknown, a choice that seems to be paying off as his delta rose by 0.76 this week. This momentum has Chris firmly in third place, closing in on Blaine, who remains in second—but with a diminishing lead.
+
+The rivalry is emblematic of two distinct approaches to the win-total game: the cautious and the hopeful. Blaine's secure footing in second place is steadily eroded by Chris's momentum-driven climb. Although Blaine's gap to the leader is over five games, Chris's rising trajectory suggests that fortune may yet favor the bold.
+
+Meanwhile, Jonathan's LSU over pick at 8.5 wins took a heartbreaking turn. A one-point home loss to Texas sealed this fate, causing him to lose a crucial game of ceiling. The pick is now officially dead, a stark reminder that the underdog stories don't always end in triumph.
+
+That's the column. Don't take the points personally. They were always going to be exactly what they are.
