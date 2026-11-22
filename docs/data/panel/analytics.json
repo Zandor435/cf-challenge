@@ -3,14 +3,14 @@
     "group_id": "panel",
     "season": 2026,
     "as_of_week": null,
-    "generated_at": "2026-11-15T14:40:40.278918+00:00",
+    "generated_at": "2026-11-22T15:12:50.889485+00:00",
     "pace_stale": false,
     "scoring_metric": "pace",
-    "cache_fetched_at": "2026-11-15T14:40:39.394278+00:00"
+    "cache_fetched_at": "2026-11-22T15:12:50.223775+00:00"
   },
   "race": {
     "board": "projection",
-    "prior_week": 10,
+    "prior_week": 11,
     "leader_id": "zach",
     "managers": [
       {
@@ -18,22 +18,22 @@
         "display_name": "Zach",
         "rank": 1,
         "banked_total": 5.0,
-        "expected_total": 6.6800047701020855,
-        "floor": 3.0,
-        "ceiling": 10.0,
+        "expected_total": 6.30202853457599,
+        "floor": 4.0,
+        "ceiling": 8.0,
         "gap_to_leader": 0.0,
-        "ceiling_remaining": 5.0,
+        "ceiling_remaining": 3.0,
         "week_move": 0
       },
       {
         "manager_id": "blaine",
         "display_name": "Blaine",
         "rank": 2,
-        "banked_total": 5.0,
-        "expected_total": 1.3395887115960239,
-        "floor": -1.0,
-        "ceiling": 6.0,
-        "gap_to_leader": 5.34,
+        "banked_total": 3.0,
+        "expected_total": 1.497070857850031,
+        "floor": 0.0,
+        "ceiling": 4.0,
+        "gap_to_leader": 4.8,
         "ceiling_remaining": 1.0,
         "week_move": 0
       },
@@ -41,12 +41,12 @@
         "manager_id": "chris",
         "display_name": "Chris",
         "rank": 3,
-        "banked_total": -4.0,
-        "expected_total": 0.9060372163481105,
-        "floor": -4.0,
-        "ceiling": 4.0,
-        "gap_to_leader": 5.77,
-        "ceiling_remaining": 8.0,
+        "banked_total": -1.0,
+        "expected_total": 1.3954940474034854,
+        "floor": -1.0,
+        "ceiling": 3.0,
+        "gap_to_leader": 4.91,
+        "ceiling_remaining": 4.0,
         "week_move": 0
       },
       {
@@ -54,43 +54,43 @@
         "display_name": "Jonathan",
         "rank": 4,
         "banked_total": -9.0,
-        "expected_total": -7.542093654278487,
-        "floor": -12.0,
-        "ceiling": -3.0,
-        "gap_to_leader": 14.22,
-        "ceiling_remaining": 6.0,
+        "expected_total": -7.735202902949843,
+        "floor": -10.0,
+        "ceiling": -6.0,
+        "gap_to_leader": 14.04,
+        "ceiling_remaining": 3.0,
         "week_move": 0
       }
     ]
   },
   "championship_odds": {
     "board": "projection",
-    "prior_week": 10,
+    "prior_week": 11,
     "available": true,
     "managers": [
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.99945,
-        "week_move": 0.001375,
+        "p_win_pool": 0.999975,
+        "week_move": 0.000525,
         "draft_p_win_pool": 0.383442,
-        "draft_move": 0.616008
+        "draft_move": 0.616533
       },
       {
         "manager_id": "blaine",
         "display_name": "Blaine",
-        "p_win_pool": 0.00035,
-        "week_move": -0.001475,
+        "p_win_pool": 2.5e-05,
+        "week_move": -0.000325,
         "draft_p_win_pool": 0.519433,
-        "draft_move": -0.519083
+        "draft_move": -0.519408
       },
       {
         "manager_id": "chris",
         "display_name": "Chris",
-        "p_win_pool": 0.0002,
-        "week_move": 0.0001,
+        "p_win_pool": 0.0,
+        "week_move": -0.0002,
         "draft_p_win_pool": 0.048625,
-        "draft_move": -0.048425
+        "draft_move": -0.048625
       },
       {
         "manager_id": "jonathan",
@@ -118,7 +118,7 @@
         "conference": "ACC",
         "line": 5.5,
         "direction": "O",
-        "delta": 5.049470513118051
+        "delta": 5.252336198860929
       }
     ],
     "bust": [
@@ -129,7 +129,7 @@
         "conference": "Big 12",
         "line": 8.5,
         "direction": "O",
-        "delta": -3.5734001402324784
+        "delta": -3.99259313446783
       }
     ],
     "managers": [
@@ -144,7 +144,7 @@
             "conference": "ACC",
             "line": 5.5,
             "direction": "O",
-            "delta": 5.049470513118051
+            "delta": 5.252336198860929
           }
         ],
         "anchor": [
@@ -155,7 +155,7 @@
             "conference": "ACC",
             "line": 6.5,
             "direction": "O",
-            "delta": 0.32246786347783996
+            "delta": 0.06990939137771246
           }
         ]
       },
@@ -170,7 +170,7 @@
             "conference": "Pac-12",
             "line": 7.5,
             "direction": "O",
-            "delta": 2.374433499049111
+            "delta": 2.340138542363409
           }
         ],
         "anchor": [
@@ -181,7 +181,7 @@
             "conference": "Big Ten",
             "line": 6.5,
             "direction": "U",
-            "delta": -0.8410162796125196
+            "delta": -1.2354052353327587
           }
         ]
       },
@@ -196,7 +196,7 @@
             "conference": "SEC",
             "line": 7.5,
             "direction": "O",
-            "delta": 1.8209864678926468
+            "delta": 2.3102832721839004
           }
         ],
         "anchor": [
@@ -207,7 +207,7 @@
             "conference": "Big Ten",
             "line": 4.5,
             "direction": "O",
-            "delta": -0.7047867607545228
+            "delta": -0.9210368386093193
           }
         ]
       },
@@ -222,7 +222,7 @@
             "conference": "SEC",
             "line": 7.5,
             "direction": "U",
-            "delta": -0.74534376820624
+            "delta": -0.267204426653473
           }
         ],
         "anchor": [
@@ -233,7 +233,7 @@
             "conference": "Big 12",
             "line": 8.5,
             "direction": "O",
-            "delta": -3.5734001402324784
+            "delta": -3.99259313446783
           }
         ]
       }
@@ -250,12 +250,12 @@
         "comparison": {
           "basis": "ceiling_vs_highest_floor",
           "my_field": "ceiling",
-          "my_value": 10.0,
+          "my_value": 8.0,
           "operator": ">",
           "other_manager_id": "blaine",
           "other_display_name": "Blaine",
           "other_field": "floor",
-          "other_value": -1.0
+          "other_value": 0.0
         }
       },
       {
@@ -265,27 +265,27 @@
         "comparison": {
           "basis": "ceiling_vs_leader_floor",
           "my_field": "ceiling",
-          "my_value": 6.0,
-          "operator": ">=",
-          "other_manager_id": "zach",
-          "other_display_name": "Zach",
-          "other_field": "floor",
-          "other_value": 3.0
-        }
-      },
-      {
-        "manager_id": "chris",
-        "display_name": "Chris",
-        "state": "needs_help",
-        "comparison": {
-          "basis": "ceiling_vs_leader_floor",
-          "my_field": "ceiling",
           "my_value": 4.0,
           "operator": ">=",
           "other_manager_id": "zach",
           "other_display_name": "Zach",
           "other_field": "floor",
-          "other_value": 3.0
+          "other_value": 4.0
+        }
+      },
+      {
+        "manager_id": "chris",
+        "display_name": "Chris",
+        "state": "eliminated",
+        "comparison": {
+          "basis": "ceiling_vs_highest_floor",
+          "my_field": "ceiling",
+          "my_value": 3.0,
+          "operator": "<",
+          "other_manager_id": "zach",
+          "other_display_name": "Zach",
+          "other_field": "floor",
+          "other_value": 4.0
         }
       },
       {
@@ -295,12 +295,12 @@
         "comparison": {
           "basis": "ceiling_vs_highest_floor",
           "my_field": "ceiling",
-          "my_value": -3.0,
+          "my_value": -6.0,
           "operator": "<",
           "other_manager_id": "zach",
           "other_display_name": "Zach",
           "other_field": "floor",
-          "other_value": 3.0
+          "other_value": 4.0
         }
       }
     ]
@@ -312,7 +312,7 @@
         "manager_id": "zach",
         "display_name": "Zach",
         "banked_total": 5.0,
-        "expected_total": 6.6800047701020855,
+        "expected_total": 6.30202853457599,
         "absolute_total": 7.0,
         "picks": [
           {
@@ -320,13 +320,13 @@
             "conference": "Independent",
             "line": 11.5,
             "direction": "U",
-            "banked_delta": 2.5,
-            "expected_delta": 0.9352685981260933,
+            "banked_delta": 1.5,
+            "expected_delta": 0.6436640489054373,
             "floor": 0.5,
-            "ceiling": 2.5,
+            "ceiling": 1.5,
             "status": "CLINCHED",
-            "games_remaining": 2,
-            "share_of_delta": 0.357143
+            "games_remaining": 1,
+            "share_of_delta": 0.214286
           },
           {
             "team": "Virginia Tech",
@@ -334,11 +334,11 @@
             "line": 6.5,
             "direction": "O",
             "banked_delta": -0.5,
-            "expected_delta": 0.32246786347783996,
+            "expected_delta": 0.06990939137771246,
             "floor": -0.5,
-            "ceiling": 1.5,
+            "ceiling": 0.5,
             "status": "LIVE",
-            "games_remaining": 2,
+            "games_remaining": 1,
             "share_of_delta": 0.071429
           },
           {
@@ -346,13 +346,13 @@
             "conference": "ACC",
             "line": 5.5,
             "direction": "O",
-            "banked_delta": 3.5,
-            "expected_delta": 5.049470513118051,
-            "floor": 3.5,
+            "banked_delta": 4.5,
+            "expected_delta": 5.252336198860929,
+            "floor": 4.5,
             "ceiling": 5.5,
             "status": "CLINCHED",
-            "games_remaining": 2,
-            "share_of_delta": 0.5
+            "games_remaining": 1,
+            "share_of_delta": 0.642857
           },
           {
             "team": "James Madison",
@@ -360,7 +360,7 @@
             "line": 8.5,
             "direction": "O",
             "banked_delta": -0.5,
-            "expected_delta": 0.3727977953801016,
+            "expected_delta": 0.33611889543191076,
             "floor": -0.5,
             "ceiling": 0.5,
             "status": "LIVE",
@@ -372,9 +372,9 @@
       {
         "manager_id": "blaine",
         "display_name": "Blaine",
-        "banked_total": 5.0,
-        "expected_total": 1.3395887115960239,
-        "absolute_total": 5.0,
+        "banked_total": 3.0,
+        "expected_total": 1.497070857850031,
+        "absolute_total": 4.0,
         "picks": [
           {
             "team": "Boise State",
@@ -382,25 +382,25 @@
             "line": 7.5,
             "direction": "O",
             "banked_delta": 1.5,
-            "expected_delta": 2.374433499049111,
+            "expected_delta": 2.340138542363409,
             "floor": 1.5,
             "ceiling": 2.5,
             "status": "CLINCHED",
             "games_remaining": 1,
-            "share_of_delta": 0.3
+            "share_of_delta": 0.375
           },
           {
             "team": "Wisconsin",
             "conference": "Big Ten",
             "line": 6.5,
             "direction": "U",
-            "banked_delta": 0.5,
-            "expected_delta": -0.8410162796125196,
+            "banked_delta": -0.5,
+            "expected_delta": -1.2354052353327587,
             "floor": -1.5,
-            "ceiling": 0.5,
-            "status": "LIVE",
-            "games_remaining": 2,
-            "share_of_delta": 0.1
+            "ceiling": -0.5,
+            "status": "DEAD",
+            "games_remaining": 1,
+            "share_of_delta": 0.125
           },
           {
             "team": "Indiana",
@@ -408,73 +408,73 @@
             "line": 10.5,
             "direction": "U",
             "banked_delta": 1.5,
-            "expected_delta": -0.08836858261706837,
-            "floor": -0.5,
+            "expected_delta": 0.5932930171385937,
+            "floor": 0.5,
             "ceiling": 1.5,
-            "status": "LIVE",
-            "games_remaining": 2,
-            "share_of_delta": 0.3
+            "status": "CLINCHED",
+            "games_remaining": 1,
+            "share_of_delta": 0.375
           },
           {
             "team": "Texas",
             "conference": "SEC",
             "line": 9.5,
             "direction": "U",
-            "banked_delta": 1.5,
-            "expected_delta": -0.10545992522349934,
+            "banked_delta": 0.5,
+            "expected_delta": -0.20095546631921302,
             "floor": -0.5,
-            "ceiling": 1.5,
+            "ceiling": 0.5,
             "status": "LIVE",
-            "games_remaining": 2,
-            "share_of_delta": 0.3
+            "games_remaining": 1,
+            "share_of_delta": 0.125
           }
         ]
       },
       {
         "manager_id": "chris",
         "display_name": "Chris",
-        "banked_total": -4.0,
-        "expected_total": 0.9060372163481105,
-        "absolute_total": 5.0,
+        "banked_total": -1.0,
+        "expected_total": 1.3954940474034854,
+        "absolute_total": 4.0,
         "picks": [
           {
             "team": "Texas",
             "conference": "SEC",
             "line": 9.5,
             "direction": "O",
-            "banked_delta": -1.5,
-            "expected_delta": 0.10545992522349934,
-            "floor": -1.5,
+            "banked_delta": -0.5,
+            "expected_delta": 0.20095546631921302,
+            "floor": -0.5,
             "ceiling": 0.5,
             "status": "LIVE",
-            "games_remaining": 2,
-            "share_of_delta": 0.3
+            "games_remaining": 1,
+            "share_of_delta": 0.125
           },
           {
             "team": "Tennessee",
             "conference": "SEC",
             "line": 7.5,
             "direction": "O",
-            "banked_delta": 0.5,
-            "expected_delta": 1.8209864678926468,
-            "floor": 0.5,
+            "banked_delta": 1.5,
+            "expected_delta": 2.3102832721839004,
+            "floor": 1.5,
             "ceiling": 2.5,
             "status": "CLINCHED",
-            "games_remaining": 2,
-            "share_of_delta": 0.1
+            "games_remaining": 1,
+            "share_of_delta": 0.375
           },
           {
             "team": "USC",
             "conference": "Big Ten",
             "line": 8.5,
             "direction": "O",
-            "banked_delta": -1.5,
-            "expected_delta": -0.3156224160135128,
-            "floor": -1.5,
+            "banked_delta": -0.5,
+            "expected_delta": -0.19470785249030875,
+            "floor": -0.5,
             "ceiling": 0.5,
             "status": "LIVE",
-            "games_remaining": 2,
-            "share_of_delta": 0.3
+            "games_remaining": 1,
+            "share_of_delta": 0.125
           },
           {
             "team": "Michigan State",
@@ -482,12 +482,12 @@
             "line": 4.5,
             "direction": "O",
             "banked_delta": -1.5,
-            "expected_delta": -0.7047867607545228,
+            "expected_delta": -0.9210368386093193,
             "floor": -1.5,
-            "ceiling": 0.5,
-            "status": "LIVE",
-            "games_remaining": 2,
-            "share_of_delta": 0.3
+            "ceiling": -0.5,
+            "status": "DEAD",
+            "games_remaining": 1,
+            "share_of_delta": 0.375
           }
         ]
       },
@@ -495,8 +495,8 @@
         "manager_id": "jonathan",
         "display_name": "Jonathan",
         "banked_total": -9.0,
-        "expected_total": -7.542093654278487,
-        "absolute_total": 12.0,
+        "expected_total": -7.735202902949843,
+        "absolute_total": 10.0,
         "picks": [
           {
             "team": "LSU",
@@ -504,12 +504,12 @@
             "line": 8.5,
             "direction": "O",
             "banked_delta": -2.5,
-            "expected_delta": -1.1884641000996075,
+            "expected_delta": -1.6931563987862797,
             "floor": -2.5,
-            "ceiling": -0.5,
+            "ceiling": -1.5,
             "status": "DEAD",
-            "games_remaining": 2,
-            "share_of_delta": 0.208333
+            "games_remaining": 1,
+            "share_of_delta": 0.25
           },
           {
             "team": "Kansas State",
@@ -517,38 +517,38 @@
             "line": 8.5,
             "direction": "O",
             "banked_delta": -4.5,
-            "expected_delta": -3.5734001402324784,
+            "expected_delta": -3.99259313446783,
             "floor": -4.5,
-            "ceiling": -2.5,
+            "ceiling": -3.5,
             "status": "DEAD",
-            "games_remaining": 2,
-            "share_of_delta": 0.375
+            "games_remaining": 1,
+            "share_of_delta": 0.45
           },
           {
             "team": "Ole Miss",
             "conference": "SEC",
             "line": 7.5,
             "direction": "U",
-            "banked_delta": 1.5,
-            "expected_delta": -0.74534376820624,
-            "floor": -1.5,
-            "ceiling": 1.5,
+            "banked_delta": 0.5,
+            "expected_delta": -0.267204426653473,
+            "floor": -0.5,
+            "ceiling": 0.5,
             "status": "LIVE",
-            "games_remaining": 3,
-            "share_of_delta": 0.125
+            "games_remaining": 1,
+            "share_of_delta": 0.05
           },
           {
             "team": "Oregon",
             "conference": "Big Ten",
             "line": 10.5,
             "direction": "O",
-            "banked_delta": -3.5,
-            "expected_delta": -2.034885645740161,
-            "floor": -3.5,
+            "banked_delta": -2.5,
+            "expected_delta": -1.7822489430422603,
+            "floor": -2.5,
             "ceiling": -1.5,
             "status": "DEAD",
-            "games_remaining": 2,
-            "share_of_delta": 0.291667
+            "games_remaining": 1,
+            "share_of_delta": 0.25
           }
         ]
       }
@@ -557,343 +557,332 @@
   "race_story": {
     "board": "projection",
     "available": true,
-    "prior_week": 10,
+    "prior_week": 11,
     "managers": [
-      {
-        "manager_id": "blaine",
-        "display_name": "Blaine",
-        "basis": "week",
-        "odds_change": -0.001475,
-        "pace_change": -0.15512147825007272,
-        "drivers": [
-          {
-            "team": "Texas",
-            "direction": "U",
-            "line": 9.5,
-            "before": 0.6732411926752029,
-            "now": -0.10545992522349934,
-            "change": -0.78
-          },
-          {
-            "team": "Wisconsin",
-            "direction": "U",
-            "line": 6.5,
-            "before": -1.3633271780378733,
-            "now": -0.8410162796125196,
-            "change": 0.52
-          },
-          {
-            "team": "Boise State",
-            "direction": "O",
-            "line": 7.5,
-            "before": 1.9998194713938844,
-            "now": 2.374433499049111,
-            "change": 0.37
-          },
-          {
-            "team": "Indiana",
-            "direction": "U",
-            "line": 10.5,
-            "before": 0.18497670381488263,
-            "now": -0.08836858261706837,
-            "change": -0.27
-          }
-        ],
-        "movement_summary": "Pace moved -0.2 wins."
-      },
       {
         "manager_id": "zach",
         "display_name": "Zach",
         "basis": "week",
-        "odds_change": 0.001375,
-        "pace_change": -0.6839485378815899,
+        "odds_change": 0.000525,
+        "pace_change": -0.3779762355260958,
         "drivers": [
+          {
+            "team": "Notre Dame",
+            "direction": "U",
+            "line": 11.5,
+            "before": 0.9352685981260933,
+            "now": 0.6436640489054373,
+            "change": -0.29
+          },
           {
             "team": "Virginia Tech",
             "direction": "O",
             "line": 6.5,
-            "before": 1.1724212307925503,
-            "now": 0.32246786347783996,
-            "change": -0.85
+            "before": 0.32246786347783996,
+            "now": 0.06990939137771246,
+            "change": -0.25
           },
           {
             "team": "Wake Forest",
             "direction": "O",
             "line": 5.5,
-            "before": 4.237962716156053,
-            "now": 5.049470513118051,
-            "change": 0.81
+            "before": 5.049470513118051,
+            "now": 5.252336198860929,
+            "change": 0.2
           },
           {
             "team": "James Madison",
             "direction": "O",
             "line": 8.5,
-            "before": 0.9789105488181207,
-            "now": 0.3727977953801016,
-            "change": -0.61
-          },
-          {
-            "team": "Notre Dame",
-            "direction": "U",
-            "line": 11.5,
-            "before": 0.9746588122169513,
-            "now": 0.9352685981260933,
+            "before": 0.3727977953801016,
+            "now": 0.33611889543191076,
             "change": -0.04
           }
         ],
-        "movement_summary": "Pace moved -0.7 wins."
+        "movement_summary": "Pace moved -0.4 wins."
+      },
+      {
+        "manager_id": "blaine",
+        "display_name": "Blaine",
+        "basis": "week",
+        "odds_change": -0.000325,
+        "pace_change": 0.15748214625400703,
+        "drivers": [
+          {
+            "team": "Indiana",
+            "direction": "U",
+            "line": 10.5,
+            "before": -0.08836858261706837,
+            "now": 0.5932930171385937,
+            "change": 0.68
+          },
+          {
+            "team": "Wisconsin",
+            "direction": "U",
+            "line": 6.5,
+            "before": -0.8410162796125196,
+            "now": -1.2354052353327587,
+            "change": -0.39
+          },
+          {
+            "team": "Texas",
+            "direction": "U",
+            "line": 9.5,
+            "before": -0.10545992522349934,
+            "now": -0.20095546631921302,
+            "change": -0.1
+          },
+          {
+            "team": "Boise State",
+            "direction": "O",
+            "line": 7.5,
+            "before": 2.374433499049111,
+            "now": 2.340138542363409,
+            "change": -0.03
+          }
+        ],
+        "movement_summary": "Pace moved +0.2 wins."
       },
       {
         "manager_id": "chris",
         "display_name": "Chris",
         "basis": "week",
-        "odds_change": 0.0001,
-        "pace_change": 0.760880145244295,
+        "odds_change": -0.0002,
+        "pace_change": 0.48945683105537485,
         "drivers": [
-          {
-            "team": "Texas",
-            "direction": "O",
-            "line": 9.5,
-            "before": -0.6732411926752029,
-            "now": 0.10545992522349934,
-            "change": 0.78
-          },
           {
             "team": "Tennessee",
             "direction": "O",
             "line": 7.5,
-            "before": 1.2728013564529892,
-            "now": 1.8209864678926468,
-            "change": 0.55
-          },
-          {
-            "team": "USC",
-            "direction": "O",
-            "line": 8.5,
-            "before": 0.0026918773953141795,
-            "now": -0.3156224160135128,
-            "change": -0.32
+            "before": 1.8209864678926468,
+            "now": 2.3102832721839004,
+            "change": 0.49
           },
           {
             "team": "Michigan State",
             "direction": "O",
             "line": 4.5,
-            "before": -0.457094970069285,
-            "now": -0.7047867607545228,
-            "change": -0.25
+            "before": -0.7047867607545228,
+            "now": -0.9210368386093193,
+            "change": -0.22
+          },
+          {
+            "team": "USC",
+            "direction": "O",
+            "line": 8.5,
+            "before": -0.3156224160135128,
+            "now": -0.19470785249030875,
+            "change": 0.12
+          },
+          {
+            "team": "Texas",
+            "direction": "O",
+            "line": 9.5,
+            "before": 0.10545992522349934,
+            "now": 0.20095546631921302,
+            "change": 0.1
           }
         ],
-        "movement_summary": "Pace moved +0.8 wins."
+        "movement_summary": "Pace moved +0.5 wins."
       },
       {
         "manager_id": "jonathan",
         "display_name": "Jonathan",
         "basis": "week",
         "odds_change": 0.0,
-        "pace_change": -1.0003426579716557,
+        "pace_change": -0.19310924867135615,
         "drivers": [
           {
             "team": "LSU",
             "direction": "O",
             "line": 8.5,
-            "before": -0.4497453426980602,
-            "now": -1.1884641000996075,
-            "change": -0.74
-          },
-          {
-            "team": "Kansas State",
-            "direction": "O",
-            "line": 8.5,
-            "before": -3.019575194478662,
-            "now": -3.5734001402324784,
-            "change": -0.55
-          },
-          {
-            "team": "Oregon",
-            "direction": "O",
-            "line": 10.5,
-            "before": -2.36415728213351,
-            "now": -2.034885645740161,
-            "change": 0.33
+            "before": -1.1884641000996075,
+            "now": -1.6931563987862797,
+            "change": -0.5
           },
           {
             "team": "Ole Miss",
             "direction": "U",
             "line": 7.5,
-            "before": -0.7082731769965989,
-            "now": -0.74534376820624,
-            "change": -0.04
+            "before": -0.74534376820624,
+            "now": -0.267204426653473,
+            "change": 0.48
+          },
+          {
+            "team": "Kansas State",
+            "direction": "O",
+            "line": 8.5,
+            "before": -3.5734001402324784,
+            "now": -3.99259313446783,
+            "change": -0.42
+          },
+          {
+            "team": "Oregon",
+            "direction": "O",
+            "line": 10.5,
+            "before": -2.034885645740161,
+            "now": -1.7822489430422603,
+            "change": 0.25
           }
         ],
-        "movement_summary": "Pace moved -1.0 wins."
+        "movement_summary": "Pace moved -0.2 wins."
       }
     ],
     "note": "Pick changes are changes in expected final points, not an additive explanation of championship probability. Results, ratings, and model updates can all contribute.",
     "results": [
       {
-        "manager_id": "zach",
-        "display_name": "Zach",
-        "team": "Virginia Tech",
-        "opponent": "Stanford",
-        "week": 11,
+        "manager_id": "blaine",
+        "display_name": "Blaine",
+        "team": "Boise State",
+        "opponent": "San Diego State",
+        "week": 12,
         "result": "L",
         "direction": "O",
-        "draft_p_win": 0.750953,
-        "points_surprise": -0.751
+        "draft_p_win": 0.650724,
+        "points_surprise": -0.651
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
         "team": "Wake Forest",
-        "opponent": "SMU",
-        "week": 11,
+        "opponent": "Georgia Tech",
+        "week": 12,
         "result": "W",
         "direction": "O",
-        "draft_p_win": 0.280751,
-        "points_surprise": 0.719
-      },
-      {
-        "manager_id": "chris",
-        "display_name": "Chris",
-        "team": "Tennessee",
-        "opponent": "Texas A&M",
-        "week": 11,
-        "result": "W",
-        "direction": "O",
-        "draft_p_win": 0.362862,
-        "points_surprise": 0.637
-      },
-      {
-        "manager_id": "zach",
-        "display_name": "Zach",
-        "team": "James Madison",
-        "opponent": "UConn",
-        "week": 11,
-        "result": "L",
-        "direction": "O",
-        "draft_p_win": 0.626801,
-        "points_surprise": -0.627
-      },
-      {
-        "manager_id": "jonathan",
-        "display_name": "Jonathan",
-        "team": "LSU",
-        "opponent": "Texas",
-        "week": 11,
-        "result": "L",
-        "direction": "O",
-        "draft_p_win": 0.529595,
-        "points_surprise": -0.53
-      },
-      {
-        "manager_id": "blaine",
-        "display_name": "Blaine",
-        "team": "Texas",
-        "opponent": "LSU",
-        "week": 11,
-        "result": "W",
-        "direction": "U",
-        "draft_p_win": 0.470405,
-        "points_surprise": -0.53
-      },
-      {
-        "manager_id": "chris",
-        "display_name": "Chris",
-        "team": "Texas",
-        "opponent": "LSU",
-        "week": 11,
-        "result": "W",
-        "direction": "O",
-        "draft_p_win": 0.470405,
-        "points_surprise": 0.53
-      },
-      {
-        "manager_id": "jonathan",
-        "display_name": "Jonathan",
-        "team": "Kansas State",
-        "opponent": "TCU",
-        "week": 11,
-        "result": "L",
-        "direction": "O",
-        "draft_p_win": 0.422844,
-        "points_surprise": -0.423
-      },
-      {
-        "manager_id": "blaine",
-        "display_name": "Blaine",
-        "team": "Wisconsin",
-        "opponent": "Maryland",
-        "week": 11,
-        "result": "L",
-        "direction": "U",
-        "draft_p_win": 0.401312,
-        "points_surprise": 0.401
-      },
-      {
-        "manager_id": "chris",
-        "display_name": "Chris",
-        "team": "Michigan State",
-        "opponent": "Washington",
-        "week": 11,
-        "result": "L",
-        "direction": "O",
-        "draft_p_win": 0.329353,
-        "points_surprise": -0.329
+        "draft_p_win": 0.381902,
+        "points_surprise": 0.618
       },
       {
         "manager_id": "blaine",
         "display_name": "Blaine",
         "team": "Indiana",
-        "opponent": "USC",
-        "week": 11,
+        "opponent": "Washington",
+        "week": 12,
+        "result": "L",
+        "direction": "U",
+        "draft_p_win": 0.609318,
+        "points_surprise": 0.609
+      },
+      {
+        "manager_id": "jonathan",
+        "display_name": "Jonathan",
+        "team": "Kansas State",
+        "opponent": "Arizona",
+        "week": 12,
+        "result": "L",
+        "direction": "O",
+        "draft_p_win": 0.568093,
+        "points_surprise": -0.568
+      },
+      {
+        "manager_id": "jonathan",
+        "display_name": "Jonathan",
+        "team": "LSU",
+        "opponent": "Tennessee",
+        "week": 12,
+        "result": "L",
+        "direction": "O",
+        "draft_p_win": 0.48334,
+        "points_surprise": -0.483
+      },
+      {
+        "manager_id": "chris",
+        "display_name": "Chris",
+        "team": "Tennessee",
+        "opponent": "LSU",
+        "week": 12,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.51666,
+        "points_surprise": 0.483
+      },
+      {
+        "manager_id": "blaine",
+        "display_name": "Blaine",
+        "team": "Wisconsin",
+        "opponent": "Purdue",
+        "week": 12,
         "result": "W",
         "direction": "U",
-        "draft_p_win": 0.710188,
-        "points_surprise": -0.29
+        "draft_p_win": 0.536969,
+        "points_surprise": -0.463
       },
       {
         "manager_id": "chris",
         "display_name": "Chris",
         "team": "USC",
-        "opponent": "Indiana",
-        "week": 11,
+        "opponent": "Maryland",
+        "week": 12,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.772454,
+        "points_surprise": 0.228
+      },
+      {
+        "manager_id": "zach",
+        "display_name": "Zach",
+        "team": "Virginia Tech",
+        "opponent": "Miami",
+        "week": 12,
         "result": "L",
         "direction": "O",
-        "draft_p_win": 0.289812,
-        "points_surprise": -0.29
-      },
-      {
-        "manager_id": "blaine",
-        "display_name": "Blaine",
-        "team": "Boise State",
-        "opponent": "Oregon State",
-        "week": 11,
-        "result": "W",
-        "direction": "O",
-        "draft_p_win": 0.748172,
-        "points_surprise": 0.252
-      },
-      {
-        "manager_id": "jonathan",
-        "display_name": "Jonathan",
-        "team": "Oregon",
-        "opponent": "Michigan",
-        "week": 11,
-        "result": "W",
-        "direction": "O",
-        "draft_p_win": 0.768525,
-        "points_surprise": 0.231
+        "draft_p_win": 0.216041,
+        "points_surprise": -0.216
       },
       {
         "manager_id": "zach",
         "display_name": "Zach",
         "team": "Notre Dame",
-        "opponent": "Boston College",
-        "week": 11,
+        "opponent": "SMU",
+        "week": 12,
         "result": "W",
         "direction": "U",
-        "draft_p_win": 0.920154,
-        "points_surprise": -0.08
+        "draft_p_win": 0.796241,
+        "points_surprise": -0.204
+      },
+      {
+        "manager_id": "blaine",
+        "display_name": "Blaine",
+        "team": "Texas",
+        "opponent": "Arkansas",
+        "week": 12,
+        "result": "W",
+        "direction": "U",
+        "draft_p_win": 0.827836,
+        "points_surprise": -0.172
+      },
+      {
+        "manager_id": "chris",
+        "display_name": "Chris",
+        "team": "Texas",
+        "opponent": "Arkansas",
+        "week": 12,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.827836,
+        "points_surprise": 0.172
+      },
+      {
+        "manager_id": "chris",
+        "display_name": "Chris",
+        "team": "Michigan State",
+        "opponent": "Oregon",
+        "week": 12,
+        "result": "L",
+        "direction": "O",
+        "draft_p_win": 0.153982,
+        "points_surprise": -0.154
+      },
+      {
+        "manager_id": "jonathan",
+        "display_name": "Jonathan",
+        "team": "Oregon",
+        "opponent": "Michigan State",
+        "week": 12,
+        "result": "W",
+        "direction": "O",
+        "draft_p_win": 0.846018,
+        "points_surprise": 0.154
       }
     ]
   },
@@ -904,28 +893,28 @@
       {
         "manager_id": "zach",
         "display_name": "Zach",
-        "p_win_pool": 0.99945,
+        "p_win_pool": 0.999975,
         "finished": false,
         "routes": [],
-        "position": "+6.7 wins ahead of pace",
+        "position": "+6.3 wins ahead of pace",
         "intro": "Their chances are already very strong. The job now is to avoid a setback."
       },
       {
         "manager_id": "blaine",
         "display_name": "Blaine",
-        "p_win_pool": 0.00035,
+        "p_win_pool": 2.5e-05,
         "finished": false,
         "routes": [],
-        "position": "+1.3 wins ahead of pace",
+        "position": "+1.5 wins ahead of pace",
         "intro": "There is no clear short-term route in this forecast. That does not mean they are eliminated; the rest of the season still has to play out."
       },
       {
         "manager_id": "chris",
         "display_name": "Chris",
-        "p_win_pool": 0.0002,
+        "p_win_pool": 0.0,
         "finished": false,
         "routes": [],
-        "position": "+0.9 wins ahead of pace",
+        "position": "+1.4 wins ahead of pace",
         "intro": "There is no clear short-term route in this forecast. That does not mean they are eliminated; the rest of the season still has to play out."
       },
       {
@@ -934,7 +923,7 @@
         "p_win_pool": 0.0,
         "finished": false,
         "routes": [],
-        "position": "-7.5 wins behind pace",
+        "position": "-7.7 wins behind pace",
         "intro": "There is no clear short-term route in this forecast. That does not mean they are eliminated; the rest of the season still has to play out."
       }
     ],
@@ -948,12 +937,47 @@
     "baseline_date": "2026-08-22T03:10:02.999957+00:00",
     "teams": [
       {
-        "team": "Michigan State",
-        "remaining_games": 2,
-        "compared_games": 2,
+        "team": "USC",
+        "remaining_games": 1,
+        "compared_games": 1,
         "unrated_games": 0,
-        "schedule_win_change": 0.374,
-        "opponent_rating_change": -12.1,
+        "schedule_win_change": -0.283,
+        "opponent_rating_change": 15.7,
+        "direction": "harder",
+        "owners": [
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "direction": "O",
+            "line": 8.5,
+            "expected_points_change": -0.283,
+            "effect": "hurts"
+          }
+        ],
+        "opponents": [
+          {
+            "id": 401858543,
+            "start_date": "2026-11-28T20:30:00.000Z",
+            "opponent": "UCLA",
+            "home_away": "away",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": 5.4,
+            "current_rating": 21.1,
+            "rating_change": 15.7,
+            "draft_p_win": 0.649038,
+            "schedule_only_p_win": 0.366294,
+            "win_change": -0.2827
+          }
+        ]
+      },
+      {
+        "team": "Michigan State",
+        "remaining_games": 1,
+        "compared_games": 1,
+        "unrated_games": 0,
+        "schedule_win_change": 0.25,
+        "opponent_rating_change": -13.9,
         "direction": "easier",
         "owners": [
           {
@@ -961,48 +985,34 @@
             "display_name": "Chris",
             "direction": "O",
             "line": 4.5,
-            "expected_points_change": 0.374,
+            "expected_points_change": 0.25,
             "effect": "helps"
           }
         ],
         "opponents": [
           {
             "id": 401858542,
-            "start_date": "2026-11-28T05:00:00.000Z",
+            "start_date": "2026-11-28T21:15:00.000Z",
             "opponent": "Rutgers",
             "home_away": "away",
             "week": 13,
             "neutral": false,
             "draft_rating": 2.7,
-            "current_rating": -9.2,
-            "rating_change": -11.9,
+            "current_rating": -11.2,
+            "rating_change": -13.9,
             "draft_p_win": 0.41743,
-            "schedule_only_p_win": 0.633706,
-            "win_change": 0.2163
-          },
-          {
-            "id": 401858529,
-            "start_date": "2026-11-21T01:00:00.000Z",
-            "opponent": "Oregon",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 29.2,
-            "current_rating": 16.9,
-            "rating_change": -12.3,
-            "draft_p_win": 0.153982,
-            "schedule_only_p_win": 0.311612,
-            "win_change": 0.1576
+            "schedule_only_p_win": 0.667366,
+            "win_change": 0.2499
           }
         ]
       },
       {
         "team": "Texas",
-        "remaining_games": 2,
-        "compared_games": 2,
+        "remaining_games": 1,
+        "compared_games": 1,
         "unrated_games": 0,
-        "schedule_win_change": 0.301,
-        "opponent_rating_change": -10.9,
+        "schedule_win_change": 0.246,
+        "opponent_rating_change": -14.0,
         "direction": "easier",
         "owners": [
           {
@@ -1010,7 +1020,7 @@
             "display_name": "Blaine",
             "direction": "U",
             "line": 9.5,
-            "expected_points_change": -0.301,
+            "expected_points_change": -0.246,
             "effect": "hurts"
           },
           {
@@ -1018,7 +1028,7 @@
             "display_name": "Chris",
             "direction": "O",
             "line": 9.5,
-            "expected_points_change": 0.301,
+            "expected_points_change": 0.246,
             "effect": "helps"
           }
         ],
@@ -1031,133 +1041,21 @@
             "week": 13,
             "neutral": false,
             "draft_rating": 20.9,
-            "current_rating": 8.3,
-            "rating_change": -12.6,
+            "current_rating": 6.9,
+            "rating_change": -14.0,
             "draft_p_win": 0.461189,
-            "schedule_only_p_win": 0.685201,
-            "win_change": 0.224
-          },
-          {
-            "id": 401856755,
-            "start_date": "2026-11-21T20:30:00.000Z",
-            "opponent": "Arkansas",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 5.6,
-            "current_rating": -3.6,
-            "rating_change": -9.2,
-            "draft_p_win": 0.827836,
-            "schedule_only_p_win": 0.90481,
-            "win_change": 0.077
-          }
-        ]
-      },
-      {
-        "team": "Ole Miss",
-        "remaining_games": 3,
-        "compared_games": 2,
-        "unrated_games": 1,
-        "schedule_win_change": 0.214,
-        "opponent_rating_change": -6.0,
-        "direction": "easier",
-        "owners": [
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "direction": "U",
-            "line": 7.5,
-            "expected_points_change": -0.214,
-            "effect": "hurts"
-          }
-        ],
-        "opponents": [
-          {
-            "id": 401856887,
-            "start_date": "2026-11-15T18:00:00.000Z",
-            "opponent": "Oklahoma",
-            "home_away": "away",
-            "week": 11,
-            "neutral": false,
-            "draft_rating": 18.8,
-            "current_rating": 7.8,
-            "rating_change": -11.0,
-            "draft_p_win": 0.385406,
-            "schedule_only_p_win": 0.586168,
-            "win_change": 0.2008
-          },
-          {
-            "id": 401856762,
-            "start_date": "2026-11-27T17:00:00.000Z",
-            "opponent": "Mississippi State",
-            "home_away": "home",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": 4.8,
-            "current_rating": 3.8,
-            "rating_change": -1.0,
-            "draft_p_win": 0.761871,
-            "schedule_only_p_win": 0.775048,
-            "win_change": 0.0132
-          }
-        ]
-      },
-      {
-        "team": "USC",
-        "remaining_games": 2,
-        "compared_games": 2,
-        "unrated_games": 0,
-        "schedule_win_change": -0.186,
-        "opponent_rating_change": 3.75,
-        "direction": "harder",
-        "owners": [
-          {
-            "manager_id": "chris",
-            "display_name": "Chris",
-            "direction": "O",
-            "line": 8.5,
-            "expected_points_change": -0.186,
-            "effect": "hurts"
-          }
-        ],
-        "opponents": [
-          {
-            "id": 401858543,
-            "start_date": "2026-11-28T05:00:00.000Z",
-            "opponent": "UCLA",
-            "home_away": "away",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": 5.4,
-            "current_rating": 20.2,
-            "rating_change": 14.8,
-            "draft_p_win": 0.649038,
-            "schedule_only_p_win": 0.381902,
-            "win_change": -0.2671
-          },
-          {
-            "id": 401858534,
-            "start_date": "2026-11-21T23:15:00.000Z",
-            "opponent": "Maryland",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 5.2,
-            "current_rating": -2.1,
-            "rating_change": -7.3,
-            "draft_p_win": 0.772454,
-            "schedule_only_p_win": 0.85358,
-            "win_change": 0.0811
+            "schedule_only_p_win": 0.707129,
+            "win_change": 0.2459
           }
         ]
       },
       {
         "team": "Tennessee",
-        "remaining_games": 2,
-        "compared_games": 2,
+        "remaining_games": 1,
+        "compared_games": 1,
         "unrated_games": 0,
-        "schedule_win_change": 0.139,
-        "opponent_rating_change": -4.4,
+        "schedule_win_change": 0.193,
+        "opponent_rating_change": -11.9,
         "direction": "easier",
         "owners": [
           {
@@ -1165,230 +1063,34 @@
             "display_name": "Chris",
             "direction": "O",
             "line": 7.5,
-            "expected_points_change": 0.139,
+            "expected_points_change": 0.193,
             "effect": "helps"
           }
         ],
         "opponents": [
           {
             "id": 401856765,
-            "start_date": "2026-11-28T05:00:00.000Z",
+            "start_date": "2026-11-29T00:00:00.000Z",
             "opponent": "Vanderbilt",
             "home_away": "away",
             "week": 13,
             "neutral": false,
             "draft_rating": 9.8,
-            "current_rating": -1.5,
-            "rating_change": -11.3,
+            "current_rating": -2.1,
+            "rating_change": -11.9,
             "draft_p_win": 0.564454,
-            "schedule_only_p_win": 0.749566,
-            "win_change": 0.1851
-          },
-          {
-            "id": 401856754,
-            "start_date": "2026-11-21T20:30:00.000Z",
-            "opponent": "LSU",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 20.4,
-            "current_rating": 22.9,
-            "rating_change": 2.5,
-            "draft_p_win": 0.51666,
-            "schedule_only_p_win": 0.470405,
-            "win_change": -0.0463
-          }
-        ]
-      },
-      {
-        "team": "Boise State",
-        "remaining_games": 1,
-        "compared_games": 1,
-        "unrated_games": 0,
-        "schedule_win_change": 0.134,
-        "opponent_rating_change": -9.1,
-        "direction": "easier",
-        "owners": [
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "direction": "O",
-            "line": 7.5,
-            "expected_points_change": 0.134,
-            "effect": "helps"
-          }
-        ],
-        "opponents": [
-          {
-            "id": 401860925,
-            "start_date": "2026-11-22T02:30:00.000Z",
-            "opponent": "San Diego State",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 0.7,
-            "current_rating": -8.4,
-            "rating_change": -9.1,
-            "draft_p_win": 0.650724,
-            "schedule_only_p_win": 0.785211,
-            "win_change": 0.1345
-          }
-        ]
-      },
-      {
-        "team": "Wake Forest",
-        "remaining_games": 2,
-        "compared_games": 2,
-        "unrated_games": 0,
-        "schedule_win_change": 0.118,
-        "opponent_rating_change": -3.3,
-        "direction": "easier",
-        "owners": [
-          {
-            "manager_id": "zach",
-            "display_name": "Zach",
-            "direction": "O",
-            "line": 5.5,
-            "expected_points_change": 0.118,
-            "effect": "helps"
-          }
-        ],
-        "opponents": [
-          {
-            "id": 401858310,
-            "start_date": "2026-11-21T05:00:00.000Z",
-            "opponent": "Georgia Tech",
-            "home_away": "away",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 5.9,
-            "current_rating": -8.1,
-            "rating_change": -14.0,
-            "draft_p_win": 0.381902,
-            "schedule_only_p_win": 0.635424,
-            "win_change": 0.2535
-          },
-          {
-            "id": 401858312,
-            "start_date": "2026-11-28T05:00:00.000Z",
-            "opponent": "Duke",
-            "home_away": "home",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": 5.6,
-            "current_rating": 13.0,
-            "rating_change": 7.4,
-            "draft_p_win": 0.533284,
-            "schedule_only_p_win": 0.397758,
-            "win_change": -0.1355
-          }
-        ]
-      },
-      {
-        "team": "Indiana",
-        "remaining_games": 2,
-        "compared_games": 2,
-        "unrated_games": 0,
-        "schedule_win_change": 0.114,
-        "opponent_rating_change": -3.55,
-        "direction": "easier",
-        "owners": [
-          {
-            "manager_id": "blaine",
-            "display_name": "Blaine",
-            "direction": "U",
-            "line": 10.5,
-            "expected_points_change": -0.114,
-            "effect": "hurts"
-          }
-        ],
-        "opponents": [
-          {
-            "id": 401858535,
-            "start_date": "2026-11-21T20:30:00.000Z",
-            "opponent": "Washington",
-            "home_away": "away",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 15.8,
-            "current_rating": 8.9,
-            "rating_change": -6.9,
-            "draft_p_win": 0.609318,
-            "schedule_only_p_win": 0.722231,
-            "win_change": 0.1129
-          },
-          {
-            "id": 401858538,
-            "start_date": "2026-11-28T05:00:00.000Z",
-            "opponent": "Purdue",
-            "home_away": "home",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": -2.2,
-            "current_rating": -2.4,
-            "rating_change": -0.2,
-            "draft_p_win": 0.91454,
-            "schedule_only_p_win": 0.915691,
-            "win_change": 0.0012
-          }
-        ]
-      },
-      {
-        "team": "Oregon",
-        "remaining_games": 2,
-        "compared_games": 2,
-        "unrated_games": 0,
-        "schedule_win_change": 0.114,
-        "opponent_rating_change": -5.75,
-        "direction": "easier",
-        "owners": [
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "direction": "O",
-            "line": 10.5,
-            "expected_points_change": 0.114,
-            "effect": "helps"
-          }
-        ],
-        "opponents": [
-          {
-            "id": 401858541,
-            "start_date": "2026-11-28T05:00:00.000Z",
-            "opponent": "Washington",
-            "home_away": "home",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": 15.8,
-            "current_rating": 8.9,
-            "rating_change": -6.9,
-            "draft_p_win": 0.783959,
-            "schedule_only_p_win": 0.858149,
-            "win_change": 0.0742
-          },
-          {
-            "id": 401858529,
-            "start_date": "2026-11-21T01:00:00.000Z",
-            "opponent": "Michigan State",
-            "home_away": "away",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 2.2,
-            "current_rating": -2.4,
-            "rating_change": -4.6,
-            "draft_p_win": 0.846018,
-            "schedule_only_p_win": 0.885385,
-            "win_change": 0.0394
+            "schedule_only_p_win": 0.757816,
+            "win_change": 0.1934
           }
         ]
       },
       {
         "team": "Wisconsin",
-        "remaining_games": 2,
-        "compared_games": 2,
+        "remaining_games": 1,
+        "compared_games": 1,
         "unrated_games": 0,
-        "schedule_win_change": 0.092,
-        "opponent_rating_change": -2.55,
+        "schedule_win_change": 0.136,
+        "opponent_rating_change": -7.7,
         "direction": "easier",
         "owners": [
           {
@@ -1396,7 +1098,7 @@
             "display_name": "Blaine",
             "direction": "U",
             "line": 6.5,
-            "expected_points_change": -0.092,
+            "expected_points_change": -0.136,
             "effect": "hurts"
           }
         ],
@@ -1409,25 +1111,46 @@
             "week": 13,
             "neutral": false,
             "draft_rating": 6.2,
-            "current_rating": 1.3,
-            "rating_change": -4.9,
+            "current_rating": -1.5,
+            "rating_change": -7.7,
             "draft_p_win": 0.529595,
-            "schedule_only_p_win": 0.618098,
-            "win_change": 0.0885
-          },
+            "schedule_only_p_win": 0.66572,
+            "win_change": 0.1361
+          }
+        ]
+      },
+      {
+        "team": "Wake Forest",
+        "remaining_games": 1,
+        "compared_games": 1,
+        "unrated_games": 0,
+        "schedule_win_change": -0.11,
+        "opponent_rating_change": 6.0,
+        "direction": "harder",
+        "owners": [
           {
-            "id": 401858533,
-            "start_date": "2026-11-21T17:00:00.000Z",
-            "opponent": "Purdue",
-            "home_away": "away",
-            "week": 12,
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "direction": "O",
+            "line": 5.5,
+            "expected_points_change": -0.11,
+            "effect": "hurts"
+          }
+        ],
+        "opponents": [
+          {
+            "id": 401858312,
+            "start_date": "2026-11-28T20:30:00.000Z",
+            "opponent": "Duke",
+            "home_away": "home",
+            "week": 13,
             "neutral": false,
-            "draft_rating": -2.2,
-            "current_rating": -2.4,
-            "rating_change": -0.2,
-            "draft_p_win": 0.536969,
-            "schedule_only_p_win": 0.540651,
-            "win_change": 0.0037
+            "draft_rating": 5.6,
+            "current_rating": 11.6,
+            "rating_change": 6.0,
+            "draft_p_win": 0.533284,
+            "schedule_only_p_win": 0.422844,
+            "win_change": -0.1104
           }
         ]
       },
@@ -1436,8 +1159,8 @@
         "remaining_games": 1,
         "compared_games": 1,
         "unrated_games": 0,
-        "schedule_win_change": -0.091,
-        "opponent_rating_change": 6.5,
+        "schedule_win_change": -0.104,
+        "opponent_rating_change": 7.3,
         "direction": "harder",
         "owners": [
           {
@@ -1445,34 +1168,69 @@
             "display_name": "Zach",
             "direction": "O",
             "line": 8.5,
-            "expected_points_change": -0.091,
+            "expected_points_change": -0.104,
             "effect": "hurts"
           }
         ],
         "opponents": [
           {
             "id": 401869947,
-            "start_date": "2026-11-28T05:00:00.000Z",
+            "start_date": "2026-11-28T19:00:00.000Z",
             "opponent": "Coastal Carolina",
             "home_away": "home",
             "week": 13,
             "neutral": false,
             "draft_rating": -14.7,
-            "current_rating": -8.2,
-            "rating_change": 6.5,
+            "current_rating": -7.4,
+            "rating_change": 7.3,
             "draft_p_win": 0.788935,
-            "schedule_only_p_win": 0.697841,
-            "win_change": -0.0911
+            "schedule_only_p_win": 0.685201,
+            "win_change": -0.1037
+          }
+        ]
+      },
+      {
+        "team": "LSU",
+        "remaining_games": 1,
+        "compared_games": 1,
+        "unrated_games": 0,
+        "schedule_win_change": 0.096,
+        "opponent_rating_change": -6.8,
+        "direction": "easier",
+        "owners": [
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "direction": "O",
+            "line": 8.5,
+            "expected_points_change": 0.096,
+            "effect": "helps"
+          }
+        ],
+        "opponents": [
+          {
+            "id": 401856758,
+            "start_date": "2026-11-28T17:45:00.000Z",
+            "opponent": "Arkansas",
+            "home_away": "away",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": 5.6,
+            "current_rating": -1.2,
+            "rating_change": -6.8,
+            "draft_p_win": 0.689974,
+            "schedule_only_p_win": 0.786458,
+            "win_change": 0.0965
           }
         ]
       },
       {
         "team": "Virginia Tech",
-        "remaining_games": 2,
-        "compared_games": 2,
+        "remaining_games": 1,
+        "compared_games": 1,
         "unrated_games": 0,
-        "schedule_win_change": 0.079,
-        "opponent_rating_change": -2.0,
+        "schedule_win_change": 0.07,
+        "opponent_rating_change": -4.0,
         "direction": "easier",
         "owners": [
           {
@@ -1480,185 +1238,234 @@
             "display_name": "Zach",
             "direction": "O",
             "line": 6.5,
-            "expected_points_change": 0.079,
+            "expected_points_change": 0.07,
             "effect": "helps"
           }
         ],
         "opponents": [
           {
             "id": 401858317,
-            "start_date": "2026-11-28T05:00:00.000Z",
+            "start_date": "2026-11-28T20:00:00.000Z",
             "opponent": "Virginia",
             "home_away": "home",
             "week": 13,
             "neutral": false,
             "draft_rating": 8.1,
-            "current_rating": 2.1,
-            "rating_change": -6.0,
+            "current_rating": 4.1,
+            "rating_change": -4.0,
             "draft_p_win": 0.58257,
-            "schedule_only_p_win": 0.685201,
-            "win_change": 0.1026
-          },
-          {
-            "id": 401858302,
-            "start_date": "2026-11-21T05:00:00.000Z",
-            "opponent": "Miami",
-            "home_away": "away",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 22.0,
-            "current_rating": 24.0,
-            "rating_change": 2.0,
-            "draft_p_win": 0.216041,
-            "schedule_only_p_win": 0.192005,
-            "win_change": -0.024
+            "schedule_only_p_win": 0.652405,
+            "win_change": 0.0698
           }
         ]
       },
       {
-        "team": "Kansas State",
-        "remaining_games": 2,
-        "compared_games": 2,
+        "team": "Oregon",
+        "remaining_games": 1,
+        "compared_games": 1,
         "unrated_games": 0,
-        "schedule_win_change": -0.076,
-        "opponent_rating_change": 2.0,
-        "direction": "harder",
-        "owners": [
-          {
-            "manager_id": "jonathan",
-            "display_name": "Jonathan",
-            "direction": "O",
-            "line": 8.5,
-            "expected_points_change": -0.076,
-            "effect": "hurts"
-          }
-        ],
-        "opponents": [
-          {
-            "id": 401856865,
-            "start_date": "2026-11-21T05:00:00.000Z",
-            "opponent": "Arizona",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 9.5,
-            "current_rating": 15.4,
-            "rating_change": 5.9,
-            "draft_p_win": 0.568093,
-            "schedule_only_p_win": 0.459349,
-            "win_change": -0.1087
-          },
-          {
-            "id": 401856878,
-            "start_date": "2026-11-28T05:00:00.000Z",
-            "opponent": "Iowa State",
-            "home_away": "away",
-            "week": 13,
-            "neutral": false,
-            "draft_rating": -0.4,
-            "current_rating": -2.3,
-            "rating_change": -1.9,
-            "draft_p_win": 0.602242,
-            "schedule_only_p_win": 0.635424,
-            "win_change": 0.0332
-          }
-        ]
-      },
-      {
-        "team": "LSU",
-        "remaining_games": 2,
-        "compared_games": 2,
-        "unrated_games": 0,
-        "schedule_win_change": 0.066,
-        "opponent_rating_change": -3.0,
+        "schedule_win_change": 0.067,
+        "opponent_rating_change": -6.1,
         "direction": "easier",
         "owners": [
           {
             "manager_id": "jonathan",
             "display_name": "Jonathan",
             "direction": "O",
-            "line": 8.5,
-            "expected_points_change": 0.066,
+            "line": 10.5,
+            "expected_points_change": 0.067,
             "effect": "helps"
           }
         ],
         "opponents": [
           {
-            "id": 401856758,
-            "start_date": "2026-11-28T05:00:00.000Z",
-            "opponent": "Arkansas",
+            "id": 401858541,
+            "start_date": "2026-11-29T00:30:00.000Z",
+            "opponent": "Washington",
+            "home_away": "home",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": 15.8,
+            "current_rating": 9.7,
+            "rating_change": -6.1,
+            "draft_p_win": 0.783959,
+            "schedule_only_p_win": 0.850781,
+            "win_change": 0.0668
+          }
+        ]
+      },
+      {
+        "team": "Ole Miss",
+        "remaining_games": 1,
+        "compared_games": 1,
+        "unrated_games": 0,
+        "schedule_win_change": 0.05,
+        "opponent_rating_change": -4.0,
+        "direction": "easier",
+        "owners": [
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "direction": "U",
+            "line": 7.5,
+            "expected_points_change": -0.05,
+            "effect": "hurts"
+          }
+        ],
+        "opponents": [
+          {
+            "id": 401856762,
+            "start_date": "2026-11-27T17:00:00.000Z",
+            "opponent": "Mississippi State",
+            "home_away": "home",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": 4.8,
+            "current_rating": 0.8,
+            "rating_change": -4.0,
+            "draft_p_win": 0.761871,
+            "schedule_only_p_win": 0.811419,
+            "win_change": 0.0495
+          }
+        ]
+      },
+      {
+        "team": "Boise State",
+        "remaining_games": 1,
+        "compared_games": 1,
+        "unrated_games": 0,
+        "schedule_win_change": 0.02,
+        "opponent_rating_change": -1.4,
+        "direction": "easier",
+        "owners": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "direction": "O",
+            "line": 7.5,
+            "expected_points_change": 0.02,
+            "effect": "helps"
+          }
+        ],
+        "opponents": [
+          {
+            "id": 401860926,
+            "start_date": "2026-11-28T23:00:00.000Z",
+            "opponent": "Colorado State",
             "home_away": "away",
             "week": 13,
             "neutral": false,
-            "draft_rating": 5.6,
-            "current_rating": -3.6,
-            "rating_change": -9.2,
-            "draft_p_win": 0.689974,
-            "schedule_only_p_win": 0.814796,
-            "win_change": 0.1248
-          },
+            "draft_rating": -11.6,
+            "current_rating": -13.0,
+            "rating_change": -1.4,
+            "draft_p_win": 0.719249,
+            "schedule_only_p_win": 0.739707,
+            "win_change": 0.0205
+          }
+        ]
+      },
+      {
+        "team": "Kansas State",
+        "remaining_games": 1,
+        "compared_games": 1,
+        "unrated_games": 0,
+        "schedule_win_change": -0.009,
+        "opponent_rating_change": 0.5,
+        "direction": "harder",
+        "owners": [
           {
-            "id": 401856754,
-            "start_date": "2026-11-21T20:30:00.000Z",
-            "opponent": "Tennessee",
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "direction": "O",
+            "line": 8.5,
+            "expected_points_change": -0.009,
+            "effect": "hurts"
+          }
+        ],
+        "opponents": [
+          {
+            "id": 401856878,
+            "start_date": "2026-11-28T19:00:00.000Z",
+            "opponent": "Iowa State",
             "home_away": "away",
-            "week": 12,
+            "week": 13,
             "neutral": false,
-            "draft_rating": 17.3,
-            "current_rating": 20.5,
-            "rating_change": 3.2,
-            "draft_p_win": 0.48334,
-            "schedule_only_p_win": 0.424652,
-            "win_change": -0.0587
+            "draft_rating": -0.4,
+            "current_rating": 0.1,
+            "rating_change": 0.5,
+            "draft_p_win": 0.602242,
+            "schedule_only_p_win": 0.593337,
+            "win_change": -0.0089
+          }
+        ]
+      },
+      {
+        "team": "Indiana",
+        "remaining_games": 1,
+        "compared_games": 1,
+        "unrated_games": 0,
+        "schedule_win_change": 0.008,
+        "opponent_rating_change": -1.4,
+        "direction": "easier",
+        "owners": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "direction": "U",
+            "line": 10.5,
+            "expected_points_change": -0.008,
+            "effect": "hurts"
+          }
+        ],
+        "opponents": [
+          {
+            "id": 401858538,
+            "start_date": "2026-11-29T00:00:00.000Z",
+            "opponent": "Purdue",
+            "home_away": "home",
+            "week": 13,
+            "neutral": false,
+            "draft_rating": -2.2,
+            "current_rating": -3.6,
+            "rating_change": -1.4,
+            "draft_p_win": 0.91454,
+            "schedule_only_p_win": 0.922304,
+            "win_change": 0.0078
           }
         ]
       },
       {
         "team": "Notre Dame",
-        "remaining_games": 2,
-        "compared_games": 2,
+        "remaining_games": 1,
+        "compared_games": 1,
         "unrated_games": 0,
-        "schedule_win_change": -0.041,
-        "opponent_rating_change": 1.45,
-        "direction": "harder",
+        "schedule_win_change": 0.005,
+        "opponent_rating_change": -0.6,
+        "direction": "easier",
         "owners": [
           {
             "manager_id": "zach",
             "display_name": "Zach",
             "direction": "U",
             "line": 11.5,
-            "expected_points_change": 0.041,
-            "effect": "helps"
+            "expected_points_change": -0.005,
+            "effect": "hurts"
           }
         ],
         "opponents": [
           {
-            "id": 401858307,
-            "start_date": "2026-11-22T00:30:00.000Z",
-            "opponent": "SMU",
-            "home_away": "home",
-            "week": 12,
-            "neutral": false,
-            "draft_rating": 12.1,
-            "current_rating": 15.8,
-            "rating_change": 3.7,
-            "draft_p_win": 0.796241,
-            "schedule_only_p_win": 0.748172,
-            "win_change": -0.0481
-          },
-          {
             "id": 401858314,
-            "start_date": "2026-11-28T05:00:00.000Z",
+            "start_date": "2026-11-28T17:00:00.000Z",
             "opponent": "Syracuse",
             "home_away": "away",
             "week": 13,
             "neutral": false,
             "draft_rating": -1.9,
-            "current_rating": -2.7,
-            "rating_change": -0.8,
+            "current_rating": -2.5,
+            "rating_change": -0.6,
             "draft_p_win": 0.859048,
-            "schedule_only_p_win": 0.866072,
-            "win_change": 0.007
+            "schedule_only_p_win": 0.864344,
+            "win_change": 0.0053
           }
         ]
       }
@@ -1671,37 +1478,47 @@
   "leverage": {
     "board": "projection",
     "available": true,
-    "week": 11,
+    "week": 13,
     "trials": 20000,
     "games": [
       {
-        "team": "Ole Miss",
-        "opponent": "Oklahoma",
-        "week": 11,
-        "home_away": "away",
+        "team": "Indiana",
+        "opponent": "Purdue",
+        "week": 13,
+        "home_away": "home",
         "neutral": false,
-        "p_team_win": 0.53144,
-        "impact": 0.0,
+        "p_team_win": 0.906707,
+        "impact": 0.000325,
         "managers": [
           {
             "manager_id": "blaine",
             "display_name": "Blaine",
-            "p_if_win": 0.00035,
-            "p_if_loss": 0.00035,
-            "swing": 0.0,
-            "pace_now": 1.3395887115960239,
-            "pace_if_win": 1.3395887115960239,
-            "pace_if_loss": 1.3395887115960239
+            "p_if_win": 0.0,
+            "p_if_loss": 0.000325,
+            "swing": -0.000325,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.403777840711438,
+            "pace_if_loss": 2.403777840711438
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 1.0,
+            "p_if_loss": 0.999675,
+            "swing": 0.000325,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
           },
           {
             "manager_id": "chris",
             "display_name": "Chris",
-            "p_if_win": 0.0002,
-            "p_if_loss": 0.0002,
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
             "swing": 0.0,
-            "pace_now": 0.9060372163481105,
-            "pace_if_win": 0.9060372163481105,
-            "pace_if_loss": 0.9060372163481105
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
           },
           {
             "manager_id": "jonathan",
@@ -1709,19 +1526,751 @@
             "p_if_win": 0.0,
             "p_if_loss": 0.0,
             "swing": 0.0,
-            "pace_now": -7.542093654278487,
-            "pace_if_win": -8.010653707977706,
-            "pace_if_loss": -7.010653707977706
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "James Madison",
+        "opponent": "Coastal Carolina",
+        "week": 13,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.836119,
+        "impact": 0.0003,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0003,
+            "swing": -0.0003,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
           },
           {
             "manager_id": "zach",
             "display_name": "Zach",
-            "p_if_win": 0.99945,
-            "p_if_loss": 0.99945,
+            "p_if_win": 1.0,
+            "p_if_loss": 0.9997,
+            "swing": 0.0003,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.465909639144078,
+            "pace_if_loss": 5.465909639144078
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
             "swing": 0.0,
-            "pace_now": 6.6800047701020855,
-            "pace_if_win": 6.6800047701020855,
-            "pace_if_loss": 6.6800047701020855
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Wisconsin",
+        "opponent": "Minnesota",
+        "week": 13,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.735405,
+        "impact": 0.00015,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.00015,
+            "swing": -0.00015,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.23247609318279,
+            "pace_if_loss": 2.23247609318279
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 1.0,
+            "p_if_loss": 0.99985,
+            "swing": 0.00015,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Texas",
+        "opponent": "Texas A&M",
+        "week": 13,
+        "home_away": "away",
+        "neutral": false,
+        "p_team_win": 0.700955,
+        "impact": 0.000125,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.000125,
+            "swing": -0.000125,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.1980263241692435,
+            "pace_if_loss": 2.1980263241692435
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 1.0,
+            "p_if_loss": 0.999875,
+            "swing": 0.000125,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.6945385810842728,
+            "pace_if_loss": 0.6945385810842729
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Wake Forest",
+        "opponent": "Duke",
+        "week": 13,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.752336,
+        "impact": 0.000125,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.000125,
+            "swing": -0.000125,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 1.0,
+            "p_if_loss": 0.999875,
+            "swing": 0.000125,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.549692335715061,
+            "pace_if_loss": 5.549692335715061
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Boise State",
+        "opponent": "Colorado State",
+        "week": 13,
+        "home_away": "away",
+        "neutral": false,
+        "p_team_win": 0.840139,
+        "impact": 5e-05,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 5e-05,
+            "p_if_loss": 0.0,
+            "swing": 5e-05,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.6569323154866216,
+            "pace_if_loss": 0.6569323154866216
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.99995,
+            "p_if_loss": 1.0,
+            "swing": -5e-05,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Notre Dame",
+        "opponent": "Syracuse",
+        "week": 13,
+        "home_away": "away",
+        "neutral": false,
+        "p_team_win": 0.856336,
+        "impact": 2.5e-05,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 2.5e-05,
+            "p_if_loss": 0.0,
+            "swing": 2.5e-05,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.999975,
+            "p_if_loss": 1.0,
+            "swing": -2.5e-05,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.1583644856705515,
+            "pace_if_loss": 7.1583644856705515
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Virginia Tech",
+        "opponent": "Virginia",
+        "week": 13,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.569909,
+        "impact": 2.5e-05,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 0.0,
+            "p_if_loss": 2.5e-05,
+            "swing": -2.5e-05,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 1.0,
+            "p_if_loss": 0.999975,
+            "swing": 2.5e-05,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.732119143198277,
+            "pace_if_loss": 5.732119143198277
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Kansas State",
+        "opponent": "Iowa State",
+        "week": 13,
+        "home_away": "away",
+        "neutral": false,
+        "p_team_win": 0.507407,
+        "impact": 0.0,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 2.5e-05,
+            "p_if_loss": 2.5e-05,
+            "swing": 0.0,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.242609768482012,
+            "pace_if_loss": -8.242609768482012
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.999975,
+            "p_if_loss": 0.999975,
+            "swing": 0.0,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "LSU",
+        "opponent": "Arkansas",
+        "week": 13,
+        "home_away": "away",
+        "neutral": false,
+        "p_team_win": 0.806844,
+        "impact": 0.0,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 2.5e-05,
+            "p_if_loss": 2.5e-05,
+            "swing": 0.0,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.542046504163563,
+            "pace_if_loss": -8.542046504163563
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.999975,
+            "p_if_loss": 0.999975,
+            "swing": 0.0,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Michigan State",
+        "opponent": "Rutgers",
+        "week": 13,
+        "home_away": "away",
+        "neutral": false,
+        "p_team_win": 0.578963,
+        "impact": 0.0,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 2.5e-05,
+            "p_if_loss": 2.5e-05,
+            "swing": 0.0,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.8165308860128047,
+            "pace_if_loss": 0.8165308860128045
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.999975,
+            "p_if_loss": 0.999975,
+            "swing": 0.0,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Ole Miss",
+        "opponent": "Mississippi State",
+        "week": 13,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.767204,
+        "impact": 0.0,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 2.5e-05,
+            "p_if_loss": 2.5e-05,
+            "swing": 0.0,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.96799847629637,
+            "pace_if_loss": -6.96799847629637
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.999975,
+            "p_if_loss": 0.999975,
+            "swing": 0.0,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Oregon",
+        "opponent": "Washington",
+        "week": 13,
+        "home_away": "home",
+        "neutral": false,
+        "p_team_win": 0.717751,
+        "impact": 0.0,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 2.5e-05,
+            "p_if_loss": 2.5e-05,
+            "swing": 0.0,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.3954940474034854,
+            "pace_if_loss": 1.3954940474034854
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.452953959907583,
+            "pace_if_loss": -8.452953959907584
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.999975,
+            "p_if_loss": 0.999975,
+            "swing": 0.0,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "Tennessee",
+        "opponent": "Vanderbilt",
+        "week": 13,
+        "home_away": "away",
+        "neutral": false,
+        "p_team_win": 0.810283,
+        "impact": 0.0,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 2.5e-05,
+            "p_if_loss": 2.5e-05,
+            "swing": 0.0,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 1.5852107752195859,
+            "pace_if_loss": 0.5852107752195858
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.999975,
+            "p_if_loss": 0.999975,
+            "swing": 0.0,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
+          }
+        ],
+        "headline": "No clear edge for either side.",
+        "story": "This result does not meaningfully separate the managers in the forecast."
+      },
+      {
+        "team": "USC",
+        "opponent": "UCLA",
+        "week": 13,
+        "home_away": "away",
+        "neutral": false,
+        "p_team_win": 0.305292,
+        "impact": 0.0,
+        "managers": [
+          {
+            "manager_id": "blaine",
+            "display_name": "Blaine",
+            "p_if_win": 2.5e-05,
+            "p_if_loss": 2.5e-05,
+            "swing": 0.0,
+            "pace_now": 1.497070857850031,
+            "pace_if_win": 1.497070857850031,
+            "pace_if_loss": 1.497070857850031
+          },
+          {
+            "manager_id": "chris",
+            "display_name": "Chris",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": 1.3954940474034854,
+            "pace_if_win": 2.0902018998937937,
+            "pace_if_loss": 1.0902018998937935
+          },
+          {
+            "manager_id": "jonathan",
+            "display_name": "Jonathan",
+            "p_if_win": 0.0,
+            "p_if_loss": 0.0,
+            "swing": 0.0,
+            "pace_now": -7.735202902949843,
+            "pace_if_win": -7.735202902949843,
+            "pace_if_loss": -7.735202902949843
+          },
+          {
+            "manager_id": "zach",
+            "display_name": "Zach",
+            "p_if_win": 0.999975,
+            "p_if_loss": 0.999975,
+            "swing": 0.0,
+            "pace_now": 6.30202853457599,
+            "pace_if_win": 6.30202853457599,
+            "pace_if_loss": 6.30202853457599
           }
         ],
         "headline": "No clear edge for either side.",
